@@ -1,5 +1,5 @@
 {
-  "extends": "@mona-ca/tsconfig/react-library.json",
+  "extends": "@mona-ca/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "dist",
     "@/*": ["./src/*"]

@@ -1,0 +1,24 @@
+# debug
+**/*.log
+
+# deliverable
+**/.next/
+**/build/
+**/dist/
+**/out/
+
+# dependency
+**/node_modules/
+
+# env file
+**/.env*
+!**/.env.example
+
+# storybook
+**/.storybook/static/
+
+# testing
+**/coverage
+
+# typescript
+**/*.tsbuildinfo

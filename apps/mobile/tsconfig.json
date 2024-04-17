@@ -1,0 +1,13 @@
+{
+  "extends": "@mona-ca/tsconfig/expo.json",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"],
+      "#core/*": ["../../packages/core/*"],
+      "#ui/*": ["../../packages/ui/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+}

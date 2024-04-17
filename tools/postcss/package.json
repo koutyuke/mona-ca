@@ -1,5 +1,5 @@
 {
-  "name": "@mona-ca/ui",
+  "name": "@mona-ca/postcss",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -8,15 +8,12 @@
     "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
     "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched"
   },
+  "dependencies": {
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38"
+  },
   "devDependencies": {
-    "@mona-ca/tsconfig": "workspace:*",
-    "@turbo/gen": "^1.12.4",
-    "@types/node": "^20.11.24",
-    "@types/eslint": "^8.56.5",
-    "@types/react": "^18.2.61",
-    "@types/react-dom": "^18.2.19",
-    "eslint": "^8.57.0",
-    "react": "^18.2.0",
-    "typescript": "^5.3.3"
+    "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",
+    "postcss-import": "^16.1.0"
   }
 }

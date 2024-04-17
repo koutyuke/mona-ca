@@ -1,24 +1,37 @@
 {
   "name": "mona-ca",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
   "private": true,
   "scripts": {
+    "ci": "act --container-architecture linux/amd64 -e .github/event.json",
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "fmt": "turbo fmt",
+    "test": "turbo test",
+    "web": "cd ./apps/web && bun",
+    "mobile": "cd ./apps/mobile && bun",
+    "api": "cd ./apps/api && bun",
+    "ui": "cd ./packages/ui && bun",
+    "core": "cd ./packages/core && bun",
+    "design-token": "cd ./packages/design-token && bun",
+    "tsconfig": "cd ./tools/tsconfig && bun",
+    "postcss": "cd ./tools/postcss && bun",
+    "tw": "cd ./tools/tailwindcss && bun"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
-    "@repo/typescript-config": "*",
-    "prettier": "^3.2.5",
-    "turbo": "latest"
+    "@biomejs/biome": "1.6.4",
+    "lefthook": "^1.6.10",
+    "turbo": "latest",
+    "typescript": "^5.4.5"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "bun@1.0.35",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "packageManager": "bun@1.1.3",
+
+  "workspaces": ["apps/*", "packages/*", "tools/*"]
 }
