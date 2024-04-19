@@ -1,7 +1,7 @@
 {
   "name": "@mona-ca/mobile",
   "main": "index.ts",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "expo start --dev-client",
@@ -11,8 +11,7 @@
     "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-    "test": "jest --watchAll"
+    "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched"
   },
   "jest": {
     "preset": "jest-expo"

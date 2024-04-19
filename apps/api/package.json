@@ -1,20 +1,19 @@
 {
-	"name": "@mona-ca/api",
-	"version": "1.0.0",
-	"scripts": {
-		"dev": "bun run --watch src/index.ts",
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-		"fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-		"lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
-		"lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched"
-	},
-	"dependencies": {
-		"elysia": "latest"
-	},
-	"devDependencies": {
-		"@mona-ca/tsconfig": "workspace:*",
-		"bun-types": "latest"
-	},
-	"module": "src/index.js"
+  "name": "@mona-ca/api",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
+    "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
+    "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
+    "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched"
+  },
+  "dependencies": {
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "@mona-ca/tsconfig": "workspace:*",
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
 }

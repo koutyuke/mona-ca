@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
   "formatter": {
-    "ignore": ["node_modules", "dist"],
+    "ignore": ["node_modules", "dist", ".turbo", ".next", ".expo"],
     "formatWithErrors": false,
     "lineWidth": 120
   },
@@ -41,7 +41,7 @@
       },
       "nursery": {
         "useSortedClasses": {
-          "level": "warn", 
+          "level": "warn",
           "options": {
             "attributes": ["className"],
             "functions": ["twMerge"]
@@ -52,7 +52,7 @@
   },
   "overrides": [
     {
-      "include": ["**/*.config.ts", "apps/web/src/app/**", "apps/web/src/middleware.ts", "apps/mobile/src/app/**"],
+      "include": ["**/*.config.ts", "apps/web/src/middleware.ts", "**/src/app/**"],
       "linter": {
         "rules": {
           "style": {

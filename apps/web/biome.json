@@ -3,7 +3,7 @@
   "extends": ["../../biome.json"],
   "overrides": [
     {
-      "include": ["./src/app/**", "src/middleware.ts"],
+      "include": ["./src/app/**", "./src/middleware.ts"],
       "linter": {
         "rules": {
           "style": {
