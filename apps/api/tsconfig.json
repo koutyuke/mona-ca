@@ -1,10 +1,10 @@
 {
-	"extends": "@mona-ca/tsconfig/elysia.json",
-	"compilerOptions": {
-		"strict": true,
-		"paths": {
-			"@/*": ["./*"]
-		}
-	},
-	"include": ["**/*.ts", "**/*.tsx"]
+  "extends": "@mona-ca/tsconfig/elysiajs.json",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
 }

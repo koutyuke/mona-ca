@@ -1,0 +1,8 @@
+{
+  "extends": "@mona-ca/tsconfig/catalog.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["**/*.ts", "**/*.tsx", "./.storybook/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

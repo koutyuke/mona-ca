@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Elysia",
+  "display": "ElysiaJS",
   "extends": ["./base.json"],
   "compilerOptions": {
     "target": "ESNext",

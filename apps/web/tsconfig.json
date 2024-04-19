@@ -5,8 +5,7 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "#core/*": ["../../packages/core/*"],
-      "#ui/*": ["../../packages/ui/*"]
+      "@public/*": ["./public/*"]
     },
     "strictNullChecks": true
   },

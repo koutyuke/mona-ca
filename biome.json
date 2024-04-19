@@ -52,7 +52,7 @@
   },
   "overrides": [
     {
-      "include": ["**/*.config.ts", "apps/web/src/middleware.ts", "**/src/app/**"],
+      "include": ["**/*.story.tsx", "**/*.story.js", "apps/web/src/middleware.ts", "**/src/app/**", "**/.storybook/**"],
       "linter": {
         "rules": {
           "style": {
