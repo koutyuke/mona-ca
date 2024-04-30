@@ -30,7 +30,8 @@
       "complexity": {
         "noUselessConstructor": "off",
         "noUselessFragments": "error",
-        "useArrowFunction": "error"
+        "useArrowFunction": "error",
+        "noForEach": "off"
       },
       "style": {
         "noDefaultExport": "error",

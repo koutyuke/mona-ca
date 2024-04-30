@@ -5,6 +5,8 @@
   "display": "Default",
   "compilerOptions": {
     "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "noPropertyAccessFromIndexSignature": false
   }
 }

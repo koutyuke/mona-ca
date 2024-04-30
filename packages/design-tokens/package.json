@@ -1,7 +1,9 @@
 {
-  "name": "@mona-ca/design-token",
+  "name": "@mona-ca/design-tokens",
   "version": "0.0.0",
   "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
     "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
@@ -9,14 +11,9 @@
     "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched"
   },
   "devDependencies": {
-    "@mona-ca/tsconfig": "workspace:*",
-    "@turbo/gen": "^1.12.4",
-    "@types/node": "^20.11.24",
-    "@types/eslint": "^8.56.5",
-    "@types/react": "^18.2.61",
-    "@types/react-dom": "^18.2.19",
-    "eslint": "^8.57.0",
-    "react": "^18.2.0",
-    "typescript": "^5.3.3"
+    "@mona-ca/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "@radix-ui/colors": "^3.0.0"
   }
 }

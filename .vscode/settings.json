@@ -163,5 +163,15 @@
     "quickfix.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "editor.defaultFormatter": "biomejs.biome"
+  "editor.defaultFormatter": "biomejs.biome",
+  "workbench.editor.customLabels.patterns": {
+    "apps/api/**": "${filename}.${extname} ← API",
+    "apps/web/**": "${filename}.${extname} ← WEB",
+    "apps/mobile/**": "${filename}.${extname} ← MOBILE",
+    "tools/**": "${filename}.${extname} ← TOOL",
+    "packages/core/**": "${filename}.${extname} ← CORE",
+    "packages/ui/**": "${filename}.${extname} ← UI",
+    "packages/**": "${filename}.${extname} ← PACKAGE"
+  },
+  "workbench.editor.customLabels.enabled": true
 }

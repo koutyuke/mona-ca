@@ -3,15 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "files": ["./index.ts", "./input.css"],
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
     "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
     "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched"
   },
+  "dependencies": {
+    "@mona-ca/design-tokens": "workspace:*"
+  },
   "devDependencies": {
     "@mona-ca/tsconfig": "workspace:*",
-    "tailwindcss": "^3.4.3",
-    "tw-colors": "^3.3.1"
+    "tailwindcss": "^3.4.3"
   }
 }

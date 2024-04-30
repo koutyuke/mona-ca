@@ -18,7 +18,7 @@
     "catalog": "cd ./apps/catalog && bun",
     "ui": "cd ./packages/ui && bun",
     "core": "cd ./packages/core && bun",
-    "design-token": "cd ./packages/design-token && bun",
+    "design-tokens": "cd ./packages/design-tokens && bun",
     "tsconfig": "cd ./tools/tsconfig && bun",
     "postcss": "cd ./tools/postcss && bun",
     "tw": "cd ./tools/tailwindcss && bun"
@@ -28,9 +28,6 @@
     "lefthook": "^1.6.10",
     "turbo": "latest",
     "typescript": "^5.4.5"
-  },
-  "engines": {
-    "node": ">=18"
   },
   "packageManager": "bun@1.1.4",
   "workspaces": ["apps/*", "packages/*", "tools/*"]

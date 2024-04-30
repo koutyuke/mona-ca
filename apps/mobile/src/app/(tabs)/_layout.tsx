@@ -1,29 +1,48 @@
+import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/features/theme/hooks";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { colors } from "@mona-ca/design-tokens";
 import { Link, Tabs } from "expo-router";
-import type React from "react";
+import type { ComponentProps } from "react";
 import { Pressable } from "react-native";
 
-import { useClientOnlyValue } from "@/components/useClientOnlyValue";
-import { useColorScheme } from "@/components/useColorScheme";
-import { Colors } from "@/constants/Colors";
-
 function TabBarIcon(props: {
-	name: React.ComponentProps<typeof FontAwesome>["name"];
+	name: ComponentProps<typeof FontAwesome>["name"];
 	color: string;
 }) {
-	return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+	return <FontAwesome size={28} {...props} />;
 }
 
 export default function TabLayout() {
-	const colorScheme = useColorScheme();
-
+	const [colorScheme] = useTheme();
 	return (
 		<Tabs
 			screenOptions={{
-				tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-				// Disable the static render of the header on web
-				// to prevent a hydration error in React Navigation v6.
-				headerShown: useClientOnlyValue(false, true),
+				headerTitleStyle: {
+					fontSize: 20,
+					color: colors[colorScheme].orange[9],
+				},
+				headerStyle: {
+					backgroundColor: colors[colorScheme].sand[2],
+					borderBottomWidth: 1,
+					borderBottomColor: colors[colorScheme].sand[5],
+					shadowOpacity: 0,
+					height: 110,
+				},
+				tabBarActiveTintColor: colors[colorScheme].orange[10],
+				tabBarInactiveTintColor: colors[colorScheme].sand[8],
+				tabBarItemStyle: {
+					height: 50,
+				},
+				tabBarStyle: {
+					backgroundColor: colors[colorScheme].sand[2],
+					height: 85,
+					borderTopWidth: 1,
+					borderTopColor: colors[colorScheme].sand[5],
+				},
+			}}
+			sceneContainerStyle={{
+				backgroundColor: colors[colorScheme].sand[1],
 			}}
 		>
 			<Tabs.Screen
@@ -38,7 +57,7 @@ export default function TabLayout() {
 									<FontAwesome
 										name="info-circle"
 										size={25}
-										color={Colors[colorScheme ?? "light"].text}
+										color={Colors[colorScheme].text}
 										style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
 									/>
 								)}
