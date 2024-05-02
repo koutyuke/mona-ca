@@ -10,10 +10,10 @@
     "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
     "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched"
   },
-  "devDependencies": {
-    "@mona-ca/tsconfig": "workspace:*"
-  },
   "dependencies": {
     "@radix-ui/colors": "^3.0.0"
+  },
+  "devDependencies": {
+    "@mona-ca/tsconfig": "workspace:*"
   }
 }

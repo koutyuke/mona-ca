@@ -2,9 +2,9 @@
   "name": "@mona-ca/tailwindcss",
   "version": "0.0.0",
   "private": true,
-  "files": ["./index.ts", "./input.css"],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "files": ["./index.ts", "./input.css"],
   "scripts": {
     "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",

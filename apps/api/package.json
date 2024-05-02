@@ -1,6 +1,7 @@
 {
   "name": "@mona-ca/api",
   "version": "0.1.0",
+  "module": "src/index.js",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
@@ -14,6 +15,5 @@
   "devDependencies": {
     "@mona-ca/tsconfig": "workspace:*",
     "bun-types": "latest"
-  },
-  "module": "src/index.js"
+  }
 }
