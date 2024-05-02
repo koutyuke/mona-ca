@@ -1,27 +1,31 @@
 {
   "name": "mona-ca",
+  "private": true,
   "repository": {
     "type": "git",
     "url": ""
   },
-  "private": true,
+  "workspaces": ["apps/*", "packages/*", "tools/*"],
   "scripts": {
-    "ci": "act --container-architecture linux/amd64 -e .github/event.json",
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "fmt": "turbo fmt",
-    "test": "turbo test",
-    "web": "cd ./apps/web && bun",
-    "mobile": "cd ./apps/mobile && bun",
     "api": "cd ./apps/api && bun",
+    "build": "turbo build",
     "catalog": "cd ./apps/catalog && bun",
-    "ui": "cd ./packages/ui && bun",
+    "ci": "act --container-architecture linux/amd64 -e .github/event.json",
     "core": "cd ./packages/core && bun",
     "design-tokens": "cd ./packages/design-tokens && bun",
-    "tsconfig": "cd ./tools/tsconfig && bun",
+    "dev": "turbo dev",
+    "fmt": "turbo fmt",
+    "lint": "turbo lint",
+    "mobile": "cd ./apps/mobile && bun",
     "postcss": "cd ./tools/postcss && bun",
-    "tw": "cd ./tools/tailwindcss && bun"
+    "test": "turbo test",
+    "tsconfig": "cd ./tools/tsconfig && bun",
+    "tw": "cd ./tools/tailwindcss && bun",
+    "ui": "cd ./packages/ui && bun",
+    "web": "cd ./apps/web && bun"
+  },
+  "dependencies": {
+    "@types/bun": "^1.1.1"
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.0",
@@ -30,13 +34,5 @@
     "typescript": "^5.4.5"
   },
   "packageManager": "bun@1.1.4",
-  "workspaces": ["apps/*", "packages/*", "tools/*"],
-  "dependencies": {
-    "@types/bun": "^1.1.1"
-  },
-  "trustedDependencies": [
-    "@biomejs/biome",
-    "core-js",
-    "core-js-pure"
-  ]
+  "trustedDependencies": ["@biomejs/biome", "core-js", "core-js-pure"]
 }
