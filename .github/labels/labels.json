@@ -1,0 +1,77 @@
+[
+  {
+    "name": "🔗 API",
+    "color": "2FF735",
+    "description": "APIの開発や改善に関連するタスク"
+  },
+  {
+    "name": "🌐 Web",
+    "color": "005cc5",
+    "description": "ウェブサイトの開発や改善に関連するタスク"
+  },
+  {
+    "name": "📱 Mobile",
+    "color": "d73a49",
+    "description": "モバイルアプリケーションの開発や改善に関連するタスク"
+  },
+  {
+    "name": "♻ Refactor",
+    "color": "ffc107",
+    "description": "コードのリファクタリングや構造の最適化に関連するタスク"
+  },
+  {
+    "name": "🎨 UI/UX",
+    "color": "5319e7",
+    "description": "ユーザーインターフェースやエクスペリエンスの改善に関連するタスク"
+  },
+  {
+    "name": "🦺 CI/CD",
+    "color": "008672",
+    "description": "継続的インテグレーションやデプロイメントに関連するタスク"
+  },
+  {
+    "name": "✨ Feature",
+    "color": "a2eeef",
+    "description": "新しい機能の追加に関連するタスク"
+  },
+  {
+    "name": "🌟 Enhancement",
+    "color": "ffd33d",
+    "description": "既存機能の向上や拡張に関連するタスク"
+  },
+  {
+    "name": "🐛 Bug",
+    "color": "e99695",
+    "description": "バグの報告や修正に関連するタスク"
+  },
+  {
+    "name": "🔧 Config",
+    "color": "c2e0f4",
+    "description": "設定や構成に関する変更に関連するタスク"
+  },
+  {
+    "name": "📦 Build",
+    "color": "e4e669",
+    "description": "ビルドシステムや外部依存関係の更新に関連するタスク"
+  },
+  {
+    "name": "📚 Documentation",
+    "color": "0075ca",
+    "description": "ドキュメントの作成や更新に関連するタスク"
+  },
+  {
+    "name": "🤖 Renovate",
+    "color": "f6f8fa",
+    "description": "Renovate bot による自動更新に関連するタスク"
+  },
+  {
+    "name": "🎯 Epic",
+    "color": "7057ff",
+    "description": "複数のタスクやイシューを包括する大規模な作業項目"
+  },
+  {
+    "name": "🔥 Hotfix",
+    "color": "f43254",
+    "description": "緊急の修正や対応が必要なタスク"
+  }
+]
