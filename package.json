@@ -2,8 +2,8 @@
   "name": "mona-ca",
   "private": true,
   "repository": {
-    "type": "git",
-    "url": ""
+    "type": "GitHub",
+    "url": "https://github.com/koutyuke/mona-ca"
   },
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "scripts": {
@@ -12,12 +12,10 @@
     "dev": "turbo dev --cache-dir=.turbo",
     "fmt": "turbo fmt --cache-dir=.turbo",
     "lint": "turbo lint --cache-dir=.turbo",
-
     "api": "cd ./apps/api && bun",
     "catalog": "cd ./apps/catalog && bun",
     "web": "cd ./apps/web && bun",
     "mobile": "cd ./apps/mobile && bun",
-
     "core": "cd ./packages/core && bun",
     "ui": "cd ./packages/ui && bun",
     "design-tokens": "cd ./packages/design-tokens && bun",
