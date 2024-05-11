@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "module": "src/index.js",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
+    "dev": "wrangler dev src/app/index.ts",
     "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
@@ -13,7 +13,8 @@
     "elysia": "latest"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240502.0",
     "@mona-ca/tsconfig": "workspace:*",
-    "bun-types": "latest"
+    "wrangler": "^3.55.0"
   }
 }
