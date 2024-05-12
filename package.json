@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.0",
+    "cross-env": "^7.0.3",
     "lefthook": "^1.6.10",
     "turbo": "latest",
     "typescript": "^5.4.5"
