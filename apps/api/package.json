@@ -8,10 +8,10 @@
     "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
     "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-    "generate": "drizzle-kit generate",
-    "migrate": "bun generate && wrangler d1 migrations apply mona-ca_db",
-    "db:studio": "cross-env LOCAL_DB_PATH=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit studio --config drizzle.studio.config.ts",
-    "db:studio:prod": "drizzle-kit studio"
+    "db:gen": "drizzle-kit generate",
+    "db:mig": "bun generate && wrangler d1 migrations apply mona-ca_db",
+    "db:std": "cross-env LOCAL_DB_PATH=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit studio --config drizzle.studio.config.ts",
+    "db:std:prod": "drizzle-kit studio"
   },
   "dependencies": {
     "better-sqlite3": "^9.6.0",
