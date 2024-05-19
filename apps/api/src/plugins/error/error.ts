@@ -48,7 +48,9 @@ import {
  * ServiceUnavailableException
  */
 
-const error = new Elysia()
+const error = new Elysia({
+	name: "@mona-ca/elysia-error",
+})
 	.use(logger)
 	.error({
 		BadGatewayException,
