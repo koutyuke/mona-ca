@@ -1,5 +1,4 @@
 import Elysia from "elysia";
-import { logger } from "../logger";
 import {
 	BadGatewayException,
 	BadRequestException,
@@ -51,7 +50,6 @@ import {
 const error = new Elysia({
 	name: "@mona-ca/elysia-error",
 })
-	.use(logger)
 	.error({
 		BadGatewayException,
 		BadRequestException,
@@ -65,10 +63,10 @@ const error = new Elysia({
 		UnauthorizedException,
 	})
 	.onError({ as: "global" }, ctx => {
-		const { code, error, log } = ctx;
+		const { code, error } = ctx;
 
 		if (code !== "NOT_FOUND") {
-			log.error({
+			console.error({
 				name: error.name,
 				message: error.message,
 			});

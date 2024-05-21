@@ -14,7 +14,6 @@
     "db:std:prod": "drizzle-kit studio"
   },
   "dependencies": {
-    "@bogeychan/elysia-logger": "^0.0.21",
     "better-sqlite3": "^9.6.0",
     "drizzle-orm": "^0.30.10",
     "elysia": "latest"

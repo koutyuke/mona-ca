@@ -1,5 +1,17 @@
-import { Elysia } from "elysia";
+import { error } from "@/plugins/error";
+import { ElysiaWithEnv } from "../modules/elysiaWithEnv";
+import type { FetchHandlerEnv } from "../types/handlers";
 
-const app = new Elysia({ aot: false }).get("/", () => "Hello Elysia");
+const root = new ElysiaWithEnv({
+	aot: false,
+});
 
-export default app;
+root.use(error).get("/", () => {
+	return "Hello, World!";
+});
+
+export default {
+	fetch: (request: Request, env: FetchHandlerEnv) => {
+		return root.setEnv(env).fetch(request);
+	},
+};

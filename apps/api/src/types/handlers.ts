@@ -1,5 +1,4 @@
 export type FetchHandlerEnv = {
 	DB: D1Database;
-} & {
-	[key: string]: unknown;
+	APP_ENV: "development" | "production";
 };

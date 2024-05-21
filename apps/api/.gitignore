@@ -43,3 +43,4 @@ package-lock.json
 
 # wrangler
 .wrangler
+.dev.vars
