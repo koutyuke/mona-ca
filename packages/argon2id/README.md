@@ -17,6 +17,7 @@ Therefore, `WASM` (WebAssembly) is used to enable fast hashing with `argon2id`.
 ├── bin // Files transpiled in wasm
 │   ├── wasm_argon2.d.ts
 │   ├── wasm_argon2.js
+│   ├── wasm_argon2_bg.js
 │   ├── wasm_argon2_bg.wasm
 │   └── wasm_argon2_bg.wasm.d.ts
 │
@@ -30,17 +31,30 @@ Therefore, `WASM` (WebAssembly) is used to enable fast hashing with `argon2id`.
 
 This Package is Typescript Module
 
+### Create Instance
+
 ```ts
-
 const argon2id = new Argon2id(); // create instance.
+// or
+const argon2id = new Argon2id({
+  memory_cost: 47104,
+  time_cost: 1 ,
+  parallelism: 1,
+})
 
-await argon2id.initialize(); // initialize
+```
 
-// Hash
+### Hash
+
+```ts
 const hashedPassword = await argon2id.hash("password");
 // -> $argon2id$v=19$m=19456,t=2,p=1$ejLtLa+1TkAACZVQFL8UlQ$mtg13w2XPqJ5ezzVqusc8zjgdAMS58+jmyzXA+Yg+g0
+```
 
-// Verify
+
+### Verify
+
+```ts
 const isValid = await argon2id.verify(hashedPassword, "password");
 // -> true/false
 
