@@ -1,9 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { Argon2Id } from ".";
+import { Argon2id } from ".";
 
 describe("Argon2id", async () => {
-	const argon2id = new Argon2Id();
-	await argon2id.initialize();
+	const argon2id = new Argon2id();
 	test("hash関数の返り値がstring型である", async () => {
 		const hashedPassword = await argon2id.hash("password");
 

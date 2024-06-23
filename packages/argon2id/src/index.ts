@@ -1,6 +1,6 @@
-import init, { hash, HashOptions, verify } from "../bin/wasm_argon2";
+import { HashOptions, hash, verify } from "../bin/wasm_argon2";
 
-export class Argon2Id {
+export class Argon2id {
 	private options:
 		| {
 				memory_cost: number;
@@ -8,8 +8,6 @@ export class Argon2Id {
 				parallelism: number;
 		  }
 		| undefined;
-
-	private isInitialized = false;
 
 	constructor(args?: {
 		memory_cost: number;
@@ -19,38 +17,27 @@ export class Argon2Id {
 		this.options = args;
 	}
 
-	public async initialize() {
-		await init();
-		this.isInitialized = true;
-	}
-
 	public async hash(password: string): Promise<string> {
-		if (!this.isInitialized) {
-			await this.initialize();
-		}
-		const options = this.genHashOptions();
-		const hashedPassword = hash(password, options);
-		options?.free();
+		const option = this.genHashOption();
+		const hashedPassword = hash(password, option);
+		option?.free();
 		return hashedPassword;
 	}
 
 	public async verify(hashedPassword: string, password: string): Promise<boolean> {
-		if (!this.isInitialized) {
-			await this.initialize();
-		}
 		return verify(password, hashedPassword);
 	}
 
-	private genHashOptions(): HashOptions | undefined {
+	private genHashOption(): HashOptions | undefined {
 		if (!this.options) {
 			return undefined;
 		}
 
-		const hashOptions = new HashOptions();
-		hashOptions.memory_cost = this.options.memory_cost;
-		hashOptions.time_cost = this.options.time_cost;
-		hashOptions.parallelism = this.options.parallelism;
+		const hashOption = new HashOptions();
+		hashOption.memory_cost = this.options.memory_cost;
+		hashOption.time_cost = this.options.time_cost;
+		hashOption.parallelism = this.options.parallelism;
 
-		return hashOptions;
+		return hashOption;
 	}
 }
