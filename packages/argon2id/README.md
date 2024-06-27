@@ -64,3 +64,8 @@ const isValid = await argon2id.verify(hashedPassword, "password");
 
 * [`@auth70/argon2-wasi`](https://github.com/auth70/argon2-wasi)
 * [`@magicalpuffin/tutorial-cloudflare-lucia-argon2`](https://github.com/magicalpuffin/tutorial-cloudflare-lucia-argon2)
+
+
+> [!WARNING]
+>
+> Since the wasm file is not loaded in the test with [@cloudflare/vitest-pool-workers](https://github.com/cloudflare/workers-sdk/tree/main/packages/vitest-pool-workers), I am currently using the one that is reimplemented in the api as `argon2idService`. (The implementation is all the same)
