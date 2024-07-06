@@ -1,15 +1,11 @@
 import { InternalServerErrorException } from "@/modules/error/plugin/exceptions";
-import type { FetchHandlerEnv } from "@/types/handlers";
 import { Value } from "@sinclair/typebox/value";
-import { Elysia, type ElysiaConfig, type TSchema, t } from "elysia";
-
-type Env = Omit<FetchHandlerEnv, "DB">;
-
-type CFModuleEnv = Pick<FetchHandlerEnv, "DB">;
+import { Elysia, type ElysiaConfig } from "elysia";
+import { type AppEnv, type AppEnvWithoutCFModuleEnv, AppEnvWithoutCFModuleEnvSchema, type CFModuleEnv } from "../env";
 
 type CustomSingleton = {
 	decorator: {
-		env: Env;
+		env: AppEnvWithoutCFModuleEnv;
 		cfModuleEnv: CFModuleEnv;
 	};
 	// biome-ignore lint/complexity/noBannedTypes: <explanation>
@@ -20,11 +16,6 @@ type CustomSingleton = {
 	resolve: {};
 };
 
-const validateEnvSchema = t.Object({
-	APP_ENV: t.Union([t.Literal("development"), t.Literal("production")]),
-	PASSWORD_PEPPER: t.String(),
-} satisfies Record<keyof Env, TSchema>);
-
 class ElysiaWithEnv<const BasePath extends string = "", const Scoped extends boolean = false> extends Elysia<
 	BasePath,
 	Scoped,
@@ -34,12 +25,15 @@ class ElysiaWithEnv<const BasePath extends string = "", const Scoped extends boo
 		super(config);
 	}
 
-	setEnv(env: FetchHandlerEnv) {
+	public setEnv(env: AppEnv): this {
 		const { DB, ...otherEnv } = env;
 
-		const preparedEnv = Value.Clean(validateEnvSchema, Value.Convert(validateEnvSchema, otherEnv));
+		const preparedEnv = Value.Clean(
+			AppEnvWithoutCFModuleEnvSchema,
+			Value.Convert(AppEnvWithoutCFModuleEnvSchema, otherEnv),
+		);
 
-		if (!Value.Check(validateEnvSchema, preparedEnv)) {
+		if (!Value.Check(AppEnvWithoutCFModuleEnvSchema, preparedEnv)) {
 			console.error("🚨 Invalid environment variables");
 			throw new InternalServerErrorException();
 		}
