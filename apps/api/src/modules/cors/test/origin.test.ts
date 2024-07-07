@@ -43,17 +43,33 @@ describe("Origin Test", async () => {
 			url: string;
 			result: string | null;
 		}[] = [
+			// string
 			{
 				origin: "http://example.com",
 				url: "http://example.com",
 				result: "http://example.com",
 			},
 			{
+				origin: "example.com",
+				url: "http://example.com",
+				result: "http://example.com",
+			},
+			{
+				origin: "api.example.com",
+				url: "http://api.example.com",
+				result: "http://api.example.com",
+			},
+			{
+				origin: "example.com",
+				url: "http://api.example.com",
+				result: null,
+			},
+			{
 				origin: "http://example.com",
 				url: "http://example.org",
 				result: null,
 			},
-
+			// RegExp
 			{
 				origin: /\.com/g,
 				url: "http://example.com",

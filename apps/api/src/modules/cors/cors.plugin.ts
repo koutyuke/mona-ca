@@ -1,4 +1,10 @@
-// reference repository: https://github.com/elysiajs/elysia-cors
+/**
+ * Reference Repository:
+ *
+ * Elysia CORS Plugin: https://github.com/elysiajs/elysia-cors
+ *
+ * @pilcrowOnPaper/oslo/request: https://github.com/pilcrowOnPaper/oslo/tree/main/src/request
+ */
 
 import type { Context } from "elysia";
 import { ElysiaWithEnv } from "../elysiaWithEnv";
@@ -66,16 +72,30 @@ const processHeaders = (headers: Headers) => {
 	return keys;
 };
 
-const processOrigin = (origin: Origin, from: string): boolean => {
-	if (typeof origin === "string") {
-		if (origin.indexOf("://") === -1) {
-			return from.includes(origin);
+const safeURL = (url: URL | string): URL | null => {
+	try {
+		return new URL(url);
+	} catch {
+		return null;
+	}
+};
+
+const processOrigin = (originPattern: Origin, origin: string): boolean => {
+	if (typeof originPattern === "string") {
+		const originHost = safeURL(origin)?.host ?? null;
+		const patternHost =
+			safeURL(
+				originPattern.startsWith("http://") || originPattern.startsWith("https://")
+					? originPattern
+					: `https://${originPattern}`,
+			)?.host ?? null;
+		if (originHost && originHost === patternHost) {
+			return true;
 		}
-		return origin === from;
 	}
 
-	if (origin instanceof RegExp) {
-		return origin.test(from);
+	if (originPattern instanceof RegExp) {
+		return originPattern.test(origin);
 	}
 
 	return false;
