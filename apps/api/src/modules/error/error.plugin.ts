@@ -48,7 +48,7 @@ import {
  */
 
 const error = new Elysia({
-	name: "@mona-ca/elysia-error",
+	name: "@mona-ca/error",
 })
 	.error({
 		BadGatewayException,

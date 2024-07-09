@@ -1,4 +1,4 @@
-import { InternalServerErrorException } from "@/modules/error/plugin/exceptions";
+import { InternalServerErrorException } from "@/modules/error/exceptions";
 import { Value } from "@sinclair/typebox/value";
 import { Elysia, type ElysiaConfig } from "elysia";
 import { type AppEnv, type AppEnvWithoutCFModuleEnv, AppEnvWithoutCFModuleEnvSchema, type CFModuleEnv } from "../env";
