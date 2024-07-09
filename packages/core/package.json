@@ -2,6 +2,10 @@
   "name": "@mona-ca/core",
   "version": "0.0.0",
   "private": true,
+  "exports": {
+    "./const": "./src/const/index.ts",
+    "./utils": "./src/utils/index.ts"
+  },
   "scripts": {
     "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
     "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
