@@ -1,6 +1,7 @@
 name="mona-ca"
+main = "./src/app/index.ts"
 compatibility_date = "2024-04-19"
-main="src/app/index.ts"
+compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
