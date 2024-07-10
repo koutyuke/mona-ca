@@ -6,10 +6,10 @@
   "types": "src/index.ts",
   "scripts": {
     "cargo:build": "wasm-pack build ",
-    "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-    "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-    "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
+    "fmt": "biome format --no-errors-on-unmatched",
+    "fmt:fix": "biome format --write --no-errors-on-unmatched",
+    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
+    "lint:fix": "biome lint --apply --no-errors-on-unmatched",
     "test": "bun test",
     "test:watch": "bun test --watch"
   },
