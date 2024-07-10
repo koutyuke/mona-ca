@@ -12,9 +12,8 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", ".expo/**"]
     },
-    "test": {
-      "dependsOn": ["build"]
-    }
+    "test": {},
+    "type-check": {}
   },
   "experimentalUI": true
 }

@@ -25,15 +25,16 @@
     "tw": "cd ./tools/tailwindcss && bun"
   },
   "dependencies": {
-    "@types/bun": "^1.1.1"
+    "@types/bun": "^1.1.5"
   },
   "devDependencies": {
     "@biomejs/biome": "1.8.0",
     "cross-env": "^7.0.3",
-    "lefthook": "^1.6.10",
+    "lefthook": "^1.6.18",
+    "tsc": "^2.0.4",
     "turbo": "latest",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.2"
   },
   "packageManager": "bun@1.1.4",
-  "trustedDependencies": ["@biomejs/biome", "core-js", "core-js-pure"]
+  "trustedDependencies": ["@biomejs/biome", "@swc/core", "better-sqlite3", "core-js", "core-js-pure", "es5-ext", "esbuild", "lefthook", "workerd"]
 }
