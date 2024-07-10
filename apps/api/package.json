@@ -2,31 +2,43 @@
   "name": "@mona-ca/api",
   "version": "0.1.0",
   "module": "src/index.js",
+  "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "fmt": "biome format ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-    "fmt:fix": "biome format --write ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
-    "lint": "biome lint ./src/**/*.{ts,tsx} --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply ./src/**/*.{ts,tsx} --no-errors-on-unmatched",
+    "fmt": "biome format --no-errors-on-unmatched",
+    "fmt:fix": "biome format --write --no-errors-on-unmatched",
+    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
+    "lint:fix": "biome lint --apply --no-errors-on-unmatched",
     "db:gen": "drizzle-kit generate",
     "db:mig": "bun db:gen && wrangler d1 migrations apply mona-ca_db",
     "db:std": "cross-env LOCAL_DB_PATH=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit studio --config drizzle.studio.config.ts",
-    "db:std:prod": "drizzle-kit studio"
+    "db:std:prod": "drizzle-kit studio",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@elysiajs/swagger": "^1.0.5",
-    "arctic": "^1.9.0",
+    "@mona-ca/argon2id": "workspace:*",
+    "@mona-ca/core": "workspace:*",
+    "arctic": "^2.0.0-next.1",
     "drizzle-orm": "^0.30.10",
     "elysia": "latest",
     "lucia": "^3.2.0",
-    "oslo": "^1.2.0"
+    "oslo": "^1.2.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240502.0",
+    "@cloudflare/vitest-pool-workers": "^0.4.9",
+    "@cloudflare/workers-types": "^4.20240620.0",
     "@mona-ca/tsconfig": "workspace:*",
-    "@sinclair/typebox": "^0.32.31",
-    "better-sqlite3": "^11.0.0",
-    "drizzle-kit": "^0.21.1",
-    "wrangler": "^3.55.0"
+    "better-sqlite3": "^11.1.2",
+    "drizzle-kit": "^0.21.4",
+    "pretty-format": "^29.7.0",
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^1.5.3",
+    "wrangler": "^3.63.1"
+  },
+  "overrides": {
+    "pretty-format": "^29.7.0"
   }
 }
