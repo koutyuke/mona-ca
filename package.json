@@ -8,10 +8,12 @@
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "scripts": {
     "ci": "act --container-architecture linux/amd64",
-    "build": "turbo build --cache-dir=.turbo",
-    "dev": "turbo dev --cache-dir=.turbo",
-    "fmt": "turbo fmt --cache-dir=.turbo",
-    "lint": "turbo lint --cache-dir=.turbo",
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "fmt": "turbo fmt",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "type-check": "turbo type-check",
     "api": "cd ./apps/api && bun",
     "catalog": "cd ./apps/catalog && bun",
     "web": "cd ./apps/web && bun",
@@ -19,8 +21,8 @@
     "core": "cd ./packages/core && bun",
     "ui": "cd ./packages/ui && bun",
     "design-tokens": "cd ./packages/design-tokens && bun",
+    "argon2id": "cd ./packages/argon2id && bun",
     "postcss": "cd ./tools/postcss && bun",
-    "test": "turbo test",
     "tsconfig": "cd ./tools/tsconfig && bun",
     "tw": "cd ./tools/tailwindcss && bun"
   },
@@ -31,10 +33,9 @@
     "@biomejs/biome": "1.8.0",
     "cross-env": "^7.0.3",
     "lefthook": "^1.6.18",
-    "tsc": "^2.0.4",
-    "turbo": "latest",
+    "turbo": "^2.0.6",
     "typescript": "^5.5.2"
   },
-  "packageManager": "bun@1.1.4",
+  "packageManager": "bun@1.1.12",
   "trustedDependencies": ["@biomejs/biome", "@swc/core", "better-sqlite3", "core-js", "core-js-pure", "es5-ext", "esbuild", "lefthook", "workerd"]
 }
