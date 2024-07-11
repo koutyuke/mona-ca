@@ -29,6 +29,9 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.dev.vars*
+!.dev.vars.example
+!.dev.vars.test
 
 # vercel
 .vercel
@@ -43,4 +46,3 @@ package-lock.json
 
 # wrangler
 .wrangler
-.dev.vars

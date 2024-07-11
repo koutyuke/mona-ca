@@ -17,6 +17,8 @@ export default defineWorkersConfig(async () => {
 					singleWorker: true,
 					wrangler: {
 						configPath: "./wrangler.toml",
+            environment: "test",
+            
 					},
 					miniflare: {
 						bindings: { TEST_MIGRATIONS: migrations },

@@ -1,7 +1,7 @@
 import { t } from "elysia";
 
 export const AppStatusEnvSchema = t.Object({
-	APP_ENV: t.Union([t.Literal("development"), t.Literal("production")]),
+	APP_ENV: t.Union([t.Literal("development"), t.Literal("production"), t.Literal("test")]),
 });
 
 export const OAuthProviderEnvSchema = t.Object({
