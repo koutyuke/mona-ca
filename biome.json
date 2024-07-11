@@ -1,13 +1,15 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+  "files": {
+    "include": ["src/**/*.ts", "src/**/*.tsx"],
+    "ignore": ["node_modules", "dist", ".turbo", ".next", ".expo", "bin"]
+  },
   "formatter": {
-    "ignore": ["node_modules", "dist", ".turbo", ".next", ".expo"],
     "formatWithErrors": false,
     "lineWidth": 120
   },
   "javascript": {
     "formatter": {
-      "trailingComma": "all",
       "arrowParentheses": "asNeeded"
     },
     "parser": {
@@ -24,7 +26,6 @@
     }
   },
   "linter": {
-    "ignore": ["node_modules", "dist", ".next", ".turbo", ".expo"],
     "rules": {
       "recommended": true,
       "complexity": {
@@ -53,7 +54,13 @@
   },
   "overrides": [
     {
-      "include": ["**/*.story.tsx", "**/*.story.js", "apps/web/src/middleware.ts", "**/src/app/**", "**/.storybook/**"],
+      "include": [
+        "**/*.story.tsx",
+        "**/*.config.ts",
+        "**/.storybook/**",
+        "**/src/app/**",
+        "apps/web/src/middleware.ts"
+      ],
       "linter": {
         "rules": {
           "style": {

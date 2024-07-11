@@ -2,7 +2,9 @@
   "extends": "@mona-ca/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "@/*": ["./src/*"]
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"]

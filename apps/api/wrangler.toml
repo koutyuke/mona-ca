@@ -1,0 +1,12 @@
+name = "mona-ca"
+compatibility_date = "2024-04-19"
+compatibility_flags = ["nodejs_compat"]
+
+d1_databases = [
+  { binding = "DB", database_name = "mona-ca_db", database_id = "b7773705-8f1f-49e2-9a42-564971632cf4", migrations_dir = "drizzle/migrations" },
+]
+
+[env.test]
+d1_databases = [
+  { binding = "DB", database_name = "mona-ca_db_test", database_id = "83725da8-5b3e-4bba-8e2b-a69d716bd8eb", migrations_dir = "drizzle/migrations" },
+]

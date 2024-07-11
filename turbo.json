@@ -1,20 +1,19 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
   "globalDependencies": ["**/.env.*local"],
-  "pipeline": {
+  "tasks": {
     "dev": {
       "cache": false,
       "persistent": true
     },
     "fmt": {},
     "lint": {},
+    "type-check":{},
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", ".expo/**"]
     },
-    "test": {
-      "dependsOn": ["build"]
-    }
-  },
-  "experimentalUI": true
+    "test": {}
+  }
 }

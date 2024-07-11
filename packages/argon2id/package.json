@@ -1,0 +1,19 @@
+{
+  "name": "@mona-ca/argon2id",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "cargo:build": "wasm-pack build ",
+    "fmt": "biome format --no-errors-on-unmatched",
+    "fmt:fix": "biome format --write --no-errors-on-unmatched",
+    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
+    "lint:fix": "biome lint --apply --no-errors-on-unmatched",
+    "test": "bun test",
+    "test:watch": "bun test --watch"
+  },
+  "devDependencies": {
+    "@mona-ca/tsconfig": "workspace:*"
+  }
+}

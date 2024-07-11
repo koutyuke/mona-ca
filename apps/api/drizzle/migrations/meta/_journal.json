@@ -1,0 +1,13 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1720601578873,
+      "tag": "0000_burly_shinko_yamashiro",
+      "breakpoints": true
+    }
+  ]
+}

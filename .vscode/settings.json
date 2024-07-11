@@ -5,12 +5,29 @@
   "[svg]": {
     "editor.defaultFormatter": "jock.svg"
   },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "cSpell.words": ["Elysia"],
-  "commit-message-editor.dynamicTemplate": ["{type}{scope}{description}", "", "{body}", "", "{footer}"],
-  "commit-message-editor.staticTemplate": ["label: emoji (scope) short-description", "", "body", "", "footer"],
+  "cSpell.words": [
+    "Elysia"
+  ],
+  "commit-message-editor.dynamicTemplate": [
+    "{type}{scope}{description}",
+    "",
+    "{body}",
+    "",
+    "{footer}"
+  ],
+  "commit-message-editor.staticTemplate": [
+    "label: emoji (scope) short-description",
+    "",
+    "body",
+    "",
+    "footer"
+  ],
   "commit-message-editor.tokens": [
     {
       "combobox": true,
@@ -164,14 +181,14 @@
     "source.organizeImports.biome": "explicit"
   },
   "editor.defaultFormatter": "biomejs.biome",
+  "workbench.editor.customLabels.enabled": true,
   "workbench.editor.customLabels.patterns": {
-    "apps/api/**": "${filename}.${extname} ← API",
-    "apps/web/**": "${filename}.${extname} ← WEB",
-    "apps/mobile/**": "${filename}.${extname} ← MOBILE",
-    "tools/**": "${filename}.${extname} ← TOOL",
-    "packages/core/**": "${filename}.${extname} ← CORE",
-    "packages/ui/**": "${filename}.${extname} ← UI",
-    "packages/**": "${filename}.${extname} ← PACKAGE"
-  },
-  "workbench.editor.customLabels.enabled": true
+    "**/apps/api/**": "${filename}.${extname} ← API",
+    "**/apps/mobile/**": "${filename}.${extname} ← MOBILE",
+    "**/apps/web/**": "${filename}.${extname} ← WEB",
+    "**/packages/**": "${filename}.${extname} ← PACKAGE",
+    "**/packages/core/**": "${filename}.${extname} ← CORE",
+    "**/packages/ui/**": "${filename}.${extname} ← UI",
+    "**/tools/**": "${filename}.${extname} ← TOOL"
+  }
 }
