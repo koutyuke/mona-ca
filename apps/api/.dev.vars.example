@@ -1,3 +1,7 @@
+# Application Environment
+#   - development
+#   - production
+#   - test
 APP_ENV=
 
 # OAuth2.0 Provider Client ID and Client Secret
