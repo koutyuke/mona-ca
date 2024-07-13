@@ -33,7 +33,9 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
       
       - name: Install
         run: bun install --frozen-lockfile
@@ -49,7 +51,7 @@ jobs:
             d1 migrations apply mona-ca_db --remote
   
   status:
-    needs: filter
+    needs: deploy
     runs-on: ubuntu-latest
     if: ${{ ! failure() }}
     steps:
