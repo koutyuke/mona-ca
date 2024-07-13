@@ -1,0 +1,57 @@
+name: API-Deploy-Cloudflare
+
+on:
+  push:
+    branches:
+      - main
+  
+jobs:
+  filter:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: .github/filters.yaml
+          base: main
+
+  deploy:
+    needs: filter
+    if: ${{ needs.filter.outputs.api == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+      
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Build & Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/api
+          command: |
+            deploy --env production
+            d1 migrations apply mona-ca_db --remote
+  
+  status:
+    needs: filter
+    runs-on: ubuntu-latest
+    if: ${{ ! failure() }}
+    steps:
+      - name: check
+        run: echo "test is successfully executed."
