@@ -31,7 +31,6 @@ yarn-error.log*
 .env.production.local
 .dev.vars*
 !.dev.vars.example
-!.dev.vars.test
 
 # vercel
 .vercel

@@ -1,5 +1,3 @@
-APP_ENV=
-
 # OAuth2.0 Provider Client ID and Client Secret
 DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=

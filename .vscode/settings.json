@@ -91,6 +91,11 @@
           "value": "ci: 🦺"
         },
         {
+          "description": "CD changes.",
+          "label": "cd: 🚀",
+          "value": "cd: 🚀"
+        },
+        {
           "description": "Build system or dependency changes.",
           "label": "build: 📦️",
           "value": "build: 📦️"

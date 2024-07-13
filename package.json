@@ -7,7 +7,7 @@
   },
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "scripts": {
-    "ci": "act --container-architecture linux/amd64",
+    "ci": "act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main",
     "build": "turbo build",
     "dev": "turbo dev",
     "fmt": "turbo fmt",
