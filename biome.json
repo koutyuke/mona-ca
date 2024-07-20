@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.8.0/schema.json",
   "files": {
     "include": ["src/**/*.ts", "src/**/*.tsx"],
     "ignore": ["node_modules", "dist", ".turbo", ".next", ".expo", "bin"]
