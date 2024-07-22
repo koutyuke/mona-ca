@@ -3,31 +3,37 @@ import radixColors from "@radix-ui/colors";
 import type { ColorName, ColorProfile, Colors } from "./type";
 import { RadixColor, exportJSON } from "./utils";
 
-const main = ({
-	useColors = undefined,
-	withP3 = true,
-	withAlpha = true,
-	withDark = true,
+const exportRadixColors = ({
+	colors = true,
+	p3 = true,
+	alpha = true,
+	dark = true,
 }: {
-	useColors?: (Exclude<ColorName, "black" | "white"> | "pure")[];
-	withP3?: boolean;
-	withAlpha?: boolean;
-	withDark?: boolean;
+	colors?: ColorName[] | true;
+	p3?: boolean;
+	alpha?: boolean;
+	dark?: boolean;
 }) => {
-	const colors: Colors = withDark ? { light: {}, dark: {} } : { light: {} };
+	const exportColors: Colors = dark ? { light: {}, dark: {} } : { light: {} };
 
 	const sameNameColors: Record<string, RadixColor[]> = {};
-	const pureColors: RadixColor[] = [];
+	const sameNameBlackOverlayColors: RadixColor[] = [];
+	const sameNameWhiteOverlayColors: RadixColor[] = [];
 
 	Object.entries(radixColors).forEach(([key, value]) => {
 		const radixColor = new RadixColor(key, value);
 
-		if (radixColor.name === "white" || radixColor.name === "black") {
-			pureColors.push(radixColor);
+		if (radixColor.name === "white") {
+			sameNameWhiteOverlayColors.push(radixColor);
 			return;
 		}
 
-		if (useColors !== undefined && !useColors.includes(radixColor.name as Exclude<ColorName, "black" | "white">)) {
+		if (radixColor.name === "black") {
+			sameNameBlackOverlayColors.push(radixColor);
+			return;
+		}
+
+		if (colors !== true && !colors.includes(radixColor.name as Exclude<ColorName, "black" | "white">)) {
 			return;
 		}
 
@@ -70,12 +76,12 @@ const main = ({
 			...darkColor.data,
 		};
 
-		if (withAlpha) {
+		if (alpha) {
 			lightColorProfile.a = lightColorAlpha.data;
 			darkColorProfile.a = darkColorAlpha.data;
 		}
 
-		if (withP3) {
+		if (p3) {
 			lightColorProfile.p3 = {
 				...lightColorP3.data,
 			};
@@ -84,61 +90,65 @@ const main = ({
 			};
 		}
 
-		if (withAlpha && withP3) {
+		if (alpha && p3) {
 			lightColorProfile.p3!.a = lightColorP3Alpha.data;
 			darkColorProfile.p3!.a = darkColorP3Alpha.data;
 		}
 
-		colors.light[key as Exclude<ColorName, "black" | "white">] = lightColorProfile;
+		exportColors.light[key as Exclude<ColorName, "black" | "white">] = lightColorProfile;
 
-		if (withDark) {
-			colors.dark![key as Exclude<ColorName, "black" | "white">] = darkColorProfile;
+		if (dark) {
+			exportColors.dark![key as Exclude<ColorName, "black" | "white">] = darkColorProfile;
 		}
 	});
 
-	if (useColors === undefined || useColors.includes("pure")) {
-		const lightPureColor = pureColors.find(color => color.name === "black" && !color.isP3);
-		const lightPureColorP3 = pureColors.find(color => color.name === "black" && color.isP3);
-		const darkPureColor = pureColors.find(color => color.name === "white" && !color.isP3);
-		const darkPureColorP3 = pureColors.find(color => color.name === "white" && color.isP3);
+	if (colors === true || colors.includes("black")) {
+		const blackOverlayColors = sameNameBlackOverlayColors.find(color => !color.isP3);
+		const blackOverlayColorsP3 = sameNameBlackOverlayColors.find(color => color.isP3);
 
-		if (
-			lightPureColor === undefined ||
-			lightPureColorP3 === undefined ||
-			darkPureColor === undefined ||
-			darkPureColorP3 === undefined
-		) {
-			throw new Error("Invalid color data: pure");
+		if (blackOverlayColors === undefined || blackOverlayColorsP3 === undefined) {
+			throw new Error("Invalid color data: black");
 		}
 
-		const lightPureColorProfile: ColorProfile = {
+		const blackOverlayColorProfile: ColorProfile = {
 			DEFAULT: "rgba(0, 0, 0, 1)",
-			...lightPureColor.data,
+			...blackOverlayColors.data,
 		};
 
-		const darkPureColorProfile: ColorProfile = {
-			DEFAULT: "rgba(255, 255, 255, 1)",
-			...darkPureColor.data,
-		};
-
-		if (withP3) {
-			lightPureColorProfile.p3 = {
-				DEFAULT: "color(display-p3 0 0 0 / 1",
-				...lightPureColorP3.data,
-			};
-			darkPureColorProfile.p3 = {
-				DEFAULT: "color(display-p3 1 1 1 / 1",
-				...darkPureColorP3.data,
+		if (p3) {
+			blackOverlayColorProfile.p3 = {
+				DEFAULT: "color(display-p3 0 0 0 / 1)",
+				...blackOverlayColorsP3.data,
 			};
 		}
 
-		colors.light.pure = lightPureColorProfile;
-		if (withDark) {
-			colors.dark!.pure = darkPureColorProfile;
-		}
+		exportColors.black = blackOverlayColorProfile;
 	}
 
-	exportJSON(colors, `${path.resolve(__dirname, "../..")}/radix-colors.json`);
+	if (colors === true || colors.includes("white")) {
+		const whiteOverlayColors = sameNameWhiteOverlayColors.find(color => !color.isP3);
+		const whiteOverlayColorsP3 = sameNameWhiteOverlayColors.find(color => color.isP3);
+
+		if (whiteOverlayColors === undefined || whiteOverlayColorsP3 === undefined) {
+			throw new Error("Invalid color data: white");
+		}
+
+		const whiteOverlayColorProfile: ColorProfile = {
+			DEFAULT: "rgba(255, 255, 255, 1)",
+			...whiteOverlayColors.data,
+		};
+
+		if (p3) {
+			whiteOverlayColorProfile.p3 = {
+				DEFAULT: "color(display-p3 1 1 1 / 1)",
+				...whiteOverlayColorsP3.data,
+			};
+		}
+
+		exportColors.white = whiteOverlayColorProfile;
+	}
+
+	exportJSON(exportColors, `${path.resolve(__dirname, "..")}/radix-colors.json`);
 };
 
-main({ withP3: false, withAlpha: false });
+export { exportRadixColors };

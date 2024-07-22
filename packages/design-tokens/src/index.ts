@@ -1,3 +1,3 @@
-export * from "./colors";
-export * from "./responsive";
-export * from "./fonts";
+export { colors } from "./colors";
+export { breakpoints, mediaQueries } from "./responsive";
+export { fonts } from "./fonts";

@@ -51,8 +51,7 @@ class RadixColor {
 	};
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const exportJSON = (data: any, filename: string): void => {
+const exportJSON = (data: unknown, filename: string): void => {
 	const jsonStr = JSON.stringify(data, null, 2);
 	fs.writeFile(filename, jsonStr, err => {
 		if (err) throw err;

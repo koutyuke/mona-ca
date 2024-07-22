@@ -27,13 +27,13 @@ const createThemeColorVariables = <T extends Record<string, NestedRecord>>(
 			const colorVariables: Record<string, string> = {};
 
 			const func = (tokens: NestedRecord, prefix = variable) => {
-				Object.entries(tokens).forEach(([key, value]) => {
+				for (const [key, value] of Object.entries(tokens)) {
 					if (typeof value === "object") {
 						func(value, `${prefix}-${key}`);
 					} else {
 						colorVariables[`${prefix}-${key}`] = value;
 					}
-				});
+				}
 			};
 
 			func(value);

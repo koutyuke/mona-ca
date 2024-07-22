@@ -36,11 +36,13 @@ type ColorName = ExtractColor<keyof typeof colors> | "white" | "black";
 
 type Colors = {
 	light: {
-		[key in Exclude<ColorName, "black" | "white"> | "pure"]?: ColorProfile;
+		[key in Exclude<ColorName, "black" | "white">]?: ColorProfile;
 	};
 	dark?: {
-		[key in Exclude<ColorName, "black" | "white"> | "pure"]?: ColorProfile;
+		[key in Exclude<ColorName, "black" | "white">]?: ColorProfile;
 	};
+	black?: ColorProfile;
+	white?: ColorProfile;
 };
 
 export type { ColorProfile, ColorTheme, TonePallet, Colors, ColorName };
