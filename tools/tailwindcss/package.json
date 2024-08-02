@@ -4,7 +4,12 @@
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "files": ["./index.ts", "./input.css"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./merge": "./src/tailwind-merge.ts",
+    "./variants": "./src/tailwind-variants.ts",
+    "./input.css": "./input.css"
+  },
   "scripts": {
     "fmt": "biome format --no-errors-on-unmatched",
     "fmt:fix": "biome format --write --no-errors-on-unmatched",
@@ -12,7 +17,9 @@
     "lint:fix": "biome lint --apply --no-errors-on-unmatched"
   },
   "dependencies": {
-    "@mona-ca/design-tokens": "workspace:*"
+    "@mona-ca/design-tokens": "workspace:*",
+    "tailwind-merge": "^2.4.0",
+    "tailwind-variants": "^0.2.1"
   },
   "devDependencies": {
     "@mona-ca/tsconfig": "workspace:*",
