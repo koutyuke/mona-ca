@@ -1,13 +1,11 @@
 {
-  "name": "@mona-ca/tailwindcss",
+  "name": "@mona-ca/tailwind-config",
   "version": "0.0.0",
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./merge": "./src/tailwind-merge.ts",
-    "./variants": "./src/tailwind-variants.ts",
     "./input.css": "./input.css"
   },
   "scripts": {
@@ -17,9 +15,7 @@
     "lint:fix": "biome lint --apply --no-errors-on-unmatched"
   },
   "dependencies": {
-    "@mona-ca/design-tokens": "workspace:*",
-    "tailwind-merge": "^2.4.0",
-    "tailwind-variants": "^0.2.1"
+    "@mona-ca/design-tokens": "workspace:*"
   },
   "devDependencies": {
     "@mona-ca/tsconfig": "workspace:*",

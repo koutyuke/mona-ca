@@ -7,9 +7,12 @@ import { createConfigColors, createThemeColorVariables } from "./utils/color";
 const { light, dark, ...particular } = colorTokens;
 
 const themeColorVariables = createThemeColorVariables({ light, dark });
-const configColors = createConfigColors({ colorTokens: light });
+const configColors = createConfigColors({
+	...light,
+	...dark,
+});
 
-const baseConfig: Config = {
+const baseConfig = {
 	mode: "jit",
 	content: ["./src/**/*.{tsx,ts}"],
 	theme: {
@@ -34,6 +37,6 @@ const baseConfig: Config = {
 			});
 		}),
 	],
-};
+} satisfies Config;
 
 export { baseConfig, themeColorVariables };
