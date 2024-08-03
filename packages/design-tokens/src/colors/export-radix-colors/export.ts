@@ -44,7 +44,7 @@ const exportRadixColors = ({
 		}
 	});
 
-	Object.entries(sameNameColors).forEach(([key, value]) => {
+	for (const [key, value] of Object.entries(sameNameColors)) {
 		const lightColor = value.find(color => !color.isDark && !color.isP3 && !color.isAlpha);
 		const lightColorAlpha = value.find(color => !color.isDark && !color.isP3 && color.isAlpha);
 		const lightColorP3 = value.find(color => !color.isDark && color.isP3 && !color.isAlpha);
@@ -100,7 +100,7 @@ const exportRadixColors = ({
 		if (dark) {
 			exportColors.dark![key as Exclude<ColorName, "black" | "white">] = darkColorProfile;
 		}
-	});
+	}
 
 	if (colors === true || colors.includes("black")) {
 		const blackOverlayColors = sameNameBlackOverlayColors.find(color => !color.isP3);
@@ -148,7 +148,7 @@ const exportRadixColors = ({
 		exportColors.white = whiteOverlayColorProfile;
 	}
 
-	exportJSON(exportColors, `${path.resolve(__dirname, "..")}/radix-colors.json`);
+	exportJSON(exportColors, `${path.resolve(__dirname, "../json")}/radix-colors.json`);
 };
 
 export { exportRadixColors };
