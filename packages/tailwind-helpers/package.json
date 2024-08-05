@@ -1,0 +1,27 @@
+{
+  "name": "@mona-ca/tailwind-helpers",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./merge": "./src/libs/tailwind-merge.ts",
+    "./variants": "./src/libs/tailwind-variants.ts"
+  },
+  "scripts": {
+    "fmt": "biome format --no-errors-on-unmatched",
+    "fmt:fix": "biome format --write --no-errors-on-unmatched",
+    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
+    "lint:fix": "biome lint --write --no-errors-on-unmatched",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@mona-ca/tailwind-config": "workspace:*",
+    "tailwind-merge": "^2.4.0",
+    "tailwind-variants": "^0.2.1"
+  },
+  "devDependencies": {
+    "@mona-ca/tsconfig": "workspace:*"
+  }
+}

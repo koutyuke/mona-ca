@@ -22,9 +22,10 @@
     "ui": "cd ./packages/ui && bun",
     "design-tokens": "cd ./packages/design-tokens && bun",
     "argon2id": "cd ./packages/argon2id && bun",
+    "tailwind-helpers": "cd ./packages/tailwind-helpers && bun",
     "postcss": "cd ./tools/postcss && bun",
     "tsconfig": "cd ./tools/tsconfig && bun",
-    "tw": "cd ./tools/tailwindcss && bun"
+    "tailwind-config": "cd ./tools/tailwind-config && bun"
   },
   "dependencies": {
     "@types/bun": "^1.1.5"
@@ -37,5 +38,15 @@
     "typescript": "^5.5.2"
   },
   "packageManager": "bun@1.1.12",
-  "trustedDependencies": ["@biomejs/biome", "@swc/core", "better-sqlite3", "core-js", "core-js-pure", "es5-ext", "esbuild", "lefthook", "workerd"]
+  "trustedDependencies": [
+    "@biomejs/biome",
+    "@swc/core",
+    "better-sqlite3",
+    "core-js",
+    "core-js-pure",
+    "es5-ext",
+    "esbuild",
+    "lefthook",
+    "workerd"
+  ]
 }
