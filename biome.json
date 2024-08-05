@@ -46,7 +46,7 @@
           "level": "warn",
           "options": {
             "attributes": ["className"],
-            "functions": ["twMerge"]
+            "functions": ["tv", "twMerge", "twPseudo", "twColorPalette"]
           }
         }
       }
