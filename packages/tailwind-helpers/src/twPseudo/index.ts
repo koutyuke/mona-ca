@@ -1,0 +1,1 @@
+export { twPseudo } from "./twPseudo";
