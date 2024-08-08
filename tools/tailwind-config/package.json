@@ -6,7 +6,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./input.css": "./input.css"
+    "./global.css": "./global.css"
   },
   "scripts": {
     "fmt": "biome format --no-errors-on-unmatched",
