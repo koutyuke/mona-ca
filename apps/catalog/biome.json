@@ -1,16 +1,4 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.8.0/schema.json",
-  "extends": ["../../biome.json"],
-  "overrides": [
-    {
-      "include": ["./.storybook/**"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noDefaultExport": "off"
-          }
-        }
-      }
-    }
-  ]
+  "extends": ["../../biome.json"]
 }
