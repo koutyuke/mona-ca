@@ -1,4 +1,4 @@
-import { themeColorVariables } from "@mona-ca/tailwindcss";
+import { themeColorVariables } from "@mona-ca/tailwind-config";
 import { StatusBar } from "expo-status-bar";
 import { vars } from "nativewind";
 import type { FC, ReactNode } from "react";
