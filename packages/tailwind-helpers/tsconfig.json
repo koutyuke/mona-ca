@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@tailwind-helpers/*": ["./src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
-import type { Color } from "../color.type";
+import type { Color } from "../types/color.type";
 
 /**
  * tailwindcss color palette
