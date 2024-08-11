@@ -1,8 +1,12 @@
+import type { PseudoClass } from "@tailwind-helpers/types/pseudo-class.type";
 import { twMerge } from "tailwind-merge";
 
+type Key = PseudoClass | (string & {});
+
 type Nest = {
+	[key in Key]?: string | Nest;
+} & {
 	_className: string;
-	[key: string]: string | Nest;
 };
 
 const flattenPseudoClass = (pseudo: Nest | string): string[] => {
@@ -14,6 +18,9 @@ const flattenPseudoClass = (pseudo: Nest | string): string[] => {
 
 	return Object.entries(otherPseudo).reduce(
 		(acc, [key, value]) => {
+			if (!value) {
+				return acc;
+			}
 			if (typeof value === "string") {
 				acc.push(`${key}:${value}`);
 				return acc;
