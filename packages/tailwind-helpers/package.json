@@ -7,9 +7,13 @@
   "exports": {
     ".": "./src/index.ts",
     "./merge": "./src/libs/tailwind-merge.ts",
-    "./variants": "./src/libs/tailwind-variants.ts"
+    "./variants": "./src/libs/tailwind-variants.ts",
+    "./transforms": "./src/babel/transforms.ts",
+    "./babel-plugin": "./dist/plugin.js"
   },
   "scripts": {
+    "prepare": "bun run build",
+    "build": "tsup",
     "fmt": "biome format --no-errors-on-unmatched",
     "fmt:fix": "biome format --write --no-errors-on-unmatched",
     "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
@@ -23,6 +27,12 @@
     "tailwind-variants": "^0.2.1"
   },
   "devDependencies": {
-    "@mona-ca/tsconfig": "workspace:*"
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "@mona-ca/tsconfig": "workspace:*",
+    "@types/babel__core": "^7.20.5",
+    "tsup": "^8.2.4"
   }
 }
