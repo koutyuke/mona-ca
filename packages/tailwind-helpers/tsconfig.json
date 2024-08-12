@@ -1,10 +1,7 @@
 {
   "extends": "@mona-ca/tsconfig/base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "paths": {
-      "@tailwind-helpers/*": ["./src/*"]
-    }
+    "outDir": "dist"
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"]

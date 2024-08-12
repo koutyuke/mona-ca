@@ -24,6 +24,11 @@ describe("twPseudo(tailwindcss pseudo class, function utils)", () => {
 								_className: "bar",
 							},
 						},
+						empty: "",
+						emptyNested: {
+							_className: "",
+							empty: "",
+						},
 					},
 				},
 				include: ["text-red-500", "after:text-blue-500", "after:dark:font-xl", "after:foo:bar", "baz:qux"],

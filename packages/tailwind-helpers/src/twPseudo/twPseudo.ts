@@ -1,11 +1,13 @@
-import type { PseudoClass } from "@tailwind-helpers/types/pseudo-class.type";
 import { twMerge } from "tailwind-merge";
+import type { PseudoClass } from "../types/pseudo-class.type";
 
 type Key = PseudoClass | (string & {});
 
-type Nest = {
+type Pseudo = {
 	[key in Key]?: string | Nest;
-} & {
+};
+
+type Nest = Pseudo & {
 	_className: string;
 };
 
@@ -35,20 +37,21 @@ const flattenPseudoClass = (pseudo: Nest | string): string[] => {
 };
 
 /**
- *
  * @param className
  * @param pseudo
  * @returns { string }
  */
-const twPseudo = (className: string, pseudo?: Record<string, Nest | string>): string => {
+const twPseudo = (className: string, pseudo?: Pseudo): string => {
 	if (!pseudo) {
 		return className;
 	}
 
 	return twMerge(
-		Object.entries(pseudo).reduce((acc, [key, value]) => {
-			return `${acc} ${flattenPseudoClass(value).reduce((acc, value) => `${acc} ${key}:${value}`, "")}`;
-		}, className),
+		Object.entries(pseudo).reduce(
+			(acc, [key, value]) =>
+				value ? `${acc} ${flattenPseudoClass(value).reduce((a, v) => (v ? `${a} ${key}:${v}` : a), "")}` : acc,
+			className,
+		),
 	);
 };
 
