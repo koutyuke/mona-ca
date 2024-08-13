@@ -18,6 +18,7 @@
     "fmt:fix": "biome format --write --no-errors-on-unmatched",
     "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
     "lint:fix": "biome lint --write --no-errors-on-unmatched",
+    "pretest": "bun run build",
     "test": "bun test",
     "gen:pseudo-class": "bun run ./src/scripts/generate-pseudo-class.ts"
   },

@@ -48,7 +48,7 @@ const handlingBabelPlugin = (_api: typeof t): PluginObj => {
 				const code = `
 const flattenPseudoClass = (pseudo) => {
 	if (typeof pseudo === "string") {
-		return [pseudo];
+		return pseudo.split(" ");
 	}
 
 	const { _className, ...otherPseudo } = pseudo;

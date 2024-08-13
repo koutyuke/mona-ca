@@ -13,7 +13,7 @@ type Nest = Pseudo & {
 
 const flattenPseudoClass = (pseudo: Nest | string): string[] => {
 	if (typeof pseudo === "string") {
-		return [pseudo];
+		return pseudo.split(" ");
 	}
 
 	const { _className, ...otherPseudo } = pseudo;
@@ -47,11 +47,12 @@ const twPseudo = (className: string, pseudo?: Pseudo): string => {
 	}
 
 	return twMerge(
-		Object.entries(pseudo).reduce(
-			(acc, [key, value]) =>
-				value ? `${acc} ${flattenPseudoClass(value).reduce((a, v) => (v ? `${a} ${key}:${v}` : a), "")}` : acc,
-			className,
-		),
+		Object.entries(pseudo).reduce((acc, [key, value]) => {
+			if (!value) {
+				return acc;
+			}
+			return `${acc} ${flattenPseudoClass(value).reduce((a, v) => (v ? `${a} ${key}:${v}` : a), "")}`;
+		}, className),
 	);
 };
 
