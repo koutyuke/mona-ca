@@ -6,8 +6,6 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./merge": "./src/libs/tailwind-merge.ts",
-    "./variants": "./src/libs/tailwind-variants.ts",
     "./transforms": "./src/babel/transforms.ts",
     "./babel-plugin": "./dist/plugin.js"
   },
