@@ -3,6 +3,6 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["**/*.ts", "**/*.tsx", "./.storybook/**/*"],
+  "include": ["**/*.ts", "**/*.tsx", "./.storybook/**/*", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

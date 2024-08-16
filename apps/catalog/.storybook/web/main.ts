@@ -4,17 +4,17 @@ import type { StorybookConfig } from "@storybook/react-webpack5";
 const config: StorybookConfig = {
 	stories: [
 		{
-			directory: "../../web/src",
+			directory: "../../../web/src",
 			files: "**/*.story.@(ts|tsx)",
 			titlePrefix: "app - web",
 		},
 		{
-			directory: "../../mobile/src",
+			directory: "../../../mobile/src",
 			files: "**/*.story.@(ts|tsx)",
 			titlePrefix: "app - mobile",
 		},
 		{
-			directory: "../../../packages/ui",
+			directory: "../../../../packages/ui",
 			files: "**/*.story.@(ts|tsx)",
 			titlePrefix: "package - ui",
 		},
@@ -84,11 +84,11 @@ const config: StorybookConfig = {
 		if (webpackConfig.resolve) {
 			webpackConfig.resolve.alias = {
 				...webpackConfig.resolve.alias,
-				"@mobile": path.resolve(__dirname, "../../mobile/src"),
-				"@mobile/public": path.resolve(__dirname, "../../mobile/public"),
-				"@web": path.resolve(__dirname, "../../web/src"),
-				"@web/public": path.resolve(__dirname, "../../web/public"),
-				"@ui": path.resolve(__dirname, "../../../packages/ui/src"),
+				"@mobile": path.resolve(__dirname, "../../../mobile/src"),
+				"@mobile/public": path.resolve(__dirname, "../../../mobile/public"),
+				"@web": path.resolve(__dirname, "../../../web/src"),
+				"@web/public": path.resolve(__dirname, "../../../web/public"),
+				"@ui": path.resolve(__dirname, "../../../../packages/ui/src"),
 			};
 		}
 

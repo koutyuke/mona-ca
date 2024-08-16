@@ -7,11 +7,11 @@ const nativewindConfig = require("nativewind/preset");
 const config = {
 	content: {
 		files: [
-			"./**/*.{js,jsx,ts,tsx}",
+			// "!../../**/node_modules/**",
 			"./.storybook/**/*.{ts,tsx}",
-			"../web/**/*.{js,jsx,ts,tsx}",
-			"../mobile/**/*.{js,jsx,ts,tsx}",
-			"../../packages/ui/**/*.{js,jsx,ts,tsx}",
+			"../web/src/**/*.{js,jsx,ts,tsx}",
+			"../mobile/src/**/*.{js,jsx,ts,tsx}",
+			"../../packages/ui/src/**/*.{js,jsx,ts,tsx}",
 		],
 		transform: twHelperTransforms,
 	},

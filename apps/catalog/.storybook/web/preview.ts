@@ -1,7 +1,7 @@
 import { withThemeByClassName, withThemeByDataAttribute } from "@storybook/addon-themes";
 import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
 import type { Preview } from "@storybook/react";
-import "./style.css";
+import "./global.css";
 
 const DEFAULT_THEME = "light";
 const BACKGROUND_CSS_VALUE = "var(--color-slate-1)";
