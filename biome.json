@@ -2,7 +2,15 @@
   "$schema": "https://biomejs.dev/schemas/1.8.0/schema.json",
   "files": {
     "include": ["**/*.ts*", "**/*.*js*", "**/*.json"],
-    "ignore": ["node_modules", "dist", ".turbo", ".next", ".expo", "bin"]
+    "ignore": [
+      "node_modules",
+      "dist",
+      ".turbo",
+      ".next",
+      ".expo",
+      "bin",
+      "apps/catalog/.storybook/mobile/storybook.requires.ts"
+    ]
   },
   "formatter": {
     "formatWithErrors": false,
