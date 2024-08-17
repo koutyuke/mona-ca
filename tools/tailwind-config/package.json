@@ -15,10 +15,12 @@
     "lint:fix": "biome lint --apply --no-errors-on-unmatched"
   },
   "dependencies": {
-    "@mona-ca/design-tokens": "workspace:*"
+    "@mona-ca/design-tokens": "workspace:*",
+    "chroma-js": "^2.6.1-0"
   },
   "devDependencies": {
     "@mona-ca/tsconfig": "workspace:*",
+    "@types/chroma-js": "^2.4.4",
     "tailwindcss": "^3.4.3"
   }
 }

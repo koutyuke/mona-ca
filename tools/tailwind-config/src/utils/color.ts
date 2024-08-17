@@ -1,3 +1,5 @@
+import chroma from "chroma-js";
+
 type NestedRecord = {
 	[key: string]: string | NestedRecord;
 };
@@ -10,7 +12,7 @@ const createConfigColors = <T extends Record<string, NestedRecord | string>>(
 			if (typeof value === "object") {
 				return [key, flattenConfigColorTokens(value, `--color-${key}`)];
 			}
-			return [key, `var(--color-${key})`];
+			return [key, `rgb(var(--color-${key}) / <alpha-value>)`];
 		}),
 	);
 };
@@ -21,7 +23,7 @@ const flattenConfigColorTokens = (colorTokens: NestedRecord, variable: string): 
 			if (typeof value === "object") {
 				return [key, flattenConfigColorTokens(value, `${variable}-${key}`)];
 			}
-			return [key, `var(${variable}-${key})`];
+			return [key, `rgb(var(${variable}-${key}) / <alpha-value>)`];
 		}),
 	);
 };
@@ -39,7 +41,8 @@ const createThemeColorVariables = <T extends Record<string, NestedRecord>>(
 				if (typeof v === "object") {
 					generateColorVariables(v, `${prefix}-${k}`);
 				} else {
-					colorVariables[`${prefix}-${k}`] = v;
+					const rgbValue = chroma(v).rgb().join(" ");
+					colorVariables[`${prefix}-${k}`] = rgbValue;
 				}
 			}
 		};
