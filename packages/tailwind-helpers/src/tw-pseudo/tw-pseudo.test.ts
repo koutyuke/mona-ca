@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { twPseudo } from "./twPseudo";
+import { twPseudo } from "./tw-pseudo";
 
 type TestCase = {
 	params: {

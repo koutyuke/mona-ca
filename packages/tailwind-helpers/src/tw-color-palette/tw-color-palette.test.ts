@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { twColorPalette } from "./twColorPalette";
+import { twColorPalette } from "./tw-color-palette";
 
 type TestCase = {
 	params: {
