@@ -14,7 +14,7 @@
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "cSpell.words": ["Elysia"],
+  "cSpell.words": ["Elysia", "Pressable"],
   "commit-message-editor.dynamicTemplate": ["{type}{scope}{description}", "", "{body}", "", "{footer}"],
   "commit-message-editor.staticTemplate": ["label: emoji (scope) short-description", "", "body", "", "footer"],
   "commit-message-editor.tokens": [
@@ -181,11 +181,14 @@
   },
   "editor.defaultFormatter": "biomejs.biome",
   "tailwindCSS.experimental.classRegex": [
-    ["tv\\(([^)]*)\\)", "[\"']([^\"']*)*?[\"']"],
-    ["twColorPalette\\(([^)]*)\\)", "[\"']([^\"']*).*?[\"']"],
-    ["twPseudo\\(([^)]*)\\)", "[\"']([^\"']*).*?[\"']"],
-    ["twMerge\\(([^)]*)\\)", "[\"']([^\"']*).*?[\"']"]
+    ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
+    ["twMerge\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
+    ["twPseudo\\(([^)]*)\\)", "[\"']([^\"']*).*?[\"']"]
   ],
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
   "workbench.editor.customLabels.enabled": true,
   "workbench.editor.customLabels.patterns": {
     "**/apps/api/**": "${filename}.${extname} ← API",
