@@ -15,12 +15,10 @@ cssInterop(EyeOff, {
 	},
 });
 
-type EyeIconProps = {
-	visible: boolean;
-} & IconProps;
+type EyeIconProps = IconProps<"on" | "off">;
 
-const EyeIcon: FC<EyeIconProps> = ({ visible, size, ...otherProps }) => {
-	const Icon = visible ? Eye : EyeOff;
+const EyeIcon: FC<EyeIconProps> = ({ state, size, ...otherProps }) => {
+	const Icon = state === "on" ? Eye : EyeOff;
 
 	return <Icon size={size ?? 0} {...otherProps} />;
 };

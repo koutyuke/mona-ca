@@ -24,7 +24,7 @@ const Template: Story = {
 		color: {
 			control: "color",
 		},
-		direction: {
+		state: {
 			options: ["up", "down", "left", "right"],
 			control: {
 				type: "radio",
@@ -35,7 +35,7 @@ const Template: Story = {
 
 export const Up: Story = {
 	args: {
-		direction: "up",
+		state: "up",
 		className: "stroke-black size-12",
 	},
 	...Template,
@@ -43,7 +43,7 @@ export const Up: Story = {
 
 export const Down: Story = {
 	args: {
-		direction: "down",
+		state: "down",
 		className: "stroke-black size-12",
 	},
 	...Template,
@@ -51,7 +51,7 @@ export const Down: Story = {
 
 export const Left: Story = {
 	args: {
-		direction: "left",
+		state: "left",
 		className: "stroke-black size-12",
 	},
 	...Template,
@@ -59,7 +59,7 @@ export const Left: Story = {
 
 export const Right: Story = {
 	args: {
-		direction: "right",
+		state: "right",
 		className: "stroke-black size-12",
 	},
 	...Template,

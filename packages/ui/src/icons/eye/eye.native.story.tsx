@@ -24,10 +24,10 @@ const Template: Story = {
 		color: {
 			control: "color",
 		},
-		visible: {
-			options: [true, false],
+		state: {
+			options: ["open", "closed"],
 			control: {
-				type: "boolean",
+				type: "radio",
 			},
 		},
 	},
@@ -35,7 +35,7 @@ const Template: Story = {
 
 export const Visible: Story = {
 	args: {
-		visible: true,
+		state: "on",
 		className: "stroke-black size-12",
 	},
 	...Template,
@@ -43,7 +43,7 @@ export const Visible: Story = {
 
 export const Invisible: Story = {
 	args: {
-		visible: false,
+		state: "off",
 		className: "stroke-black size-12",
 	},
 	...Template,

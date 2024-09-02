@@ -3,9 +3,7 @@ import { cssInterop } from "nativewind";
 import type { FC } from "react";
 import type { IconProps } from "../type";
 
-type ChevronIconProps = {
-	direction: "up" | "down" | "left" | "right";
-} & IconProps;
+type ChevronIconProps = IconProps<"up" | "down" | "left" | "right">;
 
 cssInterop(ChevronDown, {
 	className: {
@@ -31,15 +29,9 @@ cssInterop(ChevronUp, {
 	},
 });
 
-const ChevronIcon: FC<ChevronIconProps> = ({ direction, size, ...otherProps }) => {
+const ChevronIcon: FC<ChevronIconProps> = ({ state, size, ...otherProps }) => {
 	const Icon =
-		direction === "up"
-			? ChevronUp
-			: direction === "down"
-				? ChevronDown
-				: direction === "left"
-					? ChevronLeft
-					: ChevronRight;
+		state === "up" ? ChevronUp : state === "down" ? ChevronDown : state === "left" ? ChevronLeft : ChevronRight;
 
 	return <Icon size={size ?? 0} {...otherProps} />;
 };

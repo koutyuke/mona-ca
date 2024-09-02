@@ -3,9 +3,7 @@ import { cssInterop } from "nativewind";
 import type { FC } from "react";
 import type { IconProps } from "../type";
 
-type ArrowIconProps = {
-	direction: "up" | "down" | "left" | "right";
-} & IconProps;
+type ArrowIconProps = IconProps<"up" | "down" | "left" | "right">;
 
 cssInterop(ArrowDown, {
 	className: {
@@ -31,9 +29,8 @@ cssInterop(ArrowUp, {
 	},
 });
 
-const ArrowIcon: FC<ArrowIconProps> = ({ direction, size, ...otherProps }) => {
-	const Icon =
-		direction === "up" ? ArrowUp : direction === "down" ? ArrowDown : direction === "left" ? ArrowLeft : ArrowRight;
+const ArrowIcon: FC<ArrowIconProps> = ({ state, size, ...otherProps }) => {
+	const Icon = state === "up" ? ArrowUp : state === "down" ? ArrowDown : state === "left" ? ArrowLeft : ArrowRight;
 
 	return <Icon size={size ?? 0} {...otherProps} />;
 };
