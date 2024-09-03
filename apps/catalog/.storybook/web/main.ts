@@ -18,6 +18,7 @@ const config: StorybookConfig = {
 			files: "**/*.story.@(ts|tsx)",
 			titlePrefix: "package - ui",
 		},
+		"！../../../../packages/ui/src/**/*.native.story.@(ts|tsx)",
 	],
 	addons: [
 		"@storybook/addon-onboarding",
