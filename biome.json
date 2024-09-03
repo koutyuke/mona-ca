@@ -1,8 +1,16 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.6.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
   "files": {
-    "include": ["src/**/*.ts", "src/**/*.tsx"],
-    "ignore": ["node_modules", "dist", ".turbo", ".next", ".expo", "bin"]
+    "ignore": [
+      "node_modules",
+      "dist",
+      ".turbo",
+      ".next",
+      ".expo",
+      "bin",
+      "apps/catalog/.storybook/mobile/storybook.requires.ts"
+    ],
+    "include": ["**/*.ts*", "**/*.*js*", "**/*.json"]
   },
   "formatter": {
     "formatWithErrors": false,
@@ -27,40 +35,42 @@
   },
   "linter": {
     "rules": {
-      "recommended": true,
       "complexity": {
+        "noForEach": "off",
         "noUselessConstructor": "off",
         "noUselessFragments": "error",
-        "useArrowFunction": "error",
-        "noForEach": "off"
-      },
-      "style": {
-        "noDefaultExport": "error",
-        "noNonNullAssertion": "off"
-      },
-      "suspicious": {
-        "noConsoleLog": "warn"
+        "useArrowFunction": "error"
       },
       "nursery": {
         "useSortedClasses": {
           "level": "warn",
           "options": {
             "attributes": ["className"],
-            "functions": ["twMerge"]
+            "functions": ["tv", "twMerge", "twPseudo", "twColorPalette"]
           }
         }
+      },
+      "recommended": true,
+      "style": {
+        "noDefaultExport": "error",
+        "noNonNullAssertion": "off",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"],
+            "requireAscii": true,
+            "strictCase": false
+          }
+        }
+      },
+      "suspicious": {
+        "noConsoleLog": "warn"
       }
     }
   },
   "overrides": [
     {
-      "include": [
-        "**/*.story.tsx",
-        "**/*.config.ts",
-        "**/.storybook/**",
-        "**/src/app/**",
-        "apps/web/src/middleware.ts"
-      ],
+      "include": ["**/*.story.*", "**/*.config.*", "**/.storybook/**", "**/src/app/**", "apps/web/src/middleware.ts"],
       "linter": {
         "rules": {
           "style": {
@@ -68,6 +78,21 @@
           }
         }
       }
+    },
+    {
+      "include": ["**/hooks/**/*.ts", "**/hooks/**/*.tsx", "apps/api/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
     }
-  ]
+  ],
+  "vcs": {
+    "clientKind": "git",
+    "enabled": true,
+    "useIgnoreFile": true
+  }
 }

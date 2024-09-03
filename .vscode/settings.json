@@ -1,4 +1,7 @@
 {
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
   "[properties]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
@@ -11,23 +14,9 @@
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "cSpell.words": [
-    "Elysia"
-  ],
-  "commit-message-editor.dynamicTemplate": [
-    "{type}{scope}{description}",
-    "",
-    "{body}",
-    "",
-    "{footer}"
-  ],
-  "commit-message-editor.staticTemplate": [
-    "label: emoji (scope) short-description",
-    "",
-    "body",
-    "",
-    "footer"
-  ],
+  "cSpell.words": ["Elysia", "Pressable"],
+  "commit-message-editor.dynamicTemplate": ["{type}{scope}{description}", "", "{body}", "", "{footer}"],
+  "commit-message-editor.staticTemplate": ["label: emoji (scope) short-description", "", "body", "", "footer"],
   "commit-message-editor.tokens": [
     {
       "combobox": true,
@@ -74,6 +63,16 @@
           "description": "Style changes.",
           "label": "style: 💄",
           "value": "style: 💄"
+        },
+        {
+          "description": "Code format changes.",
+          "label": "format: 🎨",
+          "value": "format: 🎨"
+        },
+        {
+          "description": "Rename files or directories.",
+          "label": "rename: 🚚",
+          "value": "rename: 🚚"
         },
         {
           "description": "Code formatting or refactoring.",
@@ -139,11 +138,6 @@
           "description": "The first commit.",
           "label": "initial: 🎉",
           "value": "initial: 🎉"
-        },
-        {
-          "description": "Code format changes.",
-          "label": "format: 🎨",
-          "value": "format: 🎨"
         }
       ],
       "type": "enum"
@@ -186,6 +180,17 @@
     "source.organizeImports.biome": "explicit"
   },
   "editor.defaultFormatter": "biomejs.biome",
+  "tailwindCSS.experimental.classRegex": [
+    ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
+    ["twMerge\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
+    ["tv\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
+    ["twMerge\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
+    ["twPseudo\\(([^)]*)\\)", "[\"']([^\"']*).*?[\"']"]
+  ],
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
   "workbench.editor.customLabels.enabled": true,
   "workbench.editor.customLabels.patterns": {
     "**/apps/api/**": "${filename}.${extname} ← API",
@@ -195,5 +200,6 @@
     "**/packages/core/**": "${filename}.${extname} ← CORE",
     "**/packages/ui/**": "${filename}.${extname} ← UI",
     "**/tools/**": "${filename}.${extname} ← TOOL"
-  }
+  },
+  "svg.preview.background": "transparent"
 }

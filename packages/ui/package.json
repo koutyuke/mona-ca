@@ -2,13 +2,36 @@
   "name": "@mona-ca/ui",
   "version": "0.0.0",
   "private": true,
+  "exports": {
+    "./types": "./src/types/index.ts",
+    "./brand": "./src/brand/index.ts",
+    "./components": "./src/components/index.ts",
+    "./icons": "./src/icons/index.ts",
+    "./social": "./src/social/index.ts",
+    "./native/brand": "./src/brand/index.native.ts",
+    "./native/components": "./src/components/index.native.ts",
+    "./native/icons": "./src/icons/index.native.ts",
+    "./native/social": "./src/social/index.native.ts"
+  },
   "scripts": {
     "fmt": "biome format --no-errors-on-unmatched",
     "fmt:fix": "biome format --write --no-errors-on-unmatched",
     "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply --no-errors-on-unmatched"
+    "lint:fix": "biome lint --write --no-errors-on-unmatched",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mona-ca/core": "workspace:*",
+    "@mona-ca/tailwind-helpers": "workspace:*",
+    "lucide-react": "^0.429.0",
+    "lucide-react-native": "^0.429.0",
+    "nativewind": "^4.1.4",
+    "react-native": "0.74.5",
+    "react-native-reanimated": "~3.10.1",
+    "react-native-svg": "15.2.0"
   },
   "devDependencies": {
+    "@mona-ca/tailwind-config": "workspace:*",
     "@mona-ca/tsconfig": "workspace:*",
     "@turbo/gen": "^1.12.4",
     "@types/react": "~18.2.61",

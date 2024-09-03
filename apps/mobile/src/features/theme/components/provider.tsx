@@ -1,21 +1,40 @@
-import { themeColorVariables } from "@mona-ca/tailwindcss";
-import { vars } from "nativewind";
+import { twMerge } from "@mona-ca/tailwind-helpers";
+import { StatusBar } from "expo-status-bar";
 import type { FC, ReactNode } from "react";
 import { View } from "react-native";
 import { useTheme } from "../hooks";
 
-type Props = {
+type ThemeProviderProps = {
 	children: ReactNode;
 };
 
-const ThemeProvider: FC<Props> = ({ children }) => {
+const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
 	const [colorScheme] = useTheme();
-
 	return (
-		<View className="h-full w-full bg-transparent" style={vars(themeColorVariables[colorScheme])}>
+		<View className={twMerge(colorScheme !== "dark" ? "light" : "dark", "h-full w-full")}>
 			{children}
+			<StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
 		</View>
 	);
 };
 
-export { ThemeProvider };
+type CustomThemeProviderProps = {
+	children: ReactNode;
+	styleTheme?: "light" | "dark";
+	statusBarStyle?: "light" | "dark";
+};
+
+const CustomThemeProvider: FC<CustomThemeProviderProps> = ({
+	children,
+	styleTheme = "light",
+	statusBarStyle = "light",
+}) => {
+	return (
+		<View className={twMerge(styleTheme, "h-full w-full")}>
+			{children}
+			<StatusBar style={statusBarStyle} />
+		</View>
+	);
+};
+
+export { ThemeProvider, CustomThemeProvider };

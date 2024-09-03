@@ -8,6 +8,7 @@
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "scripts": {
     "ci": "act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main",
+    "ci:app-test": "bun ci -W ./.github/workflows/app-test.yaml",
     "build": "turbo build",
     "dev": "turbo dev",
     "fmt": "turbo fmt",
@@ -22,20 +23,37 @@
     "ui": "cd ./packages/ui && bun",
     "design-tokens": "cd ./packages/design-tokens && bun",
     "argon2id": "cd ./packages/argon2id && bun",
+    "tailwind-helpers": "cd ./packages/tailwind-helpers && bun",
     "postcss": "cd ./tools/postcss && bun",
     "tsconfig": "cd ./tools/tsconfig && bun",
-    "tw": "cd ./tools/tailwindcss && bun"
+    "tailwind-config": "cd ./tools/tailwind-config && bun"
   },
   "dependencies": {
     "@types/bun": "^1.1.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.8.0",
+    "@biomejs/biome": "1.8.3",
     "cross-env": "^7.0.3",
     "lefthook": "^1.6.18",
     "turbo": "^2.0.6",
     "typescript": "^5.5.2"
   },
-  "packageManager": "bun@1.1.12",
-  "trustedDependencies": ["@biomejs/biome", "@swc/core", "better-sqlite3", "core-js", "core-js-pure", "es5-ext", "esbuild", "lefthook", "workerd"]
+  "packageManager": "bun@1.1.26",
+  "trustedDependencies": [
+    "@biomejs/biome",
+    "@swc/core",
+    "better-sqlite3",
+    "core-js",
+    "core-js-pure",
+    "es5-ext",
+    "esbuild",
+    "lefthook",
+    "workerd"
+  ],
+  "overrides": {
+    "nativewind": "^4.1.4"
+  },
+  "patchedDependencies": {
+    "@storybook/addon-ondevice-controls@7.6.20": "patches/@storybook%2Faddon-ondevice-controls@7.6.20.patch"
+  }
 }

@@ -8,6 +8,8 @@
     "moduleResolution": "Bundler",
     "types": ["bun-types"],
     "verbatimModuleSyntax": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true
   }
 }

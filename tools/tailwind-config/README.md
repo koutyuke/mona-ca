@@ -1,0 +1,1 @@
+# `@mona-ca/tailwind-config`

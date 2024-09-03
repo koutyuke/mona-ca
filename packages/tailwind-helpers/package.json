@@ -1,0 +1,37 @@
+{
+  "name": "@mona-ca/tailwind-helpers",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./transforms": "./src/babel/transforms.ts",
+    "./babel-plugin": "./dist/plugin.js"
+  },
+  "scripts": {
+    "prepare": "bun run build",
+    "build": "tsup",
+    "fmt": "biome format --no-errors-on-unmatched",
+    "fmt:fix": "biome format --write --no-errors-on-unmatched",
+    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
+    "lint:fix": "biome lint --write --no-errors-on-unmatched",
+    "pretest": "bun run build",
+    "test": "bun test",
+    "gen:pseudo-class": "bun run ./src/scripts/generate-pseudo-class.ts"
+  },
+  "dependencies": {
+    "@mona-ca/tailwind-config": "workspace:*",
+    "tailwind-merge": "^2.4.0",
+    "tailwind-variants": "^0.2.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "@mona-ca/tsconfig": "workspace:*",
+    "@types/babel__core": "^7.20.5",
+    "tsup": "^8.2.4"
+  }
+}

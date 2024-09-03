@@ -23,8 +23,7 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 	}
 
 	public genAuthUrl(state: string, _codeVerifier: string): URL {
-		const url = this.discord.createAuthorizationURL(state);
-		url.addScopes("identify", "email");
+		const url = this.discord.createAuthorizationURL(state, ["identify", "email"]);
 		return url;
 	}
 

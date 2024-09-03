@@ -2,7 +2,9 @@
   "extends": "@mona-ca/tsconfig/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
-    "@/*": ["./src/*"]
+    "paths": {
+      "@ui/assets/*": ["./assets/*"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"]

@@ -1,4 +1,4 @@
-import { useTheme } from "@/features/theme/hooks";
+import { useTheme } from "@mobile/features/theme/hooks";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function TabOneScreen() {
@@ -32,7 +32,7 @@ export default function TabOneScreen() {
 				</TouchableOpacity>
 			</View>
 			<View className="flex flex-row">
-				<View className="h-16 w-16 bg-pure" />
+				<View className="h-16 w-16 bg-black" />
 				<View className="h-16 w-16 bg-orange-9" />
 				<View className="h-16 w-16 bg-iris-9" />
 			</View>

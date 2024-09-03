@@ -2,6 +2,7 @@
   "name": "@mona-ca/postcss",
   "version": "0.0.0",
   "private": true,
+  "main": "./postcss.config.js",
   "scripts": {
     "fmt": "biome format --no-errors-on-unmatched",
     "fmt:fix": "biome format --write --no-errors-on-unmatched",

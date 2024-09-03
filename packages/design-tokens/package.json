@@ -5,10 +5,12 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
+    "gen:colors": "bun ./src/colors/export-radix-colors/script.ts",
     "fmt": "biome format --no-errors-on-unmatched",
     "fmt:fix": "biome format --write --no-errors-on-unmatched",
     "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply --no-errors-on-unmatched"
+    "lint:fix": "biome lint --apply --no-errors-on-unmatched",
+    "test": "bun test"
   },
   "dependencies": {
     "@radix-ui/colors": "^3.0.0"
