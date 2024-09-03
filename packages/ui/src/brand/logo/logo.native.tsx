@@ -14,7 +14,7 @@ cssInterop(Logo, {
 });
 
 const MonaCaLogo: FC<Props> = ({ className }) => {
-	return <Logo className={twMerge("aspect-[4_/_1] h-full", className)} />;
+	return <Logo className={twMerge("aspect-[4_/_1]", className)} />;
 };
 
 export { MonaCaLogo };

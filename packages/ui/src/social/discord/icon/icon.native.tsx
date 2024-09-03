@@ -14,7 +14,7 @@ cssInterop(Icon, {
 });
 
 const DiscordIcon: FC<Props> = ({ className }) => {
-	return <Icon className={twMerge("aspect-square h-full", className)} />;
+	return <Icon className={twMerge("aspect-square", className)} />;
 };
 
 export { DiscordIcon };
