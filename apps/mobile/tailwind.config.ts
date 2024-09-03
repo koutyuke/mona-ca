@@ -6,7 +6,7 @@ const nativewindConfig = require("nativewind/preset");
 
 const config = {
 	content: {
-		files: ["./src/**/*.{js,jsx,ts,tsx}"],
+		files: ["./src/**/*.{js,jsx,ts,tsx}", "../../packages/ui/src/**/*.{js,jsx,ts,tsx}"],
 		transform: twHelperTransforms,
 	},
 	presets: [nativewindConfig, baseConfig],
