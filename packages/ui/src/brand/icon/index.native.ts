@@ -1,1 +1,1 @@
-export { BrandIcon } from "./icon.native";
+export { MonaCaIcon } from "./icon.native";

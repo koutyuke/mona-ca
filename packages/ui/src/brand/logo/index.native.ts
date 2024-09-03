@@ -1,1 +1,1 @@
-export { BrandLogo } from "./logo.native";
+export { MonaCaLogo } from "./logo.native";

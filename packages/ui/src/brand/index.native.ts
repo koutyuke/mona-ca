@@ -1,2 +1,2 @@
-export { BrandIcon } from "./icon/index.native";
-export { BrandLogo } from "./logo/index.native";
+export { MonaCaIcon } from "./icon/index.native";
+export { MonaCaLogo } from "./logo/index.native";

@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { BrandLogo } from "./logo.native";
+import { MonaCaLogo } from "./logo.native";
 
-const meta: Meta<typeof BrandLogo> = {
-	component: BrandLogo,
+const meta: Meta<typeof MonaCaLogo> = {
+	component: MonaCaLogo,
 };
 
 export default meta;
 
-type Story = StoryObj<typeof BrandLogo>;
+type Story = StoryObj<typeof MonaCaLogo>;
 
 const Template: Story = {
-	render: args => <BrandLogo {...args} />,
+	render: args => <MonaCaLogo {...args} />,
 };
 
 export const Default: Story = {

@@ -1,5 +1,5 @@
+import Icon from "@mona-ca/core/assets/brand/icon.svg";
 import { twMerge } from "@mona-ca/tailwind-helpers";
-import Icon from "@ui/assets/brand/icon.svg";
 import { cssInterop } from "nativewind";
 import type { FC } from "react";
 
@@ -13,8 +13,8 @@ cssInterop(Icon, {
 	},
 });
 
-const BrandIcon: FC<Props> = ({ className }) => {
+const MonaCaIcon: FC<Props> = ({ className }) => {
 	return <Icon className={twMerge("aspect-square h-full", className)} />;
 };
 
-export { BrandIcon };
+export { MonaCaIcon };
