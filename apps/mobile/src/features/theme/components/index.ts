@@ -1,1 +1,1 @@
-export * from "./provider";
+export { CustomThemeProvider, ThemeProvider } from "./provider";
