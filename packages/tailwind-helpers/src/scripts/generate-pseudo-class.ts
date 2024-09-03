@@ -1,8 +1,8 @@
 import path from "node:path";
 import { baseConfig } from "@mona-ca/tailwind-config";
-import { fileWrite } from "@tailwind-helpers/scripts/utils/fileWrite";
 import { createContext } from "tailwindcss/lib/lib/setupContextUtils";
 import resolveConfig from "tailwindcss/resolveConfig";
+import { fileWrite } from "../scripts/utils/file-write";
 
 const context = createContext(resolveConfig(baseConfig));
 

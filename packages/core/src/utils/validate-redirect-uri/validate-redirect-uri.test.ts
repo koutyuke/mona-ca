@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { validateRedirectUri } from "./validateRedirectUri";
+import { validateRedirectUri } from "./validate-redirect-uri";
 
 describe("Validate Redirect URI", () => {
 	test("期待したRedirect URIが返される", () => {
