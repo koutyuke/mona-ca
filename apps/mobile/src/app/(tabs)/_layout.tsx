@@ -1,5 +1,5 @@
-import { useTheme } from "@/features/theme/hooks";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useTheme } from "@mobile/features/theme/hooks";
 import { colors } from "@mona-ca/design-tokens";
 import { Tabs } from "expo-router";
 import type { ComponentProps } from "react";
