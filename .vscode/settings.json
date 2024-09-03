@@ -183,6 +183,8 @@
   "tailwindCSS.experimental.classRegex": [
     ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
     ["twMerge\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
+    ["tv\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
+    ["twMerge\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
     ["twPseudo\\(([^)]*)\\)", "[\"']([^\"']*).*?[\"']"]
   ],
   "tailwindCSS.includeLanguages": {
@@ -198,5 +200,6 @@
     "**/packages/core/**": "${filename}.${extname} ← CORE",
     "**/packages/ui/**": "${filename}.${extname} ← UI",
     "**/tools/**": "${filename}.${extname} ← TOOL"
-  }
+  },
+  "svg.preview.background": "transparent"
 }

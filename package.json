@@ -31,7 +31,7 @@
     "@types/bun": "^1.1.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.8.0",
+    "@biomejs/biome": "1.8.3",
     "cross-env": "^7.0.3",
     "lefthook": "^1.6.18",
     "turbo": "^2.0.6",
@@ -48,5 +48,11 @@
     "esbuild",
     "lefthook",
     "workerd"
-  ]
+  ],
+  "overrides": {
+    "nativewind": "^4.1.4"
+  },
+  "patchedDependencies": {
+    "@storybook/addon-ondevice-controls@7.6.20": "patches/@storybook%2Faddon-ondevice-controls@7.6.20.patch"
+  }
 }
