@@ -2,7 +2,9 @@
   "name": "@mona-ca/core",
   "version": "0.0.0",
   "private": true,
+  "main": "src/index.ts",
   "exports": {
+    "./assets/*": "./assets/*",
     "./const": "./src/const/index.ts",
     "./utils": "./src/utils/index.ts"
   },
