@@ -17,8 +17,15 @@ cssInterop(EyeOff, {
 
 type EyeIconProps = IconProps<"on" | "off">;
 
-const EyeIcon: FC<EyeIconProps> = ({ state, size, ...otherProps }) => {
-	const Icon = state === "on" ? Eye : EyeOff;
+const EyeIcon: FC<EyeIconProps> = ({ state = "on", size, ...otherProps }) => {
+	const Icon =
+		state === "on"
+			? Eye
+			: state === "off"
+				? EyeOff
+				: (() => {
+						throw new Error("Invalid state");
+					})();
 
 	return <Icon size={size ?? 0} {...otherProps} />;
 };

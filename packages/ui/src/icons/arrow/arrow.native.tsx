@@ -29,8 +29,19 @@ cssInterop(ArrowUp, {
 	},
 });
 
-const ArrowIcon: FC<ArrowIconProps> = ({ state, size, ...otherProps }) => {
-	const Icon = state === "up" ? ArrowUp : state === "down" ? ArrowDown : state === "left" ? ArrowLeft : ArrowRight;
+const ArrowIcon: FC<ArrowIconProps> = ({ state = "left", size, ...otherProps }) => {
+	const Icon =
+		state === "up"
+			? ArrowUp
+			: state === "down"
+				? ArrowDown
+				: state === "left"
+					? ArrowLeft
+					: state === "right"
+						? ArrowRight
+						: (() => {
+								throw new Error("Invalid state");
+							})();
 
 	return <Icon size={size ?? 0} {...otherProps} />;
 };

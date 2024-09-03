@@ -29,9 +29,19 @@ cssInterop(ChevronUp, {
 	},
 });
 
-const ChevronIcon: FC<ChevronIconProps> = ({ state, size, ...otherProps }) => {
+const ChevronIcon: FC<ChevronIconProps> = ({ state = "left", size, ...otherProps }) => {
 	const Icon =
-		state === "up" ? ChevronUp : state === "down" ? ChevronDown : state === "left" ? ChevronLeft : ChevronRight;
+		state === "up"
+			? ChevronUp
+			: state === "down"
+				? ChevronDown
+				: state === "left"
+					? ChevronLeft
+					: state === "right"
+						? ChevronRight
+						: (() => {
+								throw new Error("Invalid state");
+							})();
 
 	return <Icon size={size ?? 0} {...otherProps} />;
 };

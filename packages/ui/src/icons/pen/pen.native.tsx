@@ -17,8 +17,15 @@ cssInterop(PenOff, {
 
 type PenIconProps = IconProps<"on" | "off">;
 
-const PenIcon: FC<PenIconProps> = ({ state, size, ...otherProps }) => {
-	const Icon = state === "on" ? Pen : PenOff;
+const PenIcon: FC<PenIconProps> = ({ state = "on", size, ...otherProps }) => {
+	const Icon =
+		state === "on"
+			? Pen
+			: state === "off"
+				? PenOff
+				: (() => {
+						throw new Error("Invalid state");
+					})();
 
 	return <Icon size={size ?? 0} {...otherProps} />;
 };
