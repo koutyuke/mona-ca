@@ -78,6 +78,16 @@
           }
         }
       }
+    },
+    {
+      "include": ["**/hooks/**/*.ts", "**/hooks/**/*.tsx", "apps/api/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
     }
   ],
   "vcs": {
