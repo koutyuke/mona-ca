@@ -10,4 +10,21 @@ config.transformer.unstable_allowRequireContext = true;
 
 config.resolver.sourceExts.push("mjs");
 
-module.exports = withNativeWind(config, { input: "./src/app/global.css", configPath: "./tailwind.config.ts" });
+const { transformer, resolver } = config;
+
+config.transformer = {
+	...transformer,
+	babelTransformerPath: require.resolve("react-native-svg-transformer/expo"),
+};
+
+config.resolver = {
+	...resolver,
+	assetExts: resolver.assetExts.filter(ext => ext !== "svg"),
+	sourceExts: [...resolver.sourceExts, "svg"],
+};
+
+module.exports = withNativeWind(config, {
+	input: "./src/app/global.css",
+	configPath: "./tailwind.config.ts",
+	inlineRem: 16,
+});
