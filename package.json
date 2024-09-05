@@ -54,6 +54,7 @@
     "nativewind": "^4.1.4"
   },
   "patchedDependencies": {
-    "@storybook/addon-ondevice-controls@7.6.20": "patches/@storybook%2Faddon-ondevice-controls@7.6.20.patch"
+    "@storybook/addon-ondevice-controls@7.6.20": "patches/@storybook%2Faddon-ondevice-controls@7.6.20.patch",
+    "@elysiajs/swagger@1.1.1": "patches/@elysiajs%2Fswagger@1.1.1.patch"
   }
 }
