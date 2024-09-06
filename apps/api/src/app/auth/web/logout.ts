@@ -1,6 +1,6 @@
-import { AuthUseCase } from "@/application/usecases/auth";
-import { LuciaAdapter } from "@/interfaceAdapter/lucia";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { AuthUseCase } from "@/application/use-cases/auth";
+import { LuciaAdapter } from "@/interface-adapter/lucia";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { InternalServerErrorException } from "@/modules/error/exceptions";
 import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
 import { t } from "elysia";

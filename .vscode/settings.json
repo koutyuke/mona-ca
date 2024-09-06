@@ -180,6 +180,8 @@
     "source.organizeImports.biome": "explicit"
   },
   "editor.defaultFormatter": "biomejs.biome",
+  "npm.packageManager": "bun",
+  "svg.preview.background": "transparent",
   "tailwindCSS.experimental.classRegex": [
     ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
     ["twMerge\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
@@ -200,6 +202,5 @@
     "**/packages/core/**": "${filename}.${extname} ← CORE",
     "**/packages/ui/**": "${filename}.${extname} ← UI",
     "**/tools/**": "${filename}.${extname} ← TOOL"
-  },
-  "svg.preview.background": "transparent"
+  }
 }

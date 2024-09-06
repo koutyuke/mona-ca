@@ -1,6 +1,6 @@
-import { OAuthUseCase } from "@/application/usecases/oAuth/oAuth.usecase";
-import { providerSchema, selectOAuthProviderGateway } from "@/interfaceAdapter/gateway/oAuthProvider";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { OAuthUseCase } from "@/application/use-cases/oauth";
+import { providerSchema, selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,

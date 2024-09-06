@@ -1,5 +1,5 @@
 import { cors } from "@/modules/cors";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import type { AppEnv } from "@/modules/env";
 import { error } from "@/modules/error";
 import swagger from "@elysiajs/swagger";

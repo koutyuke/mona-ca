@@ -7,7 +7,7 @@
  */
 
 import type { Context } from "elysia";
-import { ElysiaWithEnv } from "../elysiaWithEnv";
+import { ElysiaWithEnv } from "../elysia-with-env";
 import type { AppStatusEnv } from "../env";
 
 export type HTTPMethod =

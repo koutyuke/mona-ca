@@ -8,7 +8,7 @@
     "fmt": "biome format --no-errors-on-unmatched",
     "fmt:fix": "biome format --write --no-errors-on-unmatched",
     "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply --no-errors-on-unmatched",
+    "lint:fix": "biome lint --write --no-errors-on-unmatched",
     "db:gen": "drizzle-kit generate",
     "db:mig": "bun db:gen && wrangler d1 migrations apply mona-ca_db",
     "db:std": "cross-env LOCAL_DB_PATH=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit studio --config drizzle.studio.config.ts",
@@ -18,25 +18,25 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@elysiajs/swagger": "^1.0.5",
+    "@elysiajs/swagger": "1.1.1",
     "@mona-ca/argon2id": "workspace:*",
     "@mona-ca/core": "workspace:*",
-    "arctic": "^2.0.0-next.1",
+    "arctic": "2.0.0-next.5",
     "drizzle-orm": "^0.30.10",
-    "elysia": "latest",
-    "lucia": "^3.2.0",
-    "oslo": "^1.2.1"
+    "elysia": "1.1.12",
+    "lucia": "3.2.0",
+    "oslo": "1.2.1"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.4.9",
-    "@cloudflare/workers-types": "^4.20240620.0",
+    "@cloudflare/vitest-pool-workers": "^0.4.28",
+    "@cloudflare/workers-types": "^4.20240903.0",
     "@mona-ca/tsconfig": "workspace:*",
-    "better-sqlite3": "^11.1.2",
+    "better-sqlite3": "^11.2.1",
     "drizzle-kit": "^0.21.4",
     "pretty-format": "^29.7.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "~1.5.3",
-    "wrangler": "^3.63.1"
+    "wrangler": "^3.74.0"
   },
   "overrides": {
     "pretty-format": "^29.7.0"

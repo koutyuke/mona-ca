@@ -1,4 +1,4 @@
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { Login } from "./login";
 import { Logout } from "./logout";
 import { Signup } from "./signup";

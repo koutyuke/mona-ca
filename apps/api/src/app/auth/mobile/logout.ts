@@ -1,6 +1,6 @@
-import { AuthUseCase } from "@/application/usecases/auth";
-import { LuciaAdapter } from "@/interfaceAdapter/lucia";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { AuthUseCase } from "@/application/use-cases/auth";
+import { LuciaAdapter } from "@/interface-adapter/lucia";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import { t } from "elysia";
 

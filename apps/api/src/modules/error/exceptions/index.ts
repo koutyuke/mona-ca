@@ -1,10 +1,10 @@
-export { BadGatewayException } from "./badGateway";
-export { BadRequestException } from "./badRequest";
+export { BadGatewayException } from "./bad-gateway";
+export { BadRequestException } from "./bad-request";
 export { ConflictException } from "./conflict";
 export { ForbiddenException } from "./forbidden";
-export { ImATeapotException } from "./imATeapot";
-export { InternalServerErrorException } from "./internalServerError";
-export { MethodNotAllowedException } from "./methodNotAllowed";
-export { NotImplementedException } from "./notImplemented";
-export { ServiceUnavailableException } from "./serviceUnavailable";
+export { ImATeapotException } from "./im-a-teapot";
+export { InternalServerErrorException } from "./internal-server-error";
+export { MethodNotAllowedException } from "./method-not-allowed";
+export { NotImplementedException } from "./not-implemented";
+export { ServiceUnavailableException } from "./service-unavailable";
 export { UnauthorizedException } from "./unauthorized";

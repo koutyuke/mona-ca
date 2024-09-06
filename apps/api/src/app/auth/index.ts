@@ -1,4 +1,4 @@
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { Mobile } from "./mobile";
 import { Web } from "./web";
 

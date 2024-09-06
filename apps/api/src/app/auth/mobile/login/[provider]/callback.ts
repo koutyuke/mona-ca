@@ -1,10 +1,10 @@
-import { AuthUseCase } from "@/application/usecases/auth";
-import { OAuthUseCase } from "@/application/usecases/oAuth";
-import { OAuthAccountUseCase } from "@/application/usecases/oAuthAccount";
-import { providerSchema, selectOAuthProviderGateway } from "@/interfaceAdapter/gateway/oAuthProvider";
-import { LuciaAdapter } from "@/interfaceAdapter/lucia";
-import { OAuthAccountRepository } from "@/interfaceAdapter/repositories/oAuthAccount";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { AuthUseCase } from "@/application/use-cases/auth";
+import { OAuthUseCase } from "@/application/use-cases/oauth";
+import { OAuthAccountUseCase } from "@/application/use-cases/oauth-account";
+import { providerSchema, selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
+import { LuciaAdapter } from "@/interface-adapter/lucia";
+import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,

@@ -1,8 +1,8 @@
-import { AuthUseCase } from "@/application/usecases/auth";
-import { UserUseCase } from "@/application/usecases/user";
-import { LuciaAdapter } from "@/interfaceAdapter/lucia";
-import { UserRepository } from "@/interfaceAdapter/repositories/user";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { AuthUseCase } from "@/application/use-cases/auth";
+import { UserUseCase } from "@/application/use-cases/user";
+import { LuciaAdapter } from "@/interface-adapter/lucia";
+import { UserRepository } from "@/interface-adapter/repositories/user";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { errorResponseSchema } from "@/modules/error";
 import { InternalServerError, t } from "elysia";
 import { Provider } from "./[provider]";
