@@ -1,5 +1,5 @@
 import type { OAuthProviderEnv } from "@/modules/env";
-import { DiscordOAuthGateway } from "../discord.gateway";
+import { DiscordOAuthGateway } from "../providers/discord.gateway";
 import type { OAuthProvider } from "../types/provider.type";
 
 const selectOAuthProviderGateway = (args: {

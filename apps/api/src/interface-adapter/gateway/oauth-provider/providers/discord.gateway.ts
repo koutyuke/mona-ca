@@ -1,7 +1,7 @@
 import { Value } from "@sinclair/typebox/value";
 import { Discord as DiscordProvider, type OAuth2Tokens } from "arctic";
 import { t } from "elysia";
-import type { AccountInfo, IOAuthProviderGateway } from "./interface/oauth-provider.gateway.interface";
+import type { AccountInfo, IOAuthProviderGateway } from "../interface/oauth-provider.gateway.interface";
 
 const discordAccountInfoSchema = t.Object({
 	id: t.String(),
@@ -17,13 +17,14 @@ const discordAccountInfoSchema = t.Object({
 
 export class DiscordOAuthGateway implements IOAuthProviderGateway {
 	private readonly discord: DiscordProvider;
+	private readonly scope = ["identify", "email"];
 
 	constructor(clientId: string, clientSecret: string, redirectUri: string) {
 		this.discord = new DiscordProvider(clientId, clientSecret, redirectUri);
 	}
 
 	public genAuthUrl(state: string, _codeVerifier: string): URL {
-		const url = this.discord.createAuthorizationURL(state, ["identify", "email"]);
+		const url = this.discord.createAuthorizationURL(state, this.scope);
 		return url;
 	}
 
