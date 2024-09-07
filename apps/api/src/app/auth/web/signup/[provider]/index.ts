@@ -14,7 +14,7 @@ import { ProviderCallback } from "./callback";
 const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 	.get(
 		"/",
-		async ({ params: { provider }, cookie, env, query: { "redirect-uri": queryRedirectUri }, set }) => {
+		async ({ params: { provider }, cookie, env, query: { "redirect-uri": queryRedirectUri }, redirect }) => {
 			const { APP_ENV } = env;
 
 			const apiBaseUri = getAPIBaseUrl(APP_ENV === "production");
@@ -73,7 +73,7 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				maxAge: 60 * 10,
 			});
 
-			set.redirect = redirectUri.toString();
+			redirect(redirectUri.toString());
 		},
 		{
 			query: t.Object({

@@ -19,7 +19,7 @@ import { t } from "elysia";
 
 const ProviderCallback = new ElysiaWithEnv().get(
 	"/callback",
-	async ({ params: { provider }, cookie, env, set, cfModuleEnv: { DB }, query: { code, state, error } }) => {
+	async ({ params: { provider }, cookie, env, redirect, cfModuleEnv: { DB }, query: { code, state, error } }) => {
 		const { APP_ENV } = env;
 
 		const apiBaseUri = getAPIBaseUrl(APP_ENV === "production");
@@ -52,12 +52,12 @@ const ProviderCallback = new ElysiaWithEnv().get(
 		if (error) {
 			if (error === "access_denied") {
 				redirectUriCookieValue.searchParams.set("error", "ACCESS_DENIED");
-				set.redirect = redirectUriCookieValue.toString();
+				redirect(redirectUriCookieValue.toString());
 				return;
 			}
 
 			redirectUriCookieValue.searchParams.set("error", "PROVIDER_ERROR");
-			set.redirect = redirectUriCookieValue.toString();
+			redirect(redirectUriCookieValue.toString());
 			return;
 		}
 
@@ -73,7 +73,7 @@ const ProviderCallback = new ElysiaWithEnv().get(
 
 			if (!providerAccount) {
 				redirectUriCookieValue.searchParams.set("error", "FAILED_TO_GET_ACCOUNT_INFO");
-				set.redirect = redirectUriCookieValue.toString();
+				redirect(redirectUriCookieValue.toString());
 				return;
 			}
 
@@ -84,7 +84,7 @@ const ProviderCallback = new ElysiaWithEnv().get(
 
 			if (existingOAuthAccount) {
 				redirectUriCookieValue.searchParams.set("error", "OAUTH_ACCOUNT_ALREADY_EXISTS");
-				set.redirect = redirectUriCookieValue.toString();
+				redirect(redirectUriCookieValue.toString());
 				return;
 			}
 
@@ -117,16 +117,16 @@ const ProviderCallback = new ElysiaWithEnv().get(
 			if (continueUrl) {
 				const validatedContinueUrl = validateRedirectUri(webBaseUri, continueUrl);
 				if (validatedContinueUrl) {
-					set.redirect = validatedContinueUrl.toString();
+					redirect(validatedContinueUrl.toString());
 					return;
 				}
 			}
 
-			set.redirect = redirectUriCookieValue.toString();
+			redirect(redirectUriCookieValue.toString());
 		} catch (error) {
 			console.error(error);
 			redirectUriCookieValue.searchParams.set("error", "INTERNAL_SERVER_ERROR");
-			set.redirect = redirectUriCookieValue.toString();
+			redirect(redirectUriCookieValue.toString());
 			return;
 		}
 	},
