@@ -123,7 +123,7 @@ export const cors = (config?: CORSConfig) => {
 
 		if (origin === true) {
 			set.headers.Vary = "*";
-			set.headers["Access-Control-Allow-Origin"] = request.headers.get("Origin") || "*";
+			set.headers["access-control-allow-origin"] = request.headers.get("Origin") || "*";
 			return;
 		}
 
@@ -131,7 +131,7 @@ export const cors = (config?: CORSConfig) => {
 
 		if (origins.includes("*")) {
 			set.headers.Vary = "*";
-			set.headers["Access-Control-Allow-Origin"] = "*";
+			set.headers["access-control-allow-origin"] = "*";
 			return;
 		}
 
@@ -141,7 +141,7 @@ export const cors = (config?: CORSConfig) => {
 			for (const origin of origins) {
 				if (processOrigin(origin, from) === true) {
 					set.headers.Vary = origin ? "Origin" : "*";
-					set.headers["Access-Control-Allow-Origin"] = from || "*";
+					set.headers["access-control-allow-origin"] = from || "*";
 					return;
 				}
 			}
@@ -156,11 +156,11 @@ export const cors = (config?: CORSConfig) => {
 		}
 
 		if (flattenMethod === true) {
-			set.headers["Access-Control-Allow-Methods"] = method ?? "*";
+			set.headers["access-control-allow-methods"] = method ?? "*";
 			return;
 		}
 
-		set.headers["Access-Control-Allow-Methods"] = flattenMethod;
+		set.headers["access-control-allow-methods"] = flattenMethod;
 	};
 
 	const app = new ElysiaWithEnv({
@@ -170,7 +170,7 @@ export const cors = (config?: CORSConfig) => {
 
 	return app
 		.options("/*", ({ set }) => {
-			set.headers["Access-Control-Max-Age"] = "5";
+			set.headers["access-control-max-age"] = "5";
 
 			return new Response(null, {
 				status: 204,
@@ -184,17 +184,17 @@ export const cors = (config?: CORSConfig) => {
 				const headers = processHeaders(request.headers);
 
 				if (flattenAllowedHeaders) {
-					set.headers["Access-Control-Allow-Headers"] =
+					set.headers["access-control-allow-headers"] =
 						flattenAllowedHeaders === true ? headers : flattenAllowedHeaders;
 				}
 
 				if (flattenExposeHeaders) {
-					set.headers["Access-Control-Expose-Headers"] = flattenExposeHeaders === true ? headers : flattenExposeHeaders;
+					set.headers["access-control-expose-headers"] = flattenExposeHeaders === true ? headers : flattenExposeHeaders;
 				}
 			}
 
 			if (credentials === true) {
-				set.headers["Access-Control-Allow-Credentials"] = "true";
+				set.headers["access-control-allow-credentials"] = "true";
 			}
 		});
 };

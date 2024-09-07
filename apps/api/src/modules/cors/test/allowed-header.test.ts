@@ -16,7 +16,7 @@ describe("Allowed Header Test", () => {
 
 		const res = await app.fetch(new Request("http://localhost/"));
 
-		expect(res.headers.get("Access-Control-Allow-Headers")).toBeNull();
+		expect(res.headers.get("access-control-allow-headers")).toBeNull();
 	});
 
 	test("trueの時に全てのHeaderが許可される", async () => {
@@ -32,20 +32,20 @@ describe("Allowed Header Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					"Content-Type": "application/json",
-					Authorization: "Bearer token",
+					"content-type": "application/json",
+					authorization: "Bearer token",
 				},
 			}),
 		);
 
-		const accessControlAllowHeaders = res.headers.get("Access-Control-Allow-Headers");
+		const accessControlAllowHeaders = res.headers.get("access-control-allow-headers");
 
 		expect(
-			accessControlAllowHeaders?.includes("Content-Type") || accessControlAllowHeaders?.includes("content-type"),
+			accessControlAllowHeaders?.includes("content-type") || accessControlAllowHeaders?.includes("Content-Type"),
 		).toBe(true);
 
 		expect(
-			accessControlAllowHeaders?.includes("Authorization") || accessControlAllowHeaders?.includes("authorization"),
+			accessControlAllowHeaders?.includes("authorization") || accessControlAllowHeaders?.includes("Authorization"),
 		).toBe(true);
 	});
 
@@ -54,15 +54,15 @@ describe("Allowed Header Test", () => {
 			.setEnv(env)
 			.use(
 				cors({
-					allowedHeaders: ["Content-Type", "Authorization"],
+					allowedHeaders: ["content-type", "authorization"],
 				}),
 			)
 			.get("/", () => "Test");
 
 		const res = await app.fetch(new Request("http://localhost/"));
 
-		const accessControlAllowHeaders = res.headers.get("Access-Control-Allow-Headers");
+		const accessControlAllowHeaders = res.headers.get("access-control-allow-headers");
 
-		expect(accessControlAllowHeaders).toBe("Content-Type, Authorization");
+		expect(accessControlAllowHeaders).toBe("content-type, authorization");
 	});
 });

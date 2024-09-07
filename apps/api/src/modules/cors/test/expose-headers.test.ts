@@ -16,7 +16,7 @@ describe("Expose Headers Test", async () => {
 
 		const res = await app.fetch(new Request("http://localhost/"));
 
-		expect(res.headers.get("Access-Control-Expose-Headers")).toBeNull();
+		expect(res.headers.get("access-control-expose-headers")).toBeNull();
 	});
 
 	test("trueの時に全てのHeaderが許可される", async () => {
@@ -38,7 +38,7 @@ describe("Expose Headers Test", async () => {
 			}),
 		);
 
-		const accessControlAllowHeaders = res.headers.get("Access-Control-Expose-Headers");
+		const accessControlAllowHeaders = res.headers.get("access-control-expose-headers");
 
 		expect(
 			accessControlAllowHeaders?.includes("Content-Type") || accessControlAllowHeaders?.includes("content-type"),
@@ -58,7 +58,7 @@ describe("Expose Headers Test", async () => {
 
 		const res = await app.fetch(new Request("http://localhost/"));
 
-		const accessControlAllowHeaders = res.headers.get("Access-Control-Expose-Headers");
+		const accessControlAllowHeaders = res.headers.get("access-control-expose-headers");
 
 		expect(accessControlAllowHeaders).toBe("Content-Type, Authorization");
 	});
