@@ -2,8 +2,9 @@ import type { Cookie } from "@/domain/cookie";
 import type { Session } from "@/domain/session";
 import type { User } from "@/domain/user";
 import { Argon2idService } from "@/infrastructure/argon2id";
-import { type ILuciaAdapter, LuciaService } from "@/interface-adapter/lucia";
+import { type ILuciaAdapter, LuciaService } from "@/infrastructure/lucia";
 import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
+import type { Cookie as ElysiaCookie } from "elysia";
 import type { IAuthUseCase } from "./interface/auth.usecase.interface";
 
 export class AuthUseCase implements IAuthUseCase {
@@ -57,8 +58,11 @@ export class AuthUseCase implements IAuthUseCase {
 		return this.luciaService.readBearerToken(authorizationHeader);
 	}
 
-	public readSessionCookie(cookieHeader: string): string | null {
-		return this.luciaService.readSessionCookie(cookieHeader);
+	public readSessionCookie(cookieHeader: {
+		[key: string]: ElysiaCookie<string | undefined>;
+	}): string | null {
+		const sessionCookie = cookieHeader[SESSION_COOKIE_NAME];
+		return sessionCookie?.value ?? null;
 	}
 
 	public async hashedPassword(password: string): Promise<string> {

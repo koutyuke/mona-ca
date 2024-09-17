@@ -1,6 +1,7 @@
 import type { Cookie } from "@/domain/cookie";
 import type { Session } from "@/domain/session";
 import type { User } from "@/domain/user";
+import type { Cookie as ElysiaCookie } from "elysia";
 
 export interface IAuthUseCase {
 	createBlankSessionCookie(): Cookie;
@@ -11,7 +12,9 @@ export interface IAuthUseCase {
 	invalidateSession(sessionId: Session["id"]): Promise<void>;
 	invalidateUserSessions(userId: User["id"]): Promise<void>;
 	readBearerToken(authorizationHeader: string): string | null;
-	readSessionCookie(cookieHeader: string): string | null;
+	readSessionCookie(cookieHeader: {
+		[key: string]: ElysiaCookie<string | undefined>;
+	}): string | null;
 	validateSession(sessionId: Session["id"]): Promise<{
 		session: Session;
 		user: User;

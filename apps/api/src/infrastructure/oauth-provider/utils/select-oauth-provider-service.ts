@@ -1,8 +1,8 @@
 import type { OAuthProviderEnv } from "@/modules/env";
-import { DiscordOAuthGateway } from "../providers/discord.gateway";
+import { DiscordOAuthService } from "../providers/discord.service";
 import type { OAuthProvider } from "../types/provider.type";
 
-const selectOAuthProviderGateway = (args: {
+const selectOAuthProviderService = (args: {
 	provider: OAuthProvider;
 	env: OAuthProviderEnv;
 	redirectUri: string;
@@ -10,10 +10,10 @@ const selectOAuthProviderGateway = (args: {
 	const { provider, env, redirectUri } = args;
 	switch (provider) {
 		case "discord":
-			return new DiscordOAuthGateway(env.DISCORD_CLIENT_ID, env.DISCORD_CLIENT_SECRET, redirectUri);
+			return new DiscordOAuthService(env.DISCORD_CLIENT_ID, env.DISCORD_CLIENT_SECRET, redirectUri);
 		default:
 			throw new Error(`Unsupported OAuth provider: ${provider}`);
 	}
 };
 
-export { selectOAuthProviderGateway };
+export { selectOAuthProviderService };

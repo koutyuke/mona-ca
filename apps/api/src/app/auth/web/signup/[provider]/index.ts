@@ -1,5 +1,5 @@
 import { OAuthUseCase } from "@/application/use-cases/oauth";
-import { providerSchema, selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
+import { oAuthProviderSchema, selectOAuthProviderService } from "@/infrastructure/oauth-provider";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import {
@@ -23,7 +23,7 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 			const providerGatewayRedirectUri = new URL(`auth/web/signup/${provider}/callback`, apiBaseUri);
 
 			const oAuthUseCase = new OAuthUseCase(
-				selectOAuthProviderGateway({
+				selectOAuthProviderService({
 					provider,
 					env,
 					redirectUri: providerGatewayRedirectUri.toString(),
@@ -80,7 +80,7 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({
-				provider: providerSchema,
+				provider: oAuthProviderSchema,
 			}),
 		},
 	)

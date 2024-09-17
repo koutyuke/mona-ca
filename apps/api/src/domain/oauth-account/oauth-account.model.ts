@@ -1,4 +1,4 @@
-import type { OAuthProvider } from "@/interface-adapter/gateway/oauth-provider";
+import type { OAuthProvider } from "@/infrastructure/oauth-provider";
 
 export class OAuthAccount {
 	readonly provider: OAuthProvider;

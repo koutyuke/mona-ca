@@ -1,4 +1,4 @@
-import { oAuthProviderSchema } from "@/interface-adapter/gateway/oauth-provider";
+import { oAuthProviderSchema } from "@/infrastructure/oauth-provider";
 import { t } from "elysia";
 
 const OAuthAccountSchema = t.Object({

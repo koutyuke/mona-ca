@@ -2,8 +2,8 @@ import { AuthUseCase } from "@/application/use-cases/auth";
 import { OAuthUseCase } from "@/application/use-cases/oauth";
 import { OAuthAccountUseCase } from "@/application/use-cases/oauth-account";
 import { UserUseCase } from "@/application/use-cases/user";
-import { providerSchema, selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
-import { LuciaAdapter } from "@/interface-adapter/lucia";
+import { LuciaAdapter } from "@/infrastructure/lucia";
+import { oAuthProviderSchema, selectOAuthProviderService } from "@/infrastructure/oauth-provider";
 import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
@@ -28,7 +28,7 @@ const ProviderCallback = new ElysiaWithEnv().get(
 		const providerGatewayRedirectUri = new URL(`auth/web/signup/${provider}/callback`, apiBaseUri);
 
 		const oAuthUseCase = new OAuthUseCase(
-			selectOAuthProviderGateway({
+			selectOAuthProviderService({
 				provider,
 				env,
 				redirectUri: providerGatewayRedirectUri.toString(),
@@ -140,7 +140,7 @@ const ProviderCallback = new ElysiaWithEnv().get(
 			{ additionalProperties: true },
 		),
 		params: t.Object({
-			provider: providerSchema,
+			provider: oAuthProviderSchema,
 		}),
 		cookie: t.Cookie({
 			[OAUTH_STATE_COOKIE_NAME]: t.String(),

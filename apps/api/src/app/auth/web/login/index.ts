@@ -1,7 +1,7 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { UserUseCase } from "@/application/use-cases/user";
 import { UserCredentialsUseCase } from "@/application/use-cases/user-credentials";
-import { LuciaAdapter } from "@/interface-adapter/lucia";
+import { LuciaAdapter } from "@/infrastructure/lucia";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { UserCredentialsRepository } from "@/interface-adapter/repositories/user-credentials";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
