@@ -21,12 +21,6 @@ describe("Delete Email Verification Code", () => {
 		)
 			.bind("id1", "user1@mail.com", "code1", "userId", new Date(2024, 0, 1).getTime() / 1000)
 			.run();
-
-		await DB.prepare(
-			"INSERT INTO email_verification_codes (id, email, code, user_id, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)",
-		)
-			.bind("id2", "user2@mail.com", "code2", null, new Date(2024, 0, 1).getTime() / 1000)
-			.run();
 	});
 
 	test("Data is deleted from the database", async () => {
