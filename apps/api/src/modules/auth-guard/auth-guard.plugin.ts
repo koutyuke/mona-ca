@@ -5,7 +5,7 @@ import { UnauthorizedException } from "../error/exceptions";
 
 const authGuard = new ElysiaWithEnv({
 	name: "@mona-ca/auth",
-}).resolve({ as: "scoped" }, async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
+}).derive({ as: "scoped" }, async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
 	const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
 
 	const sessionToken = authUseCase.readSessionCookie(cookie) || authUseCase.readBearerToken(authorization ?? "");
@@ -20,9 +20,7 @@ const authGuard = new ElysiaWithEnv({
 		throw new UnauthorizedException();
 	}
 
-	const { user, session } = sessionInfo;
-
-	return { user, session };
+	return sessionInfo;
 });
 
 export { authGuard };

@@ -31,8 +31,10 @@ describe("AuthGuard Authorization Header Test", () => {
 				},
 			}),
 		);
+		const text = await res.text();
 
 		expect(res.status).toBe(200);
+		expect(text).toBe("Test");
 	});
 
 	test("Fail with invalid authorization header", async () => {
