@@ -179,6 +179,7 @@ jobs:
           echo "DISCORD_CLIENT_SECRET=DISCORD_CLIENT_SECRET" >> ${{env.API_ENV_FILE_PATH}}
           echo "GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID" >> ${{env.API_ENV_FILE_PATH}}
           echo "GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET" >> ${{env.API_ENV_FILE_PATH}}
+          echo "RESEND_NOREPLY_EMAIL_API_KEY" >> ${{env.RESEND_DEFAULT_EMAIL_API_KEY}}
 
       - name: install
         run: bun install --frozen-lockfile
