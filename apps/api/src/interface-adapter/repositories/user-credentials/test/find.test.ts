@@ -7,7 +7,7 @@ import { UserCredentialsRepository } from "../user-credentials.repository";
 
 const { DB } = env;
 
-describe("Find UserCredentials", () => {
+describe("Find User Credentials", () => {
 	const userCredentialsRepository = new UserCredentialsRepository({
 		db: DB,
 	});
@@ -21,13 +21,13 @@ describe("Find UserCredentials", () => {
 	});
 
 	test("返り値がSchema通りである(UserCredentialsSchema)", async () => {
-		const userCredentials = await userCredentialsRepository.findByUserId("userId");
+		const userCredentials = await userCredentialsRepository.find("userId");
 		const isValid = Value.Check(UserCredentialsSchema, userCredentials);
 		expect(isValid).toBe(true);
 	});
 
 	test("返り値が期待通りである", async () => {
-		const userCredentials = await userCredentialsRepository.findByUserId("userId");
+		const userCredentials = await userCredentialsRepository.find("userId");
 		const schema = t.Object({
 			userId: t.Literal("userId"),
 			hashedPassword: t.Literal("hashedPassword"),

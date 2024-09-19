@@ -21,13 +21,13 @@ describe("Find User By Email", async () => {
 	});
 
 	test("返り値がSchema通りである(UserSchema)", async () => {
-		const foundUser = await userRepository.findById("userId");
+		const foundUser = await userRepository.find("userId");
 		const isValid = Value.Check(UserSchema, foundUser);
 		expect(isValid).toBe(true);
 	});
 
 	test("返り値が期待通りである", async () => {
-		const foundUser = await userRepository.findById("userId");
+		const foundUser = await userRepository.find("userId");
 		const schema = t.Object({
 			id: t.Literal("userId"),
 			name: t.Literal("foo"),

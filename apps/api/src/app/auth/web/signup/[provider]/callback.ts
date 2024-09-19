@@ -78,7 +78,7 @@ const ProviderCallback = new ElysiaWithEnv().get(
 			}
 
 			const [existingUser, existingOAuthAccount] = await Promise.all([
-				userUseCase.findUserByEmail(providerAccount.email),
+				userUseCase.getUserByEmail(providerAccount.email),
 				oAuthAccountUseCase.getOAuthAccountByProviderAndProviderId(provider, providerAccount.id),
 			]);
 

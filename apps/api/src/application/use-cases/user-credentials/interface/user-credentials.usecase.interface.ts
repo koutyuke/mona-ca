@@ -1,10 +1,10 @@
 import type { UserCredentials } from "@/domain/user-credentials";
 
 export interface IUserCredentialsUseCase {
-	findCredentialsByUserId(userId: string): Promise<UserCredentials | null>;
-	updateCredentialsByUserId(
+	getUserCredential(userId: string): Promise<UserCredentials | null>;
+	updateUserCredential(
 		userId: string,
 		credentials: Partial<Omit<UserCredentials, "userId">>,
 	): Promise<UserCredentials | null>;
-	setNullCredentialsByUserId(userId: string): Promise<void>;
+	setNullToHashedPassword(userId: string): Promise<void>;
 }

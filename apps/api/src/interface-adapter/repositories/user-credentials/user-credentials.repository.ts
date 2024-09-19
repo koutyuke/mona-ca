@@ -12,7 +12,7 @@ export class UserCredentialsRepository implements IUserCredentialsRepository {
 		this.drizzleService = new DrizzleService(args.db);
 	}
 
-	async findByUserId(userId: UserCredentials["userId"]): Promise<UserCredentials | null> {
+	async find(userId: UserCredentials["userId"]): Promise<UserCredentials | null> {
 		const userCredentials = await this.drizzleService.db
 			.select({
 				userId: this.drizzleService.schema.users.id,
@@ -40,7 +40,7 @@ export class UserCredentialsRepository implements IUserCredentialsRepository {
 		return updatedUserCredentials.length === 1 ? new UserCredentials(updatedUserCredentials[0]!) : null;
 	}
 
-	async setNull(userId: UserCredentials["userId"]): Promise<void> {
+	async setNullToHashedPassword(userId: UserCredentials["userId"]): Promise<void> {
 		await this.drizzleService.db
 			.update(this.drizzleService.schema.users)
 			.set({ hashedPassword: null })

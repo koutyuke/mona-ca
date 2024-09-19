@@ -13,7 +13,7 @@ export class UserRepository implements IUserRepository {
 		this.drizzleService = new DrizzleService(args.db);
 	}
 
-	async findById(id: string): Promise<User | null> {
+	async find(id: string): Promise<User | null> {
 		const user = await this.drizzleService.db.query.users.findFirst({
 			where: (users, { eq }) => eq(users.id, id),
 		});

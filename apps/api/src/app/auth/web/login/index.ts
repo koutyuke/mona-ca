@@ -18,8 +18,8 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
 			const userCredentialsUseCase = new UserCredentialsUseCase(new UserCredentialsRepository({ db: DB }));
 
-			const user = await userUseCase.findUserByEmail(email);
-			const credentials = user ? await userCredentialsUseCase.findCredentialsByUserId(user.id) : null;
+			const user = await userUseCase.getUserByEmail(email);
+			const credentials = user ? await userCredentialsUseCase.getUserCredential(user.id) : null;
 
 			if (
 				!user ||

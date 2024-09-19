@@ -6,7 +6,7 @@ import { UserCredentialsRepository } from "../user-credentials.repository";
 
 const { DB } = env;
 
-describe("Set Null UserCredentials", () => {
+describe("Set Null To Hashed Password", () => {
 	const userCredentialsRepository = new UserCredentialsRepository({
 		db: DB,
 	});
@@ -20,7 +20,7 @@ describe("Set Null UserCredentials", () => {
 	});
 
 	test("DBにデータが更新されている", async () => {
-		await userCredentialsRepository.setNull("userId");
+		await userCredentialsRepository.setNullToHashedPassword("userId");
 
 		const { results } = await DB.prepare("SELECT * FROM users WHERE id = ?1").bind("userId").all();
 

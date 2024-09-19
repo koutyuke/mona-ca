@@ -8,29 +8,29 @@ import type { IUserUseCase } from "./interface/user.usecase.interface";
 export class UserUseCase implements IUserUseCase {
 	constructor(private userRepository: IUserRepository) {}
 
-	public async findUser(id: User["id"]): Promise<User | null> {
-		return this.userRepository.findById(id);
+	public async getUser(id: User["id"]): Promise<User | null> {
+		return this.userRepository.find(id);
 	}
 
-	public async findUserByEmail(email: User["email"]): Promise<User | null> {
+	public async getUserByEmail(email: User["email"]): Promise<User | null> {
 		return this.userRepository.findByEmail(email);
 	}
 
-	public async findUserBySessionId(sessionId: Session["id"]): Promise<User | null> {
+	public async getUserBySessionId(sessionId: Session["id"]): Promise<User | null> {
 		return this.userRepository.findBySessionId(sessionId);
 	}
 
 	public async createUser(
 		user: Omit<User, "id" | "createdAt" | "updatedAt"> & Partial<Pick<User, "id"> & Omit<UserCredentials, "userId">>,
 	): Promise<User> {
-		const id = user.id ?? this.genId();
+		const id = user.id ?? this.generateId();
 		return this.userRepository.create({
 			id,
 			...user,
 		});
 	}
 
-	public genId(): string {
+	public generateId(): string {
 		// 16-characters
 		return generateIdFromEntropySize(10);
 	}
