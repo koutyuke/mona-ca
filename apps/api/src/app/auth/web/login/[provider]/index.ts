@@ -12,6 +12,10 @@ import { t } from "elysia";
 import { ProviderCallback } from "./callback";
 
 const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
+	// Other Route
+	.use(ProviderCallback)
+
+	// Route
 	.get(
 		"/",
 		async ({ params: { provider }, cookie, env, query: { "redirect-uri": queryRedirectUri }, redirect }) => {
@@ -84,7 +88,6 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				provider: oAuthProviderSchema,
 			}),
 		},
-	)
-	.use(ProviderCallback);
+	);
 
 export { Provider };

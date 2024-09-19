@@ -11,6 +11,10 @@ import { t } from "elysia";
 import { Provider } from "./[provider]";
 
 const Login = new ElysiaWithEnv({ prefix: "/login" })
+	// Other Route
+	.use(Provider)
+
+	// Route
 	.post(
 		"/",
 		async ({ body: { email, password }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
@@ -50,7 +54,6 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 				password: t.String(),
 			}),
 		},
-	)
-	.use(Provider);
+	);
 
 export { Login };

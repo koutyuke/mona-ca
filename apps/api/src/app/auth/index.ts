@@ -5,6 +5,7 @@ import { Web } from "./web";
 const Auth = new ElysiaWithEnv({
 	prefix: "/auth",
 })
+	// Other Routes
 	.use(Mobile)
 	.use(Web);
 

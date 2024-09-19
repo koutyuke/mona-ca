@@ -8,6 +8,10 @@ import { InternalServerError, t } from "elysia";
 import { Provider } from "./[provider]";
 
 const Signup = new ElysiaWithEnv({ prefix: "/signup" })
+	// Other Route
+	.use(Provider)
+
+	// Route
 	.post(
 		"/",
 		async ({ body: { email, password, name }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
@@ -57,7 +61,6 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 				500: errorResponseSchema,
 			},
 		},
-	)
-	.use(Provider);
+	);
 
 export { Signup };

@@ -6,6 +6,7 @@ import { Signup } from "./signup";
 const Mobile = new ElysiaWithEnv({
 	prefix: "/mobile",
 })
+	// Other Routes
 	.use(Login)
 	.use(Logout)
 	.use(Signup);
