@@ -3,6 +3,7 @@ import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import type { AppEnv } from "@/modules/env";
 import { error } from "@/modules/error";
 import swagger from "@elysiajs/swagger";
+import { Me } from "./@me";
 import { Auth } from "./auth";
 
 const root = new ElysiaWithEnv({
@@ -10,6 +11,7 @@ const root = new ElysiaWithEnv({
 });
 
 root
+	// Global Middleware & Plugin
 	.use(
 		cors({
 			origin: app_env => {
@@ -32,7 +34,12 @@ root
 			},
 		}),
 	)
+
+	// Other Routes
 	.use(Auth)
+	.use(Me)
+
+	// Route
 	.get("/", async () => {
 		return "Hello, mona-ca!";
 	});
