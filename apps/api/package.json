@@ -12,7 +12,7 @@
     "db:gen": "drizzle-kit generate",
     "db:mig": "bun db:gen && wrangler d1 migrations apply mona-ca_db",
     "db:std": "cross-env LOCAL_DB_PATH=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit studio --config drizzle.studio.config.ts",
-    "db:std:prod": "drizzle-kit studio",
+    "db:std:remote": "drizzle-kit studio  --config drizzle.studio.remote.config.ts",
     "test": "vitest --run",
     "test:watch": "vitest --watch",
     "type-check": "tsc --noEmit"
@@ -21,11 +21,12 @@
     "@elysiajs/swagger": "1.1.1",
     "@mona-ca/argon2id": "workspace:*",
     "@mona-ca/core": "workspace:*",
-    "arctic": "2.0.0-next.5",
+    "arctic": "2.0.0-next.9",
     "drizzle-orm": "^0.30.10",
-    "elysia": "1.1.12",
+    "elysia": "1.1.13",
     "lucia": "3.2.0",
-    "oslo": "1.2.1"
+    "oslo": "1.2.1",
+    "resend": "^4.0.0"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.4.28",
@@ -36,7 +37,7 @@
     "pretty-format": "^29.7.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "~1.5.3",
-    "wrangler": "^3.74.0"
+    "wrangler": "3.77.0"
   },
   "overrides": {
     "pretty-format": "^29.7.0"
