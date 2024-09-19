@@ -3,4 +3,4 @@ export { passwordResetTokens } from "./password-reset-tokens";
 export { session } from "./session";
 export { users } from "./users";
 export { userRelations } from "./relations";
-export { emailVerificationCode } from "./email-verification-code";
+export { emailVerificationCodes } from "./email-verification-codes";
