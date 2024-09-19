@@ -4,3 +4,4 @@ export {
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "./cookie";
+export { MC_DEFAULT_EMAIL_ADDRESS } from "./email";
