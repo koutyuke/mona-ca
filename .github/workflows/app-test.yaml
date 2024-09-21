@@ -15,18 +15,18 @@ jobs:
         with:
           auto-install: true
 
-      - name: get bun cache directory
+      - name: Get bun cache directory
         id: get-bun-cache-directory
         run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
-  
-      - name: cache bun dependencies
+
+      - name: Get bun cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.get-bun-cache-directory.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-bun-dependencies-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: ${{ runner.os }}-bun-dependencies-
-      
-      - name: install
+          key: ${{ runner.os }}-cache-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-cache-bun-
+
+      - name: Install
         run: bun install --frozen-lockfile
   
   lint:
@@ -41,28 +41,28 @@ jobs:
         with:
           auto-install: true
 
-      - name: get bun cache directory
+      - name: Get bun cache directory
         id: get-bun-cache-directory
         run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
-  
-      - name: cache bun dependencies
+
+      - name: Get bun cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.get-bun-cache-directory.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-bun-dependencies-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: ${{ runner.os }}-bun-dependencies-
+          key: ${{ runner.os }}-cache-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-cache-bun-
 
-      - name: cache turbo build
+      - name: Get turbo cache
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-bun-build-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-bun-build-
-      
-      - name: install
+          key: ${{ runner.os }}-cache-turbo-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-cache-turbo-
+
+      - name: Install
         run: bun install --frozen-lockfile
 
-      - name: lint
+      - name: Lint
         run: bun run lint
 
   format:
@@ -77,28 +77,28 @@ jobs:
         with:
           auto-install: true
 
-      - name: get bun cache directory
+      - name: Get bun cache directory
         id: get-bun-cache-directory
         run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
-  
-      - name: cache bun dependencies
+
+      - name: Get bun cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.get-bun-cache-directory.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-bun-dependencies-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: ${{ runner.os }}-bun-dependencies-
+          key: ${{ runner.os }}-cache-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-cache-bun-
 
-      - name: cache turbo build
+      - name: Get turbo cache
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-bun-build-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-bun-build-
-      
-      - name: install
+          key: ${{ runner.os }}-cache-turbo-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-cache-turbo-
+
+      - name: Install
         run: bun install --frozen-lockfile
 
-      - name: format
+      - name: Format
         run: bun run fmt
 
   type-check:
@@ -113,28 +113,28 @@ jobs:
         with:
           auto-install: true
 
-      - name: get bun cache directory
+      - name: Get bun cache directory
         id: get-bun-cache-directory
         run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
-  
-      - name: cache bun dependencies
+
+      - name: Get bun cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.get-bun-cache-directory.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-bun-dependencies-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: ${{ runner.os }}-bun-dependencies-
+          key: ${{ runner.os }}-cache-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-cache-bun-
 
-      - name: cache turbo build
+      - name: Get turbo cache
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-bun-build-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-bun-build-
-      
-      - name: install
+          key: ${{ runner.os }}-cache-turbo-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-cache-turbo-
+
+      - name: Install
         run: bun install --frozen-lockfile
 
-      - name: format
+      - name: Type-Check
         run: bun run type-check
     
   test:
@@ -152,28 +152,28 @@ jobs:
         with:
           auto-install: true
 
-      - name: get bun cache directory
+      - name: Get bun cache directory
         id: get-bun-cache-directory
         run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
   
-      - name: cache bun dependencies
+      - name: Get bun cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.get-bun-cache-directory.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-bun-dependencies-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: ${{ runner.os }}-bun-dependencies-
-      
-      - name: cache turbo build
+          key: ${{ runner.os }}-cache-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-cache-bun-
+
+      - name: Get turbo cache
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-bun-build-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-bun-build-
+          key: ${{ runner.os }}-cache-turbo-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-cache-turbo-
 
-      - name: install
+      - name: Install
         run: bun install --frozen-lockfile
-      
-      - name: test
+
+      - name: Test
         run: bun run test
     
   build:
@@ -191,28 +191,28 @@ jobs:
         with:
           auto-install: true
 
-      - name: get bun cache directory
+      - name: Get bun cache directory
         id: get-bun-cache-directory
         run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
-  
-      - name: cache bun dependencies
+
+      - name: Get bun cache
         uses: actions/cache@v4
         with:
           path: ${{ steps.get-bun-cache-directory.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-bun-dependencies-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: ${{ runner.os }}-bun-dependencies-
-      
-      - name: cache turbo build
+          key: ${{ runner.os }}-cache-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: ${{ runner.os }}-cache-bun-
+
+      - name: Get turbo cache
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-bun-build-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-bun-build-
+          key: ${{ runner.os }}-cache-turbo-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-cache-turbo-
 
-      - name: install
+      - name: Install
         run: bun install --frozen-lockfile
-      
-      - name: build
+
+      - name: Build
         run: bun run build
 
   status:
@@ -222,5 +222,5 @@ jobs:
       - build
     if: ${{ ! failure() }}
     steps:
-      - name: check
+      - name: Check
         run: echo "test is successfully executed."
