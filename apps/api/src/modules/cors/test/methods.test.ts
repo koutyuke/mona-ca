@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { describe, expect, test } from "vitest";
 import { cors } from "../cors.plugin";
 

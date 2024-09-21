@@ -1,1 +1,1 @@
-export * from "./type";
+export type { Theme, DarkMode } from "./type";

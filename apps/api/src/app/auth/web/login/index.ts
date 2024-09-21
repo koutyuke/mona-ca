@@ -1,16 +1,20 @@
-import { AuthUseCase } from "@/application/usecases/auth";
-import { UserUseCase } from "@/application/usecases/user";
-import { UserCredentialsUseCase } from "@/application/usecases/userCredentials";
-import { LuciaAdapter } from "@/interfaceAdapter/lucia";
-import { UserRepository } from "@/interfaceAdapter/repositories/user";
-import { UserCredentialsRepository } from "@/interfaceAdapter/repositories/userCredentials";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { AuthUseCase } from "@/application/use-cases/auth";
+import { UserUseCase } from "@/application/use-cases/user";
+import { UserCredentialsUseCase } from "@/application/use-cases/user-credentials";
+import { LuciaAdapter } from "@/infrastructure/lucia";
+import { UserRepository } from "@/interface-adapter/repositories/user";
+import { UserCredentialsRepository } from "@/interface-adapter/repositories/user-credentials";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
 import { t } from "elysia";
 import { Provider } from "./[provider]";
 
 const Login = new ElysiaWithEnv({ prefix: "/login" })
+	// Other Route
+	.use(Provider)
+
+	// Route
 	.post(
 		"/",
 		async ({ body: { email, password }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
@@ -18,8 +22,8 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
 			const userCredentialsUseCase = new UserCredentialsUseCase(new UserCredentialsRepository({ db: DB }));
 
-			const user = await userUseCase.findUserByEmail(email);
-			const credentials = user ? await userCredentialsUseCase.findCredentialsByUserId(user.id) : null;
+			const user = await userUseCase.getUserByEmail(email);
+			const credentials = user ? await userCredentialsUseCase.getUserCredential(user.id) : null;
 
 			if (
 				!user ||
@@ -50,7 +54,6 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 				password: t.String(),
 			}),
 		},
-	)
-	.use(Provider);
+	);
 
 export { Login };

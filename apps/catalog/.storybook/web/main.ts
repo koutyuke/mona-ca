@@ -3,15 +3,14 @@ import type { StorybookConfig } from "@storybook/react-webpack5";
 
 const config: StorybookConfig = {
 	stories: [
-		"!../../../../../../packages/ui/src/**/*.native.story.@(ts|tsx)",
 		{
 			directory: "../../../web/src",
 			files: "**/*.story.@(ts|tsx)",
 			titlePrefix: "app - web",
 		},
 		{
-			directory: "../../../../packages/ui",
-			files: "**/*.story.@(ts|tsx)",
+			directory: "../../../../packages/ui/src",
+			files: "**/!(*.native).story.@(ts|tsx)",
 			titlePrefix: "package - ui",
 		},
 	],

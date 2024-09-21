@@ -1,13 +1,17 @@
-import { AuthUseCase } from "@/application/usecases/auth";
-import { UserUseCase } from "@/application/usecases/user";
-import { LuciaAdapter } from "@/interfaceAdapter/lucia";
-import { UserRepository } from "@/interfaceAdapter/repositories/user";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { AuthUseCase } from "@/application/use-cases/auth";
+import { UserUseCase } from "@/application/use-cases/user";
+import { LuciaAdapter } from "@/infrastructure/lucia";
+import { UserRepository } from "@/interface-adapter/repositories/user";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { errorResponseSchema } from "@/modules/error";
 import { InternalServerError, t } from "elysia";
 import { Provider } from "./[provider]";
 
 const Signup = new ElysiaWithEnv({ prefix: "/signup" })
+	// Other Route
+	.use(Provider)
+
+	// Route
 	.post(
 		"/",
 		async ({ body: { email, password, name }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
@@ -57,7 +61,6 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 				500: errorResponseSchema,
 			},
 		},
-	)
-	.use(Provider);
+	);
 
 export { Signup };

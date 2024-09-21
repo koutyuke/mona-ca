@@ -1,10 +1,10 @@
-import { AuthUseCase } from "@/application/usecases/auth";
-import { OAuthUseCase } from "@/application/usecases/oAuth";
-import { OAuthAccountUseCase } from "@/application/usecases/oAuthAccount";
-import { providerSchema, selectOAuthProviderGateway } from "@/interfaceAdapter/gateway/oAuthProvider";
-import { LuciaAdapter } from "@/interfaceAdapter/lucia";
-import { OAuthAccountRepository } from "@/interfaceAdapter/repositories/oAuthAccount";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { AuthUseCase } from "@/application/use-cases/auth";
+import { OAuthUseCase } from "@/application/use-cases/oauth";
+import { OAuthAccountUseCase } from "@/application/use-cases/oauth-account";
+import { LuciaAdapter } from "@/infrastructure/lucia";
+import { oAuthProviderSchema, selectOAuthProviderService } from "@/infrastructure/oauth-provider";
+import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -14,109 +14,121 @@ import {
 import { getAPIBaseUrl, getMobileScheme, validateRedirectUri } from "@mona-ca/core/utils";
 import { t } from "elysia";
 
-const ProviderCallback = new ElysiaWithEnv().get(
-	"/callback",
-	async ({ params: { provider }, cookie, env, set, cfModuleEnv: { DB }, query: { code, state, error } }) => {
-		const { APP_ENV } = env;
+const ProviderCallback = new ElysiaWithEnv({
+	prefix: "/callback",
+})
+	// Route
+	.get(
+		"/",
+		async ({
+			params: { provider },
+			cookie,
+			env,
+			set,
+			cfModuleEnv: { DB },
+			query: { code, state, error },
+			redirect,
+		}) => {
+			const { APP_ENV } = env;
 
-		const apiBaseUri = getAPIBaseUrl(APP_ENV === "production");
-		const mobileScheme = getMobileScheme();
+			const apiBaseUri = getAPIBaseUrl(APP_ENV === "production");
+			const mobileScheme = getMobileScheme();
 
-		const providerGatewayRedirectUri = new URL(`auth/mobile/login/${provider}/callback`, apiBaseUri);
+			const providerGatewayRedirectUri = new URL(`auth/mobile/login/${provider}/callback`, apiBaseUri);
 
-		const oAuthUseCase = new OAuthUseCase(
-			selectOAuthProviderGateway({
-				provider,
-				env,
-				redirectUri: providerGatewayRedirectUri.toString(),
-			}),
-		);
-
-		const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
-
-		const oAuthAccountUseCase = new OAuthAccountUseCase(new OAuthAccountRepository({ db: DB }));
-
-		const stateCookieValue = cookie[OAUTH_STATE_COOKIE_NAME].value;
-		const codeVerifierCookieValue = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].value;
-		const redirectUriCookieValue = validateRedirectUri(
-			mobileScheme,
-			cookie[OAUTH_REDIRECT_URI_COOKIE_NAME].value ?? "/",
-		);
-
-		if (!stateCookieValue || !redirectUriCookieValue) {
-			throw new BadRequestException({ message: "Invalid state or redirect URI" });
-		}
-
-		if (error) {
-			if (error === "access_denied") {
-				redirectUriCookieValue.searchParams.set("error", "ACCESS_DENIED");
-				set.redirect = redirectUriCookieValue.toString().replace(/\/\/\//g, "//");
-				return;
-			}
-
-			redirectUriCookieValue.searchParams.set("error", "PROVIDER_ERROR");
-			set.redirect = redirectUriCookieValue.toString().replace(/\/\/\//g, "//");
-			return;
-		}
-
-		if (!code || !state || state !== stateCookieValue) {
-			throw new BadRequestException({ message: "Invalid code or state" });
-		}
-
-		try {
-			const tokens = await oAuthUseCase.getTokens(code, codeVerifierCookieValue);
-			const accessToken = tokens.accessToken();
-
-			const providerAccount = await oAuthUseCase.getAccountInfo(accessToken);
-
-			if (!providerAccount) {
-				redirectUriCookieValue.searchParams.set("error", "FAILED_TO_GET_ACCOUNT_INFO");
-				set.redirect = redirectUriCookieValue.toString().replace(/\/\/\//g, "//");
-				return;
-			}
-
-			const existingOAuthAccount = await oAuthAccountUseCase.getOAuthAccountByProviderAndProviderId(
-				provider,
-				providerAccount.id,
+			const oAuthUseCase = new OAuthUseCase(
+				selectOAuthProviderService({
+					provider,
+					env,
+					redirectUri: providerGatewayRedirectUri.toString(),
+				}),
 			);
 
-			if (!existingOAuthAccount) {
-				redirectUriCookieValue.searchParams.set("error", "ACCOUNT_NOT_FOUND");
-				set.redirect = redirectUriCookieValue.toString().replace(/\/\/\//g, "//");
+			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
+
+			const oAuthAccountUseCase = new OAuthAccountUseCase(new OAuthAccountRepository({ db: DB }));
+
+			const stateCookieValue = cookie[OAUTH_STATE_COOKIE_NAME].value;
+			const codeVerifierCookieValue = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].value;
+			const redirectUriCookieValue = validateRedirectUri(
+				mobileScheme,
+				cookie[OAUTH_REDIRECT_URI_COOKIE_NAME].value ?? "/",
+			);
+
+			if (!stateCookieValue || !redirectUriCookieValue) {
+				throw new BadRequestException({ message: "Invalid state or redirect URI" });
+			}
+
+			if (error) {
+				if (error === "access_denied") {
+					redirectUriCookieValue.searchParams.set("error", "ACCESS_DENIED");
+					redirect(redirectUriCookieValue.toString().replace(/\/\/\//g, "//"));
+					return;
+				}
+
+				redirectUriCookieValue.searchParams.set("error", "PROVIDER_ERROR");
+				redirect(redirectUriCookieValue.toString().replace(/\/\/\//g, "//"));
 				return;
 			}
 
-			const session = await authUseCase.createSession(existingOAuthAccount.userId);
+			if (!code || !state || state !== stateCookieValue) {
+				throw new BadRequestException({ message: "Invalid code or state" });
+			}
 
-			redirectUriCookieValue.searchParams.set("access-token", session.id);
+			try {
+				const tokens = await oAuthUseCase.getTokens(code, codeVerifierCookieValue);
+				const accessToken = tokens.accessToken();
 
-			set.headers["Referrer-Policy"] = "strict-origin";
-			set.redirect = redirectUriCookieValue.toString().replace(/\/\/\//g, "//");
-		} catch (error) {
-			console.error(error);
-			redirectUriCookieValue.searchParams.set("error", "INTERNAL_SERVER_ERROR");
-			set.redirect = redirectUriCookieValue.toString().replace(/\/\/\//g, "//");
-			return;
-		}
-	},
-	{
-		query: t.Object(
-			{
-				code: t.Optional(t.String()),
-				state: t.Optional(t.String()),
-				error: t.Optional(t.String()),
-			},
-			{ additionalProperties: true },
-		),
-		params: t.Object({
-			provider: providerSchema,
-		}),
-		cookie: t.Cookie({
-			[OAUTH_STATE_COOKIE_NAME]: t.String(),
-			[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String(),
-			[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String(),
-		}),
-	},
-);
+				const providerAccount = await oAuthUseCase.getAccountInfo(accessToken);
+
+				if (!providerAccount) {
+					redirectUriCookieValue.searchParams.set("error", "FAILED_TO_GET_ACCOUNT_INFO");
+					redirect(redirectUriCookieValue.toString().replace(/\/\/\//g, "//"));
+					return;
+				}
+
+				const existingOAuthAccount = await oAuthAccountUseCase.getOAuthAccountByProviderAndProviderId(
+					provider,
+					providerAccount.id,
+				);
+
+				if (!existingOAuthAccount) {
+					redirectUriCookieValue.searchParams.set("error", "ACCOUNT_NOT_FOUND");
+					redirect(redirectUriCookieValue.toString().replace(/\/\/\//g, "//"));
+					return;
+				}
+
+				const session = await authUseCase.createSession(existingOAuthAccount.userId);
+
+				redirectUriCookieValue.searchParams.set("access-token", session.id);
+
+				set.headers["Referrer-Policy"] = "strict-origin";
+				redirect(redirectUriCookieValue.toString().replace(/\/\/\//g, "//"));
+			} catch (error) {
+				console.error(error);
+				redirectUriCookieValue.searchParams.set("error", "INTERNAL_SERVER_ERROR");
+				redirect(redirectUriCookieValue.toString().replace(/\/\/\//g, "//"));
+				return;
+			}
+		},
+		{
+			query: t.Object(
+				{
+					code: t.Optional(t.String()),
+					state: t.Optional(t.String()),
+					error: t.Optional(t.String()),
+				},
+				{ additionalProperties: true },
+			),
+			params: t.Object({
+				provider: oAuthProviderSchema,
+			}),
+			cookie: t.Cookie({
+				[OAUTH_STATE_COOKIE_NAME]: t.String(),
+				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String(),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String(),
+			}),
+		},
+	);
 
 export { ProviderCallback };

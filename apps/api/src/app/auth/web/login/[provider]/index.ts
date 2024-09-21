@@ -1,6 +1,6 @@
-import { OAuthUseCase } from "@/application/usecases/oAuth/oAuth.usecase";
-import { providerSchema, selectOAuthProviderGateway } from "@/interfaceAdapter/gateway/oAuthProvider";
-import { ElysiaWithEnv } from "@/modules/elysiaWithEnv";
+import { OAuthUseCase } from "@/application/use-cases/oauth";
+import { oAuthProviderSchema, selectOAuthProviderService } from "@/infrastructure/oauth-provider";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -12,9 +12,13 @@ import { t } from "elysia";
 import { ProviderCallback } from "./callback";
 
 const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
+	// Other Route
+	.use(ProviderCallback)
+
+	// Route
 	.get(
 		"/",
-		async ({ params: { provider }, cookie, env, query: { "redirect-uri": queryRedirectUri }, set }) => {
+		async ({ params: { provider }, cookie, env, query: { "redirect-uri": queryRedirectUri }, redirect }) => {
 			const { APP_ENV } = env;
 
 			const apiBaseUri = getAPIBaseUrl(APP_ENV === "production");
@@ -24,7 +28,7 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 			const providerGatewayRedirectUri = new URL(`auth/web/login/${provider}/callback`, apiBaseUri);
 
 			const oAuthUseCase = new OAuthUseCase(
-				selectOAuthProviderGateway({
+				selectOAuthProviderService({
 					provider,
 					env,
 					redirectUri: providerGatewayRedirectUri.toString(),
@@ -74,17 +78,16 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				maxAge: 60 * 10,
 			});
 
-			set.redirect = redirectUri.toString();
+			redirect(redirectUri.toString());
 		},
 		{
 			query: t.Object({
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({
-				provider: providerSchema,
+				provider: oAuthProviderSchema,
 			}),
 		},
-	)
-	.use(ProviderCallback);
+	);
 
 export { Provider };
