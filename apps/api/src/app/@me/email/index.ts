@@ -15,7 +15,7 @@ const Email = new ElysiaWithEnv({
 	.use(Verification)
 
 	// Local Middleware & Plugin
-	.use(authGuard)
+	.use(authGuard({ emailVerificationRequired: false }))
 
 	// Route
 	.patch(

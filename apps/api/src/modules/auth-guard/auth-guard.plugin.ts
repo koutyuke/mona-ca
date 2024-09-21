@@ -3,24 +3,42 @@ import { LuciaAdapter } from "@/infrastructure/lucia";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { UnauthorizedException } from "../error/exceptions";
 
-const authGuard = new ElysiaWithEnv({
-	name: "@mona-ca/auth",
-}).derive({ as: "scoped" }, async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
-	const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
+type AuthGuardOptions = {
+	emailVerificationRequired?: boolean;
+};
 
-	const sessionToken = authUseCase.readSessionCookie(cookie) || authUseCase.readBearerToken(authorization ?? "");
+const authGuard = (options?: AuthGuardOptions) => {
+	const { emailVerificationRequired = true } = options ?? {};
 
-	if (!sessionToken) {
-		throw new UnauthorizedException();
-	}
+	return new ElysiaWithEnv({
+		name: "@mona-ca/auth",
+		seed: {
+			emailVerificationRequired,
+		},
+	}).derive({ as: "scoped" }, async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
+		const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
 
-	const sessionInfo = await authUseCase.validateSession(sessionToken);
+		const sessionToken = authUseCase.readSessionCookie(cookie) || authUseCase.readBearerToken(authorization ?? "");
 
-	if (!sessionInfo) {
-		throw new UnauthorizedException();
-	}
+		if (!sessionToken) {
+			throw new UnauthorizedException();
+		}
 
-	return sessionInfo;
-});
+		const sessionInfo = await authUseCase.validateSession(sessionToken);
+
+		if (!sessionInfo) {
+			throw new UnauthorizedException();
+		}
+
+		if (emailVerificationRequired && !sessionInfo.user.emailVerified) {
+			throw new UnauthorizedException({
+				name: "EmailVerificationRequired",
+				message: "Email verification is required.",
+			});
+		}
+
+		return sessionInfo;
+	});
+};
 
 export { authGuard };
