@@ -21,18 +21,13 @@ const Verification = new ElysiaWithEnv({
 	// Route
 	.post(
 		"/",
-		async ({
-			cfModuleEnv: { DB },
-			env: { APP_ENV, RESEND_DEFAULT_EMAIL_API_KEY },
-			body: { email: bodyEmail },
-			user,
-		}) => {
+		async ({ cfModuleEnv: { DB }, env: { APP_ENV, RESEND_API_KEY }, body: { email: bodyEmail }, user }) => {
 			const emailVerificationUseCase = new EmailVerificationUseCase(
 				new EmailVerificationCodeRepository({
 					db: DB,
 				}),
 			);
-			const emailUseCase = new EmailUseCase(RESEND_DEFAULT_EMAIL_API_KEY, APP_ENV === "production");
+			const emailUseCase = new EmailUseCase(RESEND_API_KEY, APP_ENV === "production");
 			const userUseCase = new UserUseCase(
 				new UserRepository({
 					db: DB,
