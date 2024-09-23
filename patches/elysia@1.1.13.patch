@@ -1,0 +1,32 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index f9efc85e41589ee20c827746d281dfcedbc2f6ca..be080566c84f808237534dbfe2fe2001203c4809 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -2978,7 +2978,10 @@ var cloneInference = (inference) => ({
+   set: inference.set,
+   server: inference.server
+ });
+-var redirect = (url, status = 302) => Response.redirect(url, status);
++var redirect = (url, status = 302) => {
++  const _res = Response.redirect(url, status);
++  return new Response(_res.body, _res);
++};
+ var ELYSIA_FORM_DATA = Symbol("ElysiaFormData");
+ var ELYSIA_REQUEST_ID = Symbol("ElysiaRequestId");
+ var form = (items) => {
+diff --git a/dist/utils.mjs b/dist/utils.mjs
+index ac344c9470b4ff37526970cc062896d5b7df544d..53b163375667baf770bb4ff4fd4d60529a064aa9 100644
+--- a/dist/utils.mjs
++++ b/dist/utils.mjs
+@@ -1601,7 +1601,10 @@ var cloneInference = (inference) => ({
+   set: inference.set,
+   server: inference.server
+ });
+-var redirect = (url, status = 302) => Response.redirect(url, status);
++var redirect = (url, status = 302) => {
++  const _res = Response.redirect(url, status);
++  return new Response(_res.body, _res);
++};
+ var ELYSIA_FORM_DATA = Symbol("ElysiaFormData");
+ var ELYSIA_REQUEST_ID = Symbol("ElysiaRequestId");
+ var form = (items) => {
