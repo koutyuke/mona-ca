@@ -7,9 +7,14 @@ export interface IUserUseCase {
 	getUserByEmail(email: User["email"]): Promise<User | null>;
 	getUserBySessionId(sessionId: Session["id"]): Promise<User | null>;
 	createUser(
-		user: Omit<User, "id" | "createdAt" | "updatedAt"> & Partial<Pick<User, "id"> & Omit<UserCredentials, "userId">>,
+		user: Omit<ConstructorParameters<typeof User>[0], "id" | "createdAt" | "updatedAt"> &
+			Partial<Pick<ConstructorParameters<typeof User>[0], "id">> &
+			Partial<Omit<ConstructorParameters<typeof UserCredentials>[0], "userId">>,
 	): Promise<User>;
-	updateUser(id: User["id"], user: Partial<Omit<User, "updatedAt" | "createdAt">>): Promise<User>;
+	updateUser(
+		id: User["id"],
+		user: Partial<Omit<ConstructorParameters<typeof User>[0], "id" | "updatedAt" | "createdAt">>,
+	): Promise<User>;
 	deleteUser(id: User["id"]): Promise<void>;
 	generateId(): string;
 }
