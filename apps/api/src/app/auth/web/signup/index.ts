@@ -1,9 +1,9 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { UserUseCase } from "@/application/use-cases/user";
+import { SESSION_COOKIE_NAME } from "@/common/constants";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
 import { InternalServerError, t } from "elysia";
 import { Provider } from "./[provider]";
 
@@ -14,7 +14,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 	// Route
 	.post(
 		"/",
-		async ({ body: { email, password, name }, env: { APP_ENV }, cfModuleEnv: { DB }, set, cookie }) => {
+		async ({ body: { email, password, name, gender }, env: { APP_ENV }, cfModuleEnv: { DB }, set, cookie }) => {
 			const userUseCase = new UserUseCase(new UserRepository({ db: DB }));
 			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
 
@@ -26,6 +26,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 					email,
 					emailVerified: false,
 					iconUrl: null,
+					gender,
 					hashedPassword,
 				});
 
@@ -57,6 +58,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 					minLength: 3,
 					maxLength: 32,
 				}),
+				gender: t.Union([t.Literal("man"), t.Literal("woman")]),
 			}),
 		},
 	);

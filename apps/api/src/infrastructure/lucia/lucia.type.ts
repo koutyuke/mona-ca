@@ -5,6 +5,7 @@ export interface DatabaseUserAttributes {
 	readonly emailVerified: boolean;
 	readonly name: string;
 	readonly iconUrl: string | null;
+	readonly gender: "man" | "woman";
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 }

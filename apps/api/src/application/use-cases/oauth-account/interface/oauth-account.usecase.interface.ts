@@ -7,10 +7,12 @@ export interface IOAuthAccountUseCase {
 		provider: OAuthAccount["provider"],
 		providerId: OAuthAccount["providerId"],
 	): Promise<OAuthAccount | null>;
-	createOAuthAccount(oAuthAccount: Omit<OAuthAccount, "createdAt" | "updatedAt">): Promise<OAuthAccount>;
+	createOAuthAccount(
+		oAuthAccount: Omit<ConstructorParameters<typeof OAuthAccount>[0], "createdAt" | "updatedAt">,
+	): Promise<OAuthAccount>;
 	updateOAuthAccountByUserId(
 		userId: User["id"],
-		oAuthAccount: Partial<Omit<OAuthAccount, "id" | "createdAt" | "updatedAt">>,
+		oAuthAccount: Partial<Omit<ConstructorParameters<typeof OAuthAccount>[0], "id" | "createdAt" | "updatedAt">>,
 	): Promise<OAuthAccount>;
 	deleteOAuthAccountByUserId(userId: User["id"], provider: OAuthAccount["provider"]): Promise<void>;
 	deleteOAuthAccountByProviderId(

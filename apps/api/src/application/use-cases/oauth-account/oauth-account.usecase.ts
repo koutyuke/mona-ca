@@ -17,13 +17,15 @@ export class OAuthAccountUseCase implements IOAuthAccountUseCase {
 		return await this.oAuthAccountRepository.findByProviderAndProviderId(provider, providerId);
 	}
 
-	public async createOAuthAccount(oAuthAccount: Omit<OAuthAccount, "createdAt" | "updatedAt">): Promise<OAuthAccount> {
+	public async createOAuthAccount(
+		oAuthAccount: Omit<ConstructorParameters<typeof OAuthAccount>[0], "createdAt" | "updatedAt">,
+	): Promise<OAuthAccount> {
 		return await this.oAuthAccountRepository.create(oAuthAccount);
 	}
 
 	public async updateOAuthAccountByUserId(
 		userId: string,
-		oAuthAccount: Partial<Omit<OAuthAccount, "id" | "createdAt" | "updatedAt">>,
+		oAuthAccount: Partial<Omit<ConstructorParameters<typeof OAuthAccount>[0], "id" | "createdAt" | "updatedAt">>,
 	): Promise<OAuthAccount> {
 		return await this.oAuthAccountRepository.updateByUserId(userId, oAuthAccount);
 	}

@@ -21,7 +21,9 @@ export class UserUseCase implements IUserUseCase {
 	}
 
 	public async createUser(
-		user: Omit<User, "id" | "createdAt" | "updatedAt"> & Partial<Pick<User, "id"> & Omit<UserCredentials, "userId">>,
+		user: Omit<ConstructorParameters<typeof User>[0], "id" | "createdAt" | "updatedAt"> &
+			Partial<Pick<ConstructorParameters<typeof User>[0], "id">> &
+			Partial<Omit<ConstructorParameters<typeof UserCredentials>[0], "userId">>,
 	): Promise<User> {
 		const id = user.id ?? this.generateId();
 		return this.userRepository.create({
@@ -35,7 +37,10 @@ export class UserUseCase implements IUserUseCase {
 		return generateIdFromEntropySize(10);
 	}
 
-	public async updateUser(id: string, user: Partial<Omit<User, "id" | "updatedAt" | "createdAt">>): Promise<User> {
+	public async updateUser(
+		id: string,
+		user: Partial<Omit<ConstructorParameters<typeof User>[0], "id" | "updatedAt" | "createdAt">>,
+	): Promise<User> {
 		return await this.userRepository.update(id, user);
 	}
 

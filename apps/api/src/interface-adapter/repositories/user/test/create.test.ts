@@ -19,6 +19,7 @@ describe("Create User", async () => {
 			email: "user@mail.com",
 			emailVerified: false,
 			iconUrl: null,
+			gender: "man",
 			hashedPassword: "hashedPassword",
 		});
 		const isValid = Value.Check(UserSchema, createdUser);
@@ -32,6 +33,7 @@ describe("Create User", async () => {
 			email: "user@mail.com",
 			emailVerified: false,
 			iconUrl: null,
+			gender: "man",
 			hashedPassword: "hashedPassword",
 		});
 
@@ -41,6 +43,7 @@ describe("Create User", async () => {
 			email: t.Literal("user@mail.com"),
 			emailVerified: t.Literal(false),
 			iconUrl: t.Null(),
+			gender: t.Literal("man"),
 			createdAt: t.Date(),
 			updatedAt: t.Date(),
 		});
@@ -55,6 +58,7 @@ describe("Create User", async () => {
 			email: "user@mail.com",
 			emailVerified: false,
 			iconUrl: null,
+			gender: "man",
 			hashedPassword: "hashedPassword",
 		});
 
@@ -66,6 +70,7 @@ describe("Create User", async () => {
 			email_verified: t.Literal(0),
 			icon_url: t.Null(),
 			hashed_password: t.Literal("hashedPassword"),
+			gender: t.Literal("man"),
 			created_at: t.Number(),
 			updated_at: t.Number(),
 		});

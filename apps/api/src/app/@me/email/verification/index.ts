@@ -1,5 +1,5 @@
 import { EmailUseCase } from "@/application/use-cases/email";
-import { EmailVerificationUseCase } from "@/application/use-cases/emial-verification/email-verification.usecase";
+import { EmailVerificationUseCase } from "@/application/use-cases/email-verification/email-verification.usecase";
 import { UserUseCase } from "@/application/use-cases/user";
 import { EmailVerificationCodeRepository } from "@/interface-adapter/repositories/email-verification-code";
 import { UserRepository } from "@/interface-adapter/repositories/user";

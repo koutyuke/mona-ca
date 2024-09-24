@@ -59,6 +59,7 @@ describe("Update UserCredentials", () => {
 			email_verified: t.Literal(0),
 			icon_url: t.Null(),
 			hashed_password: t.Literal("hashedPasswordUpdated"),
+			gender: t.Literal("man"),
 			created_at: t.Number(),
 			updated_at: t.Number(),
 		});

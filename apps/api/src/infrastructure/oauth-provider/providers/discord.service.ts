@@ -19,8 +19,8 @@ export class DiscordOAuthService implements IOAuthProviderService {
 	private readonly discord: DiscordProvider;
 	private readonly scope = ["identify", "email"];
 
-	constructor(clientId: string, clientSecret: string, redirectUri: string) {
-		this.discord = new DiscordProvider(clientId, clientSecret, redirectUri);
+	constructor(clientId: string, clientSecret: string, redirectUrl: string) {
+		this.discord = new DiscordProvider(clientId, clientSecret, redirectUrl);
 	}
 
 	public genAuthUrl(state: string, _codeVerifier: string): URL {

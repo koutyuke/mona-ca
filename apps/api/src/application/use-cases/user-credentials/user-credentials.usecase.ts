@@ -11,7 +11,7 @@ export class UserCredentialsUseCase implements IUserCredentialsUseCase {
 
 	public async updateUserCredential(
 		userId: string,
-		credentials: Partial<Omit<UserCredentials, "userId">>,
+		credentials: Partial<Omit<ConstructorParameters<typeof UserCredentials>[0], "userId">>,
 	): Promise<UserCredentials | null> {
 		return this.userCredentialsRepository.update(userId, credentials);
 	}
