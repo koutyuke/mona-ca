@@ -14,7 +14,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 	// Route
 	.post(
 		"/",
-		async ({ body: { email, password, name }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
+		async ({ body: { email, password, name, gender }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
 			const userUseCase = new UserUseCase(new UserRepository({ db: DB }));
 			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
 
@@ -26,6 +26,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 					email,
 					emailVerified: false,
 					iconUrl: null,
+					gender,
 					hashedPassword,
 				});
 
@@ -53,6 +54,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 					minLength: 3,
 					maxLength: 32,
 				}),
+				gender: t.Union([t.Literal("man"), t.Literal("woman")]),
 			}),
 			response: {
 				201: t.Object({

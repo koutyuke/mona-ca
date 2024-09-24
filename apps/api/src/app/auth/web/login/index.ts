@@ -1,12 +1,12 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { UserUseCase } from "@/application/use-cases/user";
 import { UserCredentialsUseCase } from "@/application/use-cases/user-credentials";
+import { SESSION_COOKIE_NAME } from "@/common/constants";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { UserCredentialsRepository } from "@/interface-adapter/repositories/user-credentials";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
-import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
 import { t } from "elysia";
 import { Provider } from "./[provider]";
 

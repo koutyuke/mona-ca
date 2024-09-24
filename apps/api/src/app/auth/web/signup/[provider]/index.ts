@@ -1,13 +1,15 @@
 import { OAuthUseCase } from "@/application/use-cases/oauth";
-import { oAuthProviderSchema, selectOAuthProviderService } from "@/infrastructure/oauth-provider";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { BadRequestException } from "@/modules/error/exceptions";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME,
+	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
-} from "@mona-ca/core/const";
-import { getAPIBaseUrl, getWebBaseUrl, validateRedirectUri } from "@mona-ca/core/utils";
+} from "@/common/constants";
+import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
+import { selectOAuthProviderService } from "@/infrastructure/oauth-provider";
+import { ElysiaWithEnv } from "@/modules/elysia-with-env";
+import { BadRequestException } from "@/modules/error/exceptions";
+import { getAPIBaseUrl, getWebBaseUrl, validateRedirectUrl } from "@mona-ca/core/utils";
 import { t } from "elysia";
 import { ProviderCallback } from "./callback";
 
@@ -18,39 +20,40 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 	// Route
 	.get(
 		"/",
-		async ({ params: { provider }, cookie, env, query: { "redirect-uri": queryRedirectUri }, redirect }) => {
+		async ({ params: { provider }, cookie, env, query: { "redirect-url": queryRedirectUrl, gender }, redirect }) => {
 			const { APP_ENV } = env;
 
-			const apiBaseUri = getAPIBaseUrl(APP_ENV === "production");
-			const webBaseUri = getWebBaseUrl(APP_ENV === "production");
+			const apiBaseUrl = getAPIBaseUrl(APP_ENV === "production");
+			const webBaseUrl = getWebBaseUrl(APP_ENV === "production");
 
-			const providerGatewayRedirectUri = new URL(`auth/web/signup/${provider}/callback`, apiBaseUri);
+			const providerRedirectUrl = new URL(`auth/web/signup/${provider}/callback`, apiBaseUrl);
 
 			const oAuthUseCase = new OAuthUseCase(
 				selectOAuthProviderService({
 					provider,
 					env,
-					redirectUri: providerGatewayRedirectUri.toString(),
+					redirectUrl: providerRedirectUrl.toString(),
 				}),
 			);
 
-			const validatedRedirectUri = validateRedirectUri(webBaseUri, queryRedirectUri ?? "/");
+			const validatedRedirectUrl = validateRedirectUrl(webBaseUrl, queryRedirectUrl ?? "/");
 
-			if (!validatedRedirectUri) {
+			if (!validatedRedirectUrl) {
 				throw new BadRequestException({
-					message: "Invalid redirect URI",
+					message: "Invalid redirect URL",
 				});
 			}
 
 			const state = oAuthUseCase.genState();
 			const codeVerifier = oAuthUseCase.genCodeVerifier();
-			const redirectUri = oAuthUseCase.genAuthUrl(state, codeVerifier);
+			const redirectUrl = oAuthUseCase.genAuthUrl(state, codeVerifier);
 
 			const oAuthStateCookie = cookie[OAUTH_STATE_COOKIE_NAME];
-			const oAuthRedirectUriCookie = cookie[OAUTH_REDIRECT_URI_COOKIE_NAME];
+			const oAuthRedirectUrlCookie = cookie[OAUTH_REDIRECT_URL_COOKIE_NAME];
 			const oAuthCodeVerifierCookie = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME];
+			const oAuthOptionalAccountInfoCookie = cookie[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME];
 
-			oAuthStateCookie?.set({
+			oAuthStateCookie.set({
 				value: state,
 				path: "/",
 				secure: APP_ENV === "production",
@@ -59,7 +62,7 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				maxAge: 60 * 10,
 			});
 
-			oAuthCodeVerifierCookie?.set({
+			oAuthCodeVerifierCookie.set({
 				value: codeVerifier,
 				path: "/",
 				secure: APP_ENV === "production",
@@ -68,8 +71,8 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				maxAge: 60 * 10,
 			});
 
-			oAuthRedirectUriCookie?.set({
-				value: validatedRedirectUri.pathname + validatedRedirectUri.search || "/",
+			oAuthRedirectUrlCookie.set({
+				value: validatedRedirectUrl.pathname + validatedRedirectUrl.search || "/",
 				path: "/",
 				secure: APP_ENV === "production",
 				httpOnly: true,
@@ -77,14 +80,36 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				maxAge: 60 * 10,
 			});
 
-			redirect(redirectUri.toString());
+			oAuthOptionalAccountInfoCookie.set({
+				value: {
+					gender,
+				},
+				path: "/",
+				secure: APP_ENV === "production",
+				httpOnly: true,
+				sameSite: "lax",
+				maxAge: 60 * 10,
+			});
+
+			return redirect(redirectUrl.toString());
 		},
 		{
 			query: t.Object({
-				"redirect-uri": t.Optional(t.String()),
+				"redirect-url": t.Optional(t.String()),
+				gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
 			}),
 			params: t.Object({
 				provider: oAuthProviderSchema,
+			}),
+			cookie: t.Cookie({
+				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_REDIRECT_URL_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
+					t.Object({
+						gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
+					}),
+				),
 			}),
 		},
 	);

@@ -1,8 +1,8 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
+import { SESSION_COOKIE_NAME } from "@/common/constants";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { InternalServerErrorException } from "@/modules/error/exceptions";
-import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
 import { t } from "elysia";
 
 const Logout = new ElysiaWithEnv({
