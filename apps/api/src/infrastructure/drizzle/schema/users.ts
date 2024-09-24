@@ -9,6 +9,9 @@ export const users = sqliteTable(
 		emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
 		name: text("name").notNull(),
 		iconUrl: text("icon_url"),
+		gender: text("gender", { enum: ["man", "woman"] })
+			.default("man")
+			.notNull(),
 		hashedPassword: text("hashed_password"),
 		createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now'))`),
 		updatedAt: integer("updated_at", { mode: "timestamp" })
