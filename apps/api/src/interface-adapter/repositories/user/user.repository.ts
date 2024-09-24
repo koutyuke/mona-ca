@@ -13,7 +13,7 @@ export class UserRepository implements IUserRepository {
 		this.drizzleService = new DrizzleService(args.db);
 	}
 
-	async find(id: string): Promise<User | null> {
+	public async find(id: string): Promise<User | null> {
 		const user = await this.drizzleService.db.query.users.findFirst({
 			where: (users, { eq }) => eq(users.id, id),
 		});
@@ -27,7 +27,7 @@ export class UserRepository implements IUserRepository {
 			: null;
 	}
 
-	async findByEmail(email: string): Promise<User | null> {
+	public async findByEmail(email: string): Promise<User | null> {
 		const user = await this.drizzleService.db.query.users.findFirst({
 			where: (users, { eq }) => eq(users.email, email),
 		});
@@ -41,7 +41,7 @@ export class UserRepository implements IUserRepository {
 			: null;
 	}
 
-	async findBySessionId(sessionId: Session["id"]): Promise<User | null> {
+	public async findBySessionId(sessionId: Session["id"]): Promise<User | null> {
 		const result = await this.drizzleService.db
 			.select()
 			.from(this.drizzleService.schema.users)
@@ -54,7 +54,10 @@ export class UserRepository implements IUserRepository {
 		return result.length === 1 ? new User(result[0]!.users) : null;
 	}
 
-	async create(user: Omit<User, "createdAt" | "updatedAt"> & Partial<Omit<UserCredentials, "userId">>): Promise<User> {
+	public async create(
+		user: Omit<ConstructorParameters<typeof User>[0], "createdAt" | "updatedAt"> &
+			Partial<Omit<ConstructorParameters<typeof UserCredentials>[0], "userId">>,
+	): Promise<User> {
 		const createdUsers = await this.drizzleService.db
 			.insert(this.drizzleService.schema.users)
 			.values({
@@ -72,7 +75,10 @@ export class UserRepository implements IUserRepository {
 		return new User(createdUser);
 	}
 
-	async update(id: User["id"], user: Partial<Omit<User, "id" | "updatedAt" | "createdAt">>): Promise<User> {
+	public async update(
+		id: User["id"],
+		user: Partial<Omit<ConstructorParameters<typeof User>[0], "id" | "updatedAt" | "createdAt">>,
+	): Promise<User> {
 		const updatedUsers = await this.drizzleService.db
 			.update(this.drizzleService.schema.users)
 			.set(user)
@@ -87,7 +93,7 @@ export class UserRepository implements IUserRepository {
 		return new User(updatedUser);
 	}
 
-	async delete(id: User["id"]): Promise<void> {
+	public async delete(id: User["id"]): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.users)
 			.where(eq(this.drizzleService.schema.users.id, id));

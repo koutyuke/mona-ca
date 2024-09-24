@@ -12,7 +12,7 @@ export class UserCredentialsRepository implements IUserCredentialsRepository {
 		this.drizzleService = new DrizzleService(args.db);
 	}
 
-	async find(userId: UserCredentials["userId"]): Promise<UserCredentials | null> {
+	public async find(userId: UserCredentials["userId"]): Promise<UserCredentials | null> {
 		const userCredentials = await this.drizzleService.db
 			.select({
 				userId: this.drizzleService.schema.users.id,
@@ -24,9 +24,9 @@ export class UserCredentialsRepository implements IUserCredentialsRepository {
 		return userCredentials.length === 1 ? new UserCredentials(userCredentials[0]!) : null;
 	}
 
-	async update(
+	public async update(
 		userId: UserCredentials["userId"],
-		credentials: Partial<Omit<UserCredentials, "userId">>,
+		credentials: Partial<Omit<ConstructorParameters<typeof UserCredentials>[0], "userId">>,
 	): Promise<UserCredentials | null> {
 		const updatedUserCredentials = await this.drizzleService.db
 			.update(this.drizzleService.schema.users)
@@ -40,7 +40,7 @@ export class UserCredentialsRepository implements IUserCredentialsRepository {
 		return updatedUserCredentials.length === 1 ? new UserCredentials(updatedUserCredentials[0]!) : null;
 	}
 
-	async setNullToHashedPassword(userId: UserCredentials["userId"]): Promise<void> {
+	public async setNullToHashedPassword(userId: UserCredentials["userId"]): Promise<void> {
 		await this.drizzleService.db
 			.update(this.drizzleService.schema.users)
 			.set({ hashedPassword: null })

@@ -36,7 +36,9 @@ export class OAuthAccountRepository implements IOAuthAccountRepository {
 		return oAuthAccount.length === 1 ? new OAuthAccount(oAuthAccount[0]!) : null;
 	}
 
-	public async create(oAuthAccount: Omit<OAuthAccount, "createdAt" | "updatedAt">): Promise<OAuthAccount> {
+	public async create(
+		oAuthAccount: Omit<ConstructorParameters<typeof OAuthAccount>[0], "createdAt" | "updatedAt">,
+	): Promise<OAuthAccount> {
 		const createdOAuthAccount = await this.drizzleService.db
 			.insert(this.drizzleService.schema.oAuthAccounts)
 			.values(oAuthAccount)
@@ -51,7 +53,7 @@ export class OAuthAccountRepository implements IOAuthAccountRepository {
 
 	public async updateByUserId(
 		userId: OAuthAccount["userId"],
-		oAuthAccount: Partial<Omit<OAuthAccount, "id" | "createdAt" | "updatedAt">>,
+		oAuthAccount: Partial<Omit<ConstructorParameters<typeof OAuthAccount>[0], "id" | "createdAt" | "updatedAt">>,
 	): Promise<OAuthAccount> {
 		const updatedOAuthAccount = await this.drizzleService.db
 			.update(this.drizzleService.schema.oAuthAccounts)

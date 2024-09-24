@@ -1,9 +1,9 @@
+import { SESSION_COOKIE_NAME } from "@/common/constants";
 import type { Cookie } from "@/domain/cookie";
 import type { Session } from "@/domain/session";
 import type { User } from "@/domain/user";
 import { Argon2idService } from "@/infrastructure/argon2id";
 import { type ILuciaAdapter, LuciaService } from "@/infrastructure/lucia";
-import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
 import type { Cookie as ElysiaCookie } from "elysia";
 import type { IAuthUseCase } from "./interface/auth.usecase.interface";
 

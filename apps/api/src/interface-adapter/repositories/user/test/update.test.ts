@@ -26,6 +26,7 @@ describe("Update User", async () => {
 			email: "updatedUser@mail.com",
 			emailVerified: true,
 			iconUrl: "iconUrl",
+			gender: "woman",
 		});
 		const isValid = Value.Check(UserSchema, updatedUser);
 		expect(isValid).toBe(true);
@@ -37,6 +38,7 @@ describe("Update User", async () => {
 			email: "updatedUser@mail.com",
 			emailVerified: true,
 			iconUrl: "iconUrl",
+			gender: "woman",
 		});
 		const schema = t.Object({
 			id: t.Literal("userId"),
@@ -44,6 +46,7 @@ describe("Update User", async () => {
 			email: t.Literal("updatedUser@mail.com"),
 			emailVerified: t.Literal(true),
 			iconUrl: t.Literal("iconUrl"),
+			gender: t.Literal("woman"),
 			createdAt: t.Date(),
 			updatedAt: t.Date(),
 		});
@@ -57,6 +60,7 @@ describe("Update User", async () => {
 			email: "updatedUser@mail.com",
 			emailVerified: true,
 			iconUrl: "iconUrl",
+			gender: "woman",
 		});
 		const { results } = await DB.prepare("SELECT * FROM users WHERE id = ?1").bind("userId").all();
 		const schema = t.Object({
@@ -66,6 +70,7 @@ describe("Update User", async () => {
 			email_verified: t.Literal(1),
 			icon_url: t.Literal("iconUrl"),
 			hashed_password: t.Literal("hashedPassword"),
+			gender: t.Literal("woman"),
 			created_at: t.Number(),
 			updated_at: t.Number(),
 		});

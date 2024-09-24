@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
+import { SESSION_COOKIE_NAME } from "@/common/constants";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { SESSION_COOKIE_NAME } from "@mona-ca/core/const";
 import { beforeAll, describe, expect, test } from "vitest";
 import { authGuard } from "../auth-guard.plugin";
 

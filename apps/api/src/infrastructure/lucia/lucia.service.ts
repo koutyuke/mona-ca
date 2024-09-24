@@ -18,6 +18,7 @@ export class LuciaService implements ILuciaService {
 					emailVerified: databaseUserAttributes.emailVerified,
 					name: databaseUserAttributes.name,
 					iconUrl: databaseUserAttributes.iconUrl,
+					gender: databaseUserAttributes.gender,
 					createdAt: databaseUserAttributes.createdAt,
 					updatedAt: databaseUserAttributes.updatedAt,
 				} satisfies DatabaseUserAttributes;

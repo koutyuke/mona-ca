@@ -34,6 +34,7 @@ describe("Find User By Email", async () => {
 			email: t.Literal("user@mail.com"),
 			emailVerified: t.Literal(false),
 			iconUrl: t.Null(),
+			gender: t.Literal("man"),
 			createdAt: t.Date(),
 			updatedAt: t.Date(),
 		});

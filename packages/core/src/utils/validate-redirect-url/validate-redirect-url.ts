@@ -1,4 +1,4 @@
-export const validateRedirectUri = (baseURL: URL, uri: string): URL | null => {
+export const validateRedirectUrl = (baseURL: URL, uri: string): URL | null => {
 	try {
 		const url = new URL(uri, baseURL);
 
