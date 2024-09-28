@@ -1,4 +1,4 @@
-import { CustomThemeProvider } from "@mobile/features/theme/components";
+import { CustomThemeProvider } from "@mobile/features/theme";
 import { MonaCaLogo } from "@mona-ca/ui/native/brand";
 import { Text } from "@mona-ca/ui/native/components";
 import { ChevronIcon } from "@mona-ca/ui/native/icons";
