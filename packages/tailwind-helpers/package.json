@@ -18,7 +18,8 @@
     "lint:fix": "biome lint --write --no-errors-on-unmatched",
     "pretest": "bun run build",
     "test": "bun test",
-    "gen:pseudo-class": "bun run ./src/scripts/generate-pseudo-class.ts"
+    "gen:pseudo-class": "bun run ./src/scripts/generate-pseudo-class.ts",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@mona-ca/tailwind-config": "workspace:*",

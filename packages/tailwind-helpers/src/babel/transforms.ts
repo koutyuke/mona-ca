@@ -4,26 +4,20 @@ import type { TransformerFn } from "tailwindcss/types/config";
 const transformBabel = (ext: string, content: string) => {
 	const config: babel.TransformOptions = {
 		filename: `tailwind-helpers.${ext}`,
-		plugins: [
-			["@babel/plugin-transform-class-properties", { loose: true }],
-			["@babel/plugin-transform-private-property-in-object", { loose: true }],
-			["@babel/plugin-transform-private-methods", { loose: true }],
-			"@mona-ca/tailwind-helpers/babel-plugin",
-		],
-		presets: [
-			"@babel/preset-env",
-			"@babel/preset-react",
-			["@babel/preset-typescript", { isTSX: true, allExtensions: true }],
-		],
+		plugins: ["@mona-ca/tailwind-helpers/babel-plugin"],
 	};
 
-	const res = babel.transformSync(content, config);
+	try {
+		const res = babel.transformSync(content, config);
+		if (!res?.code) {
+			throw new Error("Failed to transform file");
+		}
 
-	if (!res?.code) {
-		throw new Error("Failed to transform file");
+		return res.code;
+	} catch (error) {
+		console.error(error);
+		return content;
 	}
-
-	return res.code;
 };
 
 const twHelperTransforms: Record<string, TransformerFn> = {
