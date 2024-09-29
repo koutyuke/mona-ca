@@ -20,7 +20,7 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/native": "^6.1.18",
-    "expo": "~51.0.28",
+    "expo": "~51.0.34",
     "expo-constants": "~16.0.2",
     "expo-dev-client": "~4.0.23",
     "expo-font": "~12.0.9",
@@ -47,7 +47,7 @@
     "@mona-ca/postcss": "workspace:*",
     "@mona-ca/tailwind-config": "workspace:*",
     "@mona-ca/tsconfig": "workspace:*",
-    "@react-native-async-storage/async-storage": "^1.24.0",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native/babel-preset": "^0.74.87",
     "@storybook/addon-a11y": "^8.2.9",
     "@storybook/addon-actions": "8.1.11",
