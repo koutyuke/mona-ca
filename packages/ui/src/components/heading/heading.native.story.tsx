@@ -14,7 +14,7 @@ const Template: Story = {
 	render: args => <Heading {...args} />,
 	argTypes: {
 		level: {
-			options: ["1", "2", "3", "4"],
+			options: ["1", "2", "3"],
 			control: {
 				type: "radio",
 			},
@@ -44,7 +44,6 @@ export const AllLevels: Story = {
 			<Heading {...args} level="1" />
 			<Heading {...args} level="2" />
 			<Heading {...args} level="3" />
-			<Heading {...args} level="4" />
 		</View>
 	),
 };

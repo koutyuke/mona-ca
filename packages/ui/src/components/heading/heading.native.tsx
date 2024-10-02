@@ -4,7 +4,7 @@ import { Text as RNText } from "react-native";
 import type { PolymorphicProps } from "../../types";
 
 type Props = {
-	level?: "1" | "2" | "3" | "4";
+	level?: "1" | "2" | "3";
 	children?: ReactNode;
 	isTruncated?: boolean;
 	className?: string;
@@ -14,10 +14,9 @@ type Props = {
 const variants = tv({
 	variants: {
 		level: {
-			"1": "font-bold text-5xl",
-			"2": "font-bold text-4xl",
-			"3": "font-bold text-3xl",
-			"4": "font-bold text-2xl",
+			"1": "font-bold text-4xl",
+			"2": "font-bold text-3xl",
+			"3": "font-bold text-2xl",
 		},
 		bold: {
 			true: "font-extrabold",
