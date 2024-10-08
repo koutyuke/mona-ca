@@ -16,6 +16,10 @@ const config = {
 		transform: twHelperTransforms,
 	},
 	presets: [nativewindConfig, baseConfig],
+	corePlugin: {
+		textOpacity: true,
+		backgroundOpacity: true,
+	},
 } satisfies Config;
 
 export default config;
