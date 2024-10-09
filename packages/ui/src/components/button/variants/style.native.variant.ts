@@ -3,15 +3,15 @@ import type { SlotContract, SupportSize, SupportVariant } from "../type";
 
 export const styleVariants = tv({
 	slots: {
-		body: "group relative flex max-w-full flex-row items-center justify-center gap-1 self-start transition-colors",
-		text: "self-auto font-normal",
+		body: "group relative flex max-w-full flex-row items-center justify-center gap-2 self-start transition-colors",
+		text: "self-auto font-medium",
 		spinner: "absolute",
 		icon: "self-auto",
 	} satisfies SlotContract,
 	variants: {
 		variant: {
 			outline: {
-				body: "border-[1.5px]",
+				body: "border",
 			},
 			light: {
 				body: "border-none",
@@ -25,16 +25,16 @@ export const styleVariants = tv({
 		} satisfies Record<SupportVariant, SlotContract>,
 		size: {
 			sm: {
-				body: "h-9 rounded-lg px-2.5",
-				text: "text-base",
+				body: "h-9 gap-1 rounded-lg px-2.5",
+				text: "text-sm",
 				spinner: "size-4",
-				icon: "size-4",
+				icon: "size-5",
 			},
 			md: {
 				body: "h-[3.125rem] rounded-xl px-[0.9375rem]", // height: 50px
-				text: "text-lg",
+				text: "text-[17px] leading-6",
 				spinner: "size-5",
-				icon: "size-5",
+				icon: "size-6",
 			},
 			lg: {
 				body: "h-24 rounded-2xl px-9",
@@ -43,14 +43,6 @@ export const styleVariants = tv({
 				icon: "size-6",
 			},
 		} satisfies Record<SupportSize, SlotContract>,
-		elevated: {
-			true: {
-				body: "shadow",
-			} satisfies SlotContract,
-			false: {
-				body: "shadow-none",
-			} satisfies SlotContract,
-		},
 		loading: {
 			true: {
 				text: "opacity-0",
@@ -72,8 +64,8 @@ export const styleVariants = tv({
 		},
 		bold: {
 			true: {
-				text: "font-semibold",
-				icon: "stroke-[2.5]",
+				text: "font-bold",
+				icon: "stroke-2",
 			} satisfies SlotContract,
 		},
 		circle: {

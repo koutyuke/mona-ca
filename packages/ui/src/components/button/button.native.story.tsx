@@ -56,11 +56,6 @@ const Template: Story = {
 				type: "boolean",
 			},
 		},
-		elevated: {
-			control: {
-				type: "boolean",
-			},
-		},
 		fullWidth: {
 			control: {
 				type: "boolean",

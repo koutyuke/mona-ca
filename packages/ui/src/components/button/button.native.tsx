@@ -85,7 +85,6 @@ const Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pre
 	const { body, text, spinner, icon } = styleVariants({
 		variant,
 		size,
-		elevated: elevated && !disabled && !loading,
 		loading: !disabled && loading,
 		disabled,
 		fullWidth,
