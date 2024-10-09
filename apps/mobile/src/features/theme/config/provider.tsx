@@ -1,4 +1,3 @@
-import { twMerge } from "@mona-ca/tailwind-helpers";
 import { StatusBar } from "expo-status-bar";
 import type { FC, ReactNode } from "react";
 import { View } from "react-native";
@@ -11,7 +10,7 @@ type ThemeProviderProps = {
 const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
 	const [colorTheme] = useTheme();
 	return (
-		<View className={twMerge(colorTheme !== "dark" ? "light" : "dark", "h-full w-full")}>
+		<View className={`${colorTheme !== "dark" ? "light" : "dark"} h-full w-full`}>
 			{children}
 			<StatusBar style={colorTheme === "dark" ? "light" : "dark"} />
 		</View>
@@ -30,7 +29,7 @@ const CustomThemeProvider: FC<CustomThemeProviderProps> = ({
 	statusBarStyle = "light",
 }) => {
 	return (
-		<View className={twMerge(styleTheme, "h-full w-full")}>
+		<View className={`${styleTheme} h-full w-full`}>
 			{children}
 			<StatusBar style={statusBarStyle} />
 		</View>

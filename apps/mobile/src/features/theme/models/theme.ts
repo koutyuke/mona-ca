@@ -2,7 +2,7 @@ import { localStorage } from "@mobile/shared/store";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { useColorScheme } from "react-native";
-import type { ThemeStorage } from "../types/theme.type";
+import type { ThemeStorage } from "../types/theme";
 
 const themeAtom = atomWithStorage<ThemeStorage>("themeAtom", { colorTheme: "light" }, localStorage);
 
