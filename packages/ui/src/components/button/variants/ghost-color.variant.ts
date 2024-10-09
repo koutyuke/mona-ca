@@ -79,12 +79,6 @@ export const ghostColorVariants = tv({
 				icon: "color-white",
 			},
 		} satisfies Record<SupportColor, SlotContract>,
-		loading: {
-			true: {
-				body: "",
-				text: "",
-			} satisfies SlotContract,
-		},
 		disabled: {
 			true: {
 				body: twPseudo("bg-transparent", {

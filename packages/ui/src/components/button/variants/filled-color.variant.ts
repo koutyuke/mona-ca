@@ -69,12 +69,6 @@ export const filledColorVariants = tv({
 				icon: "",
 			},
 		} satisfies Record<SupportColor, SlotContract>,
-		loading: {
-			true: {
-				body: "",
-				text: "",
-			} satisfies SlotContract,
-		},
 		disabled: {
 			true: {
 				body: twPseudo("bg-slate-9", {

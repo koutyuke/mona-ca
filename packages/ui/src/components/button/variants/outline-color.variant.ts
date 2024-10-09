@@ -67,12 +67,6 @@ export const outlineColorVariants = tv({
 				icon: "color-white",
 			},
 		} satisfies Record<SupportColor, SlotContract>,
-		loading: {
-			true: {
-				body: "",
-				text: "",
-			} satisfies SlotContract,
-		},
 		disabled: {
 			true: {
 				body: twPseudo("border-slate-7 bg-slate-3", {

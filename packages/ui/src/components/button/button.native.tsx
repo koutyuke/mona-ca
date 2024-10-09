@@ -99,7 +99,6 @@ const Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pre
 		icon: iconColor,
 	} = colorVariant({
 		color,
-		loading,
 		disabled,
 	});
 
