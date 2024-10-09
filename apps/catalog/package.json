@@ -9,7 +9,7 @@
     "sb:mobile": "sb-rn-get-stories -c ./.storybook/mobile && cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --port=8082",
     "sb:ios": "sb-rn-get-stories -c ./.storybook/mobile && cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --ios --port=8082",
     "build": "storybook build -o ./.storybook/static -c ./.storybook/web",
-    "build:ios": "expo run:ios",
+    "build:ios": "expo run:ios --port=8082",
     "fmt": "biome format --no-errors-on-unmatched",
     "fmt:fix": "biome format --write --no-errors-on-unmatched",
     "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
