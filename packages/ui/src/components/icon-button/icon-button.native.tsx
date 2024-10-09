@@ -14,11 +14,9 @@ type Variants = {
 	size?: SupportSize;
 	variant?: SupportVariant;
 	color: SupportColor;
-	elevated?: boolean;
 	loading?: boolean;
 	disabled?: boolean;
 	fullWidth?: boolean;
-	bold?: boolean;
 	circle?: boolean;
 };
 
@@ -34,11 +32,9 @@ const IconButton = <P extends {}, E extends ElementType = typeof Pressable>({
 	size = "md",
 	variant = "outline",
 	color,
-	elevated = false,
 	loading = false,
 	disabled = false,
 	fullWidth = false,
-	bold = false,
 	circle = false,
 	bodyOverrideClassName,
 	iconOverrideClassName,
@@ -69,11 +65,9 @@ const IconButton = <P extends {}, E extends ElementType = typeof Pressable>({
 	} = styleVariants({
 		variant,
 		size,
-		elevated: elevated && !disabled && !loading,
 		loading: !disabled && loading,
 		disabled,
 		fullWidth,
-		bold,
 		circle,
 	});
 
@@ -83,7 +77,6 @@ const IconButton = <P extends {}, E extends ElementType = typeof Pressable>({
 		icon: iconColor,
 	} = colorVariant({
 		color,
-		loading,
 		disabled,
 	});
 

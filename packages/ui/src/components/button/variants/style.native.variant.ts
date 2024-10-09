@@ -65,7 +65,6 @@ export const styleVariants = tv({
 		bold: {
 			true: {
 				text: "font-bold",
-				icon: "stroke-2",
 			} satisfies SlotContract,
 		},
 		circle: {

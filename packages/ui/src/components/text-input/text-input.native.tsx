@@ -11,14 +11,13 @@ import { EyeIcon, PenIcon } from "../../icons/index.native";
 
 type Variants = {
 	size?: "sm" | "md" | "lg";
-	elevated?: boolean;
 	disabled?: boolean;
 	error?: boolean;
 };
 
 const variants = tv({
 	slots: {
-		body: "flex flex-row items-center border border-slate-7 bg-slate-2 transition delay-0",
+		body: "flex flex-row items-center border-[1.5px] border-slate-7 bg-slate-2 transition delay-0",
 		input: "flex-1 text-slate-11",
 		icon: "color-slate-9",
 		separator: "h-[calc(200%_/_3)] w-[1.5px] rounded-full bg-slate-7",
@@ -27,23 +26,18 @@ const variants = tv({
 		size: {
 			sm: {
 				body: "h-9 gap-1.5 rounded-lg px-2",
-				icon: "size-[1.125rem]",
+				icon: "size-5",
+				input: "text-[14px]",
 			},
 			md: {
 				body: "h-12 gap-2 rounded-xl px-3",
 				icon: "size-6",
+				input: "text-[17px]",
 			},
 			lg: {
 				body: "h-14 gap-2.5 rounded-[0.875rem] px-3.5",
 				icon: "size-7",
-			},
-		},
-		elevated: {
-			true: {
-				body: "shadow",
-			},
-			false: {
-				body: "shadow-none",
+				input: "text-[20px]",
 			},
 		},
 		disabled: {
@@ -80,7 +74,6 @@ const TextInput = <P extends {}>({
 	credentials,
 	overrideClassName,
 	size = "md",
-	elevated,
 	disabled,
 	readOnly,
 	error,
@@ -96,7 +89,7 @@ const TextInput = <P extends {}>({
 		input: inputStyle,
 		icon: iconStyle,
 		separator: separatorStyle,
-	} = variants({ size, isFocused, disabled, elevated: elevated && !disabled, error });
+	} = variants({ size, isFocused, disabled, error });
 
 	const handleFocus = () => {
 		inputRef.current?.focus();
@@ -118,18 +111,6 @@ const TextInput = <P extends {}>({
 				<RNTextInput
 					ref={inputRef}
 					className={inputStyle()}
-					style={{
-						fontSize:
-							size === "sm"
-								? 16
-								: size === "md"
-									? 18
-									: size === "lg"
-										? 20
-										: (() => {
-												throw new Error("Invalid state");
-											})(),
-					}}
 					placeholder={placeholder}
 					onFocus={() => setIsFocused(true)}
 					onBlur={() => setIsFocused(false)}

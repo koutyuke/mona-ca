@@ -39,11 +39,6 @@ const Template: Story = {
 				type: "boolean",
 			},
 		},
-		elevated: {
-			control: {
-				type: "boolean",
-			},
-		},
 		readOnly: {
 			control: {
 				type: "boolean",

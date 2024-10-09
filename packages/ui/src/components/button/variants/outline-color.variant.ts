@@ -3,7 +3,7 @@ import type { SlotContract, SupportColor } from "../type";
 
 export const outlineColorVariants = tv({
 	slots: {
-		body: "",
+		body: "border-[1.5px]",
 		text: "",
 		spinner: "",
 		icon: "",

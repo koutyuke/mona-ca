@@ -6,7 +6,7 @@ import type { PolymorphicProps } from "../../types";
 type Props = {
 	level?: "1" | "2" | "3";
 	children?: ReactNode;
-	isTruncated?: boolean;
+	truncated?: boolean;
 	className?: string;
 	bold?: boolean;
 };
@@ -20,6 +20,7 @@ const variants = tv({
 		},
 		bold: {
 			true: "font-extrabold",
+			false: "font-bold",
 		},
 	},
 });
@@ -28,7 +29,7 @@ const Heading = <E extends ElementType = typeof RNText>({
 	as,
 	level = "1",
 	children,
-	isTruncated = false,
+	truncated = false,
 	className,
 	bold,
 	...props
@@ -41,7 +42,7 @@ const Heading = <E extends ElementType = typeof RNText>({
 
 	return (
 		<Tag
-			{...(isTruncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})}
+			{...(truncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})}
 			className={twMerge(style, className)}
 			{...props}
 		>

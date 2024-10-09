@@ -10,7 +10,7 @@ export const styleVariants = tv({
 	variants: {
 		variant: {
 			outline: {
-				body: "border-[1.5px]",
+				body: "border",
 			},
 			light: {
 				body: "border-none",
@@ -26,27 +26,19 @@ export const styleVariants = tv({
 			sm: {
 				body: "size-9 rounded-lg",
 				spinner: "size-4",
-				icon: "size-4",
+				icon: "size-5",
 			},
 			md: {
 				body: "size-[3.125rem] rounded-xl",
 				spinner: "size-5",
-				icon: "size-5",
+				icon: "size-6",
 			},
 			lg: {
 				body: "size-24 rounded-2xl",
 				spinner: "size-6",
-				icon: "size-6",
+				icon: "size-7",
 			},
 		} satisfies Record<SupportSize, SlotContract>,
-		elevated: {
-			true: {
-				body: "shadow",
-			} satisfies SlotContract,
-			false: {
-				body: "shadow-none",
-			} satisfies SlotContract,
-		},
 		loading: {
 			true: {
 				icon: "opacity-0",
@@ -63,11 +55,6 @@ export const styleVariants = tv({
 		fullWidth: {
 			true: {
 				body: "w-full",
-			} satisfies SlotContract,
-		},
-		bold: {
-			true: {
-				icon: "stroke-[2.5]",
 			} satisfies SlotContract,
 		},
 		circle: {

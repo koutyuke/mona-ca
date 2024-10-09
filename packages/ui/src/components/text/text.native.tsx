@@ -7,18 +7,19 @@ type Props = {
 	bold?: boolean;
 	size?: "sm" | "md" | "lg";
 	className?: string;
-	isTruncated?: boolean;
+	truncated?: boolean;
 };
 
 const variants = tv({
 	variants: {
 		size: {
-			sm: "text-base",
-			md: "text-lg",
+			sm: "text-sm",
+			md: "text-[17px] leading-6",
 			lg: "text-xl",
 		},
 		bold: {
 			true: "font-bold",
+			false: "font-medium",
 		},
 	},
 });
@@ -29,7 +30,7 @@ const Text = <E extends ElementType = typeof RNText>({
 	bold = false,
 	size = "md",
 	className,
-	isTruncated = false,
+	truncated = false,
 	...props
 }: PolymorphicProps<E, Props>): ReactNode => {
 	const Tag = as || RNText;
@@ -40,7 +41,7 @@ const Text = <E extends ElementType = typeof RNText>({
 
 	return (
 		<Tag
-			{...(isTruncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})}
+			{...(truncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})}
 			className={twMerge(style, className)}
 			{...props}
 		>

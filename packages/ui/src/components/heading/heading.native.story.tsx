@@ -19,7 +19,12 @@ const Template: Story = {
 				type: "radio",
 			},
 		},
-		isTruncated: {
+		truncated: {
+			control: {
+				type: "boolean",
+			},
+		},
+		bold: {
 			control: {
 				type: "boolean",
 			},
@@ -30,7 +35,18 @@ const Template: Story = {
 export const AllLevels: Story = {
 	args: {
 		children: "Hello world",
-		className: "text-slate-12",
+	},
+	argTypes: {
+		truncated: {
+			control: {
+				type: "boolean",
+			},
+		},
+		bold: {
+			control: {
+				type: "boolean",
+			},
+		},
 	},
 	parameters: {
 		docs: {
@@ -41,9 +57,9 @@ export const AllLevels: Story = {
 	},
 	render: args => (
 		<View className="flex flex-col gap-2 ">
-			<Heading {...args} level="1" />
-			<Heading {...args} level="2" />
-			<Heading {...args} level="3" />
+			<Heading {...args} level="1" className="text-slate-12" />
+			<Heading {...args} level="2" className="text-slate-12" />
+			<Heading {...args} level="3" className="text-slate-12" />
 		</View>
 	),
 };
@@ -58,7 +74,7 @@ export const Default: Story = {
 export const Truncated: Story = {
 	args: {
 		children: "Hello world this is a very long text that should be truncated",
-		isTruncated: true,
+		truncated: true,
 	},
 	...Template,
 };
