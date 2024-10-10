@@ -3,52 +3,46 @@ import type { SlotContract, SupportColor } from "../type";
 
 export const ghostColorVariants = tv({
 	slots: {
-		body: "",
+		body: "bg-transparent",
 		spinner: "",
 		icon: "",
 	} satisfies Required<SlotContract>,
 	variants: {
 		color: {
 			red: {
-				body: "bg-red-3/0",
 				spinner: "fill-red-9",
 				icon: twPseudo("color-red-9", {
-					"group-active": "color-red-11",
+					"group-active": "color-red-10",
 				}),
 			},
 			blue: {
-				body: "bg-blue-3/0",
 				spinner: "fill-blue-9",
 				icon: twPseudo("color-blue-9", {
-					"group-active": "color-blue-11",
+					"group-active": "color-blue-10",
 				}),
 			},
 			green: {
-				body: "bg-green-3/0",
 				spinner: "fill-green-9",
 				icon: twPseudo("color-green-9", {
-					"group-active": "color-green-11",
+					"group-active": "color-green-10",
 				}),
 			},
 			yellow: {
-				body: "bg-yellow-3/0",
 				spinner: "fill-yellow-11",
 				icon: twPseudo("color-yellow-11", {
 					"group-active": "color-yellow-12",
 				}),
 			},
 			salmon: {
-				body: "bg-salmon-3/0",
 				spinner: "fill-salmon-9",
 				icon: twPseudo("color-salmon-9", {
-					"group-active": "color-salmon-11",
+					"group-active": "color-salmon-10",
 				}),
 			},
 			gray: {
-				body: "bg-gray-3/0",
 				spinner: "fill-gray-9",
 				icon: twPseudo("color-gray-9", {
-					"group-active": "color-gray-11",
+					"group-active": "color-gray-10",
 				}),
 			},
 			white: {
