@@ -60,7 +60,7 @@ export const outlineColorVariants = tv({
 			},
 			white: {
 				body: twPseudo("border-white bg-white/0", {
-					active: "bg-white-4",
+					active: "bg-white-2",
 				}),
 				text: "text-white",
 				spinner: "fill-white",

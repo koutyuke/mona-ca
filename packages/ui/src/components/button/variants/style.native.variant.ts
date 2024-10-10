@@ -3,7 +3,7 @@ import type { SlotContract, SupportSize, SupportVariant } from "../type";
 
 export const styleVariants = tv({
 	slots: {
-		body: "group relative flex max-w-full flex-row items-center justify-center gap-2 self-start transition-colors",
+		body: "group relative flex max-w-full flex-row items-center justify-center gap-2 self-start transition",
 		text: "self-auto font-medium",
 		spinner: "absolute",
 		icon: "self-auto",

@@ -1,5 +1,13 @@
 import { twMerge } from "@mona-ca/tailwind-helpers";
-import type { ElementType, FC, ReactNode } from "react";
+import {
+	type ElementRef,
+	type ElementType,
+	type FC,
+	type ReactElement,
+	type ReactNode,
+	type Ref,
+	forwardRef,
+} from "react";
 import { Pressable, Text } from "react-native";
 import type { PolymorphicProps } from "../../types";
 import { LoadingSpinner } from "../loading-spinner/index.native";
@@ -38,27 +46,30 @@ type Props<LP extends {}, RP extends {}> = Variants & {
 	leftIconProps?: Omit<LP, "className">;
 };
 
-const Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pressable>({
-	as,
-	size = "md",
-	variant = "outline",
-	color,
-	elevated = false,
-	loading = false,
-	disabled = false,
-	fullWidth = false,
-	bold = false,
-	circle = false,
-	leftIcon,
-	rightIcon,
-	bodyOverrideClassName,
-	textOverrideClassName,
-	iconOverrideClassName,
-	children,
-	rightIconProps,
-	leftIconProps,
-	...props
-}: PolymorphicProps<E, Props<LP, RP>>): ReactNode => {
+const _Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pressable>(
+	{
+		as,
+		size = "md",
+		variant = "outline",
+		color,
+		elevated = false,
+		loading = false,
+		disabled = false,
+		fullWidth = false,
+		bold = false,
+		circle = false,
+		leftIcon,
+		rightIcon,
+		bodyOverrideClassName,
+		textOverrideClassName,
+		iconOverrideClassName,
+		children,
+		rightIconProps,
+		leftIconProps,
+		...props
+	}: PolymorphicProps<E, Props<LP, RP>>,
+	ref: Ref<ElementRef<E>>,
+): ReactNode => {
 	const LeftIcon = leftIcon as unknown as FC<{ className?: string }>;
 	const RightIcon = rightIcon as unknown as FC<{ className?: string }>;
 	const Component = as || Pressable;
@@ -106,6 +117,8 @@ const Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pre
 		<Component
 			className={twMerge(body(), bodyColor(), bodyOverrideClassName)}
 			disabled={loading || disabled}
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			ref={ref as any}
 			{...props}
 		>
 			{LeftIcon && <LeftIcon className={twMerge(icon(), iconColor(), leftIconStyleOverride)} {...leftIconProps} />}
@@ -115,5 +128,9 @@ const Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pre
 		</Component>
 	);
 };
+
+const Button = forwardRef(_Button) as <LP extends {}, RP extends {}, E extends ElementType = typeof Pressable>(
+	props: PolymorphicProps<E, Props<LP, RP>> & { ref?: Ref<ElementRef<E>> },
+) => ReactElement | null;
 
 export { Button };

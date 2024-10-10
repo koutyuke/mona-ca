@@ -3,7 +3,7 @@ import type { SlotContract, SupportColor } from "../type";
 
 export const ghostColorVariants = tv({
 	slots: {
-		body: "",
+		body: "bg-transparent",
 		text: "",
 		spinner: "",
 		icon: "",
@@ -11,37 +11,33 @@ export const ghostColorVariants = tv({
 	variants: {
 		color: {
 			red: {
-				body: "bg-red-3/0",
 				text: twPseudo("text-red-9", {
-					"group-active": "text-red-11",
+					"group-active": "text-red-10",
 				}),
 				spinner: "fill-red-9",
 				icon: twPseudo("color-red-9", {
-					"group-active": "color-red-11",
+					"group-active": "color-red-10",
 				}),
 			},
 			blue: {
-				body: "bg-blue-3/0",
 				text: twPseudo("text-blue-9", {
-					"group-active": "text-blue-11",
+					"group-active": "text-blue-10",
 				}),
 				spinner: "fill-blue-9",
 				icon: twPseudo("color-blue-9", {
-					"group-active": "color-blue-11",
+					"group-active": "color-blue-10",
 				}),
 			},
 			green: {
-				body: "bg-green-3/0",
 				text: twPseudo("text-green-9", {
-					"group-active": "text-green-11",
+					"group-active": "text-green-10",
 				}),
 				spinner: "fill-green-9",
 				icon: twPseudo("color-green-9", {
-					"group-active": "color-green-11",
+					"group-active": "color-green-10",
 				}),
 			},
 			yellow: {
-				body: "bg-yellow-3/0",
 				text: twPseudo("text-yellow-11", {
 					"group-active": "text-yellow-12",
 				}),
@@ -51,27 +47,25 @@ export const ghostColorVariants = tv({
 				}),
 			},
 			salmon: {
-				body: "bg-salmon-3/0",
 				text: twPseudo("text-salmon-9", {
-					"group-active": "text-salmon-11",
+					"group-active": "text-salmon-10",
 				}),
 				spinner: "fill-salmon-9",
 				icon: twPseudo("color-salmon-9", {
-					"group-active": "color-salmon-11",
+					"group-active": "color-salmon-10",
 				}),
 			},
 			gray: {
-				body: "bg-gray-3/0",
 				text: twPseudo("text-gray-9", {
-					"group-active": "text-gray-11",
+					"group-active": "text-gray-10",
 				}),
 				spinner: "fill-gray-9",
 				icon: twPseudo("color-gray-9", {
-					"group-active": "color-gray-11",
+					"group-active": "color-gray-10",
 				}),
 			},
 			white: {
-				body: twPseudo("bg-white/0", {
+				body: twPseudo("", {
 					active: "bg-white-5",
 				}),
 				text: "text-white",
