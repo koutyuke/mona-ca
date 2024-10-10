@@ -1,6 +1,6 @@
 import { twPseudo } from "@mona-ca/tailwind-helpers";
 import { tv } from "@mona-ca/tailwind-helpers";
-import type { FC } from "react";
+import { type ComponentPropsWithoutRef, forwardRef } from "react";
 import { Pressable } from "react-native";
 import { Text } from "../../../components/text/index.native";
 import { GoogleIcon } from "../icon/index.native";
@@ -10,30 +10,26 @@ type GoogleButtonProps = {
 	children?: string;
 	fullWidth?: boolean;
 	disabled?: boolean;
-	onPress?: () => void;
-};
+} & Omit<ComponentPropsWithoutRef<typeof Pressable>, "disabled" | "className">;
 
 const styleVariants = tv({
 	slots: {
 		body: twPseudo(
-			"group relative flex flex-row items-center justify-center gap-2 self-start border border-slate-7 bg-google transition",
+			"group relative flex flex-row items-center justify-center gap-2 self-start border-[1.5px] border-slate-7 bg-google transition",
 			{
 				active: "border-slate-8 bg-slate-2",
 			},
 		),
-		text: "self-auto font-bold text-slate-12",
 		icon: "self-auto",
 	},
 	variants: {
 		size: {
 			sm: {
 				body: "h-9 gap-1 rounded-lg px-2.5",
-				text: "text-sm",
 				icon: "size-5",
 			},
 			md: {
 				body: "h-[3.125rem] rounded-xl px-[0.9375rem]", // height: 50px
-				text: "text-[17px] leading-6",
 				icon: "size-6",
 			},
 		},
@@ -53,20 +49,19 @@ const styleVariants = tv({
 	},
 });
 
-const GoogleButton: FC<GoogleButtonProps> = ({
-	size = "md",
-	children = "Googleで続ける",
-	fullWidth = false,
-	onPress,
-	disabled = false,
-}) => {
-	const { body, text, icon } = styleVariants({ size, fullWidth, disabled });
-	return (
-		<Pressable className={body()} onPress={onPress} disabled={disabled}>
-			<GoogleIcon className={icon()} />
-			<Text className={text()}>{children}</Text>
-		</Pressable>
-	);
-};
+const GoogleButton = forwardRef<typeof Pressable, GoogleButtonProps>(
+	({ size = "md", children = "Googleで続ける", fullWidth = false, disabled = false, ...props }, ref) => {
+		const { body, icon } = styleVariants({ size, fullWidth, disabled });
+		return (
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			<Pressable ref={ref as any} className={body()} disabled={disabled} {...props}>
+				<GoogleIcon className={icon()} />
+				<Text className="self-auto font-bold text-slate-12" size={size}>
+					{children}
+				</Text>
+			</Pressable>
+		);
+	},
+);
 
 export { GoogleButton };
