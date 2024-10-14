@@ -24,6 +24,11 @@ const Template: Story = {
 				type: "radio",
 			},
 		},
+		label: {
+			control: {
+				type: "text",
+			},
+		},
 		placeholder: {
 			control: {
 				type: "text",
@@ -54,6 +59,7 @@ const Template: Story = {
 
 export const Default: Story = {
 	args: {
+		label: "Email",
 		placeholder: "Enter your email",
 		icon: EmailIcon,
 	},
