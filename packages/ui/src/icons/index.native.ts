@@ -5,3 +5,4 @@ export { CodeIcon } from "./code/index.native";
 export { EyeIcon } from "./eye/index.native";
 export { PasswordIcon } from "./password/index.native";
 export { PenIcon } from "./pen/index.native";
+export { CheckIcon } from "./check/index.native";
