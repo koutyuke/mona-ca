@@ -1,4 +1,5 @@
 import { tv, twMerge } from "@mona-ca/tailwind-helpers";
+import { cssInterop } from "nativewind";
 import { type FC, useRef, useState } from "react";
 import {
 	Pressable,
@@ -15,6 +16,16 @@ type Variants = {
 	disabled?: boolean;
 	error?: boolean;
 };
+
+cssInterop(RNTextInput, {
+	className: { target: "style", nativeStyleToProp: { textAlign: true } },
+	placeholderClassName: {
+		target: false,
+		nativeStyleToProp: {
+			color: "placeholderTextColor",
+		},
+	},
+});
 
 const variants = tv({
 	slots: {
@@ -65,7 +76,7 @@ type Props<P extends {}> = Omit<RNTextInputProps, "placeholder" | "readOnly"> &
 		placeholder?: string;
 		credentials?: boolean;
 		readOnly?: boolean;
-		overrideClassName?: string;
+		className?: string;
 		icon?: FC<P & { className?: string }>;
 		iconProps?: Omit<P, "className">;
 	};
@@ -75,7 +86,7 @@ const TextInput = <P extends {}>({
 	label,
 	placeholder,
 	credentials,
-	overrideClassName,
+	className,
 	size = "md",
 	disabled,
 	readOnly,
@@ -104,9 +115,9 @@ const TextInput = <P extends {}>({
 	};
 
 	return (
-		<View className={twMerge("flex flex-col gap-[2px]", overrideClassName)}>
+		<View className={twMerge("flex flex-col gap-[2px]", className)}>
 			{label && (
-				<Text size={size} className="text-slate-12" bold>
+				<Text size={size} bold>
 					{label}
 				</Text>
 			)}

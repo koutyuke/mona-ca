@@ -58,6 +58,7 @@ const styleVariants = tv({
 const CheckBox: FC<CheckBoxProps> = ({
 	size = "md",
 	checked = false,
+	className,
 	onChange = () => {},
 	disabled,
 	label,
@@ -79,7 +80,7 @@ const CheckBox: FC<CheckBoxProps> = ({
 			}}
 			disabled={disabled}
 		>
-			<View className={bodyStyle()}>
+			<View className={bodyStyle({ className })}>
 				{labelPosition === "left" && (
 					<Text size={size} className={labelColorClassName}>
 						{label}

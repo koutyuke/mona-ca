@@ -56,7 +56,7 @@ const GoogleButton = forwardRef<typeof Pressable, GoogleButtonProps>(
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			<Pressable ref={ref as any} className={body()} disabled={disabled} {...props}>
 				<GoogleIcon className={icon()} />
-				<Text className="self-auto font-bold text-slate-12" size={size}>
+				<Text className="self-auto" bold size={size}>
 					{children}
 				</Text>
 			</Pressable>

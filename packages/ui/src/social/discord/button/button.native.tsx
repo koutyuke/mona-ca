@@ -53,7 +53,7 @@ const DiscordButton = forwardRef<typeof Pressable, DiscordButtonProps>(
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			<Pressable ref={ref as any} className={body()} disabled={disabled} {...props}>
 				<DiscordIcon className={icon()} color="white" />
-				<Text className="self-auto font-bold text-white" size={size}>
+				<Text className="self-auto text-white" bold size={size}>
 					{children}
 				</Text>
 			</Pressable>

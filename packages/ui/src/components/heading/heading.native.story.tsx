@@ -14,7 +14,7 @@ const Template: Story = {
 	render: args => <Heading {...args} />,
 	argTypes: {
 		level: {
-			options: ["1", "2", "3"],
+			options: ["1", "2"],
 			control: {
 				type: "radio",
 			},
@@ -59,7 +59,6 @@ export const AllLevels: Story = {
 		<View className="flex flex-col gap-2 ">
 			<Heading {...args} level="1" className="text-slate-12" />
 			<Heading {...args} level="2" className="text-slate-12" />
-			<Heading {...args} level="3" className="text-slate-12" />
 		</View>
 	),
 };
