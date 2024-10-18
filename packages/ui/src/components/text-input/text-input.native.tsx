@@ -1,4 +1,4 @@
-import { tv, twMerge } from "@mona-ca/tailwind-helpers";
+import { tv } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
 import { type FC, useRef, useState } from "react";
 import {
@@ -12,7 +12,7 @@ import { EyeIcon, PenIcon } from "../../icons/index.native";
 import { Text } from "../text/index.native";
 
 type Variants = {
-	size?: "sm" | "md" | "lg";
+	size?: "sm" | "md";
 	disabled?: boolean;
 	error?: boolean;
 };
@@ -29,8 +29,9 @@ cssInterop(RNTextInput, {
 
 const variants = tv({
 	slots: {
-		inputBody: "flex w-full flex-row items-center border-[1.5px] border-slate-7 bg-slate-2 transition delay-0 ease-in",
+		inputBody: "flex w-full flex-row items-center border-[1.5px] border-slate-7 bg-slate-2 transition",
 		input: "flex-1 text-slate-11",
+		iconBody: "flex items-center justify-center",
 		icon: "color-slate-9",
 		separator: "h-[calc(200%_/_3)] w-[1.5px] rounded-full bg-slate-7",
 	},
@@ -38,18 +39,14 @@ const variants = tv({
 		size: {
 			sm: {
 				inputBody: "h-9 gap-1.5 rounded-lg px-2",
-				icon: "size-5",
 				input: "text-[14px]",
+				icon: "size-5",
 			},
 			md: {
-				inputBody: "h-12 gap-2 rounded-xl px-3",
+				inputBody: "h-12 rounded-xl",
+				input: "mx-2 text-[17px]",
+				iconBody: "h-full w-11",
 				icon: "size-6",
-				input: "text-[17px]",
-			},
-			lg: {
-				inputBody: "h-14 gap-2.5 rounded-[0.875rem] px-3.5",
-				icon: "size-7",
-				input: "text-[20px]",
 			},
 		},
 		disabled: {
@@ -70,13 +67,12 @@ const variants = tv({
 	},
 });
 
-type Props<P extends {}> = Omit<RNTextInputProps, "placeholder" | "readOnly"> &
+type Props<P extends {}> = Omit<RNTextInputProps, "placeholder" | "readOnly" | "className"> &
 	Variants & {
 		label?: string;
 		placeholder?: string;
 		credentials?: boolean;
 		readOnly?: boolean;
-		className?: string;
 		icon?: FC<P & { className?: string }>;
 		iconProps?: Omit<P, "className">;
 	};
@@ -86,7 +82,6 @@ const TextInput = <P extends {}>({
 	label,
 	placeholder,
 	credentials,
-	className,
 	size = "md",
 	disabled,
 	readOnly,
@@ -101,6 +96,7 @@ const TextInput = <P extends {}>({
 	const {
 		inputBody: inputBodyStyle,
 		input: inputStyle,
+		iconBody: iconBodyStyle,
 		icon: iconStyle,
 		separator: separatorStyle,
 	} = variants({ size, isFocused, disabled, error });
@@ -115,17 +111,19 @@ const TextInput = <P extends {}>({
 	};
 
 	return (
-		<View className={twMerge("flex flex-col gap-[2px]", className)}>
+		<View className={"flex flex-col gap-[2px]"}>
 			{label && (
 				<Text size={size} bold>
 					{label}
 				</Text>
 			)}
-			<TouchableWithoutFeedback onPress={handleFocus} disabled={disabled}>
+			<TouchableWithoutFeedback onPress={handleFocus} disabled={disabled || readOnly}>
 				<View className={inputBodyStyle()}>
 					{Icon && (
 						<>
-							<Icon className={iconStyle()} />
+							<View className={iconBodyStyle()}>
+								<Icon className={iconStyle()} />
+							</View>
 							<View className={separatorStyle()} {...iconProps} />
 						</>
 					)}
@@ -138,15 +136,19 @@ const TextInput = <P extends {}>({
 						secureTextEntry={credentials && isShowSecureText}
 						placeholderClassName="text-slate-8"
 						editable={!disabled && !readOnly}
-						aria-disabled={disabled}
 					/>
 					{(!!credentials || !!readOnly) && <View className={separatorStyle()} />}
+					{readOnly && (
+						<View className={iconBodyStyle()}>
+							<PenIcon state="off" className={iconStyle({})} />
+						</View>
+					)}
+					{!!credentials && !!readOnly && <View className={separatorStyle()} />}
 					{credentials && (
-						<Pressable onPress={handleShowSecureText}>
+						<Pressable onPress={handleShowSecureText} className={iconBodyStyle()}>
 							<EyeIcon state={isShowSecureText ? "on" : "off"} className={iconStyle()} />
 						</Pressable>
 					)}
-					{readOnly && <PenIcon state="off" className={iconStyle()} />}
 				</View>
 			</TouchableWithoutFeedback>
 		</View>

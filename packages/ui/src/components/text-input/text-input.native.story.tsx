@@ -19,7 +19,7 @@ const Template: Story = {
 	),
 	argTypes: {
 		size: {
-			options: ["sm", "md", "lg"],
+			options: ["sm", "md"],
 			control: {
 				type: "radio",
 			},
