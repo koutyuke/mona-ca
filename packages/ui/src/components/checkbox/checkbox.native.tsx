@@ -6,8 +6,8 @@ import { Text } from "../text/index.native";
 
 type CheckBoxProps = {
 	size?: "sm" | "md";
-	checked: boolean;
-	onChange: (checked: boolean) => void;
+	checked?: boolean;
+	onChange?: (checked: boolean) => void;
 	disabled?: boolean;
 	className?: string;
 	label?: string;

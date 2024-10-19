@@ -4,3 +4,5 @@ export { IconButton } from "./icon-button/index.native";
 export { Text } from "./text/index.native";
 export { Heading } from "./heading/index.native";
 export { TextInput } from "./text-input/index.native";
+export { CheckBox } from "./checkbox/index.native";
+export { GenderSelector } from "./gender-selector/index.native";

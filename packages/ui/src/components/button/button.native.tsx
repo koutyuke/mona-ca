@@ -31,9 +31,9 @@ type Variants = {
 };
 
 type Props<LP extends {}, RP extends {}> = Variants & {
-	bodyOverrideClassName?: string;
-	textOverrideClassName?: string;
-	iconOverrideClassName?:
+	bodyClassName?: string;
+	textClassName?: string;
+	iconClassName?:
 		| string
 		| {
 				left?: string;
@@ -60,9 +60,9 @@ const _Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pr
 		circle = false,
 		leftIcon,
 		rightIcon,
-		bodyOverrideClassName,
-		textOverrideClassName,
-		iconOverrideClassName,
+		bodyClassName,
+		textClassName,
+		iconClassName,
 		children,
 		rightIconProps,
 		leftIconProps,
@@ -74,11 +74,9 @@ const _Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pr
 	const RightIcon = rightIcon as unknown as FC<{ className?: string }>;
 	const Component = as || Pressable;
 
-	const leftIconStyleOverride =
-		typeof iconOverrideClassName === "object" ? iconOverrideClassName.left : iconOverrideClassName;
+	const leftIconStyleOverride = typeof iconClassName === "object" ? iconClassName.left : iconClassName;
 
-	const rightIconStyleOverride =
-		typeof iconOverrideClassName === "object" ? iconOverrideClassName.right : iconOverrideClassName;
+	const rightIconStyleOverride = typeof iconClassName === "object" ? iconClassName.right : iconClassName;
 
 	const colorVariant =
 		variant === "outline"
@@ -115,14 +113,14 @@ const _Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pr
 
 	return (
 		<Component
-			className={twMerge(body(), bodyColor(), bodyOverrideClassName)}
+			className={twMerge(body(), bodyColor(), bodyClassName)}
 			disabled={loading || disabled}
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			ref={ref as any}
 			{...props}
 		>
 			{LeftIcon && <LeftIcon className={twMerge(icon(), iconColor(), leftIconStyleOverride)} {...leftIconProps} />}
-			<Text className={twMerge(text(), textColor(), textOverrideClassName)}>{children}</Text>
+			<Text className={twMerge(text(), textColor(), textClassName)}>{children}</Text>
 			{RightIcon && <RightIcon className={twMerge(icon(), iconColor(), rightIconStyleOverride)} {...rightIconProps} />}
 			{!disabled && loading && <LoadingSpinner className={twMerge(spinner(), spinnerColor())} />}
 		</Component>
