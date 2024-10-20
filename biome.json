@@ -46,7 +46,6 @@
         "useSortedClasses": {
           "level": "warn",
           "options": {
-            "attributes": ["className"],
             "functions": ["tv", "twMerge", "twPseudo", "twColorPalette"]
           }
         }
@@ -76,6 +75,16 @@
         "rules": {
           "style": {
             "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["**/src/app/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
           }
         }
       }
