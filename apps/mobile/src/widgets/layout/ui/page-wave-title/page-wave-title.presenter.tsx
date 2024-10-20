@@ -33,7 +33,7 @@ const PageWaveTitlePresenter: FC<PageWaveTitleProps> = ({
 	});
 
 	return (
-		<View>
+		<View className="z-40 flex w-full flex-col">
 			<View
 				className="light w-full bg-mona-ca"
 				style={{
@@ -48,7 +48,7 @@ const PageWaveTitlePresenter: FC<PageWaveTitleProps> = ({
 					{title}
 				</Heading>
 			</View>
-			<Animated.View className="z-40 w-screen" style={pageTitleVerticalTranslateStyle}>
+			<Animated.View className="w-screen" style={pageTitleVerticalTranslateStyle}>
 				<Wave className="light w-screen fill-mona-ca" />
 			</Animated.View>
 		</View>
