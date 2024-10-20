@@ -10,7 +10,7 @@ const useTheme = () => {
 	const systemScheme = useColorScheme();
 	const [{ colorTheme }, setScheme] = useAtom(themeAtom);
 
-	return [colorTheme === "system" ? systemScheme ?? "light" : colorTheme, setScheme] as const;
+	return [colorTheme === "system" ? (systemScheme ?? "light") : colorTheme, setScheme] as const;
 };
 
 export { useTheme, themeAtom };
