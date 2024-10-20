@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
     "ignore": [
       "node_modules",
@@ -12,6 +12,11 @@
       "./apps/catalog/.storybook/mobile/storybook.requires.ts"
     ],
     "include": ["**/*.ts*", "**/*.*js*", "**/*.json"]
+  },
+  "vcs": {
+    "clientKind": "git",
+    "enabled": true,
+    "useIgnoreFile": true
   },
   "formatter": {
     "formatWithErrors": false,
@@ -78,21 +83,6 @@
           }
         }
       }
-    },
-    {
-      "include": ["**/src/app/**"],
-      "linter": {
-        "rules": {
-          "style": {
-            "useFilenamingConvention": "off"
-          }
-        }
-      }
     }
-  ],
-  "vcs": {
-    "clientKind": "git",
-    "enabled": true,
-    "useIgnoreFile": true
-  }
+  ]
 }

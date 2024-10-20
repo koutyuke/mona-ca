@@ -9,12 +9,13 @@
   "scripts": {
     "ci": "act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main",
     "ci:app-test": "bun ci -W ./.github/workflows/app-test.yaml",
+    "ci:app-build": "bun ci -W ./.github/workflows/app-build.yaml",
+    "ci:app-static-check": "bun ci -W ./.github/workflows/app-static-check.yaml",
     "build": "turbo build",
-    "dev": "turbo dev",
-    "fmt": "turbo fmt",
-    "lint": "turbo lint",
+    "check": "turbo check",
+    "check:fix": "turbo check:fix",
     "test": "turbo test",
-    "type-check": "turbo type-check",
+    "typecheck": "turbo typecheck",
     "api": "cd ./apps/api && bun",
     "catalog": "cd ./apps/catalog && bun",
     "web": "cd ./apps/web && bun",
@@ -29,15 +30,15 @@
     "tailwind-config": "cd ./tools/tailwind-config && bun"
   },
   "dependencies": {
-    "@types/bun": "^1.1.5"
+    "@types/bun": "^1.1.11"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.8.3",
+    "@biomejs/biome": "1.9.4",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
-    "lefthook": "^1.6.18",
-    "turbo": "^2.0.6",
-    "typescript": "^5.5.2"
+    "lefthook": "^1.7.22",
+    "turbo": "^2.2.1",
+    "typescript": "^5.6.3"
   },
   "packageManager": "bun@1.1.26",
   "trustedDependencies": [

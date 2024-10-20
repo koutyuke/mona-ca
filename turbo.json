@@ -7,9 +7,9 @@
       "cache": false,
       "persistent": true
     },
-    "fmt": {},
-    "lint": {},
-    "type-check":{},
+    "check": {},
+    "check:fix": {},
+    "typecheck": {},
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", ".expo/**"]

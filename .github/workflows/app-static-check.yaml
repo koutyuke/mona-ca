@@ -1,11 +1,11 @@
-name: App-Test
+name: App-Static-Check
 
 on: 
   - push
 
 
 jobs:
-  test:
+  static-check:
     runs-on: ubuntu-latest
     
     steps:
@@ -38,5 +38,8 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build
-        run: bun run build
+      - name: Type Check
+        run: bun run typecheck
+
+      - name: Static Check
+        run: bun run check
