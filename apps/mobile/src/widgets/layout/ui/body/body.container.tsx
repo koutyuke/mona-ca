@@ -1,20 +1,38 @@
 import { useTheme } from "@mobile/features/theme";
 import { useLayoutInsets } from "@mobile/shared/hooks";
 import { forwardRef } from "react";
-import { ScrollView, type ScrollViewProps } from "react-native";
+import { type ScrollView, type ScrollViewProps, type StyleProp, View, type ViewStyle } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
 import { HEADER_HEIGHT } from "../../constants";
 
 type ScrollBodyProps = {
 	withTabs?: boolean;
-} & ScrollViewProps;
+	keyboardAwareScrollViewClassName?: string;
+	keyboardAwareScrollViewStyle?: StyleProp<ViewStyle>;
+	innerViewClassName?: string;
+	innerViewStyle?: StyleProp<ViewStyle>;
+} & Omit<ScrollViewProps, "className" | "style">;
 
 const _ScrollBody = forwardRef<ScrollView, ScrollBodyProps>(
-	({ indicatorStyle, scrollIndicatorInsets, withTabs = true, ...props }, ref) => {
+	(
+		{
+			indicatorStyle,
+			scrollIndicatorInsets,
+			innerViewStyle,
+			innerViewClassName,
+			keyboardAwareScrollViewClassName,
+			keyboardAwareScrollViewStyle,
+			children,
+			withTabs = true,
+			...props
+		},
+		ref,
+	) => {
 		const insets = useLayoutInsets();
 		const colorTheme = useTheme()[0];
 		return (
-			<ScrollView
+			<KeyboardAwareScrollView
 				ref={ref}
 				indicatorStyle={
 					!indicatorStyle || indicatorStyle === "default" ? (colorTheme === "dark" ? "white" : "black") : indicatorStyle
@@ -23,8 +41,15 @@ const _ScrollBody = forwardRef<ScrollView, ScrollBodyProps>(
 					top: HEADER_HEIGHT,
 					bottom: insets.bottom,
 				}}
+				bottomOffset={18}
+				className={keyboardAwareScrollViewClassName || ""}
+				style={keyboardAwareScrollViewStyle}
 				{...props}
-			/>
+			>
+				<View className={innerViewClassName || ""} style={innerViewStyle}>
+					{children}
+				</View>
+			</KeyboardAwareScrollView>
 		);
 	},
 );
