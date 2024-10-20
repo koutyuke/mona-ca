@@ -59,11 +59,6 @@ export const lightColorVariants = tv({
 				icon: "color-white",
 			},
 		} satisfies Record<SupportColor, SlotContract>,
-		loading: {
-			true: {
-				body: "",
-			} satisfies SlotContract,
-		},
 		disabled: {
 			true: {
 				body: twPseudo("bg-slate-4", {

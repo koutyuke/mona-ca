@@ -8,8 +8,6 @@ const context = createContext(resolveConfig(baseConfig));
 
 const pseudoClassesTypes = [...context.variantMap.keys()].map(c => `"${c}"`).join("\n  | ");
 
-// console.log(pseudoClassesTypes);
-
 const exportContent = `export type PseudoClass = 
   | ${pseudoClassesTypes};
 `;

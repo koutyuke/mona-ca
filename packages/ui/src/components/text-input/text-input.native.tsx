@@ -1,4 +1,5 @@
-import { tv, twMerge } from "@mona-ca/tailwind-helpers";
+import { tv } from "@mona-ca/tailwind-helpers";
+import { cssInterop } from "nativewind";
 import { type FC, useRef, useState } from "react";
 import {
 	Pressable,
@@ -8,79 +9,80 @@ import {
 	View,
 } from "react-native";
 import { EyeIcon, PenIcon } from "../../icons/index.native";
+import { Text } from "../text/index.native";
 
 type Variants = {
-	size?: "sm" | "md" | "lg";
-	elevated?: boolean;
+	size?: "sm" | "md";
 	disabled?: boolean;
 	error?: boolean;
 };
 
+cssInterop(RNTextInput, {
+	className: { target: "style", nativeStyleToProp: { textAlign: true } },
+	placeholderClassName: {
+		target: false,
+		nativeStyleToProp: {
+			color: "placeholderTextColor",
+		},
+	},
+});
+
 const variants = tv({
 	slots: {
-		body: "flex flex-row items-center border border-slate-7 bg-slate-2 transition delay-0",
+		inputBody: "flex w-full flex-row items-center border-[1.5px] border-slate-7 bg-slate-2 transition",
 		input: "flex-1 text-slate-11",
+		iconBody: "flex items-center justify-center",
 		icon: "color-slate-9",
 		separator: "h-[calc(200%_/_3)] w-[1.5px] rounded-full bg-slate-7",
 	},
 	variants: {
 		size: {
 			sm: {
-				body: "h-9 gap-1.5 rounded-lg px-2",
-				icon: "size-[1.125rem]",
+				inputBody: "h-9 gap-1.5 rounded-lg px-2",
+				input: "text-[14px]",
+				icon: "size-5",
 			},
 			md: {
-				body: "h-12 gap-2 rounded-xl px-3",
+				inputBody: "h-12 rounded-xl",
+				input: "mx-2 text-[17px]",
+				iconBody: "h-full w-11",
 				icon: "size-6",
-			},
-			lg: {
-				body: "h-14 gap-2.5 rounded-[0.875rem] px-3.5",
-				icon: "size-7",
-			},
-		},
-		elevated: {
-			true: {
-				body: "shadow",
-			},
-			false: {
-				body: "shadow-none",
 			},
 		},
 		disabled: {
 			true: {
-				body: "bg-slate-3",
+				inputBody: "bg-slate-3",
 			},
 		},
 		error: {
 			true: {
-				body: "border-red-9",
+				inputBody: "border-red-9",
 			},
 		},
 		isFocused: {
 			true: {
-				body: "border-blue-8",
+				inputBody: "border-blue-8",
 			},
 		},
 	},
 });
 
-type Props<P extends {}> = Omit<RNTextInputProps, "placeholder" | "readOnly"> &
+type Props<P extends {}> = Omit<RNTextInputProps, "placeholder" | "readOnly" | "className"> &
 	Variants & {
+		label?: string;
 		placeholder?: string;
 		credentials?: boolean;
 		readOnly?: boolean;
-		overrideClassName?: string;
 		icon?: FC<P & { className?: string }>;
 		iconProps?: Omit<P, "className">;
 	};
 
 const TextInput = <P extends {}>({
 	icon,
+	label,
 	placeholder,
 	credentials,
-	overrideClassName,
 	size = "md",
-	elevated,
 	disabled,
 	readOnly,
 	error,
@@ -88,18 +90,20 @@ const TextInput = <P extends {}>({
 }: Props<P>): JSX.Element => {
 	const Icon = icon as unknown as FC<{ className?: string }>;
 	const inputRef = useRef<RNTextInput>(null);
-	const [isFocused, setIsFocused] = useState(false);
+	const [isFocused, setFocused] = useState(false);
 	const [isShowSecureText, setShowSecureText] = useState(true);
 
 	const {
-		body: bodyStyle,
+		inputBody: inputBodyStyle,
 		input: inputStyle,
+		iconBody: iconBodyStyle,
 		icon: iconStyle,
 		separator: separatorStyle,
-	} = variants({ size, isFocused, disabled, elevated: elevated && !disabled, error });
+	} = variants({ size, isFocused, disabled, error });
 
 	const handleFocus = () => {
 		inputRef.current?.focus();
+		setFocused(true);
 	};
 
 	const handleShowSecureText = () => {
@@ -107,46 +111,47 @@ const TextInput = <P extends {}>({
 	};
 
 	return (
-		<TouchableWithoutFeedback onPress={handleFocus} disabled={disabled}>
-			<View className={twMerge(bodyStyle(), overrideClassName)}>
-				{Icon && (
-					<>
-						<Icon className={iconStyle()} />
-						<View className={separatorStyle()} {...iconProps} />
-					</>
-				)}
-				<RNTextInput
-					ref={inputRef}
-					className={inputStyle()}
-					style={{
-						fontSize:
-							size === "sm"
-								? 16
-								: size === "md"
-									? 18
-									: size === "lg"
-										? 20
-										: (() => {
-												throw new Error("Invalid state");
-											})(),
-					}}
-					placeholder={placeholder}
-					onFocus={() => setIsFocused(true)}
-					onBlur={() => setIsFocused(false)}
-					secureTextEntry={credentials && isShowSecureText}
-					placeholderClassName="text-slate-8"
-					editable={!disabled && !readOnly}
-					aria-disabled={disabled}
-				/>
-				{(!!credentials || !!readOnly) && <View className={separatorStyle()} />}
-				{credentials && (
-					<Pressable onPress={handleShowSecureText}>
-						<EyeIcon state={isShowSecureText ? "on" : "off"} className={iconStyle()} />
-					</Pressable>
-				)}
-				{readOnly && <PenIcon state="off" className={iconStyle()} />}
-			</View>
-		</TouchableWithoutFeedback>
+		<View className={"flex flex-col gap-[2px]"}>
+			{label && (
+				<Text size={size} bold>
+					{label}
+				</Text>
+			)}
+			<TouchableWithoutFeedback onPress={handleFocus} disabled={disabled || readOnly}>
+				<View className={inputBodyStyle()}>
+					{Icon && (
+						<>
+							<View className={iconBodyStyle()}>
+								<Icon className={iconStyle()} />
+							</View>
+							<View className={separatorStyle()} {...iconProps} />
+						</>
+					)}
+					<RNTextInput
+						ref={inputRef}
+						className={inputStyle()}
+						placeholder={placeholder}
+						onFocus={() => setFocused(true)}
+						onBlur={() => setFocused(false)}
+						secureTextEntry={credentials && isShowSecureText}
+						placeholderClassName="text-slate-8"
+						editable={!disabled && !readOnly}
+					/>
+					{(!!credentials || !!readOnly) && <View className={separatorStyle()} />}
+					{readOnly && (
+						<View className={iconBodyStyle()}>
+							<PenIcon state="off" className={iconStyle({})} />
+						</View>
+					)}
+					{!!credentials && !!readOnly && <View className={separatorStyle()} />}
+					{credentials && (
+						<Pressable onPress={handleShowSecureText} className={iconBodyStyle()}>
+							<EyeIcon state={isShowSecureText ? "on" : "off"} className={iconStyle()} />
+						</Pressable>
+					)}
+				</View>
+			</TouchableWithoutFeedback>
+		</View>
 	);
 };
 

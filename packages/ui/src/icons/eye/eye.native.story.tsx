@@ -25,7 +25,7 @@ const Template: Story = {
 			control: "color",
 		},
 		state: {
-			options: ["open", "closed"],
+			options: ["on", "off"],
 			control: {
 				type: "radio",
 			},

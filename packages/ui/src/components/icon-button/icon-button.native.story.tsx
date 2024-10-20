@@ -36,22 +36,12 @@ const Template: Story = {
 				type: "boolean",
 			},
 		},
-		bold: {
-			control: {
-				type: "boolean",
-			},
-		},
 		loading: {
 			control: {
 				type: "boolean",
 			},
 		},
 		disabled: {
-			control: {
-				type: "boolean",
-			},
-		},
-		elevated: {
 			control: {
 				type: "boolean",
 			},

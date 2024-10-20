@@ -1,4 +1,4 @@
-import { useTheme } from "@mobile/features/theme/hooks";
+import { useTheme } from "@mobile/features/theme";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function TabOneScreen() {

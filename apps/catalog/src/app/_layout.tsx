@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import "./global.css";
 import { Provider as JotaiProvider } from "jotai";
-import { ThemeProvider } from "../../../mobile/src/features/theme/components";
+import { ThemeProvider } from "../../../mobile/src/features/theme";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

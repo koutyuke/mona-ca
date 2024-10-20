@@ -60,7 +60,7 @@ export const filledColorVariants = tv({
 			},
 			white: {
 				body: twPseudo("bg-white", {
-					active: "bg-white-8",
+					active: "bg-white-10",
 				}),
 				// nativewind can't use color-transparent.
 				// so when this is used, you need to set text color to the same color as the background.
@@ -69,12 +69,6 @@ export const filledColorVariants = tv({
 				icon: "",
 			},
 		} satisfies Record<SupportColor, SlotContract>,
-		loading: {
-			true: {
-				body: "",
-				text: "",
-			} satisfies SlotContract,
-		},
 		disabled: {
 			true: {
 				body: twPseudo("bg-slate-9", {

@@ -19,9 +19,14 @@ const Template: Story = {
 	),
 	argTypes: {
 		size: {
-			options: ["sm", "md", "lg"],
+			options: ["sm", "md"],
 			control: {
 				type: "radio",
+			},
+		},
+		label: {
+			control: {
+				type: "text",
 			},
 		},
 		placeholder: {
@@ -35,11 +40,6 @@ const Template: Story = {
 			},
 		},
 		credentials: {
-			control: {
-				type: "boolean",
-			},
-		},
-		elevated: {
 			control: {
 				type: "boolean",
 			},
@@ -59,6 +59,7 @@ const Template: Story = {
 
 export const Default: Story = {
 	args: {
+		label: "Email",
 		placeholder: "Enter your email",
 		icon: EmailIcon,
 	},

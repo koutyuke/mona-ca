@@ -10,26 +10,26 @@ This project is built around `clean architecture` + `repository pattern`(maybe..
 
 Therefore, the folder is also structured accordingly.
 
-```
+```txt
 ./src/
 ├── app
 │
 ├── application
-│   └── use-cases
+│   └── use-cases
 │
 ├── domain
 │
 ├── infrastructure
 │
 ├── interface-adapter
-│   └── repositories
+│   └── repositories
 │
 ├── modules
 │
 └── types
 ```
 
-__app__
+### app
 
 This folder will be the `controller` part of the application. This is also in a path-dir format like Next.js to make the path easier to read.
 
@@ -37,37 +37,37 @@ If there are children, create a folder instead of a file and write route in `ind
 
 If there are no children, create `route-name.ts` in the parent directory.
 
-__application/use-case__
+### application/use-case
 
 This folder will be the `use-case` part of the application. 
 
-__domain__
+### domain
 
 This folder will be the `entity(domain)` part of the application. 
 
-__infrastructure__
+### infrastructure
 
 This folder will be the `infrastructure` part of the application. 
 
 In particular, place classes such as external libraries and DBs, external API adapter.
 
-__interface-adapter__
+### interface-adapter
 
 This folder will be the `interface-adapter` part of the application. 
 
-__interface-adapter/repositories__
+### interface-adapter/repositories
 
 This folder will be the `repositories` part of the application. 
 
 This folder specifically places classes for DB abstraction.
 
-__modules__
+### modules
 
 This folder is a unique folder not found in the architecture.
 
 In this folder, place the plugins and middleware used by the controller.
 
-__types__
+### types
 
 In this folder, place the types used in global.
 
@@ -109,7 +109,7 @@ Also, the prefix of the route must be the same as the filename.
 // src/app/~/route.ts
 
 const route = new Elysia({
-	prefix: "/route",
+  prefix: "/route",
 })
   // ✅
   .get("/", async () => {
@@ -128,7 +128,7 @@ const route = new Elysia({
 
 When adding or using `plugins`, `middleware`, or `other routes`, the following sequence should be followed.
 
-```
+```txt
 HIGHT
 ↑
 ├── Global Middleware & Plugin
@@ -144,7 +144,7 @@ LOW
 
 And to comment on the layers.
 
-__Example__
+_Example_
 
 ```ts
 // src/app/~/route/index.ts

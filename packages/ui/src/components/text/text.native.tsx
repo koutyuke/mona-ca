@@ -1,20 +1,21 @@
-import { tv, twMerge } from "@mona-ca/tailwind-helpers";
-import type { ElementType, ReactNode } from "react";
+import { tv } from "@mona-ca/tailwind-helpers";
+import type { FC, ReactNode } from "react";
 import { Text as RNText } from "react-native";
-import type { PolymorphicProps } from "../../types/polymorphic";
 
 type Props = {
 	bold?: boolean;
 	size?: "sm" | "md" | "lg";
 	className?: string;
-	isTruncated?: boolean;
+	truncated?: boolean;
+	children: ReactNode;
 };
 
 const variants = tv({
+	base: "font-medium text-slate-12",
 	variants: {
 		size: {
-			sm: "text-base",
-			md: "text-lg",
+			sm: "text-sm",
+			md: "text-[17px] leading-6",
 			lg: "text-xl",
 		},
 		bold: {
@@ -23,29 +24,17 @@ const variants = tv({
 	},
 });
 
-const Text = <E extends ElementType = typeof RNText>({
-	as,
-	children,
-	bold = false,
-	size = "md",
-	className,
-	isTruncated = false,
-	...props
-}: PolymorphicProps<E, Props>): ReactNode => {
-	const Tag = as || RNText;
+const Text: FC<Props> = ({ children, bold = false, size = "md", className, truncated = false, ...props }) => {
 	const style = variants({
 		size,
 		bold,
+		className,
 	});
 
 	return (
-		<Tag
-			{...(isTruncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})}
-			className={twMerge(style, className)}
-			{...props}
-		>
+		<RNText {...(truncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})} className={style} {...props}>
 			{children}
-		</Tag>
+		</RNText>
 	);
 };
 

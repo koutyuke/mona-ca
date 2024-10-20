@@ -3,7 +3,7 @@ import type { SlotContract, SupportColor } from "../type";
 
 export const outlineColorVariants = tv({
 	slots: {
-		body: "",
+		body: "border-[1.5px]",
 		text: "",
 		spinner: "",
 		icon: "",
@@ -60,19 +60,13 @@ export const outlineColorVariants = tv({
 			},
 			white: {
 				body: twPseudo("border-white bg-white/0", {
-					active: "bg-white-4",
+					active: "bg-white-2",
 				}),
 				text: "text-white",
 				spinner: "fill-white",
 				icon: "color-white",
 			},
 		} satisfies Record<SupportColor, SlotContract>,
-		loading: {
-			true: {
-				body: "",
-				text: "",
-			} satisfies SlotContract,
-		},
 		disabled: {
 			true: {
 				body: twPseudo("border-slate-7 bg-slate-3", {

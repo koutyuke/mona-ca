@@ -52,10 +52,9 @@
     "workerd"
   ],
   "overrides": {
-    "nativewind": "^4.1.4"
+    "nativewind": "^4.1.16"
   },
   "patchedDependencies": {
-    "@storybook/addon-ondevice-controls@7.6.20": "patches/@storybook%2Faddon-ondevice-controls@7.6.20.patch",
     "@elysiajs/swagger@1.1.1": "patches/@elysiajs%2Fswagger@1.1.1.patch",
     "elysia@1.1.13": "patches/elysia@1.1.13.patch"
   }

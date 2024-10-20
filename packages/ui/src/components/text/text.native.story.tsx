@@ -24,7 +24,7 @@ const Template: Story = {
 				type: "boolean",
 			},
 		},
-		isTruncated: {
+		truncated: {
 			control: {
 				type: "boolean",
 			},
@@ -35,7 +35,18 @@ const Template: Story = {
 export const AllSizes: Story = {
 	args: {
 		children: "Hello world",
-		className: "text-slate-12",
+	},
+	argTypes: {
+		bold: {
+			control: {
+				type: "boolean",
+			},
+		},
+		truncated: {
+			control: {
+				type: "boolean",
+			},
+		},
 	},
 	parameters: {
 		docs: {
@@ -46,9 +57,9 @@ export const AllSizes: Story = {
 	},
 	render: args => (
 		<View className="flex flex-col gap-2 ">
-			<Text {...args} size="sm" />
-			<Text {...args} size="md" />
-			<Text {...args} size="lg" />
+			<Text {...args} size="sm" className="text-slate-12" />
+			<Text {...args} size="md" className="text-slate-12" />
+			<Text {...args} size="lg" className="text-slate-12" />
 		</View>
 	),
 };
@@ -71,7 +82,7 @@ export const Bold: Story = {
 export const Truncated: Story = {
 	args: {
 		children: "Hello world! This is a very long text that should be truncated.",
-		isTruncated: true,
+		truncated: true,
 	},
 	...Template,
 };

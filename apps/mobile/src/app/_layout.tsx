@@ -5,6 +5,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { Provider as JotaiProvider } from "jotai";
 import { useEffect } from "react";
 import "../styles/global.css";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export { ErrorBoundary } from "expo-router";
@@ -40,12 +41,14 @@ export default function RootLayout() {
 function RootLayoutNav() {
 	return (
 		<SafeAreaProvider>
-			<JotaiProvider>
-				<Stack>
-					<Stack.Screen name="(auth)" options={{ headerShown: false }} />
-					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-				</Stack>
-			</JotaiProvider>
+			<KeyboardProvider>
+				<JotaiProvider>
+					<Stack>
+						<Stack.Screen name="(auth)" options={{ headerShown: false }} />
+						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+					</Stack>
+				</JotaiProvider>
+			</KeyboardProvider>
 		</SafeAreaProvider>
 	);
 }
