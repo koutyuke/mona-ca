@@ -6,10 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "fmt": "biome format --no-errors-on-unmatched",
-    "fmt:fix": "biome format --write --no-errors-on-unmatched",
-    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply --no-errors-on-unmatched"
+    "check": "biome check --error-on-warnings --no-errors-on-unmatched",
+    "check:fix": "bun run check --write"
   },
   "dependencies": {
     "@mona-ca/tailwind-helpers": "workspace:*",

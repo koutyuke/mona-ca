@@ -12,11 +12,8 @@
     "build:ios": "expo run:ios --port=8082",
     "build:ios:device": "expo run:ios --device --port=8082",
     "build:android": "expo run:android --port=8082",
-    "fmt": "biome format --no-errors-on-unmatched",
-    "fmt:fix": "biome format --write --no-errors-on-unmatched",
-    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --write --no-errors-on-unmatched",
-    "android": "expo run:android"
+    "check": "biome check --error-on-warnings --no-errors-on-unmatched",
+    "check:fix": "bun run check --write"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.4",

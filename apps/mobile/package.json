@@ -9,11 +9,9 @@
     "build:ios": "expo run:ios",
     "build:ios:device": "expo run:ios --device",
     "build:android": "expo run:android",
-    "fmt": "biome format --no-errors-on-unmatched",
-    "fmt:fix": "biome format --write --no-errors-on-unmatched",
-    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --write --no-errors-on-unmatched",
-    "type-check": "tsc --noEmit"
+    "check": "biome check --error-on-warnings --no-errors-on-unmatched",
+    "check:fix": "bun run check --write",
+    "typecheck": "tsc --noEmit"
   },
   "jest": {
     "preset": "jest-expo"

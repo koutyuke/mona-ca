@@ -4,10 +4,8 @@
   "private": true,
   "main": "./postcss.config.js",
   "scripts": {
-    "fmt": "biome format --no-errors-on-unmatched",
-    "fmt:fix": "biome format --write --no-errors-on-unmatched",
-    "lint": "biome lint --error-on-warnings --no-errors-on-unmatched",
-    "lint:fix": "biome lint --apply --no-errors-on-unmatched"
+    "check": "biome check --error-on-warnings --no-errors-on-unmatched",
+    "check:fix": "bun run check --write"
   },
   "dependencies": {
     "autoprefixer": "^10.4.19",
