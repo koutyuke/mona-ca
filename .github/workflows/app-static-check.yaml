@@ -1,7 +1,12 @@
 name: App-Static-Check
 
 on: 
-  - push
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
 
 
 jobs:

@@ -21,7 +21,6 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: .github/filters.yaml
-          base: main
 
   deploy:
     needs: filter
@@ -49,11 +48,3 @@ jobs:
           command: |
             deploy --env production
             d1 migrations apply mona-ca_db --remote
-  
-  status:
-    needs: deploy
-    runs-on: ubuntu-latest
-    if: ${{ ! failure() }}
-    steps:
-      - name: check
-        run: echo "test is successfully executed."
