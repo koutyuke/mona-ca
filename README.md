@@ -1,81 +1,108 @@
-# Turborepo starter
+<img src="https://github.com/user-attachments/assets/dd71116e-4799-47e5-a3de-73384f564ef2"  width="100%" height="auto"  />
 
-This is an official starter Turborepo.
+# mona-ca
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
+mona-ca is an Application that shares information about a girl's period with her partner.
 
 ## What's inside?
 
-This Turborepo includes the following packages/apps:
+The project uses a mono-repo structure, with the main functions and modules organized in the following directories
 
-### Apps and Packages
+### `📱 apps` - application directory
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `🌐 web`: It contains the source code associated with the web application.
+- `📱 mobile`: It contains the source code associated with the mobile application.
+- `🖥️ api`: It contains the source code associated with the API server.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### `📦 packages` - package directory
 
-### Utilities
+It includes packages and libraries that will be reused throughout the project.
 
-This Turborepo has some additional tools already setup for you:
+- `⚙️ core`: It includes common packages related to business logic and data processing.
+- `🎨 ui`: It includes common packages related to UI components and styling.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### `🛠️ tools` - tool directory
 
-### Build
+It includes tools and settings related to development and operation.
 
-To build all apps and packages, run the following command:
 
-```
-cd my-turborepo
-pnpm build
-```
+## Setup the Development Environment
 
-### Develop
+### 1. clone git repository
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
+```sh
+git clone https://github.com/koutyuke/mona-ca.git && cd mona-ca
 ```
 
-### Remote Caching
+### 2. install runtime & package manager
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+We use [proto](https://moonrepo.dev/proto) as a version control tool.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
+```sh
+proto use
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### 3. set environment variables
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+See `.env.example` for each application
 
+### 4. install dependencies
+
+```sh
+bun i
 ```
-npx turbo link
+
+### 5. set git hook
+
+```sh
+bunx lefthook install
 ```
 
-## Useful Links
+## Development Tool Commands
 
-Learn more about the power of Turborepo:
+Perform various checks on all files.
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+```sh
+# build
+bun run build
+
+# static code check(lint, fmt, imports)
+bun run check
+
+# static code check(lint, fmt, imports) & fix
+bun run check:fix
+
+# type check
+bun run typecheck
+
+# test
+bun run test
+
+# Other
+# See `scripts` field in `package.json`
+```
+
+## CI in the local environment
+
+Perform CI performed by Github Action in a local environment
+
+Install [`act`](https://github.com/nektos/act) and Start `Docker`
+
+```sh
+# all CI
+bun run ci
+
+# app-build
+bun run ci:app-build
+
+# app-test
+bun run ci:app-test
+
+# app-static-check
+bun run ci:app-static-check
+```
+
+## Note
+
+> [!NOTE]
+> Since Biome's VSCode extension does not support workspaces, all settings are rolled up and configured in root's `biome.json`.
