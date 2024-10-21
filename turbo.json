@@ -8,11 +8,18 @@
       "persistent": true
     },
     "check": {},
-    "check:fix": {},
+    "check:fix": {
+      "cache": false
+    },
     "typecheck": {},
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", ".expo/**"]
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.story.{tsx,jsx,mdx}"],
+      "outputs": [".next/**", "dist/**", "!.next/cache/**"]
+    },
+    "sb:build": {
+      "dependsOn": ["^sb:build"],
+      "outputs": ["apps/catalog/.storybook/static/**"]
     },
     "test": {}
   }
