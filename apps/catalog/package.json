@@ -8,10 +8,9 @@
     "sb": "storybook dev -p 6006 --no-open -c ./.storybook/web",
     "sb:mobile": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --port=8082",
     "sb:ios": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --ios --port=8082",
-    "build": "storybook build -o ./.storybook/static -c ./.storybook/web",
-    "build:ios": "expo run:ios --port=8082",
-    "build:ios:device": "expo run:ios --device --port=8082",
-    "build:android": "expo run:android --port=8082",
+    "sb:build": "storybook build -o ./.storybook/static -c ./.storybook/web",
+    "ios": "expo run:ios --port=8082",
+    "android": "expo run:android --port=8082",
     "check": "biome check --error-on-warnings --no-errors-on-unmatched",
     "check:fix": "bun run check --write"
   },
