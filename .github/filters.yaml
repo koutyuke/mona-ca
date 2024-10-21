@@ -30,7 +30,7 @@ catalog:
   - .github/workflows/catalog-*.yaml
   - apps/catalog/**/*
   - apps/website/**/*
-  - packages/**/*
+  - packages/ui/**/*
   - tools/**/*
   - package.json
   - turbo.json
