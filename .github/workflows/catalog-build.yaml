@@ -1,4 +1,4 @@
-name: App-Build
+name: Catalog-Build
 
 on: 
   pull_request:
@@ -10,9 +10,26 @@ on:
 
 
 jobs:
-  build:
+  filter:
     runs-on: ubuntu-latest
-    
+    permissions:
+      pull-requests: read
+    outputs:
+      catalog: ${{ steps.filter.outputs.catalog }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: .github/filters.yaml
+
+  build:
+    needs: filter
+    if: ${{ needs.filter.outputs.catalog == 'true' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,4 +61,4 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: bunx turbo run sb:build
