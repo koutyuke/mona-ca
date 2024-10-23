@@ -1,8 +1,8 @@
 diff --git a/dist/index.mjs b/dist/index.mjs
-index f9efc85e41589ee20c827746d281dfcedbc2f6ca..be080566c84f808237534dbfe2fe2001203c4809 100644
+index c3ecabed5b776a6f061d35876976c0ac8f8c9691..2e91aa472c466fb630c20d54afe95b72fc3c9dd9 100644
 --- a/dist/index.mjs
 +++ b/dist/index.mjs
-@@ -2978,7 +2978,10 @@ var cloneInference = (inference) => ({
+@@ -3013,7 +3013,10 @@ var cloneInference = (inference) => ({
    set: inference.set,
    server: inference.server
  });
@@ -15,10 +15,10 @@ index f9efc85e41589ee20c827746d281dfcedbc2f6ca..be080566c84f808237534dbfe2fe2001
  var ELYSIA_REQUEST_ID = Symbol("ElysiaRequestId");
  var form = (items) => {
 diff --git a/dist/utils.mjs b/dist/utils.mjs
-index ac344c9470b4ff37526970cc062896d5b7df544d..53b163375667baf770bb4ff4fd4d60529a064aa9 100644
+index c44a5d1b088ce4b5d88f687c884d4744c85dd26f..55afce1e51ef35fcb09892cf0b5bda134ed61f37 100644
 --- a/dist/utils.mjs
 +++ b/dist/utils.mjs
-@@ -1601,7 +1601,10 @@ var cloneInference = (inference) => ({
+@@ -1636,7 +1636,10 @@ var cloneInference = (inference) => ({
    set: inference.set,
    server: inference.server
  });
@@ -26,7 +26,7 @@ index ac344c9470b4ff37526970cc062896d5b7df544d..53b163375667baf770bb4ff4fd4d6052
 +var redirect = (url, status = 302) => {
 +  const _res = Response.redirect(url, status);
 +  return new Response(_res.body, _res);
-+};
++}
  var ELYSIA_FORM_DATA = Symbol("ElysiaFormData");
  var ELYSIA_REQUEST_ID = Symbol("ElysiaRequestId");
  var form = (items) => {

@@ -16,21 +16,21 @@
     "db:std:remote": "drizzle-kit studio  --config drizzle.studio.remote.config.ts"
   },
   "dependencies": {
-    "@elysiajs/swagger": "1.1.1",
+    "@elysiajs/swagger": "1.1.5",
     "@mona-ca/argon2id": "workspace:*",
     "@mona-ca/core": "workspace:*",
     "arctic": "2.0.1",
     "drizzle-orm": "^0.30.10",
-    "elysia": "1.1.13",
+    "elysia": "1.1.23",
     "lucia": "3.2.0",
     "oslo": "1.2.1",
     "resend": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.4.28",
-    "@cloudflare/workers-types": "^4.20240903.0",
+    "@cloudflare/vitest-pool-workers": "^0.4.31",
+    "@cloudflare/workers-types": "^4.20241022.0",
     "@mona-ca/tsconfig": "workspace:*",
-    "better-sqlite3": "^11.2.1",
+    "better-sqlite3": "^11.5.0",
     "drizzle-kit": "^0.21.4",
     "pretty-format": "^29.7.0",
     "vite-tsconfig-paths": "^4.3.2",

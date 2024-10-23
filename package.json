@@ -46,7 +46,7 @@
     "nativewind": "^4.1.16"
   },
   "patchedDependencies": {
-    "@elysiajs/swagger@1.1.1": "patches/@elysiajs%2Fswagger@1.1.1.patch",
-    "elysia@1.1.13": "patches/elysia@1.1.13.patch"
+    "elysia@1.1.23": "patches/elysia@1.1.23.patch",
+    "@elysiajs/swagger@1.1.5": "patches/@elysiajs%2Fswagger@1.1.5.patch"
   }
 }
