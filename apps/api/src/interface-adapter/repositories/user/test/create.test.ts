@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { UserSchema } from "@/domain/user";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
 import { describe, expect, test } from "vitest";
@@ -8,9 +9,8 @@ import { UserRepository } from "../user.repository";
 const { DB } = env;
 
 describe("Create User", async () => {
-	const userRepository = new UserRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const userRepository = new UserRepository(drizzleService);
 
 	test("返り値がSchema通りである(UserSchema)", async () => {
 		const createdUser = await userRepository.create({

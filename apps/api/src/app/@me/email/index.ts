@@ -1,5 +1,6 @@
 import { EmailVerificationUseCase } from "@/application/use-cases/email-verification/email-verification.usecase";
 import { UserUseCase } from "@/application/use-cases/user";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { EmailVerificationCodeRepository } from "@/interface-adapter/repositories/email-verification-code";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { authGuard } from "@/modules/auth-guard";
@@ -21,17 +22,12 @@ const Email = new ElysiaWithEnv({
 	.patch(
 		"/",
 		async ({ cfModuleEnv: { DB }, body: { code, email }, user }) => {
-			const emailVerificationUseCase = new EmailVerificationUseCase(
-				new EmailVerificationCodeRepository({
-					db: DB,
-				}),
-			);
+			const drizzleService = new DrizzleService(DB);
 
-			const userUseCase = new UserUseCase(
-				new UserRepository({
-					db: DB,
-				}),
+			const emailVerificationUseCase = new EmailVerificationUseCase(
+				new EmailVerificationCodeRepository(drizzleService),
 			);
+			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
 
 			const validCode = await emailVerificationUseCase.validateVerificationCode(code, email, user.id);
 			const sameEmailUser = await userUseCase.getUserByEmail(email);

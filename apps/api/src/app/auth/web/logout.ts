@@ -1,5 +1,6 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "@/common/constants";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { InternalServerErrorException } from "@/modules/error/exceptions";
@@ -12,7 +13,8 @@ const Logout = new ElysiaWithEnv({
 	.post(
 		"/",
 		async ({ env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
+			const drizzleService = new DrizzleService(DB);
+			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
 
 			const sessionCookie = cookie[SESSION_COOKIE_NAME];
 

@@ -10,6 +10,7 @@ import {
 } from "@/common/constants";
 import { convertRedirectableMobileScheme } from "@/common/utils/convert-redirectable-mobile-scheme";
 import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { selectOAuthProviderService } from "@/infrastructure/oauth-provider";
 import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
@@ -42,11 +43,13 @@ const ProviderCallback = new ElysiaWithEnv({
 				}),
 			);
 
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
+			const drizzleService = new DrizzleService(DB);
 
-			const oAuthAccountUseCase = new OAuthAccountUseCase(new OAuthAccountRepository({ db: DB }));
+			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
 
-			const userUseCase = new UserUseCase(new UserRepository({ db: DB }));
+			const oAuthAccountUseCase = new OAuthAccountUseCase(new OAuthAccountRepository(drizzleService));
+
+			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
 
 			const stateCookieValue = cookie[OAUTH_STATE_COOKIE_NAME].value;
 			const codeVerifierCookieValue = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].value;

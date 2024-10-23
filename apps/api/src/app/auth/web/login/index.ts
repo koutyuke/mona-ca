@@ -2,6 +2,7 @@ import { AuthUseCase } from "@/application/use-cases/auth";
 import { UserUseCase } from "@/application/use-cases/user";
 import { UserCredentialsUseCase } from "@/application/use-cases/user-credentials";
 import { SESSION_COOKIE_NAME } from "@/common/constants";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { UserCredentialsRepository } from "@/interface-adapter/repositories/user-credentials";
@@ -18,9 +19,11 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 	.post(
 		"/",
 		async ({ body: { email, password }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
-			const userUseCase = new UserUseCase(new UserRepository({ db: DB }));
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
-			const userCredentialsUseCase = new UserCredentialsUseCase(new UserCredentialsRepository({ db: DB }));
+			const drizzleService = new DrizzleService(DB);
+
+			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
+			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
+			const userCredentialsUseCase = new UserCredentialsUseCase(new UserCredentialsRepository(drizzleService));
 
 			const user = await userUseCase.getUserByEmail(email);
 			const credentials = user ? await userCredentialsUseCase.getUserCredential(user.id) : null;

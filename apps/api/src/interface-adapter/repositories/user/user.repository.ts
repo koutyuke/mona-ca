@@ -1,17 +1,12 @@
 import type { Session } from "@/domain/session";
 import { User } from "@/domain/user";
 import type { UserCredentials } from "@/domain/user-credentials";
-import { DrizzleService } from "@/infrastructure/drizzle";
+import type { DrizzleService } from "@/infrastructure/drizzle";
 import { eq } from "drizzle-orm";
 import type { IUserRepository } from "./interface/user.repository.interface";
 
 export class UserRepository implements IUserRepository {
-	private readonly drizzleService: DrizzleService;
-	constructor(args: {
-		db: D1Database;
-	}) {
-		this.drizzleService = new DrizzleService(args.db);
-	}
+	constructor(private readonly drizzleService: DrizzleService) {}
 
 	public async find(id: string): Promise<User | null> {
 		const user = await this.drizzleService.db.query.users.findFirst({

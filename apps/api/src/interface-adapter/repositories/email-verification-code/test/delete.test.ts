@@ -1,13 +1,13 @@
 import { env } from "cloudflare:test";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { beforeAll, describe, expect, test } from "vitest";
 import { EmailVerificationCodeRepository } from "../email-verification-code.repository";
 
 const { DB } = env;
 
 describe("Delete Email Verification Code", () => {
-	const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const emailVerificationCodeRepository = new EmailVerificationCodeRepository(drizzleService);
 
 	beforeAll(async () => {
 		await DB.prepare(

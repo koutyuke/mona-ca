@@ -1,17 +1,11 @@
-import { DrizzleService } from "@/infrastructure/drizzle";
+import type { DrizzleService } from "@/infrastructure/drizzle";
 import { eq, lte } from "drizzle-orm";
 import type { DatabaseSession, DatabaseUser } from "lucia";
 import type { ILuciaAdapter } from "./interface/lucia.adapter.interface";
 import type { FlatDatabaseSession, FlatDatabaseUser } from "./lucia.type";
 
 export class LuciaAdapter implements ILuciaAdapter {
-	private readonly drizzleService: DrizzleService;
-
-	constructor(args: {
-		db: D1Database;
-	}) {
-		this.drizzleService = new DrizzleService(args.db);
-	}
+	constructor(private readonly drizzleService: DrizzleService) {}
 
 	public async getUserSessions(userId: string): Promise<DatabaseSession[]> {
 		const sessions = await this.drizzleService.db.query.session.findMany({

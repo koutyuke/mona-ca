@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { OAuthAccountSchema } from "@/domain/oauth-account";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -8,9 +9,8 @@ import { OAuthAccountRepository } from "../oauth-account.repository";
 const { DB } = env;
 
 describe("Update OAuth Account By User Id", () => {
-	const oAuthAccountRepository = new OAuthAccountRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
 	beforeAll(async () => {
 		await DB.prepare(

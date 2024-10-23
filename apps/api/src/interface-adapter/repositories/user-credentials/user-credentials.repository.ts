@@ -1,16 +1,10 @@
 import { UserCredentials } from "@/domain/user-credentials";
-import { DrizzleService } from "@/infrastructure/drizzle";
+import type { DrizzleService } from "@/infrastructure/drizzle";
 import { eq } from "drizzle-orm";
 import type { IUserCredentialsRepository } from "./interface/user-credentials.repository.interface";
 
 export class UserCredentialsRepository implements IUserCredentialsRepository {
-	private readonly drizzleService: DrizzleService;
-
-	constructor(args: {
-		db: D1Database;
-	}) {
-		this.drizzleService = new DrizzleService(args.db);
-	}
+	constructor(private readonly drizzleService: DrizzleService) {}
 
 	public async find(userId: UserCredentials["userId"]): Promise<UserCredentials | null> {
 		const userCredentials = await this.drizzleService.db

@@ -1,4 +1,5 @@
 import { env } from "cloudflare:test";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { beforeAll, describe, expect, test } from "vitest";
 import { LuciaAdapter } from "../../lucia.adapter";
 
@@ -8,7 +9,8 @@ describe("Delete Expired Sessions", () => {
 	let luciaAdapter: LuciaAdapter;
 
 	beforeAll(async () => {
-		luciaAdapter = new LuciaAdapter({ db: DB });
+		const drizzleService = new DrizzleService(DB);
+		luciaAdapter = new LuciaAdapter(drizzleService);
 
 		const expiredAt = new Date();
 		expiredAt.setHours(expiredAt.getHours() - 1);

@@ -1,13 +1,13 @@
 import { env } from "cloudflare:test";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { beforeAll, describe, expect, test } from "vitest";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
 const { DB } = env;
 
 describe("Delete OAuth Account By User Id", () => {
-	const oAuthAccountRepository = new OAuthAccountRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
 	beforeAll(async () => {
 		await DB.prepare(

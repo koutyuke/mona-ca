@@ -1,6 +1,7 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { UserUseCase } from "@/application/use-cases/user";
 import { SESSION_COOKIE_NAME } from "@/common/constants";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
@@ -15,8 +16,10 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 	.post(
 		"/",
 		async ({ body: { email, password, name, gender }, env: { APP_ENV }, cfModuleEnv: { DB }, set, cookie }) => {
-			const userUseCase = new UserUseCase(new UserRepository({ db: DB }));
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
+			const drizzleService = new DrizzleService(DB);
+
+			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
+			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
 
 			try {
 				const hashedPassword = await authUseCase.hashedPassword(password);

@@ -1,4 +1,5 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { LuciaAdapter } from "@/infrastructure/lucia";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { UnauthorizedException } from "../error/exceptions";
@@ -16,7 +17,9 @@ const authGuard = (options?: AuthGuardOptions) => {
 			emailVerificationRequired,
 		},
 	}).derive({ as: "scoped" }, async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
-		const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
+		const drizzleService = new DrizzleService(DB);
+
+		const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
 
 		const sessionToken = authUseCase.readSessionCookie(cookie) || authUseCase.readBearerToken(authorization ?? "");
 

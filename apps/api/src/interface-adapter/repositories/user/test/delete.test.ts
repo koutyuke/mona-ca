@@ -1,13 +1,13 @@
 import { env } from "cloudflare:test";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { beforeAll, describe, expect, test } from "vitest";
 import { UserRepository } from "../user.repository";
 
 const { DB } = env;
 
 describe("Delete User", async () => {
-	const userRepository = new UserRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const userRepository = new UserRepository(drizzleService);
 
 	beforeAll(async () => {
 		await DB.prepare(

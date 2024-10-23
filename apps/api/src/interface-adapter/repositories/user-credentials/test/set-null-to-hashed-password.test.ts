@@ -1,4 +1,5 @@
 import { env } from "cloudflare:test";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -7,9 +8,8 @@ import { UserCredentialsRepository } from "../user-credentials.repository";
 const { DB } = env;
 
 describe("Set Null To Hashed Password", () => {
-	const userCredentialsRepository = new UserCredentialsRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const userCredentialsRepository = new UserCredentialsRepository(drizzleService);
 
 	beforeAll(async () => {
 		await DB.prepare(

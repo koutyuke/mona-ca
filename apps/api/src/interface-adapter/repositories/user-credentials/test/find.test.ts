@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { UserCredentialsSchema } from "@/domain/user-credentials";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -8,9 +9,8 @@ import { UserCredentialsRepository } from "../user-credentials.repository";
 const { DB } = env;
 
 describe("Find User Credentials", () => {
-	const userCredentialsRepository = new UserCredentialsRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const userCredentialsRepository = new UserCredentialsRepository(drizzleService);
 
 	beforeAll(async () => {
 		await DB.prepare(

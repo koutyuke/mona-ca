@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { UserSchema } from "@/domain/user";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -8,9 +9,8 @@ import { UserRepository } from "../user.repository";
 const { DB } = env;
 
 describe("Find User By Id", async () => {
-	const userRepository = new UserRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const userRepository = new UserRepository(drizzleService);
 
 	beforeAll(async () => {
 		await DB.prepare(

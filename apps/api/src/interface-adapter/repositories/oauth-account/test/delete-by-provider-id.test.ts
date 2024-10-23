@@ -1,4 +1,5 @@
 import { env } from "cloudflare:test";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { beforeAll, describe, expect, test } from "vitest";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
@@ -17,9 +18,8 @@ describe("Delete OAuth Account By Provider Id", () => {
 			.run();
 	});
 
-	const oAuthAccountRepository = new OAuthAccountRepository({
-		db: DB,
-	});
+	const drizzleService = new DrizzleService(DB);
+	const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
 	test("DBからデータが削除されている", async () => {
 		await oAuthAccountRepository.deleteByProviderId("discordId", "discord");

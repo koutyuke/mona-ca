@@ -1,4 +1,5 @@
 import { env } from "cloudflare:test";
+import { DrizzleService } from "@/infrastructure/drizzle";
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -10,7 +11,8 @@ describe("Update Session Expiration", () => {
 	let luciaAdapter: LuciaAdapter;
 
 	beforeAll(async () => {
-		luciaAdapter = new LuciaAdapter({ db: DB });
+		const drizzleService = new DrizzleService(DB);
+		luciaAdapter = new LuciaAdapter(drizzleService);
 
 		await DB.prepare(
 			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
