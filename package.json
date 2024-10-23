@@ -7,10 +7,6 @@
   },
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "scripts": {
-    "ci": "act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main",
-    "ci:app-test": "bun ci -W ./.github/workflows/app-test.yaml",
-    "ci:app-build": "bun ci -W ./.github/workflows/app-build.yaml",
-    "ci:app-static-check": "bun ci -W ./.github/workflows/app-static-check.yaml",
     "build": "turbo build",
     "check": "turbo check",
     "check:fix": "turbo check:fix",
@@ -21,13 +17,7 @@
     "web": "cd ./apps/web && bun",
     "mobile": "cd ./apps/mobile && bun",
     "core": "cd ./packages/core && bun",
-    "ui": "cd ./packages/ui && bun",
-    "design-tokens": "cd ./packages/design-tokens && bun",
-    "argon2id": "cd ./packages/argon2id && bun",
-    "tailwind-helpers": "cd ./packages/tailwind-helpers && bun",
-    "postcss": "cd ./tools/postcss && bun",
-    "tsconfig": "cd ./tools/tsconfig && bun",
-    "tailwind-config": "cd ./tools/tailwind-config && bun"
+    "ui": "cd ./packages/ui && bun"
   },
   "dependencies": {
     "@types/bun": "^1.1.11"

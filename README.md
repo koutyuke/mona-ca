@@ -90,16 +90,22 @@ Install [`act`](https://github.com/nektos/act) and Start `Docker`
 
 ```sh
 # all CI
-bun run ci
+act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main
 
 # app-build
-bun run ci:app-build
+act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/app-build.yaml
 
 # app-test
-bun run ci:app-test
+act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/app-test.yaml
 
 # app-static-check
-bun run ci:app-static-check
+act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/app-static-check.yaml
+
+# api-deploy-cloudflare
+act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/api-deploy-cloudflare.yaml
+
+# catalog-build
+act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/catalog-build.yaml
 ```
 
 ## Note
