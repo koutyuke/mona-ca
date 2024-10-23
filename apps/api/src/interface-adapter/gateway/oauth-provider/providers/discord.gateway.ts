@@ -1,7 +1,7 @@
 import { Value } from "@sinclair/typebox/value";
 import { Discord as DiscordProvider, type OAuth2Tokens } from "arctic";
 import { t } from "elysia";
-import type { AccountInfo, IOAuthProviderService } from "../interface/oauth-provider.service.interface";
+import type { AccountInfo, IOAuthProviderGateway } from "../interface/oauth-provider.gateway.interface";
 
 const discordAccountInfoSchema = t.Object({
 	id: t.String(),
@@ -15,7 +15,7 @@ const discordAccountInfoSchema = t.Object({
 	email: t.Union([t.String({ format: "email" }), t.Null()]),
 });
 
-export class DiscordOAuthService implements IOAuthProviderService {
+export class DiscordOAuthGateway implements IOAuthProviderGateway {
 	private readonly discord: DiscordProvider;
 	private readonly scope = ["identify", "email"];
 

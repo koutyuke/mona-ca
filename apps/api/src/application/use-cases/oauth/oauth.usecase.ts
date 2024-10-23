@@ -1,5 +1,5 @@
-import type { IOAuthProviderGateway } from "@/infrastructure/oauth-provider";
-import type { AccountInfo } from "@/infrastructure/oauth-provider/interface/oauth-provider.service.interface";
+import type { IOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
+import type { AccountInfo } from "@/interface-adapter/gateway/oauth-provider/interface/oauth-provider.gateway.interface";
 import { type OAuth2Tokens, generateCodeVerifier, generateState } from "arctic";
 import type { IOAuthUseCase } from "./interface/oauth.usecase.interface";
 

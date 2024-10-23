@@ -1,4 +1,4 @@
-import type { AccountInfo } from "@/infrastructure/oauth-provider";
+import type { AccountInfo } from "@/interface-adapter/gateway/oauth-provider";
 import type { OAuth2Tokens } from "arctic";
 
 export interface IOAuthUseCase {

@@ -12,7 +12,7 @@ import {
 import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
 import { DrizzleService } from "@/infrastructure/drizzle";
 import { LuciaAdapter } from "@/infrastructure/lucia";
-import { selectOAuthProviderService } from "@/infrastructure/oauth-provider";
+import { selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
@@ -36,7 +36,7 @@ const ProviderCallback = new ElysiaWithEnv({
 			const providerGatewayRedirectUrl = new URL(`auth/web/signup/${provider}/callback`, apiBaseUrl);
 
 			const oAuthUseCase = new OAuthUseCase(
-				selectOAuthProviderService({
+				selectOAuthProviderGateway({
 					provider,
 					env,
 					redirectUrl: providerGatewayRedirectUrl.toString(),
