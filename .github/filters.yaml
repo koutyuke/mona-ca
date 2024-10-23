@@ -1,36 +1,41 @@
 app:
-  - .github/filter.yaml
+  - .github/filters.yaml
   - .github/workflows/app-*.yaml
-  - apps/**/*
-  - packages/**/*
-  - tools/**/*
+  - apps/**
+  - packages/**
+  - tools/**
   - package.json
   - turbo.json
+  - biome.json
 
 api:
-  - .github/filter.yaml
+  - .github/filters.yaml
   - .github/workflows/api-*.yaml
-  - apps/api/**/*
-  - packages/**/*
-  - tools/**/*
+  - apps/api/**
+  - packages/**
+  - tools/**
   - package.json
   - turbo.json
+  - biome.json
 
 web:
-  - .github/filter.yaml
+  - .github/filters.yaml
   - .github/workflows/website-*.yaml
-  - apps/website/**/*
-  - packages/**/*
-  - tools/**/*
+  - apps/web/**
+  - apps/api/**
+  - packages/**
+  - tools/**
   - package.json
   - turbo.json
+  - biome.json
 
 catalog:
-  - .github/filter.yaml
+  - .github/filters.yaml
   - .github/workflows/catalog-*.yaml
-  - apps/catalog/**/*
-  - apps/website/**/*
-  - packages/ui/**/*
-  - tools/**/*
+  - apps/catalog/**
+  - apps/web/**
+  - packages/ui/**
+  - tools/**
   - package.json
   - turbo.json
+  - biome.json
