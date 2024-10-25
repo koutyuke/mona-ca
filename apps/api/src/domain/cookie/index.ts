@@ -1,1 +1,1 @@
-export { Cookie } from "./cookie.model";
+export { Cookie, type CookieAttributes } from "./cookie.model";
