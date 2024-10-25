@@ -17,6 +17,6 @@ export class Session {
 	}
 
 	get isExpired() {
-		return this.expiresAt < new Date();
+		return Date.now() >= this.expiresAt.getTime();
 	}
 }
