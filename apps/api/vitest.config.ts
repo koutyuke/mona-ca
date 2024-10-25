@@ -11,7 +11,7 @@ export default defineWorkersConfig(async () => {
 		resolve: {},
 		test: {
 			globals: true,
-			setupFiles: ["./test/apply-migrations.ts"],
+			setupFiles: ["./src/test/apply-migrations.ts"],
 			poolOptions: {
 				workers: {
 					singleWorker: true,
