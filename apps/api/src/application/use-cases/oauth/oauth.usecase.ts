@@ -18,11 +18,11 @@ export class OAuthUseCase implements IOAuthUseCase {
 		return await this.provider.getAccountInfo(accessToken);
 	}
 
-	public genState(): string {
+	public generateState(): string {
 		return generateState();
 	}
 
-	public genCodeVerifier(): string {
+	public generateCodeVerifier(): string {
 		return generateCodeVerifier();
 	}
 }

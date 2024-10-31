@@ -5,6 +5,6 @@ export interface IOAuthUseCase {
 	genAuthUrl(state: string, codeVerifier: string): URL;
 	getTokens(code: string, codeVerifier: string): Promise<OAuth2Tokens>;
 	getAccountInfo(accessToken: string): Promise<AccountInfo | null>;
-	genState(): string;
-	genCodeVerifier(): string;
+	generateState(): string;
+	generateCodeVerifier(): string;
 }
