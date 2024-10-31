@@ -16,7 +16,7 @@ describe("Set Environment", () => {
 	});
 
 	test("Environment is set correctly", () => {
-		expect(Value.Check(AppEnvWithoutCFModuleEnvSchema, elysiaWithEnv.decorator.env)).toBe(true);
+		expect(Value.Check(AppEnvWithoutCFModuleEnvSchema, elysiaWithEnv.decorator.env)).toBeTruthy();
 		expect(elysiaWithEnv.decorator.cfModuleEnv).toEqual({
 			DB,
 		});

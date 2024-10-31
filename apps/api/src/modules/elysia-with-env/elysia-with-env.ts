@@ -16,7 +16,7 @@ type CustomSingleton = {
 	resolve: {};
 };
 
-class ElysiaWithEnv<const BasePath extends string = "", const Scoped extends boolean = false> extends Elysia<
+export class ElysiaWithEnv<const BasePath extends string = "", const Scoped extends boolean = false> extends Elysia<
 	BasePath,
 	Scoped,
 	CustomSingleton
@@ -45,5 +45,3 @@ class ElysiaWithEnv<const BasePath extends string = "", const Scoped extends boo
 		return this;
 	}
 }
-
-export { ElysiaWithEnv };
