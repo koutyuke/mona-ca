@@ -45,8 +45,8 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				});
 			}
 
-			const state = oAuthUseCase.genState();
-			const codeVerifier = oAuthUseCase.genCodeVerifier();
+			const state = oAuthUseCase.generateState();
+			const codeVerifier = oAuthUseCase.generateCodeVerifier();
 			const redirectUrl = oAuthUseCase.genAuthUrl(state, codeVerifier);
 
 			const oAuthStateCookie = cookie[OAUTH_STATE_COOKIE_NAME];

@@ -1,7 +1,8 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "@/common/constants";
+import { Argon2idService } from "@/infrastructure/argon2id";
 import { DrizzleService } from "@/infrastructure/drizzle";
-import { LuciaAdapter } from "@/infrastructure/lucia";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { InternalServerErrorException } from "@/modules/error/exceptions";
 import { t } from "elysia";
@@ -14,7 +15,11 @@ const Logout = new ElysiaWithEnv({
 		"/",
 		async ({ env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
 			const drizzleService = new DrizzleService(DB);
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
+			const argon2idService = new Argon2idService();
+
+			const sessionRepository = new SessionRepository(drizzleService);
+
+			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 
 			const sessionCookie = cookie[SESSION_COOKIE_NAME];
 

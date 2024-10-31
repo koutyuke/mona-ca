@@ -1,7 +1,8 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { UserUseCase } from "@/application/use-cases/user";
+import { Argon2idService } from "@/infrastructure/argon2id";
 import { DrizzleService } from "@/infrastructure/drizzle";
-import { LuciaAdapter } from "@/infrastructure/lucia";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { errorResponseSchema } from "@/modules/error";
@@ -17,27 +18,39 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 		"/",
 		async ({ body: { email, password, name, gender }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
 			const drizzleService = new DrizzleService(DB);
+			const argon2idService = new Argon2idService();
 
-			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
+			const sessionRepository = new SessionRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
+
+			const userUseCase = new UserUseCase(userRepository);
+			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 
 			try {
-				const hashedPassword = await authUseCase.hashedPassword(password);
+				const passwordHash = await authUseCase.hashPassword(password);
 
-				const user = await userUseCase.createUser({
-					name,
-					email,
-					emailVerified: false,
-					iconUrl: null,
-					gender,
-					hashedPassword,
-				});
+				const { user } = await userUseCase.createUser(
+					{
+						name,
+						email,
+						emailVerified: false,
+						iconUrl: null,
+						gender,
+					},
+					{
+						credential: {
+							passwordHash,
+						},
+					},
+				);
 
-				const session = await authUseCase.createSession(user.id);
+				const sessionToken = authUseCase.generateSessionToken();
+
+				await authUseCase.createSession(sessionToken, user.id);
 
 				set.status = 201;
 				return {
-					accessToken: session.id,
+					accessToken: sessionToken,
 				};
 			} catch (e) {
 				console.error(e);

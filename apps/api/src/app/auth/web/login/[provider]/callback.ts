@@ -8,10 +8,11 @@ import {
 	SESSION_COOKIE_NAME,
 } from "@/common/constants";
 import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
+import { Argon2idService } from "@/infrastructure/argon2id";
 import { DrizzleService } from "@/infrastructure/drizzle";
-import { LuciaAdapter } from "@/infrastructure/lucia";
 import { selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import { getAPIBaseUrl, getWebBaseUrl, validateRedirectUrl } from "@mona-ca/core/utils";
@@ -32,6 +33,10 @@ const ProviderCallback = new ElysiaWithEnv({
 			const providerGatewayRedirectUrl = new URL(`auth/web/login/${provider}/callback`, apiBaseUrl);
 
 			const drizzleService = new DrizzleService(DB);
+			const argon2idService = new Argon2idService();
+
+			const sessionRepository = new SessionRepository(drizzleService);
+			const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
 			const oAuthUseCase = new OAuthUseCase(
 				selectOAuthProviderGateway({
@@ -40,8 +45,8 @@ const ProviderCallback = new ElysiaWithEnv({
 					redirectUrl: providerGatewayRedirectUrl.toString(),
 				}),
 			);
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
-			const oAuthAccountUseCase = new OAuthAccountUseCase(new OAuthAccountRepository(drizzleService));
+			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
+			const oAuthAccountUseCase = new OAuthAccountUseCase(oAuthAccountRepository);
 
 			const stateCookieValue = cookie[OAUTH_STATE_COOKIE_NAME].value;
 			const codeVerifierCookieValue = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].value;
@@ -89,8 +94,11 @@ const ProviderCallback = new ElysiaWithEnv({
 					return redirect(redirectUrlCookieValue.toString());
 				}
 
-				const session = await authUseCase.createSession(existingOAuthAccount.userId);
-				const sessionCookie = authUseCase.createSessionCookie(session.id);
+				const sessionToken = authUseCase.generateSessionToken();
+
+				await authUseCase.createSession(sessionToken, existingOAuthAccount.userId);
+
+				const sessionCookie = authUseCase.createSessionCookie(sessionToken);
 
 				cookie[SESSION_COOKIE_NAME]?.set({
 					value: sessionCookie.value,

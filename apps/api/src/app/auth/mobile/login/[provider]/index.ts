@@ -28,13 +28,13 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 
 			const providerRedirectUrl = new URL(`auth/mobile/login/${provider}/callback`, apiBaseUrl);
 
-			const oAuthUseCase = new OAuthUseCase(
-				selectOAuthProviderGateway({
-					provider,
-					env,
-					redirectUrl: providerRedirectUrl.toString(),
-				}),
-			);
+			const oAuthProviderGateway = selectOAuthProviderGateway({
+				provider,
+				env,
+				redirectUrl: providerRedirectUrl.toString(),
+			});
+
+			const oAuthUseCase = new OAuthUseCase(oAuthProviderGateway);
 
 			const validatedRedirectUrl = validateRedirectUrl(mobileScheme, queryRedirectUrl ?? "/");
 
@@ -44,8 +44,8 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				});
 			}
 
-			const state = oAuthUseCase.genState();
-			const codeVerifier = oAuthUseCase.genCodeVerifier();
+			const state = oAuthUseCase.generateState();
+			const codeVerifier = oAuthUseCase.generateCodeVerifier();
 			const redirectUrl = oAuthUseCase.genAuthUrl(state, codeVerifier);
 
 			const oAuthStateCookie = cookie[OAUTH_STATE_COOKIE_NAME];
