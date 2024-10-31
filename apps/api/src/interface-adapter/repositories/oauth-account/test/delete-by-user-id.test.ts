@@ -1,29 +1,29 @@
 import { env } from "cloudflare:test";
 import { DrizzleService } from "@/infrastructure/drizzle";
+import { OAuthAccountTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
 const { DB } = env;
 
-describe("Delete OAuth Account By User Id", () => {
-	const drizzleService = new DrizzleService(DB);
-	const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
+const drizzleService = new DrizzleService(DB);
+const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
+const userTableHelper = new UserTableHelper(DB);
+const oAuthAccountTableHelper = new OAuthAccountTableHelper(DB);
+
+describe("OAuthAccountRepository.deleteByUserId", () => {
 	beforeAll(async () => {
-		await DB.prepare(
-			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-		)
-			.bind("userId", "foo", "user@mail.com", 0, null, "hashedPassword")
-			.run();
-
-		await DB.prepare("INSERT INTO oauth_accounts (provider, provider_id, user_id) VALUES (?1, ?2, ?3)")
-			.bind("discord", "discordId", "userId")
-			.run();
+		await userTableHelper.create();
+		await oAuthAccountTableHelper.create();
 	});
 
-	test("DBからデータが削除されている", async () => {
-		await oAuthAccountRepository.deleteByUserId("userId", "discord");
-		const { results } = await DB.prepare("SELECT * FROM oauth_accounts WHERE user_id = ?1").bind("userId").all();
-		expect(results.length).toBe(0);
+	test("should delete date in database", async () => {
+		await oAuthAccountRepository.deleteByUserId(
+			oAuthAccountTableHelper.baseOAuthAccount.userId,
+			oAuthAccountTableHelper.baseOAuthAccount.provider,
+		);
+		const results = await oAuthAccountTableHelper.find(oAuthAccountTableHelper.baseOAuthAccount.providerId);
+		expect(results).toHaveLength(0);
 	});
 });

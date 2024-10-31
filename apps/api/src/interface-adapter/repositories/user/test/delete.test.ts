@@ -1,25 +1,26 @@
 import { env } from "cloudflare:test";
 import { DrizzleService } from "@/infrastructure/drizzle";
+import { UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
 import { UserRepository } from "../user.repository";
 
 const { DB } = env;
 
-describe("Delete User", async () => {
-	const drizzleService = new DrizzleService(DB);
-	const userRepository = new UserRepository(drizzleService);
+const drizzleService = new DrizzleService(DB);
+const userRepository = new UserRepository(drizzleService);
 
+const userTableHelper = new UserTableHelper(DB);
+
+describe("UserRepository.delete", async () => {
 	beforeAll(async () => {
-		await DB.prepare(
-			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-		)
-			.bind("userId", "foo", "user@mail.com", 0, null, "hashedPassword")
-			.run();
+		await userTableHelper.create();
 	});
 
-	test("DBからデータが削除されている", async () => {
+	test("should deleted user from the database", async () => {
 		await userRepository.delete("userId");
-		const { results } = await DB.prepare("SELECT * FROM users WHERE id = ?1").bind("userId").all();
-		expect(results.length).toBe(0);
+
+		const results = await userTableHelper.find("userId");
+
+		expect(results).toHaveLength(0);
 	});
 });

@@ -1,79 +1,52 @@
 import { env } from "cloudflare:test";
-import { UserSchema } from "@/domain/user";
+import { User } from "@/domain/user";
+import { UserCredential } from "@/domain/user-credential";
 import { DrizzleService } from "@/infrastructure/drizzle";
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
+import { UserCredentialTableHelper, UserTableHelper } from "@/tests/helpers";
 import { describe, expect, test } from "vitest";
 import { UserRepository } from "../user.repository";
 
 const { DB } = env;
 
-describe("Create User", async () => {
-	const drizzleService = new DrizzleService(DB);
-	const userRepository = new UserRepository(drizzleService);
+const drizzleService = new DrizzleService(DB);
+const userRepository = new UserRepository(drizzleService);
 
-	test("返り値がSchema通りである(UserSchema)", async () => {
-		const createdUser = await userRepository.create({
-			id: "userId",
-			name: "foo",
-			email: "user@mail.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: "man",
-			hashedPassword: "hashedPassword",
+const userTableHelper = new UserTableHelper(DB);
+const userCredentialsTableHelper = new UserCredentialTableHelper(DB);
+
+describe("UserRepository.create", async () => {
+	test("should return a valid user object", async () => {
+		const { user, userCredential } = await userRepository.create(
+			userTableHelper.baseUser,
+			userCredentialsTableHelper.baseUserCredential,
+		);
+
+		const expectedUser = new User({
+			...userTableHelper.baseUser,
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt,
 		});
-		const isValid = Value.Check(UserSchema, createdUser);
-		expect(isValid).toBe(true);
+
+		const expectedUserCredential = new UserCredential({
+			...userCredentialsTableHelper.baseUserCredential,
+			createdAt: userCredential.createdAt,
+			updatedAt: userCredential.updatedAt,
+		});
+
+		expect(user).toStrictEqual(expectedUser);
+		expect(userCredential).toStrictEqual(expectedUserCredential);
 	});
 
-	test("返り値が期待通りである", async () => {
-		const createdUser = await userRepository.create({
-			id: "userId",
-			name: "foo",
-			email: "user@mail.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: "man",
-			hashedPassword: "hashedPassword",
-		});
+	test("should set user in the database", async () => {
+		await userRepository.create(userTableHelper.baseUser, userCredentialsTableHelper.baseUserCredential);
 
-		const schema = t.Object({
-			id: t.Literal("userId"),
-			name: t.Literal("foo"),
-			email: t.Literal("user@mail.com"),
-			emailVerified: t.Literal(false),
-			iconUrl: t.Null(),
-			gender: t.Literal("man"),
-			createdAt: t.Date(),
-			updatedAt: t.Date(),
-		});
-		const isValid = Value.Check(schema, createdUser);
-		expect(isValid).toBe(true);
-	});
+		const results = await userTableHelper.find(userTableHelper.baseDatabaseUser.id);
 
-	test("DBにデータが保存されている", async () => {
-		await userRepository.create({
-			id: "userId",
-			name: "foo",
-			email: "user@mail.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: "man",
-			hashedPassword: "hashedPassword",
+		expect(results).toHaveLength(1);
+		expect(results[0]).toStrictEqual({
+			...userTableHelper.baseDatabaseUser,
+			created_at: results[0]!.created_at,
+			updated_at: results[0]!.updated_at,
 		});
-
-		const { results } = await DB.prepare("SELECT * FROM users WHERE id = ?1").bind("userId").all();
-		const schema = t.Object({
-			id: t.Literal("userId"),
-			name: t.Literal("foo"),
-			email: t.Literal("user@mail.com"),
-			email_verified: t.Literal(0),
-			icon_url: t.Null(),
-			hashed_password: t.Literal("hashedPassword"),
-			gender: t.Literal("man"),
-			created_at: t.Number(),
-			updated_at: t.Number(),
-		});
-		expect(results.length === 1 && Value.Check(schema, results[0])).toBe(true);
 	});
 });
