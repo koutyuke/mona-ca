@@ -1,6 +1,7 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
+import { Argon2idService } from "@/infrastructure/argon2id";
 import { DrizzleService } from "@/infrastructure/drizzle";
-import { LuciaAdapter } from "@/infrastructure/lucia";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { UnauthorizedException } from "../error/exceptions";
 
@@ -18,8 +19,10 @@ const authGuard = (options?: AuthGuardOptions) => {
 		},
 	}).derive({ as: "scoped" }, async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
 		const drizzleService = new DrizzleService(DB);
+		const sessionRepository = new SessionRepository(drizzleService);
+		const argon2idService = new Argon2idService();
 
-		const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter(drizzleService));
+		const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 
 		const sessionToken = authUseCase.readSessionCookie(cookie) || authUseCase.readBearerToken(authorization ?? "");
 
@@ -27,20 +30,20 @@ const authGuard = (options?: AuthGuardOptions) => {
 			throw new UnauthorizedException();
 		}
 
-		const sessionInfo = await authUseCase.validateSession(sessionToken);
+		const validatedResult = await authUseCase.validateSessionToken(sessionToken);
 
-		if (!sessionInfo) {
+		if (!validatedResult) {
 			throw new UnauthorizedException();
 		}
 
-		if (emailVerificationRequired && !sessionInfo.user.emailVerified) {
+		if (emailVerificationRequired && !validatedResult.user.emailVerified) {
 			throw new UnauthorizedException({
 				name: "EmailVerificationRequired",
 				message: "Email verification is required.",
 			});
 		}
 
-		return sessionInfo;
+		return validatedResult;
 	});
 };
 
