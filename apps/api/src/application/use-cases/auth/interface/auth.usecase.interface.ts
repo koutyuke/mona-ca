@@ -5,15 +5,18 @@ import type { Cookie as ElysiaCookie } from "elysia";
 
 export interface IAuthUseCase {
 	// Session Token
-	hashToken(token: string): string;
+	hashToken(token: string, pepper: string): string;
 	generateSessionToken(): string;
-	validateSessionToken(token: string): Promise<{
+	validateSessionToken(
+		token: string,
+		pepper: string,
+	): Promise<{
 		session: Session;
 		user: User;
 	} | null>;
 
 	// Session
-	createSession(token: string, userId: User["id"]): Promise<Session>;
+	createSession(token: string, pepper: string, userId: User["id"]): Promise<Session>;
 	getUserSessions(userId: User["id"]): Promise<Session[]>;
 	deleteExpiredSessions(): Promise<void>;
 	invalidateSession(sessionId: Session["id"]): Promise<void>;
@@ -24,8 +27,8 @@ export interface IAuthUseCase {
 	createBlankSessionCookie(): Cookie;
 
 	// Password
-	hashPassword(password: string): Promise<string>;
-	verifyPasswordHash(password: string, passwordHash: string): Promise<boolean>;
+	hashPassword(password: string, pepper: string): Promise<string>;
+	verifyPasswordHash(password: string, pepper: string, passwordHash: string): Promise<boolean>;
 
 	// Utility
 	readBearerToken(authorizationHeader: string): string | null;
