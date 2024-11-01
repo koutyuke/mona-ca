@@ -10,6 +10,8 @@ export const OAuthProviderEnvSchema = t.Object({
 	GOOGLE_CLIENT_ID: t.String(),
 	GOOGLE_CLIENT_SECRET: t.String(),
 	RESEND_API_KEY: t.String(),
+	PASSWORD_PEPPER: t.String(),
+	SESSION_PEPPER: t.String(),
 });
 
 export const AppEnvWithoutCFModuleEnvSchema = t.Intersect([AppStatusEnvSchema, OAuthProviderEnvSchema]);
