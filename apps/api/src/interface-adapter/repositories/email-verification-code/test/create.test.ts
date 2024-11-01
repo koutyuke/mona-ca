@@ -1,65 +1,43 @@
 import { env } from "cloudflare:test";
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
+import { EmailVerificationCode } from "@/domain/email-verification-code";
+import { DrizzleService } from "@/infrastructure/drizzle";
+import { EmailVerificationCodeTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
 import { EmailVerificationCodeRepository } from "../email-verification-code.repository";
 
 const { DB } = env;
 
-describe("Create Email Verification Code", () => {
-	const emailVerificationCodeRepository = new EmailVerificationCodeRepository({
-		db: DB,
-	});
+const drizzleService = new DrizzleService(DB);
+const emailVerificationCodeRepository = new EmailVerificationCodeRepository(drizzleService);
 
-	const schema = t.Object({
-		id: t.Literal("id"),
-		email: t.Literal("user@mail.com"),
-		code: t.Literal("code"),
-		userId: t.Literal("userId"),
-		expiresAt: t.Date(),
-	});
+const userTableHelper = new UserTableHelper(DB);
+const emailVerificationCodeTableHelper = new EmailVerificationCodeTableHelper(DB);
 
+describe("EmailVerificationCodeRepository.create", () => {
 	beforeAll(async () => {
-		await DB.prepare(
-			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-		)
-			.bind("userId", "foo", "user@mail.com", 0, null, "hashedPassword")
-			.run();
+		await userTableHelper.create();
 	});
 
-	test("Return value is Schema compliant", async () => {
-		const createdEmailVerificationCode = await emailVerificationCodeRepository.create({
-			id: "id",
-			email: "user@mail.com",
-			code: "code",
-			userId: "userId",
-			expiresAt: new Date(2024, 0, 1),
-		});
+	test("should return EmailVerificationCode instance", async () => {
+		const createdEmailVerificationCode = await emailVerificationCodeRepository.create(
+			emailVerificationCodeTableHelper.baseEmailVerificationCode,
+		);
 
-		expect(createdEmailVerificationCode.isExpired).toBe(true);
-		expect(Value.Check(schema, createdEmailVerificationCode)).toBe(true);
+		const expectedEmailVerificationCode = new EmailVerificationCode(
+			emailVerificationCodeTableHelper.baseEmailVerificationCode,
+		);
+
+		expect(createdEmailVerificationCode).toStrictEqual(expectedEmailVerificationCode);
 	});
 
-	test("Data is saved in the database", async () => {
-		await emailVerificationCodeRepository.create({
-			id: "id",
-			email: "user@mail.com",
-			code: "code",
-			userId: "userId",
-			expiresAt: new Date(2024, 0, 1),
-		});
+	test("should create data in database", async () => {
+		await emailVerificationCodeRepository.create(emailVerificationCodeTableHelper.baseEmailVerificationCode);
 
-		const dbSchema = t.Object({
-			id: t.Literal("id"),
-			email: t.Literal("user@mail.com"),
-			code: t.Literal("code"),
-			user_id: t.Literal("userId"),
-			expires_at: t.Number(),
-		});
+		const results = await emailVerificationCodeTableHelper.find(
+			emailVerificationCodeTableHelper.baseEmailVerificationCode.userId,
+		);
 
-		const { results } = await DB.prepare("SELECT * FROM email_verification_codes WHERE id = ?1").bind("id").all();
-
-		expect(results.length).toBe(1);
-		expect(Value.Check(dbSchema, results[0])).toBe(true);
+		expect(results).toHaveLength(1);
+		expect(results[0]).toStrictEqual(emailVerificationCodeTableHelper.baseDatabaseEmailVerificationCode);
 	});
 });

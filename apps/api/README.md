@@ -1,6 +1,6 @@
-# mona-ca Server-Side API
+# mona-ca Backend API Server
 
-## 📜 What's this ?
+## What's this ?
 
 This is the code for the Server-Side API of mona-ca.
 
@@ -21,11 +21,10 @@ Project Architecture:
 * __Repository Pattern__ 🗄️: Abstraction of data access
 * __SOLID Principles__ 🔄: Programming Principles
 
-## 🛠️ Development
-
-### Start Development Server
+## Start Development Server
 
 To start the development server run:
+
 ```sh
 # install
 bun i
@@ -34,39 +33,27 @@ bun i
 bun dev
 ```
 
-### OpenAPI
+## OpenAPI
 
-After starting the server, Go to [`localhost:8787/swagger`](http://localhost:8787/swagger)
+```sh
+open http://localhost:8787/swagger
+```
 
-### Development Tool Commands
+## Development Tool Commands
 
-__Lint__
+### Check
 
-static code syntax check
+static code check about syntax, format, import
 
 ```sh
 # not fixed
-bun lint
+bun check
 
 # force fix
-bun lint:fix
+bun check:fix
 ```
 
-__Format__
-
-static code format check
-
-```sh
-# not fixed
-bun fmt
-
-# force fix
-bun fmt:fix
-```
-
-__Test__
-
-do test command.
+### Test
 
 ```sh
 # run test
@@ -76,14 +63,28 @@ bun run test # not `bun test`
 bun run test:watch
 ```
 
-__Type Check__
-
-code type check command.
+### Type Check
 
 ```sh
 bun type-check
 ```
 
-__Other__
+### Database
+
+```sh
+# generate migration files
+db:gen
+
+# migration
+db:mig
+
+# start Drizzle studio(local)
+db:std
+
+# start Drizzle studio(remote)
+db:std:remote
+```
+
+### Other
 
 See `scripts` field in [`package.json`](https://github.com/koutyuke/mona-ca/blob/main/apps/api/package.json)

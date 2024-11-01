@@ -1,15 +1,10 @@
 import { OAuthAccount } from "@/domain/oauth-account";
-import { DrizzleService } from "@/infrastructure/drizzle";
+import type { DrizzleService } from "@/infrastructure/drizzle";
 import { and, eq } from "drizzle-orm";
 import type { IOAuthAccountRepository } from "./interface/oauth-account.repository.interface";
 
 export class OAuthAccountRepository implements IOAuthAccountRepository {
-	private readonly drizzleService: DrizzleService;
-	constructor(args: {
-		db: D1Database;
-	}) {
-		this.drizzleService = new DrizzleService(args.db);
-	}
+	constructor(private readonly drizzleService: DrizzleService) {}
 
 	public async findByUserId(userId: OAuthAccount["userId"]): Promise<OAuthAccount | null> {
 		const oAuthAccount = await this.drizzleService.db

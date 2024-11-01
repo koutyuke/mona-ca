@@ -16,7 +16,16 @@ const Me = new ElysiaWithEnv({
 	.get(
 		"/",
 		({ user }) => {
-			return user.toObject();
+			return {
+				id: user.id,
+				email: user.email,
+				emailVerified: user.emailVerified,
+				name: user.name,
+				iconUrl: user.iconUrl,
+				gender: user.gender,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt,
+			};
 		},
 		{
 			response: {

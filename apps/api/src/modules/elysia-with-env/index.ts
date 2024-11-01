@@ -1,1 +1,1 @@
-export * from "./elysia-with-env";
+export { ElysiaWithEnv } from "./elysia-with-env";

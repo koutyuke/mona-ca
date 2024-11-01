@@ -27,17 +27,4 @@ export class User {
 		this.createdAt = args.createdAt;
 		this.updatedAt = args.updatedAt;
 	}
-
-	public toObject() {
-		return {
-			id: this.id,
-			email: this.email,
-			emailVerified: this.emailVerified,
-			name: this.name,
-			iconUrl: this.iconUrl,
-			gender: this.gender,
-			createdAt: this.createdAt,
-			updatedAt: this.updatedAt,
-		};
-	}
 }

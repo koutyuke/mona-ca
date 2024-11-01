@@ -1,9 +1,11 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
 import { UserUseCase } from "@/application/use-cases/user";
-import { UserCredentialsUseCase } from "@/application/use-cases/user-credentials";
-import { LuciaAdapter } from "@/infrastructure/lucia";
+import { UserCredentialUseCase } from "@/application/use-cases/user-credential";
+import { Argon2idService } from "@/infrastructure/argon2id";
+import { DrizzleService } from "@/infrastructure/drizzle";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { UserRepository } from "@/interface-adapter/repositories/user";
-import { UserCredentialsRepository } from "@/interface-adapter/repositories/user-credentials";
+import { UserCredentialRepository } from "@/interface-adapter/repositories/user-credential";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { errorResponseSchema } from "@/modules/error";
 import { BadRequestException } from "@/modules/error/exceptions";
@@ -18,9 +20,15 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 	.post(
 		"/",
 		async ({ body: { email, password }, env: { APP_ENV }, cfModuleEnv: { DB } }) => {
-			const userUseCase = new UserUseCase(new UserRepository({ db: DB }));
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
-			const userCredentialsUseCase = new UserCredentialsUseCase(new UserCredentialsRepository({ db: DB }));
+			const drizzleService = new DrizzleService(DB);
+			const argon2idService = new Argon2idService();
+
+			const sessionRepository = new SessionRepository(drizzleService);
+			const userCredentialRepository = new UserCredentialRepository(drizzleService);
+
+			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
+			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
+			const userCredentialsUseCase = new UserCredentialUseCase(userCredentialRepository);
 
 			const user = await userUseCase.getUserByEmail(email);
 			const credentials = user ? await userCredentialsUseCase.getUserCredential(user.id) : null;
@@ -28,18 +36,20 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 			if (
 				!user ||
 				!credentials ||
-				!credentials.hashedPassword ||
-				!authUseCase.verifyHashedPassword(password, credentials.hashedPassword)
+				!credentials.passwordHash ||
+				!authUseCase.verifyPasswordHash(password, credentials.passwordHash)
 			) {
 				throw new BadRequestException({
 					message: "Email or Password is incorrect",
 				});
 			}
 
-			const session = await authUseCase.createSession(user.id);
+			const sessionToken = authUseCase.generateSessionToken();
+
+			await authUseCase.createSession(sessionToken, user.id);
 
 			return {
-				accessToken: session.id,
+				accessToken: sessionToken,
 			};
 		},
 		{

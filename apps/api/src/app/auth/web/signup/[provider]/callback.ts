@@ -10,9 +10,11 @@ import {
 	SESSION_COOKIE_NAME,
 } from "@/common/constants";
 import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
-import { LuciaAdapter } from "@/infrastructure/lucia";
-import { selectOAuthProviderService } from "@/infrastructure/oauth-provider";
+import { Argon2idService } from "@/infrastructure/argon2id";
+import { DrizzleService } from "@/infrastructure/drizzle";
+import { selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
@@ -34,19 +36,24 @@ const ProviderCallback = new ElysiaWithEnv({
 
 			const providerGatewayRedirectUrl = new URL(`auth/web/signup/${provider}/callback`, apiBaseUrl);
 
+			const drizzleService = new DrizzleService(DB);
+			const argon2idService = new Argon2idService();
+
+			const sessionRepository = new SessionRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
+			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+
 			const oAuthUseCase = new OAuthUseCase(
-				selectOAuthProviderService({
+				selectOAuthProviderGateway({
 					provider,
 					env,
 					redirectUrl: providerGatewayRedirectUrl.toString(),
 				}),
 			);
 
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
-
-			const oAuthAccountUseCase = new OAuthAccountUseCase(new OAuthAccountRepository({ db: DB }));
-
-			const userUseCase = new UserUseCase(new UserRepository({ db: DB }));
+			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
+			const oAuthAccountUseCase = new OAuthAccountUseCase(oauthAccountRepository);
+			const userUseCase = new UserUseCase(userRepository);
 
 			const stateCookieValue = cookie[OAUTH_STATE_COOKIE_NAME].value;
 			const codeVerifierCookieValue = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].value;
@@ -116,16 +123,20 @@ const ProviderCallback = new ElysiaWithEnv({
 
 				const newUser =
 					existingUser ??
-					(await userUseCase.createUser({
-						name: providerAccount.name,
-						email: providerAccount.email,
-						emailVerified: providerAccount.emailVerified,
-						iconUrl: providerAccount.iconUrl,
-						gender,
-					}));
+					(
+						await userUseCase.createUser({
+							name: providerAccount.name,
+							email: providerAccount.email,
+							emailVerified: providerAccount.emailVerified,
+							iconUrl: providerAccount.iconUrl,
+							gender,
+						})
+					).user;
+
+				const sessionToken = authUseCase.generateSessionToken();
 
 				const [session] = await Promise.all([
-					authUseCase.createSession(newUser.id),
+					authUseCase.createSession(sessionToken, newUser.id),
 					oAuthAccountUseCase.createOAuthAccount({
 						userId: newUser.id,
 						provider,

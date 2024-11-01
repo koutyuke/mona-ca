@@ -1,32 +1,56 @@
 import { env } from "cloudflare:test";
+import { AuthUseCase } from "@/application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "@/common/constants";
+import { Argon2idService } from "@/infrastructure/argon2id";
+import { DrizzleService } from "@/infrastructure/drizzle";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
+import { SessionTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
 import { authGuard } from "../auth-guard.plugin";
 
 const { DB } = env;
 
-describe("AuthGuard Cookie Test", () => {
+const userTableHelper = new UserTableHelper(DB);
+const sessionTableHelper = new SessionTableHelper(DB);
+
+const drizzleService = new DrizzleService(DB);
+const argon2idService = new Argon2idService();
+
+const sessionRepository = new SessionRepository(drizzleService);
+
+const authUseCase = new AuthUseCase(false, sessionRepository, argon2idService);
+
+const sessionToken1 = "sessionId1";
+const sessionToken2 = "sessionId2";
+
+describe("AuthGuard cookie test", () => {
 	beforeAll(async () => {
-		await DB.prepare(
-			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-		)
-			.bind("userId1", "foo", "user1@mail.com", 0, null, "hashedPassword", Date.now(), Date.now())
-			.run();
+		await userTableHelper.create({
+			...userTableHelper.baseDatabaseUser,
+			id: "user1Id",
+			email_verified: 0,
+			email: "test1.email@example.com",
+		});
 
-		await DB.prepare(
-			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-		)
-			.bind("userId2", "foo", "user2@mail.com", 1, null, "hashedPassword", Date.now(), Date.now())
-			.run();
+		await userTableHelper.create({
+			...userTableHelper.baseDatabaseUser,
+			id: "user2Id",
+			email_verified: 1,
+			email: "test2.email@example.com",
+		});
 
-		await DB.prepare("INSERT INTO session (id, user_id, expires_at) VALUES (?1, ?2, ?3)")
-			.bind("sessionId1", "userId1", Date.now())
-			.run();
+		await sessionTableHelper.create({
+			id: authUseCase.hashToken(sessionToken1),
+			user_id: "user1Id",
+			expires_at: Date.now(),
+		});
 
-		await DB.prepare("INSERT INTO session (id, user_id, expires_at) VALUES (?1, ?2, ?3)")
-			.bind("sessionId2", "userId2", Date.now())
-			.run();
+		await sessionTableHelper.create({
+			id: authUseCase.hashToken(sessionToken2),
+			user_id: "user2Id",
+			expires_at: Date.now(),
+		});
 	});
 
 	test("Pass with valid cookie that email verification is not required", async () => {
@@ -38,7 +62,7 @@ describe("AuthGuard Cookie Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					cookie: `${SESSION_COOKIE_NAME}=sessionId1; `,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionToken1}; `,
 				},
 			}),
 		);
@@ -58,7 +82,7 @@ describe("AuthGuard Cookie Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					cookie: `${SESSION_COOKIE_NAME}=sessionId2; `,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionToken2}; `,
 				},
 			}),
 		);
@@ -78,7 +102,7 @@ describe("AuthGuard Cookie Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					cookie: `${SESSION_COOKIE_NAME}=sessionId1; `,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionToken1}; `,
 				},
 			}),
 		);

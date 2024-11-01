@@ -1,5 +1,7 @@
 import { AuthUseCase } from "@/application/use-cases/auth";
-import { LuciaAdapter } from "@/infrastructure/lucia";
+import { Argon2idService } from "@/infrastructure/argon2id";
+import { DrizzleService } from "@/infrastructure/drizzle";
+import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import { t } from "elysia";
@@ -11,7 +13,12 @@ const Logout = new ElysiaWithEnv({
 	.post(
 		"/",
 		async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
-			const authUseCase = new AuthUseCase(APP_ENV === "production", new LuciaAdapter({ db: DB }));
+			const drizzleService = new DrizzleService(DB);
+			const argon2idService = new Argon2idService();
+
+			const sessionRepository = new SessionRepository(drizzleService);
+
+			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 
 			const sessionId = authUseCase.readBearerToken(authorization);
 

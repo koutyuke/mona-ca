@@ -6,7 +6,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 } from "@/common/constants";
 import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
-import { selectOAuthProviderService } from "@/infrastructure/oauth-provider";
+import { selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { BadRequestException } from "@/modules/error/exceptions";
 import { getAPIBaseUrl, getWebBaseUrl, validateRedirectUrl } from "@mona-ca/core/utils";
@@ -29,7 +29,7 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 			const providerRedirectUrl = new URL(`auth/web/signup/${provider}/callback`, apiBaseUrl);
 
 			const oAuthUseCase = new OAuthUseCase(
-				selectOAuthProviderService({
+				selectOAuthProviderGateway({
 					provider,
 					env,
 					redirectUrl: providerRedirectUrl.toString(),
@@ -44,8 +44,8 @@ const Provider = new ElysiaWithEnv({ prefix: "/:provider" })
 				});
 			}
 
-			const state = oAuthUseCase.genState();
-			const codeVerifier = oAuthUseCase.genCodeVerifier();
+			const state = oAuthUseCase.generateState();
+			const codeVerifier = oAuthUseCase.generateCodeVerifier();
 			const redirectUrl = oAuthUseCase.genAuthUrl(state, codeVerifier);
 
 			const oAuthStateCookie = cookie[OAUTH_STATE_COOKIE_NAME];

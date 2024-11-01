@@ -1,26 +1,23 @@
 import { env } from "cloudflare:test";
-import { UserSchema } from "@/domain/user";
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
+import { User } from "@/domain/user";
+import { DrizzleService } from "@/infrastructure/drizzle";
+import { type DatabaseUser, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
 import { UserRepository } from "../user.repository";
 
 const { DB } = env;
 
-describe("Update User", async () => {
-	const userRepository = new UserRepository({
-		db: DB,
-	});
+const drizzleService = new DrizzleService(DB);
+const userRepository = new UserRepository(drizzleService);
 
+const userTableHelper = new UserTableHelper(DB);
+
+describe("UserRepository.update", async () => {
 	beforeAll(async () => {
-		await DB.prepare(
-			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-		)
-			.bind("userId", "foo", "user@mail.com", 0, null, "hashedPassword")
-			.run();
+		await userTableHelper.create();
 	});
 
-	test("返り値がSchema通りである(UserSchema)", async () => {
+	test("should return a updated User instance", async () => {
 		const updatedUser = await userRepository.update("userId", {
 			name: "bar",
 			email: "updatedUser@mail.com",
@@ -28,52 +25,42 @@ describe("Update User", async () => {
 			iconUrl: "iconUrl",
 			gender: "woman",
 		});
-		const isValid = Value.Check(UserSchema, updatedUser);
-		expect(isValid).toBe(true);
-	});
-
-	test("返り値が期待通りである", async () => {
-		const updatedUser = await userRepository.update("userId", {
+		const expectedUser = new User({
+			id: userTableHelper.baseUser.id,
 			name: "bar",
 			email: "updatedUser@mail.com",
 			emailVerified: true,
 			iconUrl: "iconUrl",
 			gender: "woman",
+			createdAt: updatedUser.createdAt,
+			updatedAt: updatedUser.updatedAt,
 		});
-		const schema = t.Object({
-			id: t.Literal("userId"),
-			name: t.Literal("bar"),
-			email: t.Literal("updatedUser@mail.com"),
-			emailVerified: t.Literal(true),
-			iconUrl: t.Literal("iconUrl"),
-			gender: t.Literal("woman"),
-			createdAt: t.Date(),
-			updatedAt: t.Date(),
-		});
-		const isValid = Value.Check(schema, updatedUser);
-		expect(isValid).toBe(true);
+
+		expect(updatedUser).toStrictEqual(expectedUser);
 	});
 
-	test("DBにデータが更新されている", async () => {
+	test("should update user in the database", async () => {
 		await userRepository.update("userId", {
 			name: "bar",
 			email: "updatedUser@mail.com",
 			emailVerified: true,
-			iconUrl: "iconUrl",
+			iconUrl: "http://example.com/update.png",
 			gender: "woman",
 		});
-		const { results } = await DB.prepare("SELECT * FROM users WHERE id = ?1").bind("userId").all();
-		const schema = t.Object({
-			id: t.Literal("userId"),
-			name: t.Literal("bar"),
-			email: t.Literal("updatedUser@mail.com"),
-			email_verified: t.Literal(1),
-			icon_url: t.Literal("iconUrl"),
-			hashed_password: t.Literal("hashedPassword"),
-			gender: t.Literal("woman"),
-			created_at: t.Number(),
-			updated_at: t.Number(),
-		});
-		expect(results.length === 1 && Value.Check(schema, results[0])).toBe(true);
+
+		const results = await userTableHelper.find("userId");
+
+		const expectedDatabaseUser = {
+			...userTableHelper.baseDatabaseUser,
+			name: "bar",
+			email: "updatedUser@mail.com",
+			email_verified: 1,
+			icon_url: "http://example.com/update.png",
+			gender: "woman",
+			updated_at: results[0]!.updated_at,
+		} satisfies DatabaseUser;
+
+		expect(results).toHaveLength(1);
+		expect(results[0]).toStrictEqual(expectedDatabaseUser);
 	});
 });

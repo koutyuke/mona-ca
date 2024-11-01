@@ -1,49 +1,36 @@
 import { env } from "cloudflare:test";
-import { UserSchema } from "@/domain/user";
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
+import { User } from "@/domain/user";
+import { DrizzleService } from "@/infrastructure/drizzle";
+import { UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
 import { UserRepository } from "../user.repository";
 
 const { DB } = env;
 
-describe("Find User By Id", async () => {
-	const userRepository = new UserRepository({
-		db: DB,
-	});
+const drizzleService = new DrizzleService(DB);
+const userRepository = new UserRepository(drizzleService);
 
+const userTableHelper = new UserTableHelper(DB);
+
+describe("UserRepository.find", async () => {
 	beforeAll(async () => {
-		await DB.prepare(
-			"INSERT INTO users (id, name, email, email_verified, icon_url, hashed_password) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-		)
-			.bind("userId", "foo", "user@mail.com", 0, null, "hashedPassword")
-			.run();
+		await userTableHelper.create();
 	});
 
-	test("返り値がSchema通りである(UserSchema)", async () => {
+	test("should return User instance if user exists.", async () => {
 		const foundUser = await userRepository.find("userId");
-		const isValid = Value.Check(UserSchema, foundUser);
-		expect(isValid).toBe(true);
-	});
 
-	test("返り値が期待通りである", async () => {
-		const foundUser = await userRepository.find("userId");
-		const schema = t.Object({
-			id: t.Literal("userId"),
-			name: t.Literal("foo"),
-			email: t.Literal("user@mail.com"),
-			emailVerified: t.Literal(false),
-			iconUrl: t.Null(),
-			gender: t.Literal("man"),
-			createdAt: t.Date(),
-			updatedAt: t.Date(),
+		const expectedUser = new User({
+			...userTableHelper.baseUser,
+			createdAt: foundUser!.createdAt,
+			updatedAt: foundUser!.updatedAt,
 		});
-		const isValid = Value.Check(schema, foundUser);
-		expect(isValid).toBe(true);
+
+		expect(foundUser).toStrictEqual(expectedUser);
 	});
 
-	test("間違ったIDを渡した際にnullが返される", async () => {
-		const invalidUser = await userRepository.find("invalidId");
-		expect(invalidUser).toBe(null);
+	test("should return null if user not found.", async () => {
+		const foundUser = await userRepository.find("invalidId");
+		expect(foundUser).toBeNull();
 	});
 });

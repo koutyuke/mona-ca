@@ -1,8 +1,8 @@
 import type { Session } from "@/domain/session";
 import type { User } from "@/domain/user";
-import type { UserCredentials } from "@/domain/user-credentials";
+import type { UserCredential } from "@/domain/user-credential";
 import type { IUserRepository } from "@/interface-adapter/repositories/user";
-import { generateIdFromEntropySize } from "lucia";
+import { ulid } from "ulid";
 import type { IUserUseCase } from "./interface/user.usecase.interface";
 
 export class UserUseCase implements IUserUseCase {
@@ -21,20 +21,21 @@ export class UserUseCase implements IUserUseCase {
 	}
 
 	public async createUser(
-		user: Omit<ConstructorParameters<typeof User>[0], "id" | "createdAt" | "updatedAt"> &
-			Partial<Pick<ConstructorParameters<typeof User>[0], "id">> &
-			Partial<Omit<ConstructorParameters<typeof UserCredentials>[0], "userId">>,
-	): Promise<User> {
-		const id = user.id ?? this.generateId();
-		return this.userRepository.create({
-			id,
-			...user,
-		});
-	}
+		user: Omit<ConstructorParameters<typeof User>[0], "id" | "createdAt" | "updatedAt">,
+		options?: {
+			id?: ConstructorParameters<typeof User>[0]["id"];
+			credential?: Partial<Omit<ConstructorParameters<typeof UserCredential>[0], "userId" | "createdAt" | "updatedAt">>;
+		},
+	): Promise<{ user: User; userCredential: UserCredential }> {
+		const { id = ulid(), credential } = options ?? {};
 
-	public generateId(): string {
-		// 16-characters
-		return generateIdFromEntropySize(10);
+		return await this.userRepository.create(
+			{
+				...user,
+				id,
+			},
+			credential,
+		);
 	}
 
 	public async updateUser(

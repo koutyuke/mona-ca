@@ -1,9 +1,9 @@
+import { generateRandomString } from "@/common/utils/generate-random-value";
+import { TimeSpan } from "@/common/utils/time-span";
 import type { EmailVerificationCode } from "@/domain/email-verification-code";
 import type { IEmailVerificationCodeRepository } from "@/interface-adapter/repositories/email-verification-code";
 import { MC_DEFAULT_EMAIL_ADDRESS } from "@mona-ca/core/const";
-import { TimeSpan, generateIdFromEntropySize } from "lucia";
-import { createDate } from "oslo";
-import { alphabet, generateRandomString } from "oslo/crypto";
+import { ulid } from "ulid";
 import type { IEmailVerificationUseCase } from "./interface/email-verification.usecase.interface";
 
 export class EmailVerificationUseCase implements IEmailVerificationUseCase {
@@ -19,7 +19,7 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
 	): Promise<EmailVerificationCode> {
 		await this.emailVerificationCodeRepository.delete({ userId });
 		return this.emailVerificationCodeRepository.create({
-			id: this.genId(),
+			id: ulid(),
 			email,
 			userId,
 			code: this.generateCode(),
@@ -80,16 +80,11 @@ export class EmailVerificationUseCase implements IEmailVerificationUseCase {
 	}
 
 	private generateCode(): string {
-		return generateRandomString(8, alphabet("0-9"));
-	}
-
-	private genId(): string {
-		// 16-characters
-		return generateIdFromEntropySize(10);
+		return generateRandomString(8);
 	}
 
 	private genExpiresAt(): Date {
-		// 15 minutes
-		return createDate(new TimeSpan(15, "m"));
+		const timeSpan = new TimeSpan(15, "m");
+		return new Date(Date.now() + timeSpan.milliseconds());
 	}
 }

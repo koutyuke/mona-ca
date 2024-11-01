@@ -1,1 +1,1 @@
-export { EmailVerificationCode } from "./email-verification-code.domain";
+export { EmailVerificationCode } from "./email-verification-code.model";

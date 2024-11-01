@@ -1,15 +1,10 @@
 import { EmailVerificationCode } from "@/domain/email-verification-code";
-import { DrizzleService } from "@/infrastructure/drizzle";
+import type { DrizzleService } from "@/infrastructure/drizzle";
 import { and, eq, lte } from "drizzle-orm";
 import type { IEmailVerificationCodeRepository } from "./interface/email-verification-code.repository.interface";
 
 export class EmailVerificationCodeRepository implements IEmailVerificationCodeRepository {
-	private readonly drizzleService: DrizzleService;
-	constructor(args: {
-		db: D1Database;
-	}) {
-		this.drizzleService = new DrizzleService(args.db);
-	}
+	constructor(private readonly drizzleService: DrizzleService) {}
 
 	public async findByUserId(userId: EmailVerificationCode["userId"]): Promise<EmailVerificationCode | null> {
 		const emailVerificationCodes = await this.drizzleService.db
