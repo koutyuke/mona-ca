@@ -22,6 +22,13 @@
       "when": 1727156150314,
       "tag": "0002_clever_vector",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1729999188658,
+      "tag": "0003_shallow_nico_minoru",
+      "breakpoints": true
     }
   ]
 }
