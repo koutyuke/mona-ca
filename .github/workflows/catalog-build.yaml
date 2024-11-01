@@ -6,12 +6,12 @@ on:
       - opened
       - synchronize
       - reopened
-      - ready_for_review
-
 
 jobs:
   filter:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     permissions:
       pull-requests: read
     outputs:
@@ -30,6 +30,7 @@ jobs:
     needs: filter
     if: ${{ needs.filter.outputs.catalog == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
