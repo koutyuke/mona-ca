@@ -16,7 +16,12 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 	// Route
 	.post(
 		"/",
-		async ({ body: { email, password, name, gender }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
+		async ({
+			body: { email, password, name, gender },
+			env: { APP_ENV, PASSWORD_PEPPER, SESSION_PEPPER },
+			cfModuleEnv: { DB },
+			set,
+		}) => {
 			const drizzleService = new DrizzleService(DB);
 			const argon2idService = new Argon2idService();
 
@@ -27,7 +32,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 
 			try {
-				const passwordHash = await authUseCase.hashPassword(password);
+				const passwordHash = await authUseCase.hashPassword(password, PASSWORD_PEPPER);
 
 				const { user } = await userUseCase.createUser(
 					{
@@ -46,7 +51,7 @@ const Signup = new ElysiaWithEnv({ prefix: "/signup" })
 
 				const sessionToken = authUseCase.generateSessionToken();
 
-				await authUseCase.createSession(sessionToken, user.id);
+				await authUseCase.createSession(sessionToken, SESSION_PEPPER, user.id);
 
 				set.status = 201;
 				return {

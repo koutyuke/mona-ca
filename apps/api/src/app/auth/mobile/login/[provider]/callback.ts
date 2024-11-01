@@ -33,7 +33,7 @@ const ProviderCallback = new ElysiaWithEnv({
 			query: { code, state, error },
 			redirect,
 		}) => {
-			const { APP_ENV } = env;
+			const { APP_ENV, SESSION_PEPPER } = env;
 
 			const apiBaseUrl = getAPIBaseUrl(APP_ENV === "production");
 			const mobileScheme = getMobileScheme();
@@ -42,17 +42,16 @@ const ProviderCallback = new ElysiaWithEnv({
 
 			const drizzleService = new DrizzleService(DB);
 			const argon2idService = new Argon2idService();
+			const oAuthProviderGateway = selectOAuthProviderGateway({
+				provider,
+				env,
+				redirectUrl: providerGatewayRedirectUrl.toString(),
+			});
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
-			const oAuthUseCase = new OAuthUseCase(
-				selectOAuthProviderGateway({
-					provider,
-					env,
-					redirectUrl: providerGatewayRedirectUrl.toString(),
-				}),
-			);
+			const oAuthUseCase = new OAuthUseCase(oAuthProviderGateway);
 			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 			const oAuthAccountUseCase = new OAuthAccountUseCase(oAuthAccountRepository);
 
@@ -104,7 +103,7 @@ const ProviderCallback = new ElysiaWithEnv({
 
 				const sessionToken = authUseCase.generateSessionToken();
 
-				await authUseCase.createSession(sessionToken, existingOAuthAccount.userId);
+				await authUseCase.createSession(sessionToken, SESSION_PEPPER, existingOAuthAccount.userId);
 
 				redirectUrlCookieValue.searchParams.set("access-token", sessionToken);
 

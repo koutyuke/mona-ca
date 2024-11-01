@@ -19,7 +19,7 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 	// Route
 	.post(
 		"/",
-		async ({ body: { email, password }, env: { APP_ENV }, cfModuleEnv: { DB } }) => {
+		async ({ body: { email, password }, env: { APP_ENV, PASSWORD_PEPPER, SESSION_PEPPER }, cfModuleEnv: { DB } }) => {
 			const drizzleService = new DrizzleService(DB);
 			const argon2idService = new Argon2idService();
 
@@ -37,7 +37,7 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 				!user ||
 				!credentials ||
 				!credentials.passwordHash ||
-				!authUseCase.verifyPasswordHash(password, credentials.passwordHash)
+				!authUseCase.verifyPasswordHash(password, PASSWORD_PEPPER, credentials.passwordHash)
 			) {
 				throw new BadRequestException({
 					message: "Email or Password is incorrect",
@@ -46,7 +46,7 @@ const Login = new ElysiaWithEnv({ prefix: "/login" })
 
 			const sessionToken = authUseCase.generateSessionToken();
 
-			await authUseCase.createSession(sessionToken, user.id);
+			await authUseCase.createSession(sessionToken, SESSION_PEPPER, user.id);
 
 			return {
 				accessToken: sessionToken,

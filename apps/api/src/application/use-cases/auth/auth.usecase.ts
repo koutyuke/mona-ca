@@ -33,8 +33,8 @@ export class AuthUseCase implements IAuthUseCase {
 	}
 
 	// Session Token
-	public hashToken(token: string): string {
-		return encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+	public hashToken(token: string, pepper: string): string {
+		return encodeHexLowerCase(sha256(new TextEncoder().encode(token + pepper)));
 	}
 
 	public generateSessionToken(): string {
@@ -44,8 +44,8 @@ export class AuthUseCase implements IAuthUseCase {
 		return token;
 	}
 
-	public async validateSessionToken(token: string): Promise<{ session: Session; user: User } | null> {
-		const sessionId = this.hashToken(token);
+	public async validateSessionToken(token: string, pepper: string): Promise<{ session: Session; user: User } | null> {
+		const sessionId = this.hashToken(token, pepper);
 
 		let { session, user } = await this.sessionRepository.findSessionAndUser(sessionId);
 
@@ -72,8 +72,8 @@ export class AuthUseCase implements IAuthUseCase {
 	}
 
 	// Session
-	public async createSession(token: string, userId: string): Promise<Session> {
-		const sessionId = this.hashToken(token);
+	public async createSession(token: string, pepper: string, userId: string): Promise<Session> {
+		const sessionId = this.hashToken(token, pepper);
 		const session = new Session({
 			id: sessionId,
 			userId,
@@ -140,12 +140,12 @@ export class AuthUseCase implements IAuthUseCase {
 	}
 
 	// Password
-	public async hashPassword(password: string): Promise<string> {
-		return await this.argon2idService.hash(password);
+	public async hashPassword(password: string, pepper: string): Promise<string> {
+		return await this.argon2idService.hash(password + pepper);
 	}
 
-	public verifyPasswordHash(password: string, hashedPassword: string): Promise<boolean> {
-		return this.argon2idService.verify(hashedPassword, password);
+	public verifyPasswordHash(password: string, pepper: string, passwordHash: string): Promise<boolean> {
+		return this.argon2idService.verify(passwordHash + pepper, password);
 	}
 
 	// Utility
