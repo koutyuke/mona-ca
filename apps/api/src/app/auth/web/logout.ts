@@ -13,7 +13,7 @@ const Logout = new ElysiaWithEnv({
 	// Route
 	.post(
 		"/",
-		async ({ env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
+		async ({ env: { APP_ENV, SESSION_PEPPER }, cfModuleEnv: { DB }, cookie }) => {
 			const drizzleService = new DrizzleService(DB);
 			const argon2idService = new Argon2idService();
 
@@ -23,12 +23,16 @@ const Logout = new ElysiaWithEnv({
 
 			const sessionCookie = cookie[SESSION_COOKIE_NAME];
 
-			if (!sessionCookie.value) {
+			const sessionToken = sessionCookie.value;
+
+			if (!sessionToken) {
 				return null;
 			}
 
+			const sessionId = authUseCase.hashToken(sessionToken, SESSION_PEPPER);
+
 			try {
-				await authUseCase.invalidateSession(sessionCookie.value);
+				await authUseCase.invalidateSession(sessionId);
 				const blankSessionCookie = authUseCase.createBlankSessionCookie();
 
 				sessionCookie.set({

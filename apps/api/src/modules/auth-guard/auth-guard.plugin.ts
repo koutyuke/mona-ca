@@ -17,34 +17,37 @@ const authGuard = (options?: AuthGuardOptions) => {
 		seed: {
 			emailVerificationRequired,
 		},
-	}).derive({ as: "scoped" }, async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, cookie }) => {
-		const drizzleService = new DrizzleService(DB);
-		const sessionRepository = new SessionRepository(drizzleService);
-		const argon2idService = new Argon2idService();
+	}).derive(
+		{ as: "scoped" },
+		async ({ headers: { authorization }, env: { APP_ENV, SESSION_PEPPER }, cfModuleEnv: { DB }, cookie }) => {
+			const drizzleService = new DrizzleService(DB);
+			const sessionRepository = new SessionRepository(drizzleService);
+			const argon2idService = new Argon2idService();
 
-		const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
+			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 
-		const sessionToken = authUseCase.readSessionCookie(cookie) || authUseCase.readBearerToken(authorization ?? "");
+			const sessionToken = authUseCase.readSessionCookie(cookie) || authUseCase.readBearerToken(authorization ?? "");
 
-		if (!sessionToken) {
-			throw new UnauthorizedException();
-		}
+			if (!sessionToken) {
+				throw new UnauthorizedException();
+			}
 
-		const validatedResult = await authUseCase.validateSessionToken(sessionToken);
+			const validatedResult = await authUseCase.validateSessionToken(sessionToken, SESSION_PEPPER);
 
-		if (!validatedResult) {
-			throw new UnauthorizedException();
-		}
+			if (!validatedResult) {
+				throw new UnauthorizedException();
+			}
 
-		if (emailVerificationRequired && !validatedResult.user.emailVerified) {
-			throw new UnauthorizedException({
-				name: "EmailVerificationRequired",
-				message: "Email verification is required.",
-			});
-		}
+			if (emailVerificationRequired && !validatedResult.user.emailVerified) {
+				throw new UnauthorizedException({
+					name: "EmailVerificationRequired",
+					message: "Email verification is required.",
+				});
+			}
 
-		return validatedResult;
-	});
+			return validatedResult;
+		},
+	);
 };
 
 export { authGuard };

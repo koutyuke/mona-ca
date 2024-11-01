@@ -9,7 +9,7 @@ import { SessionTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
 import { authGuard } from "../auth-guard.plugin";
 
-const { DB } = env;
+const { DB, SESSION_PEPPER } = env;
 
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
@@ -41,13 +41,13 @@ describe("AuthGuard cookie test", () => {
 		});
 
 		await sessionTableHelper.create({
-			id: authUseCase.hashToken(sessionToken1),
+			id: authUseCase.hashToken(sessionToken1, SESSION_PEPPER),
 			user_id: "user1Id",
 			expires_at: Date.now(),
 		});
 
 		await sessionTableHelper.create({
-			id: authUseCase.hashToken(sessionToken2),
+			id: authUseCase.hashToken(sessionToken2, SESSION_PEPPER),
 			user_id: "user2Id",
 			expires_at: Date.now(),
 		});

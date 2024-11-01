@@ -12,7 +12,7 @@ const Logout = new ElysiaWithEnv({
 	// Route
 	.post(
 		"/",
-		async ({ headers: { authorization }, env: { APP_ENV }, cfModuleEnv: { DB }, set }) => {
+		async ({ headers: { authorization }, env: { APP_ENV, SESSION_PEPPER }, cfModuleEnv: { DB }, set }) => {
 			const drizzleService = new DrizzleService(DB);
 			const argon2idService = new Argon2idService();
 
@@ -20,13 +20,15 @@ const Logout = new ElysiaWithEnv({
 
 			const authUseCase = new AuthUseCase(APP_ENV === "production", sessionRepository, argon2idService);
 
-			const sessionId = authUseCase.readBearerToken(authorization);
+			const sessionToken = authUseCase.readBearerToken(authorization);
 
-			if (!sessionId) {
+			if (!sessionToken) {
 				throw new BadRequestException({
 					message: "Parameter is invalid",
 				});
 			}
+
+			const sessionId = authUseCase.hashToken(sessionToken, SESSION_PEPPER);
 
 			await authUseCase.invalidateSession(sessionId);
 			set.status = 204;

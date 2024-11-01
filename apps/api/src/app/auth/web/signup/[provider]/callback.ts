@@ -29,7 +29,7 @@ const ProviderCallback = new ElysiaWithEnv({
 	.get(
 		"/",
 		async ({ params: { provider }, cookie, env, redirect, cfModuleEnv: { DB }, query: { code, state, error } }) => {
-			const { APP_ENV } = env;
+			const { APP_ENV, SESSION_PEPPER } = env;
 
 			const apiBaseUrl = getAPIBaseUrl(APP_ENV === "production");
 			const webBaseUrl = getWebBaseUrl(APP_ENV === "production");
@@ -136,7 +136,7 @@ const ProviderCallback = new ElysiaWithEnv({
 				const sessionToken = authUseCase.generateSessionToken();
 
 				const [session] = await Promise.all([
-					authUseCase.createSession(sessionToken, newUser.id),
+					authUseCase.createSession(sessionToken, SESSION_PEPPER, newUser.id),
 					oAuthAccountUseCase.createOAuthAccount({
 						userId: newUser.id,
 						provider,
