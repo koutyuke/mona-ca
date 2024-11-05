@@ -1,10 +1,10 @@
 import { renderAsync } from "@react-email/render";
 import type { ReactElement } from "react";
 import { type CreateEmailOptions, type CreateEmailRequestOptions, type CreateEmailResponse, Resend } from "resend";
-import type { EmailRenderOptions, RequireAtLeastOne } from "./email.type";
-import type { IEmailUseCase } from "./interface/email.usecase.interface";
+import type { ISendEmailUseCase } from "./interface/send-email.usecase.interface";
+import type { EmailRenderOptions, RequireAtLeastOne } from "./type";
 
-export class EmailUseCase implements IEmailUseCase {
+export class SendEmailUseCase implements ISendEmailUseCase {
 	private readonly resend: Resend;
 	private readonly isProduction: boolean;
 
@@ -13,10 +13,7 @@ export class EmailUseCase implements IEmailUseCase {
 		this.isProduction = isProduction;
 	}
 
-	public async sendEmail(
-		payload: CreateEmailOptions,
-		options?: CreateEmailRequestOptions,
-	): Promise<CreateEmailResponse> {
+	public async execute(payload: CreateEmailOptions, options?: CreateEmailRequestOptions): Promise<CreateEmailResponse> {
 		if (this.isProduction) {
 			return this.resend.emails.send(payload, options);
 		}

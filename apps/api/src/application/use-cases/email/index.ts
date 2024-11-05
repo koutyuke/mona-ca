@@ -1,2 +1,3 @@
-export { EmailUseCase } from "./email.usecase";
-export type { EmailRenderOptions, RequireAtLeastOne } from "./email.type";
+export { SendEmailUseCase } from "./send-email.usecase";
+export type { ISendEmailUseCase } from "./interface/send-email.usecase.interface";
+export type { EmailRenderOptions, RequireAtLeastOne } from "./type";
