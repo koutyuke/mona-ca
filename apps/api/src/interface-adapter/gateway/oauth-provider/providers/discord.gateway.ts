@@ -53,4 +53,12 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 			emailVerified: !!user.verified,
 		};
 	}
+
+	public async revokeToken(token: string): Promise<void> {
+		try {
+			await this.discord.revokeToken(token);
+		} catch (error) {
+			console.error("revokeToken request error", error);
+		}
+	}
 }
