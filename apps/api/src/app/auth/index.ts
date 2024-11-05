@@ -1,12 +1,10 @@
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { Mobile } from "./mobile";
-import { Web } from "./web";
+import { Client } from "./[client]";
 
 const Auth = new ElysiaWithEnv({
 	prefix: "/auth",
 })
 	// Other Routes
-	.use(Mobile)
-	.use(Web);
+	.use(Client);
 
 export { Auth };

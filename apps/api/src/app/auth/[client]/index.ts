@@ -3,12 +3,10 @@ import { Login } from "./login";
 import { Logout } from "./logout";
 import { Signup } from "./signup";
 
-const Mobile = new ElysiaWithEnv({
-	prefix: "/mobile",
+export const Client = new ElysiaWithEnv({
+	prefix: "/:client",
 })
 	// Other Routes
+	.use(Signup)
 	.use(Login)
-	.use(Logout)
-	.use(Signup);
-
-export { Mobile };
+	.use(Logout);
