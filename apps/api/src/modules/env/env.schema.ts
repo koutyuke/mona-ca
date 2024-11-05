@@ -2,6 +2,8 @@ import { t } from "elysia";
 
 export const AppStatusEnvSchema = t.Object({
 	APP_ENV: t.Union([t.Literal("development"), t.Literal("production"), t.Literal("test")]),
+	PASSWORD_PEPPER: t.String(),
+	SESSION_PEPPER: t.String(),
 });
 
 export const OAuthProviderEnvSchema = t.Object({
@@ -10,8 +12,6 @@ export const OAuthProviderEnvSchema = t.Object({
 	GOOGLE_CLIENT_ID: t.String(),
 	GOOGLE_CLIENT_SECRET: t.String(),
 	RESEND_API_KEY: t.String(),
-	PASSWORD_PEPPER: t.String(),
-	SESSION_PEPPER: t.String(),
 });
 
 export const AppEnvWithoutCFModuleEnvSchema = t.Intersect([AppStatusEnvSchema, OAuthProviderEnvSchema]);
