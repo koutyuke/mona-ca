@@ -13,22 +13,25 @@ const userCredentialsRepository = new UserCredentialRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const userCredentialTableHelper = new UserCredentialTableHelper(DB);
 
-describe("UserCredentialRepository.find", () => {
+describe("UserCredentialRepository.create", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
-		await userCredentialTableHelper.create();
 	});
 
-	test("should return userCredential from userId", async () => {
-		const userCredentials = await userCredentialsRepository.find(userCredentialTableHelper.baseUserCredential.userId);
+	test("should return created userCredential", async () => {
+		const userCredential = await userCredentialsRepository.create(userCredentialTableHelper.baseUserCredential);
 
 		const expectedUserCredential = new UserCredential(userCredentialTableHelper.baseUserCredential);
 
-		expect(userCredentials).toStrictEqual(expectedUserCredential);
+		expect(userCredential).toStrictEqual(expectedUserCredential);
 	});
 
-	test("should return null if userCredential not found", async () => {
-		const userCredentials = await userCredentialsRepository.find("wrongUserId");
-		expect(userCredentials).toBeNull();
+	test("should set userCredential in the database", async () => {
+		await userCredentialsRepository.create(userCredentialTableHelper.baseUserCredential);
+
+		const userCredentials = await userCredentialTableHelper.find(userTableHelper.baseDatabaseUser.id);
+
+		expect(userCredentials).toHaveLength(1);
+		expect(userCredentials[0]).toStrictEqual(userCredentialTableHelper.baseDatabaseUserCredential);
 	});
 });
