@@ -1,5 +1,4 @@
 import { env } from "cloudflare:test";
-import { Session } from "@/domain/session";
 import { DrizzleService } from "@/infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
@@ -13,23 +12,17 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-describe("SessionRepository.findUserSession", () => {
+describe("SessionRepository.delete", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
 		await sessionTableHelper.create();
 	});
 
-	test("should return sessions", async () => {
-		const sessions = await sessionRepository.findUserSessions(userTableHelper.baseDatabaseUser.id);
+	test("should delete session if exists", async () => {
+		await sessionRepository.delete(sessionTableHelper.baseDatabaseSession.id);
 
-		const expectedSession = new Session(sessionTableHelper.baseSession);
+		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
 
-		expect(sessions.length).toBe(1);
-		expect(sessions[0]).toStrictEqual(expectedSession);
-	});
-
-	test("should return empty array if session not found", async () => {
-		const sessions = await sessionRepository.findUserSessions("wrongUserId");
-		expect(sessions).toHaveLength(0);
+		expect(results).toHaveLength(0);
 	});
 });

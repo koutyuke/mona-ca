@@ -12,22 +12,20 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-describe("SessionRepository.deleteExpiredSessions", () => {
+describe("SessionRepository.updateExpiration", () => {
 	beforeAll(async () => {
-		const expiredDate = new Date(sessionTableHelper.baseDatabaseSession.expires_at * 1000 - 3600 * 1000);
-
 		await userTableHelper.create();
-
-		await sessionTableHelper.create({
-			...sessionTableHelper.baseDatabaseSession,
-			expires_at: expiredDate.getTime() / 1000,
-		});
+		await sessionTableHelper.create();
 	});
 
-	test("should delete if session is expired", async () => {
-		await sessionRepository.deleteExpiredSessions();
+	test("should update session expiresAt", async () => {
+		const newExpiresAt = new Date(sessionTableHelper.baseDatabaseSession.expires_at * 1000 + 3600 * 1000);
+
+		await sessionRepository.updateExpiration(sessionTableHelper.baseDatabaseSession.id, newExpiresAt);
 
 		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
-		expect(results).toHaveLength(0);
+
+		expect(results).toHaveLength(1);
+		expect(results[0]!.expires_at).toBe(newExpiresAt.getTime() / 1000);
 	});
 });

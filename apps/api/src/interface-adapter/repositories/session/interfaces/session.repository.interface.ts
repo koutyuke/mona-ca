@@ -1,14 +1,13 @@
 import type { Session } from "@/domain/session";
-import type { User } from "@/domain/user";
 
 export type SessionConstructor = ConstructorParameters<typeof Session>[0];
 
 export interface ISessionRepository {
-	findSessionAndUser: (sessionId: string) => Promise<{ session: Session | null; user: User | null }>;
-	findUserSessions: (userId: string) => Promise<Session[]>;
-	createSession: (session: Omit<SessionConstructor, "fresh">) => Promise<void>;
-	updateSessionExpiration: (sessionId: string, expiresAt: Date) => Promise<void>;
-	deleteSession: (sessionId: string) => Promise<void>;
-	deleteUserSessions: (userId: string) => Promise<void>;
-	deleteExpiredSessions: () => Promise<void>;
+	find(sessionId: string): Promise<Session | null>;
+	findManyByUserId: (userId: string) => Promise<Session[]>;
+	create: (session: Omit<SessionConstructor, "fresh">) => Promise<Session>;
+	updateExpiration: (sessionId: string, expiresAt: Date) => Promise<Session>;
+	delete: (sessionId: string) => Promise<void>;
+	deleteManyByUserId: (userId: string) => Promise<void>;
+	deleteManyByExpired: () => Promise<void>;
 }

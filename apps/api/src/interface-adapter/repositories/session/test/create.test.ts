@@ -13,13 +13,13 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-describe("SessionRepository.createSession", () => {
+describe("SessionRepository.create", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
 	});
 
 	test("should create session in the database", async () => {
-		await sessionRepository.createSession(sessionTableHelper.baseSession);
+		await sessionRepository.create(sessionTableHelper.baseSession);
 
 		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
 

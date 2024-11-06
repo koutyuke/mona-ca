@@ -12,17 +12,22 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-describe("SessionRepository.deleteUserSessions", () => {
+describe("SessionRepository.deleteManyByExpired", () => {
 	beforeAll(async () => {
+		const expiredDate = new Date(sessionTableHelper.baseDatabaseSession.expires_at * 1000 - 3600 * 1000);
+
 		await userTableHelper.create();
-		await sessionTableHelper.create();
+
+		await sessionTableHelper.create({
+			...sessionTableHelper.baseDatabaseSession,
+			expires_at: expiredDate.getTime() / 1000,
+		});
 	});
 
-	test("should delete session from user if exists", async () => {
-		await sessionRepository.deleteUserSessions(userTableHelper.baseDatabaseUser.id);
+	test("should delete if session is expired", async () => {
+		await sessionRepository.deleteManyByExpired();
 
 		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
-
 		expect(results).toHaveLength(0);
 	});
 });
