@@ -1,6 +1,5 @@
 import type { Session } from "@/domain/session";
 import { User } from "@/domain/user";
-import { UserCredential } from "@/domain/user-credential";
 import type { DrizzleService } from "@/infrastructure/drizzle";
 import { eq } from "drizzle-orm";
 import type { IUserRepository } from "./interface/user.repository.interface";
@@ -49,38 +48,14 @@ export class UserRepository implements IUserRepository {
 		return result.length === 1 ? new User(result[0]!.users) : null;
 	}
 
-	public async create(
-		user: Omit<ConstructorParameters<typeof User>[0], "createdAt" | "updatedAt">,
-		credential?: Partial<Omit<ConstructorParameters<typeof UserCredential>[0], "userId" | "createdAt" | "updatedAt">>,
-	): Promise<{ user: User; userCredential: UserCredential }> {
-		const { passwordHash = null } = credential ?? {};
+	public async create(user: Omit<ConstructorParameters<typeof User>[0], "createdAt" | "updatedAt">): Promise<User> {
+		const results = await this.drizzleService.db.insert(this.drizzleService.schema.users).values(user).returning();
 
-		const createdUser = (
-			await this.drizzleService.db.insert(this.drizzleService.schema.users).values(user).returning()
-		)[0];
-
-		if (!createdUser) {
+		if (results.length !== 1) {
 			throw new Error("Failed to create user");
 		}
 
-		const createdUserCredential = (
-			await this.drizzleService.db
-				.insert(this.drizzleService.schema.userCredentials)
-				.values({
-					userId: createdUser.id,
-					passwordHash: passwordHash,
-				})
-				.returning()
-		)[0];
-
-		if (!createdUserCredential) {
-			throw new Error("Failed to create user credential");
-		}
-
-		return {
-			user: new User(createdUser),
-			userCredential: new UserCredential(createdUserCredential),
-		};
+		return new User(results[0]!);
 	}
 
 	public async update(
