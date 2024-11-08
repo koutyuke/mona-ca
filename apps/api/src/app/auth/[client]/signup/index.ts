@@ -40,7 +40,7 @@ export const Signup = new ElysiaWithEnv({
 			const userRepository = new UserRepository(drizzleService);
 			const userCredentialRepository = new UserCredentialRepository(drizzleService);
 
-			const singupUseCase = new SignupUseCase(
+			const signupUseCase = new SignupUseCase(
 				sessionRepository,
 				userRepository,
 				userCredentialRepository,
@@ -48,7 +48,7 @@ export const Signup = new ElysiaWithEnv({
 				sessionTokenService,
 			);
 
-			const { session, sessionToken } = await singupUseCase.execute(name, email, password, gender);
+			const { session, sessionToken } = await signupUseCase.execute(name, email, password, gender);
 
 			if (client === "mobile") {
 				return {
