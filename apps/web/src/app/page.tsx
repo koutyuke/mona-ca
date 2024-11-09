@@ -1,3 +1,5 @@
+"use client";
+
 export default function Page(): JSX.Element {
 	return (
 		<main
@@ -10,7 +12,19 @@ export default function Page(): JSX.Element {
 				width: "100svw",
 			}}
 		>
-			hello world
+			<a href="http://localhost:8787/auth/web/signup/discord?gender=man&redirect-url=/">signup with discord</a>
+			<a href="http://localhost:8787/auth/web/login/discord?redirect-url=/">login with discord</a>
+			<button
+				type="button"
+				onClick={async () => {
+					await fetch("http://localhost:8787/auth/web/logout", {
+						method: "POST",
+						credentials: "include",
+					});
+				}}
+			>
+				logout
+			</button>
 		</main>
 	);
 }
