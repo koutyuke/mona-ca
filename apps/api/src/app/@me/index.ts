@@ -1,4 +1,4 @@
-import { UserSchema } from "@/domain/user";
+import { UserPresenterResultSchema, userPresenter } from "@/interface-adapter/presenter";
 import { authGuard } from "@/modules/auth-guard";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { Email } from "./email";
@@ -20,20 +20,11 @@ const Me = new ElysiaWithEnv({
 	.get(
 		"/",
 		({ user }) => {
-			return {
-				id: user.id,
-				email: user.email,
-				emailVerified: user.emailVerified,
-				name: user.name,
-				iconUrl: user.iconUrl,
-				gender: user.gender,
-				createdAt: user.createdAt,
-				updatedAt: user.updatedAt,
-			};
+			return userPresenter(user);
 		},
 		{
 			response: {
-				200: UserSchema,
+				200: UserPresenterResultSchema,
 			},
 		},
 	);
