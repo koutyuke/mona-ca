@@ -10,18 +10,14 @@ const drizzleService = new DrizzleService(DB);
 const sessionRepository = new SessionRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
-const sessionTableHelper = new SessionTableHelper(DB);
+const sessionTableHelper = new SessionTableHelper(DB, {
+	expiresAt: new Date(0),
+});
 
 describe("SessionRepository.deleteManyByExpired", () => {
 	beforeAll(async () => {
-		const expiredDate = new Date(sessionTableHelper.baseDatabaseSession.expires_at * 1000 - 3600 * 1000);
-
 		await userTableHelper.create();
-
-		await sessionTableHelper.create({
-			...sessionTableHelper.baseDatabaseSession,
-			expires_at: expiredDate.getTime() / 1000,
-		});
+		await sessionTableHelper.create();
 	});
 
 	test("should delete if session is expired", async () => {
