@@ -6,6 +6,21 @@ import type { IUserCredentialRepository } from "./interface/user-credential.repo
 export class UserCredentialRepository implements IUserCredentialRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
+	public async create(
+		credential: Omit<ConstructorParameters<typeof UserCredential>[0], "createdAt" | "updatedAt">,
+	): Promise<UserCredential> {
+		const results = await this.drizzleService.db
+			.insert(this.drizzleService.schema.userCredentials)
+			.values(credential)
+			.returning();
+
+		if (results.length !== 1) {
+			throw new Error("Failed to create user credential");
+		}
+
+		return new UserCredential(results[0]!);
+	}
+
 	public async find(userId: UserCredential["userId"]): Promise<UserCredential | null> {
 		const userCredentials = await this.drizzleService.db
 			.select()

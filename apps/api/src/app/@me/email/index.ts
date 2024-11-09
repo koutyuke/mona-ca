@@ -1,11 +1,9 @@
-import { EmailVerificationUseCase } from "@/application/use-cases/email-verification/email-verification.usecase";
-import { UserUseCase } from "@/application/use-cases/user";
+import { ChangeEmailUseCase } from "@/application/use-cases/user";
 import { DrizzleService } from "@/infrastructure/drizzle";
 import { EmailVerificationCodeRepository } from "@/interface-adapter/repositories/email-verification-code";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { authGuard } from "@/modules/auth-guard";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { BadRequestException } from "@/modules/error/exceptions";
 import { t } from "elysia";
 import { Verification } from "./verification";
 
@@ -16,30 +14,28 @@ const Email = new ElysiaWithEnv({
 	.use(Verification)
 
 	// Local Middleware & Plugin
-	.use(authGuard({ emailVerificationRequired: false }))
+	.use(authGuard({ requireEmailVerification: false }))
 
 	// Route
 	.patch(
 		"/",
-		async ({ cfModuleEnv: { DB }, body: { code, email }, user }) => {
+		async ({ cfModuleEnv: { DB }, body: { code, email }, user, set }) => {
 			const drizzleService = new DrizzleService(DB);
 
-			const emailVerificationUseCase = new EmailVerificationUseCase(
-				new EmailVerificationCodeRepository(drizzleService),
-			);
-			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
+			const emailVerificationCodeRepository = new EmailVerificationCodeRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
 
-			const validCode = await emailVerificationUseCase.validateVerificationCode(code, email, user.id);
-			const sameEmailUser = await userUseCase.getUserByEmail(email);
+			const changeEmailUseCase = new ChangeEmailUseCase(userRepository, emailVerificationCodeRepository);
 
-			if (!validCode || (sameEmailUser && sameEmailUser.id !== user.id)) {
-				throw new BadRequestException();
+			const { success } = await changeEmailUseCase.execute(email, code, user);
+
+			if (!success) {
+				set.status = 400;
+				return {
+					error: "Invalid verification code",
+				};
 			}
-
-			await userUseCase.updateUser(user.id, {
-				email,
-				emailVerified: true,
-			});
+			return null;
 		},
 		{
 			body: t.Object({

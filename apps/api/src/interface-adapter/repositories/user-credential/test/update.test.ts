@@ -13,7 +13,7 @@ const userCredentialRepository = new UserCredentialRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const userCredentialTableHelper = new UserCredentialTableHelper(DB);
 
-describe("userCredentialRepository.update", () => {
+describe("UserCredentialRepository.update", () => {
 	beforeAll(async () => {
 		await userTableHelper.create(userTableHelper.baseDatabaseUser);
 		await userCredentialTableHelper.create(userCredentialTableHelper.baseDatabaseUserCredential);

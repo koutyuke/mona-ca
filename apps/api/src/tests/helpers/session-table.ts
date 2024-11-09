@@ -1,26 +1,56 @@
+import { env } from "cloudflare:test";
+import { sessionExpiresSpan } from "@/common/constants";
+import { SessionTokenService } from "@/services/session-token";
+
 export type DatabaseSession = {
 	id: string;
 	user_id: string;
 	expires_at: number;
 };
 
+const { SESSION_PEPPER } = env;
+
+const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+
 export class SessionTableHelper {
-	public baseSession = {
-		id: "sessionId",
-		userId: "userId",
-		expiresAt: new Date(1704067200 * 1000),
-	} as const;
+	private readonly expiresAt: Date;
 
-	public baseDatabaseSession = {
-		id: "sessionId",
-		user_id: "userId",
-		expires_at: 1704067200,
-	} as const satisfies DatabaseSession;
+	public baseSessionToken = "sessionToken" as const;
+	public baseSession;
+	public baseDatabaseSession;
 
-	constructor(private readonly db: D1Database) {}
+	constructor(
+		private readonly db: D1Database,
+		options?: {
+			expiresAt: Date;
+		},
+	) {
+		const { expiresAt = new Date(Date.now() + sessionExpiresSpan.milliseconds()) } = options ?? {};
 
-	public async create(session?: DatabaseSession): Promise<void> {
-		const { id, user_id, expires_at } = session ?? this.baseDatabaseSession;
+		this.expiresAt = new Date(((expiresAt.getTime() / 1000) | 0) * 1000);
+
+		this.baseSession = {
+			id: sessionTokenService.hashSessionToken(this.baseSessionToken),
+			userId: "userId",
+			expiresAt: this.expiresAt,
+		} as const;
+
+		this.baseDatabaseSession = {
+			id: sessionTokenService.hashSessionToken(this.baseSessionToken),
+			user_id: "userId",
+			expires_at: this.expiresAt.getTime() / 1000,
+		} as const satisfies DatabaseSession;
+	}
+
+	public async create(option?: {
+		sessionToken?: string;
+		session?: Partial<Omit<DatabaseSession, "id">>;
+	}): Promise<void> {
+		const { sessionToken, session } = option ?? {};
+		const { user_id = this.baseDatabaseSession.user_id, expires_at = this.baseDatabaseSession.expires_at } =
+			session ?? this.baseDatabaseSession;
+
+		const id = sessionToken ? sessionTokenService.hashSessionToken(sessionToken) : this.baseSession.id;
 
 		await this.db
 			.prepare("INSERT INTO session (id, user_id, expires_at) VALUES (?1, ?2, ?3)")
