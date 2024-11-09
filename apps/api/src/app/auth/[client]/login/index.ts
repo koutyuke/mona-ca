@@ -1,5 +1,6 @@
 import { LoginUseCase } from "@/application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "@/common/constants";
+import { clientSchema } from "@/common/schema";
 import { DrizzleService } from "@/infrastructure/drizzle";
 import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { UserRepository } from "@/interface-adapter/repositories/user";
@@ -65,7 +66,7 @@ export const Login = new ElysiaWithEnv({
 		{
 			cookie: t.Cookie(cookieSchemaObject),
 			params: t.Object({
-				client: t.Union([t.Literal("web"), t.Literal("mobile")]),
+				client: clientSchema,
 			}),
 			body: t.Object({
 				email: t.String({

@@ -6,6 +6,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "@/common/constants";
+import { clientSchema } from "@/common/schema";
 import { convertRedirectableMobileScheme } from "@/common/utils/convert-redirectable-mobile-scheme";
 import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
 import { DrizzleService } from "@/infrastructure/drizzle";
@@ -166,7 +167,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 			),
 			params: t.Object({
 				provider: oAuthProviderSchema,
-				client: t.Union([t.Literal("web"), t.Literal("mobile")]),
+				client: clientSchema,
 			}),
 			cookie: t.Cookie(cookieSchemaObject),
 		},

@@ -1,5 +1,6 @@
 import { LogoutUseCase } from "@/application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "@/common/constants";
+import { clientSchema } from "@/common/schema";
 import { DrizzleService } from "@/infrastructure/drizzle";
 import { SessionRepository } from "@/interface-adapter/repositories/session";
 import { authGuard } from "@/modules/auth-guard";
@@ -44,7 +45,7 @@ export const Logout = new ElysiaWithEnv({
 		{
 			cookie: t.Cookie(cookieSchemaObject),
 			params: t.Object({
-				client: t.Union([t.Literal("web"), t.Literal("mobile")]),
+				client: clientSchema,
 			}),
 		},
 	);

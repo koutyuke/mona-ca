@@ -4,6 +4,7 @@ import {
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "@/common/constants";
+import { clientSchema } from "@/common/schema";
 import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
 import { selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
@@ -73,7 +74,7 @@ export const Provider = new ElysiaWithEnv({
 			}),
 			params: t.Object({
 				provider: oAuthProviderSchema,
-				client: t.Union([t.Literal("web"), t.Literal("mobile")]),
+				client: clientSchema,
 			}),
 			cookie: t.Cookie(cookieSchemaObject),
 		},
