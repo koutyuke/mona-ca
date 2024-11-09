@@ -1,7 +1,34 @@
 {
   "version": "0.2",
   "language": "en",
-  "dictionaries": ["typescript", "node", "html", "css", "scss", "json", "yaml", "markdown"],
-  "ignorePaths": ["node_modules/", "dist/", "build/", "coverage/", "out/", "public/", "tmp/", "temp/", ".*"],
-  "words": ["elysia", "typebox", "pressable", "singup", "usecase"]
+  "dictionaries": [
+    "typescript",
+    "node",
+    "html",
+    "css",
+    "scss",
+    "json",
+    "yaml",
+    "markdown"
+  ],
+  "ignorePaths": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "coverage/",
+    "out/",
+    "public/",
+    "tmp/",
+    "temp/",
+    ".*"
+  ],
+  "words": [
+    "elysia",
+    "elysiajs",
+    "oslojs",
+    "pressable",
+    "signup",
+    "typebox",
+    "usecase"
+  ]
 }
