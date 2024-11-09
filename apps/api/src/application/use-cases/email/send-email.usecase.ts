@@ -6,22 +6,22 @@ import type { EmailRenderOptions, RequireAtLeastOne } from "./type";
 
 export class SendEmailUseCase implements ISendEmailUseCase {
 	private readonly resend: Resend;
-	private readonly isProduction: boolean;
+	private readonly production: boolean;
 
-	constructor(resendAPIKey: string, isProduction: boolean) {
+	constructor(resendAPIKey: string, production: boolean) {
 		this.resend = new Resend(resendAPIKey);
-		this.isProduction = isProduction;
+		this.production = production;
 	}
 
 	public async execute(payload: CreateEmailOptions, options?: CreateEmailRequestOptions): Promise<CreateEmailResponse> {
-		if (this.isProduction) {
+		if (this.production) {
 			return this.resend.emails.send(payload, options);
 		}
 
 		const contents = await this.render(payload);
 		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 		console.log(
-			"Development mode: Email will not be sent. Email content is as follows:\n\n",
+			"[Email: Development] Email will not be sent. Email content is as follows:\n\n",
 			`to: ${payload.to}\n`,
 			`from: ${payload.from}\n`,
 			`subject: ${payload.subject}\n`,
