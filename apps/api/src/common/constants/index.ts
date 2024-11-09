@@ -11,3 +11,7 @@ export {
 	sessionExpiresSpan,
 	sessionRefreshSpan,
 } from "./session";
+export {
+	emailVerificationCodeExpiresSpan,
+	EMAIL_VERIFICATION_CODE_EXPIRES_SPAN_MINUTES,
+} from "./email-verification-code";
