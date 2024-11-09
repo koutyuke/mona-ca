@@ -10,7 +10,11 @@ const Me = new ElysiaWithEnv({
 	.use(Email)
 
 	// Local Middleware & Plugin
-	.use(authGuard())
+	.use(
+		authGuard({
+			requireEmailVerification: false,
+		}),
+	)
 
 	// Route
 	.get(

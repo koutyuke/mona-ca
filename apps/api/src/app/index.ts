@@ -3,6 +3,7 @@ import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import type { AppEnv } from "@/modules/env";
 import { error } from "@/modules/error";
 import swagger from "@elysiajs/swagger";
+
 import { Me } from "./@me";
 import { Auth } from "./auth";
 

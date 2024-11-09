@@ -1,39 +1,40 @@
-import { EmailVerificationUseCase } from "@/application/use-cases/email-verification/email-verification.usecase";
-import { UserUseCase } from "@/application/use-cases/user";
+import { EmailVerificationConfirmUseCase } from "@/application/use-cases/email-verification";
 import { DrizzleService } from "@/infrastructure/drizzle";
 import { EmailVerificationCodeRepository } from "@/interface-adapter/repositories/email-verification-code";
 import { UserRepository } from "@/interface-adapter/repositories/user";
 import { authGuard } from "@/modules/auth-guard";
 import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { BadRequestException } from "@/modules/error/exceptions";
 import { t } from "elysia";
 
 const VerificationConfirm = new ElysiaWithEnv({
 	prefix: "/confirm",
 })
 	// Local Middleware & Plugin
-	.use(authGuard({ emailVerificationRequired: false }))
+	.use(authGuard({ requireEmailVerification: false }))
 
 	// Route
 	.post(
 		"/",
-		async ({ cfModuleEnv: { DB }, body: { code }, user }) => {
+		async ({ cfModuleEnv: { DB }, body: { code }, user, set }) => {
 			const drizzleService = new DrizzleService(DB);
 
-			const emailVerificationUseCase = new EmailVerificationUseCase(
-				new EmailVerificationCodeRepository(drizzleService),
+			const emailVerificationCodeRepository = new EmailVerificationCodeRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
+
+			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
+				emailVerificationCodeRepository,
+				userRepository,
 			);
-			const userUseCase = new UserUseCase(new UserRepository(drizzleService));
 
-			const validCode = await emailVerificationUseCase.validateVerificationCode(code, user.email, user.id);
+			const { success } = await emailVerificationConfirmUseCase.execute(code, user);
 
-			if (!validCode) {
-				throw new BadRequestException();
+			if (!success) {
+				set.status = 400;
+				return {
+					error: "Invalid verification code",
+				};
 			}
-
-			await userUseCase.updateUser(user.id, {
-				emailVerified: true,
-			});
+			return null;
 		},
 		{
 			body: t.Object({
