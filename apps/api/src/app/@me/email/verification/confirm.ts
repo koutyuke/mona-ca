@@ -1,10 +1,10 @@
-import { EmailVerificationConfirmUseCase } from "@/application/use-cases/email-verification";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { EmailVerificationCodeRepository } from "@/interface-adapter/repositories/email-verification-code";
-import { UserRepository } from "@/interface-adapter/repositories/user";
-import { authGuard } from "@/modules/auth-guard";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
 import { t } from "elysia";
+import { EmailVerificationConfirmUseCase } from "../../../../application/use-cases/email-verification";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { EmailVerificationCodeRepository } from "../../../../interface-adapter/repositories/email-verification-code";
+import { UserRepository } from "../../../../interface-adapter/repositories/user";
+import { authGuard } from "../../../../modules/auth-guard";
+import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
 
 const VerificationConfirm = new ElysiaWithEnv({
 	prefix: "/confirm",

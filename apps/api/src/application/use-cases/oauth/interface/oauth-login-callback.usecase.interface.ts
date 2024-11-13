@@ -1,5 +1,5 @@
-import type { OAuthProvider } from "@/domain/oauth-account/provider";
-import type { Session } from "@/domain/session";
+import type { OAuthProvider } from "../../../../domain/oauth-account/provider";
+import type { Session } from "../../../../domain/session";
 
 export interface IOAuthLoginCallbackUseCaseResult {
 	session: Session;

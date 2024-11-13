@@ -1,4 +1,4 @@
-import type { User } from "@/domain/user";
+import type { User } from "../../../../domain/user";
 
 export interface IEmailVerificationConfirmUseCaseResult {
 	success: boolean;

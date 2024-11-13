@@ -1,5 +1,5 @@
-import type { User } from "@/domain/user";
 import { t } from "elysia";
+import type { User } from "../../domain/user";
 
 export type UserPresenterResult = {
 	id: string;

@@ -1,10 +1,10 @@
-import { sessionExpiresSpan } from "@/common/constants";
-import type { OAuthProvider } from "@/domain/oauth-account/provider";
-import type { Session } from "@/domain/session";
-import type { IOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
-import type { IOAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
-import type { ISessionRepository } from "@/interface-adapter/repositories/session";
-import type { ISessionTokenService } from "@/services/session-token";
+import { sessionExpiresSpan } from "../../../common/constants";
+import type { OAuthProvider } from "../../../domain/oauth-account/provider";
+import type { Session } from "../../../domain/session";
+import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
+import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
+import type { ISessionTokenService } from "../../../services/session-token";
 import type {
 	IOAuthLoginCallbackUseCase,
 	IOAuthLoginCallbackUseCaseResult,

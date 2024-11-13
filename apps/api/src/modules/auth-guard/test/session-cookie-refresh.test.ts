@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
-import { SESSION_COOKIE_NAME, sessionRefreshSpan } from "@/common/constants";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { SessionTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
+import { SESSION_COOKIE_NAME, sessionRefreshSpan } from "../../../common/constants";
+import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
+import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
 const { DB } = env;

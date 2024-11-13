@@ -1,4 +1,4 @@
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
+import { ElysiaWithEnv } from "../../modules/elysia-with-env";
 import { Client } from "./[client]";
 
 const Auth = new ElysiaWithEnv({

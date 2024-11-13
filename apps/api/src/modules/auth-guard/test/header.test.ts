@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { SessionTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
+import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
+import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
 const { DB } = env;

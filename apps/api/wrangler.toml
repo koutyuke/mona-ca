@@ -4,7 +4,6 @@ compatibility_flags = ["nodejs_compat"]
 main = "./src/app/index.ts"
 
 vars = { APP_ENV = "development" }
-
 d1_databases = [
   { binding = "DB", database_name = "mona-ca_db", database_id = "b7773705-8f1f-49e2-9a42-564971632cf4", migrations_dir = "drizzle/migrations" },
 ]
@@ -12,6 +11,7 @@ d1_databases = [
 [env.production]
 name = "mona-ca-api"
 vars = { APP_ENV = "production" }
+observability = { enabled = true, head_sampling_rate = 1 }
 d1_databases = [
   { binding = "DB", database_name = "mona-ca_db", database_id = "b7773705-8f1f-49e2-9a42-564971632cf4", migrations_dir = "drizzle/migrations" },
 ]

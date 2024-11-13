@@ -1,4 +1,4 @@
-import type { Session } from "@/domain/session";
+import type { Session } from "../../../../domain/session";
 
 export type SessionConstructor = ConstructorParameters<typeof Session>[0];
 

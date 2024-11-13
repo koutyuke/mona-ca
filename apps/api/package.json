@@ -1,8 +1,8 @@
 {
   "name": "@mona-ca/api",
   "version": "0.1.0",
-  "module": "src/index.js",
   "type": "module",
+  "main": "./src/app/index.ts",
   "scripts": {
     "dev": "wrangler dev ./src/app/index.ts",
     "check": "biome check --error-on-warnings --no-errors-on-unmatched",
@@ -36,7 +36,7 @@
     "pretty-format": "^29.7.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "~2.0.5",
-    "wrangler": "3.84.1"
+    "wrangler": "3.86.1"
   },
   "overrides": {
     "pretty-format": "^29.7.0"

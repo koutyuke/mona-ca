@@ -1,5 +1,5 @@
-import type { Session } from "@/domain/session";
-import type { User } from "@/domain/user";
+import type { Session } from "../../../../domain/session";
+import type { User } from "../../../../domain/user";
 
 export interface ISignupUseCaseResult {
 	user: User;

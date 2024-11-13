@@ -1,9 +1,9 @@
-import { emailVerificationCodeExpiresSpan } from "@/common/constants";
-import { generateRandomString } from "@/common/utils/generate-random-value";
-import { ulid } from "@/common/utils/ulid";
-import type { User } from "@/domain/user";
-import type { IEmailVerificationCodeRepository } from "@/interface-adapter/repositories/email-verification-code";
-import type { IUserRepository } from "@/interface-adapter/repositories/user";
+import { emailVerificationCodeExpiresSpan } from "../../../common/constants";
+import { generateRandomString } from "../../../common/utils/generate-random-value";
+import { ulid } from "../../../common/utils/ulid";
+import type { User } from "../../../domain/user";
+import type { IEmailVerificationCodeRepository } from "../../../interface-adapter/repositories/email-verification-code";
+import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type {
 	IEmailVerificationRequestUseCase,
 	IEmailVerificationRequestUseCaseResult,

@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
-import { OAuthAccount } from "@/domain/oauth-account";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { type DatabaseOAuthAccount, OAuthAccountTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
+import { OAuthAccount } from "../../../../domain/oauth-account";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { type DatabaseOAuthAccount, OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
 const { DB } = env;

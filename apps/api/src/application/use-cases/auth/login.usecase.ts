@@ -1,10 +1,10 @@
-import { sessionExpiresSpan } from "@/common/constants";
-import type { Session } from "@/domain/session";
-import type { ISessionRepository } from "@/interface-adapter/repositories/session";
-import type { IUserRepository } from "@/interface-adapter/repositories/user";
-import type { IUserCredentialRepository } from "@/interface-adapter/repositories/user-credential";
-import type { IPasswordService } from "@/services/password";
-import type { ISessionTokenService } from "@/services/session-token";
+import { sessionExpiresSpan } from "../../../common/constants";
+import type { Session } from "../../../domain/session";
+import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
+import type { IUserRepository } from "../../../interface-adapter/repositories/user";
+import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
+import type { IPasswordService } from "../../../services/password";
+import type { ISessionTokenService } from "../../../services/session-token";
 import type { ILoginUseCase, ILoginUseCaseResult } from "./interface/login.usecase.interface";
 
 export class LoginUseCase implements ILoginUseCase {
