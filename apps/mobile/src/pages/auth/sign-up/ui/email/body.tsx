@@ -1,9 +1,9 @@
-import { useLayoutInsets } from "@mobile/shared/hooks";
-import { PageWaveTitle, ScrollBody } from "@mobile/widgets/layout";
 import { Button, CheckBox, GenderSelector, Heading, Text, TextInput } from "@mona-ca/ui/native/components";
 import { EmailIcon, PasswordIcon, UserIcon } from "@mona-ca/ui/native/icons";
 import type { FC } from "react";
 import { View } from "react-native";
+import { useLayoutInsets } from "../../../../../shared/hooks";
+import { PageWaveTitle, ScrollBody } from "../../../../../widgets/layout";
 import { pageTitle } from "./page-title";
 
 type SignUpWithEmailPageBodyProps = {

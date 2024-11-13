@@ -1,5 +1,5 @@
-import { type OAuthProvider, capitalizeProvider } from "@mobile/features/auth";
-import { Header, calculateHeaderAnimationTriggerPointOfPageWaveTitle } from "@mobile/widgets/layout";
+import { type OAuthProvider, capitalizeProvider } from "../../../../../features/auth";
+import { Header, calculateHeaderAnimationTriggerPointOfPageWaveTitle } from "../../../../../widgets/layout";
 import { pageTitle } from "./page-title";
 
 const SignUpWithProviderPageHeader = (

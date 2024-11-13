@@ -1,7 +1,7 @@
-import { useLayoutInsets } from "@mobile/shared/hooks";
 import type { FC } from "react";
 import type Animated from "react-native-reanimated";
 import { type AnimatedRef, useDerivedValue, useScrollViewOffset } from "react-native-reanimated";
+import { useLayoutInsets } from "../../../../shared/hooks";
 import {
 	PAGE_WAVE_TITLE_TEXT_BOTTOM_PADDING,
 	PAGE_WAVE_TITLE_TEXT_LINE_HEIGHT,

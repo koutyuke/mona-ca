@@ -1,4 +1,4 @@
-import { Header, calculateHeaderAnimationTriggerPointOfPageWaveTitle } from "@mobile/widgets/layout";
+import { Header, calculateHeaderAnimationTriggerPointOfPageWaveTitle } from "../../../../../widgets/layout";
 import { pageTitle } from "./page-title";
 
 const SignUpWithEmailPageHeader = (animatedBodyRef: Parameters<typeof Header>[0]["animatedBodyRef"]) => {

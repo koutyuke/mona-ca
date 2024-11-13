@@ -1,9 +1,9 @@
-import { useTheme } from "@mobile/features/theme";
-import { useLayoutInsets } from "@mobile/shared/hooks";
 import { forwardRef } from "react";
 import { type ScrollView, type ScrollViewProps, type StyleProp, View, type ViewStyle } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
+import { useTheme } from "../../../../features/theme";
+import { useLayoutInsets } from "../../../../shared/hooks";
 import { HEADER_HEIGHT } from "../../constants";
 
 type ScrollBodyProps = {

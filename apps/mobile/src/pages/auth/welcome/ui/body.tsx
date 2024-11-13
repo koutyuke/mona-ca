@@ -1,5 +1,3 @@
-import { useLayoutInsets } from "@mobile/shared/hooks";
-import { Body } from "@mobile/widgets/layout";
 import { MonaCaIcon } from "@mona-ca/ui/native/brand";
 import { Button, Heading, Text } from "@mona-ca/ui/native/components";
 import { Link } from "expo-router";
@@ -7,6 +5,8 @@ import type { FC } from "react";
 import { View } from "react-native";
 import type { AnimatedRef } from "react-native-reanimated";
 import type Animated from "react-native-reanimated";
+import { useLayoutInsets } from "../../../../shared/hooks";
+import { Body } from "../../../../widgets/layout";
 
 type WelcomePageBodyProps = {
 	animatedBodyRef: AnimatedRef<Animated.ScrollView>;

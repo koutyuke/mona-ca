@@ -1,8 +1,8 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useTheme } from "@mobile/features/theme";
 import { colors } from "@mona-ca/design-tokens";
 import { Tabs } from "expo-router";
 import type { ComponentProps } from "react";
+import { useTheme } from "../../features/theme";
 
 function TabBarIcon(props: {
 	name: ComponentProps<typeof FontAwesome>["name"];
