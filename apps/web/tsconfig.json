@@ -1,13 +1,5 @@
 {
   "extends": "@mona-ca/tsconfig/nextjs.json",
   "include": ["next-env.d.ts", "next.config.js", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "@web/*": ["src/*"],
-      "@web/public/*": ["./public/*"]
-    },
-    "strictNullChecks": true
-  },
   "exclude": ["node_modules"]
 }
