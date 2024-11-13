@@ -23,12 +23,17 @@
     ".*"
   ],
   "words": [
+    "biomejs",
     "elysia",
     "elysiajs",
+    "lucide",
+    "nativewind",
+    "nextjs",
     "oslojs",
     "pressable",
     "signup",
     "typebox",
+    "typecheck",
     "usecase"
   ]
 }
