@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { OAuthAccountTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
 const { DB } = env;

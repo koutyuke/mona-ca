@@ -1,4 +1,4 @@
-import { type OAuthProvider, capitalizeProvider } from "@mobile/features/auth";
+import { type OAuthProvider, capitalizeProvider } from "../../../../../features/auth";
 
 const pageTitle = (provider: OAuthProvider) => ["Sign up", `with ${capitalizeProvider(provider)}`];
 

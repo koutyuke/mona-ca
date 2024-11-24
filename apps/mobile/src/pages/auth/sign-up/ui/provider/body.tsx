@@ -1,9 +1,9 @@
-import { type OAuthProvider, ProviderButton, capitalizeProvider } from "@mobile/features/auth";
-import { useLayoutInsets } from "@mobile/shared/hooks";
-import { PageWaveTitle, ScrollBody } from "@mobile/widgets/layout";
 import { Button, CheckBox, GenderSelector, Heading, Text } from "@mona-ca/ui/native/components";
 import type { FC } from "react";
 import { View } from "react-native";
+import { type OAuthProvider, ProviderButton, capitalizeProvider } from "../../../../../features/auth";
+import { useLayoutInsets } from "../../../../../shared/hooks";
+import { PageWaveTitle, ScrollBody } from "../../../../../widgets/layout";
 import { pageTitle } from "./page-title";
 
 type SignUpWithProviderPageBodyProps = {

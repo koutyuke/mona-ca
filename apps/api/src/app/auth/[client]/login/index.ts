@@ -1,15 +1,15 @@
-import { LoginUseCase } from "@/application/use-cases/auth";
-import { SESSION_COOKIE_NAME } from "@/common/constants";
-import { clientSchema } from "@/common/schema";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { SessionRepository } from "@/interface-adapter/repositories/session";
-import { UserRepository } from "@/interface-adapter/repositories/user";
-import { UserCredentialRepository } from "@/interface-adapter/repositories/user-credential";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { CookieService } from "@/services/cookie";
-import { PasswordService } from "@/services/password";
-import { SessionTokenService } from "@/services/session-token";
 import { t } from "elysia";
+import { LoginUseCase } from "../../../../application/use-cases/auth";
+import { SESSION_COOKIE_NAME } from "../../../../common/constants";
+import { clientSchema } from "../../../../common/schema";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { SessionRepository } from "../../../../interface-adapter/repositories/session";
+import { UserRepository } from "../../../../interface-adapter/repositories/user";
+import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
+import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { CookieService } from "../../../../services/cookie";
+import { PasswordService } from "../../../../services/password";
+import { SessionTokenService } from "../../../../services/session-token";
 import { Provider } from "./[provider]";
 
 const cookieSchemaObject = {

@@ -6,10 +6,8 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["bun-types"],
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
     "jsx": "preserve",
+    "verbatimModuleSyntax": false,
     "resolveJsonModule": true
   }
 }

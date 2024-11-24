@@ -1,5 +1,5 @@
-import type { OAuthProvider } from "@/domain/oauth-account/provider";
-import type { OAuthProviderEnv } from "@/modules/env";
+import type { OAuthProvider } from "../../../../domain/oauth-account/provider";
+import type { OAuthProviderEnv } from "../../../../modules/env";
 import type { IOAuthProviderGateway } from "../interface/oauth-provider.gateway.interface";
 import { DiscordOAuthGateway } from "../providers/discord.gateway";
 

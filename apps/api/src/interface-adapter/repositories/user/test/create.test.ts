@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
-import { User } from "@/domain/user";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { UserTableHelper } from "@/tests/helpers";
 import { describe, expect, test } from "vitest";
+import { User } from "../../../../domain/user";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
 
 const { DB } = env;

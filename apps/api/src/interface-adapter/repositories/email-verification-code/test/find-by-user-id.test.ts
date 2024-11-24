@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
-import { EmailVerificationCode } from "@/domain/email-verification-code";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { EmailVerificationCodeTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
+import { EmailVerificationCode } from "../../../../domain/email-verification-code";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { EmailVerificationCodeTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { EmailVerificationCodeRepository } from "../email-verification-code.repository";
 
 const { DB } = env;

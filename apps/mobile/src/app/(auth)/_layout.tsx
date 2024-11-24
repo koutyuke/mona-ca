@@ -1,5 +1,5 @@
-import { CustomThemeProvider } from "@mobile/features/theme";
 import { Stack } from "expo-router";
+import { CustomThemeProvider } from "../../features/theme";
 
 const AuthLayout = () => {
 	return (

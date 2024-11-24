@@ -1,5 +1,5 @@
-import type { EmailVerificationCode } from "@/domain/email-verification-code";
-import type { User } from "@/domain/user";
+import type { EmailVerificationCode } from "../../../../domain/email-verification-code";
+import type { User } from "../../../../domain/user";
 
 export interface IEmailVerificationRequestUseCaseResult {
 	code: EmailVerificationCode | null;

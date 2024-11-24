@@ -1,12 +1,7 @@
 {
   "extends": "@mona-ca/tsconfig/expo.json",
   "compilerOptions": {
-    "strict": true,
-    "baseUrl": "./",
-    "paths": {
-      "@mobile/*": ["./src/*"],
-      "@mobile/public/*": ["./public/*"]
-    }
+    "strict": true
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts", "nativewind-env.d.ts"]
 }

@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { SessionTableHelper, UserTableHelper } from "@/tests/helpers";
 import { beforeAll, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;

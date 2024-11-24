@@ -1,4 +1,4 @@
-import type { UserCredential } from "@/domain/user-credential";
+import type { UserCredential } from "../../../../domain/user-credential";
 
 export interface IUserCredentialRepository {
 	create(

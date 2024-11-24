@@ -1,13 +1,13 @@
-import { sessionExpiresSpan } from "@/common/constants";
-import { ulid } from "@/common/utils/ulid";
-import type { OAuthProvider } from "@/domain/oauth-account/provider";
-import type { Session } from "@/domain/session";
-import type { IOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
-import type { IOAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
-import type { ISessionRepository } from "@/interface-adapter/repositories/session";
-import type { IUserRepository } from "@/interface-adapter/repositories/user";
-import type { IUserCredentialRepository } from "@/interface-adapter/repositories/user-credential";
-import type { ISessionTokenService } from "@/services/session-token";
+import { sessionExpiresSpan } from "../../../common/constants";
+import { ulid } from "../../../common/utils/ulid";
+import type { OAuthProvider } from "../../../domain/oauth-account/provider";
+import type { Session } from "../../../domain/session";
+import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
+import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
+import type { IUserRepository } from "../../../interface-adapter/repositories/user";
+import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
+import type { ISessionTokenService } from "../../../services/session-token";
 import type {
 	IOAuthSignupCallbackUseCase,
 	IOAuthSignupCallbackUseCaseResult,

@@ -1,9 +1,9 @@
-import { Wave } from "@mobile/shared/ui/wave";
 import { Heading } from "@mona-ca/ui/native/components";
 import type { FC } from "react";
 import { View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { Wave } from "../../../../shared/ui/wave";
 import { PAGE_WAVE_TITLE_TEXT_LINE_HEIGHT } from "../../constants/page-wave-title";
 
 type PageWaveTitleProps = {

@@ -1,5 +1,5 @@
-import { useTheme } from "@mobile/features/theme";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "../../features/theme";
 
 export default function TabOneScreen() {
 	const [, setColorScheme] = useTheme();

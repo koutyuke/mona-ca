@@ -1,22 +1,22 @@
-import { OAuthLoginCallbackUseCase } from "@/application/use-cases/oauth";
+import { getAPIBaseUrl, getMobileScheme, getWebBaseUrl, validateRedirectUrl } from "@mona-ca/core/utils";
+import { t } from "elysia";
+import { OAuthLoginCallbackUseCase } from "../../../../../application/use-cases/oauth";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
-} from "@/common/constants";
-import { clientSchema } from "@/common/schema";
-import { convertRedirectableMobileScheme } from "@/common/utils/convert-redirectable-mobile-scheme";
-import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
-import { DrizzleService } from "@/infrastructure/drizzle";
-import { selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
-import { OAuthAccountRepository } from "@/interface-adapter/repositories/oauth-account";
-import { SessionRepository } from "@/interface-adapter/repositories/session";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { CookieService } from "@/services/cookie";
-import { SessionTokenService } from "@/services/session-token";
-import { getAPIBaseUrl, getMobileScheme, getWebBaseUrl, validateRedirectUrl } from "@mona-ca/core/utils";
-import { t } from "elysia";
+} from "../../../../../common/constants";
+import { clientSchema } from "../../../../../common/schema";
+import { convertRedirectableMobileScheme } from "../../../../../common/utils/convert-redirectable-mobile-scheme";
+import { oAuthProviderSchema } from "../../../../../domain/oauth-account/provider";
+import { DrizzleService } from "../../../../../infrastructure/drizzle";
+import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
+import { SessionRepository } from "../../../../../interface-adapter/repositories/session";
+import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { CookieService } from "../../../../../services/cookie";
+import { SessionTokenService } from "../../../../../services/session-token";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),

@@ -1,9 +1,8 @@
-import { cors } from "@/modules/cors";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import type { AppEnv } from "@/modules/env";
-import { error } from "@/modules/error";
 import swagger from "@elysiajs/swagger";
-
+import { cors } from "../modules/cors";
+import { ElysiaWithEnv } from "../modules/elysia-with-env";
+import type { AppEnv } from "../modules/env";
+import { error } from "../modules/error";
 import { Me } from "./@me";
 import { Auth } from "./auth";
 
@@ -11,7 +10,7 @@ const root = new ElysiaWithEnv({
 	aot: false,
 });
 
-root
+const app = root
 	// Global Middleware & Plugin
 	.use(
 		cors({
@@ -44,6 +43,8 @@ root
 	.get("/", async () => {
 		return "Hello, mona-ca!";
 	});
+
+export type App = typeof app;
 
 export default {
 	fetch: async (request: Request, env: AppEnv) => {

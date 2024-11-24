@@ -1,12 +1,11 @@
-import { useLayoutInsets } from "@mobile/shared/hooks";
-import { PageWaveTitle } from "@mobile/widgets/layout";
-import { ScrollBody } from "@mobile/widgets/layout/ui/body";
 import { Button, Text, TextInput } from "@mona-ca/ui/native/components";
 import { EmailIcon, PasswordIcon } from "@mona-ca/ui/native/icons";
 import { DiscordButton, GoogleButton } from "@mona-ca/ui/native/social";
 import { Link } from "expo-router";
 import type { FC } from "react";
 import { View } from "react-native";
+import { useLayoutInsets } from "../../../../shared/hooks";
+import { PageWaveTitle, ScrollBody } from "../../../../widgets/layout";
 import { pageTitle } from "./page-title";
 
 type LogInPageBodyProps = {

@@ -1,17 +1,17 @@
-import { OAuthRequestUseCase } from "@/application/use-cases/oauth";
+import { getAPIBaseUrl, getMobileScheme, getWebBaseUrl } from "@mona-ca/core/utils";
+import { t } from "elysia";
+import { OAuthRequestUseCase } from "../../../../../application/use-cases/oauth";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME,
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
-} from "@/common/constants";
-import { clientSchema } from "@/common/schema";
-import { oAuthProviderSchema } from "@/domain/oauth-account/provider";
-import { selectOAuthProviderGateway } from "@/interface-adapter/gateway/oauth-provider";
-import { ElysiaWithEnv } from "@/modules/elysia-with-env";
-import { CookieService } from "@/services/cookie";
-import { getAPIBaseUrl, getMobileScheme, getWebBaseUrl } from "@mona-ca/core/utils";
-import { t } from "elysia";
+} from "../../../../../common/constants";
+import { clientSchema } from "../../../../../common/schema";
+import { oAuthProviderSchema } from "../../../../../domain/oauth-account/provider";
+import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { CookieService } from "../../../../../services/cookie";
 import { ProviderCallback } from "./callback";
 
 const cookieSchemaObject = {
