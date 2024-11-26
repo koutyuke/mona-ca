@@ -1,0 +1,3 @@
+[workspace]
+members = ["packages/argon2id"]
+resolver = "2"
