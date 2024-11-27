@@ -1,0 +1,12 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "jsc": {
+    "experimental": {
+      "plugins": [
+        ["@mona-ca/swc-plugin-transform-variable-to-wasm-import", {}]
+      ]
+    },
+    "target": "esnext"
+  },
+  "minify": true
+}
