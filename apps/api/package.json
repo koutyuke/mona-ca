@@ -7,6 +7,8 @@
     "dev": "wrangler dev ./src/app/index.ts",
     "check": "biome check --error-on-warnings --no-errors-on-unmatched",
     "check:fix": "bun run check --write",
+    "build": "bun build ./src/app/index.ts --outdir dist --target browser --minify && swc ./dist/index.js --out-file ./dist/index.js",
+    "start": "wrangler dev ./dist/index.js",
     "test": "vitest --run",
     "test:watch": "vitest --watch",
     "typecheck": "tsc --noEmit",
@@ -30,6 +32,7 @@
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.22",
     "@cloudflare/workers-types": "^4.20241022.0",
+    "@mona-ca/swc-plugin-transform-variable-to-wasm-import": "workspace:*",
     "@mona-ca/tsconfig": "workspace:*",
     "@swc/cli": "^0.5.1",
     "@swc/core": "^1.9.3",

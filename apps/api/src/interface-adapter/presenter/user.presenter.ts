@@ -13,9 +13,7 @@ export type UserPresenterResult = {
 };
 
 export const UserPresenterResultSchema = t.Object({
-	id: t.String({
-		format: "ulid",
-	}),
+	id: t.String(),
 	email: t.String({
 		format: "email",
 	}),
