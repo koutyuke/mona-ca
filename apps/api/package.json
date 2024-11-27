@@ -7,8 +7,7 @@
     "dev": "wrangler dev ./src/app/index.ts",
     "check": "biome check --error-on-warnings --no-errors-on-unmatched",
     "check:fix": "bun run check --write",
-    "build": "bun build ./src/app/index.ts --outdir dist --target browser --minify && swc ./dist/index.js --out-file ./dist/index.js",
-    "start": "wrangler dev ./dist/index.js",
+    "build": "wrangler deploy --dry-run --outdir dist",
     "test": "vitest --run",
     "test:watch": "vitest --watch",
     "typecheck": "tsc --noEmit",
@@ -41,7 +40,7 @@
     "pretty-format": "^29.7.0",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "~2.0.5",
-    "wrangler": "3.86.1"
+    "wrangler": "3.91.0"
   },
   "overrides": {
     "pretty-format": "^29.7.0"
