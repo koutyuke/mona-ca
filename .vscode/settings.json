@@ -95,6 +95,11 @@
           "value": "🚀 cd"
         },
         {
+          "label": "📦 dep (依存関係)",
+          "description": "Update dependencies.",
+          "value": "📦 dep"
+        },
+        {
           "label": "🔧 chore (雑務)",
           "description": "Other changes that don't modify src or test files.",
           "value": "🔧 chore"
@@ -108,11 +113,6 @@
           "label": "🛠️ chore (雑務: スクリプト)",
           "description": "Development script changes.",
           "value": "🛠️ chore"
-        },
-        {
-          "label": "📦 chore (雑務: 依存関係)",
-          "description": "Update dependencies.",
-          "value": "📦 chore"
         },
         {
           "label": "🗑 chore (雑務: 削除)",
