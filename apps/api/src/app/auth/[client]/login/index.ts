@@ -7,6 +7,7 @@ import { SessionRepository } from "../../../../interface-adapter/repositories/se
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { rateLimiter } from "../../../../modules/rate-limiter";
 import { CookieService } from "../../../../services/cookie";
 import { PasswordService } from "../../../../services/password";
 import { SessionTokenService } from "../../../../services/session-token";
@@ -21,6 +22,18 @@ export const Login = new ElysiaWithEnv({
 })
 	// Other Route
 	.use(Provider)
+
+	// Local Middleware & Plugin
+	.use(
+		rateLimiter("login", {
+			refillRate: 50,
+			maxTokens: 100,
+			interval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
 
 	// Route
 	.post(
@@ -64,6 +77,17 @@ export const Login = new ElysiaWithEnv({
 			return null;
 		},
 		{
+			beforeHandle: async ({ rateLimiter, set, ip, body: { email } }) => {
+				const [ipResult, emailResult] = await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(email, 10)]);
+				if (!ipResult.success || !emailResult.success) {
+					set.status = 429;
+					return {
+						name: "TooManyRequests",
+						resetTime: !ipResult.success ? ipResult.reset : emailResult.reset,
+					};
+				}
+				return;
+			},
 			cookie: t.Cookie(cookieSchemaObject),
 			params: t.Object({
 				client: clientSchema,

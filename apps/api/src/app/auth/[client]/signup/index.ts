@@ -7,6 +7,7 @@ import { SessionRepository } from "../../../../interface-adapter/repositories/se
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { rateLimiter } from "../../../../modules/rate-limiter";
 import { CookieService } from "../../../../services/cookie";
 import { PasswordService } from "../../../../services/password";
 import { SessionTokenService } from "../../../../services/session-token";
@@ -21,6 +22,18 @@ export const Signup = new ElysiaWithEnv({
 })
 	// Other Route
 	.use(Provider)
+
+	// Local Middleware & Plugin
+	.use(
+		rateLimiter("signup", {
+			refillRate: 10,
+			maxTokens: 100,
+			interval: {
+				value: 1,
+				unit: "m",
+			},
+		}),
+	)
 
 	// Route
 	.post(
@@ -64,6 +77,17 @@ export const Signup = new ElysiaWithEnv({
 			return null;
 		},
 		{
+			beforeHandle: async ({ rateLimiter, set, ip }) => {
+				const { success, reset } = await rateLimiter.consume(ip, 1);
+				if (!success) {
+					set.status = 429;
+					return {
+						name: "TooManyRequests",
+						resetTime: reset,
+					};
+				}
+				return;
+			},
 			cookie: t.Cookie(cookieSchemaObject),
 			params: t.Object({
 				client: clientSchema,

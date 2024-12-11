@@ -58,6 +58,16 @@ bun i
 bunx lefthook install
 ```
 
+## Docker Compose
+
+```sh
+# up
+docker compose -f ./docker/docker-compose.development.yaml up -d
+
+# down
+docker compose -f ./docker/docker-compose.development.yaml down
+```
+
 ## Development Tool Commands
 
 Perform various checks on all files.

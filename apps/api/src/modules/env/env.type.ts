@@ -1,14 +1,27 @@
 import type { Static } from "elysia";
-import type { AppEnvWithoutCFModuleEnvSchema, AppStatusEnvSchema, OAuthProviderEnvSchema } from "./env.schema";
+import type {
+	AppEnvWithoutCFModuleSchema,
+	OAuthProviderSchema,
+	PepperSchema,
+	PublicSchema,
+	ResendSchema,
+	UpstashRedisSchema,
+} from "./env.schema";
 
-export type AppStatusEnv = Static<typeof AppStatusEnvSchema>;
+export type PublicEnv = Static<typeof PublicSchema>;
 
-export type OAuthProviderEnv = Static<typeof OAuthProviderEnvSchema>;
+export type PepperEnv = Static<typeof PepperSchema>;
 
-export type AppEnvWithoutCFModuleEnv = Static<typeof AppEnvWithoutCFModuleEnvSchema>;
+export type ResendEnv = Static<typeof ResendSchema>;
+
+export type UpstashRedisEnv = Static<typeof UpstashRedisSchema>;
+
+export type OAuthProviderEnv = Static<typeof OAuthProviderSchema>;
+
+export type AppEnvWithoutCFModule = Static<typeof AppEnvWithoutCFModuleSchema>;
 
 export type CFModuleEnv = {
 	DB: D1Database;
 };
 
-export type AppEnv = AppEnvWithoutCFModuleEnv & CFModuleEnv;
+export type AppEnv = AppEnvWithoutCFModule & CFModuleEnv;

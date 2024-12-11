@@ -30,7 +30,21 @@ type AuthGuardOptions<T extends boolean> = {
  * @example
  * const plugin = authGuard({ requireEmailVerification: false, includeSessionToken: true });
  */
-const authGuard = <T extends boolean>(options?: AuthGuardOptions<T>) => {
+const authGuard = <
+	T extends boolean,
+	U extends Record<string, unknown> = T extends true
+		? {
+				user: User;
+				session: Session;
+				sessionToken: string;
+			}
+		: {
+				user: User;
+				session: Session;
+			},
+>(
+	options?: AuthGuardOptions<T>,
+) => {
 	const {
 		requireEmailVerification = true,
 		enableSessionCookieRefresh = true,
@@ -44,37 +58,9 @@ const authGuard = <T extends boolean>(options?: AuthGuardOptions<T>) => {
 			enableSessionCookieRefresh,
 			includeSessionToken,
 		},
-	}).derive<
-		T extends true
-			? {
-					user: User;
-					session: Session;
-					sessionToken: string;
-				}
-			: {
-					user: User;
-					session: Session;
-				},
-		"scoped"
-	>(
+	}).derive<U, "scoped">(
 		{ as: "scoped" },
-		async ({
-			env: { SESSION_PEPPER },
-			cfModuleEnv: { DB },
-			cookie,
-			headers: { authorization },
-		}): Promise<
-			T extends true
-				? {
-						user: User;
-						session: Session;
-						sessionToken: string;
-					}
-				: {
-						user: User;
-						session: Session;
-					}
-		> => {
+		async ({ env: { SESSION_PEPPER }, cfModuleEnv: { DB }, cookie, headers: { authorization } }): Promise<U> => {
 			const drizzleService = new DrizzleService(DB);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 			const sessionRepository = new SessionRepository(drizzleService);

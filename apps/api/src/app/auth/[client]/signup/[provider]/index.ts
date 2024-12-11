@@ -11,6 +11,7 @@ import { clientSchema } from "../../../../../common/schema";
 import { oAuthProviderSchema } from "../../../../../domain/oauth-account/provider";
 import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { CookieService } from "../../../../../services/cookie";
 import { ProviderCallback } from "./callback";
 
@@ -30,6 +31,18 @@ export const Provider = new ElysiaWithEnv({
 })
 	// Other Route
 	.use(ProviderCallback)
+
+	// Local Middleware & Plugin
+	.use(
+		rateLimiter("oauth-provider", {
+			refillRate: 10,
+			maxTokens: 100,
+			interval: {
+				value: 1,
+				unit: "m",
+			},
+		}),
+	)
 
 	// Route
 	.get(
@@ -85,6 +98,17 @@ export const Provider = new ElysiaWithEnv({
 			return redirect(redirectToProviderUrl.toString());
 		},
 		{
+			beforeHandle: async ({ rateLimiter, set, ip }) => {
+				const { success, reset } = await rateLimiter.consume(ip, 1);
+				if (!success) {
+					set.status = 429;
+					return {
+						name: "TooManyRequests",
+						resetTime: reset,
+					};
+				}
+				return;
+			},
 			query: t.Object({
 				"redirect-url": t.Optional(t.String()),
 				gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
