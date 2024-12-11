@@ -9,7 +9,7 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
-import { convertRedirectableMobileScheme } from "../../../../../common/utils/convert-redirectable-mobile-scheme";
+import { convertRedirectableMobileScheme } from "../../../../../common/utils/convert-redirectable-mobile-scheme/convert-redirectable-mobile-scheme";
 import { oAuthProviderSchema } from "../../../../../domain/oauth-account/provider";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
@@ -18,6 +18,7 @@ import { SessionRepository } from "../../../../../interface-adapter/repositories
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../../interface-adapter/repositories/user-credential";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { CookieService } from "../../../../../services/cookie";
 import { SessionTokenService } from "../../../../../services/session-token";
 
@@ -42,6 +43,18 @@ const cookieSchemaObject = {
 export const ProviderCallback = new ElysiaWithEnv({
 	prefix: "/callback",
 })
+	// Local Middleware & Plugin
+	.use(
+		rateLimiter("oauth-provider-callback", {
+			refillRate: 10,
+			maxTokens: 100,
+			interval: {
+				value: 1,
+				unit: "m",
+			},
+		}),
+	)
+
 	// Route
 	.get(
 		"/",
@@ -149,6 +162,17 @@ export const ProviderCallback = new ElysiaWithEnv({
 			return redirect(redirectUrlCookieValue.toString());
 		},
 		{
+			beforeHandle: async ({ rateLimiter, set, ip }) => {
+				const { success, reset } = await rateLimiter.consume(ip, 1);
+				if (!success) {
+					set.status = 429;
+					return {
+						name: "TooManyRequests",
+						resetTime: reset,
+					};
+				}
+				return;
+			},
 			query: t.Object(
 				{
 					code: t.Optional(

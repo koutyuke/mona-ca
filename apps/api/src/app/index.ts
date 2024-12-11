@@ -3,6 +3,7 @@ import { cors } from "../modules/cors";
 import { ElysiaWithEnv } from "../modules/elysia-with-env";
 import type { AppEnv } from "../modules/env";
 import { error } from "../modules/error";
+import { rateLimiter } from "../modules/rate-limiter";
 import { Me } from "./@me";
 import { Auth } from "./auth";
 
@@ -40,9 +41,34 @@ const app = root
 	.use(Me)
 
 	// Route
-	.get("/", async () => {
-		return "Hello, mona-ca!";
-	});
+	.use(
+		rateLimiter("login", {
+			refillRate: 5,
+			maxTokens: 10,
+			interval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
+	.get(
+		"/",
+		async () => {
+			return "Hello, mona-ca!";
+		},
+		{
+			beforeHandle: async ({ ip, rateLimiter, set }) => {
+				const { success } = await rateLimiter.consume(ip, 1);
+				if (!success) {
+					set.status = 429;
+					return {
+						name: "TooManyRequests",
+					};
+				}
+				return;
+			},
+		},
+	);
 
 export type App = typeof app;
 
