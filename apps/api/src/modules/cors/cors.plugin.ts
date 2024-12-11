@@ -6,45 +6,9 @@
  * @pilcrowOnPaper/oslo/request: https://github.com/pilcrowOnPaper/oslo/tree/main/src/request
  */
 
-import type { Context } from "elysia";
+import type { Context, HTTPMethod } from "elysia";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import type { AppStatusEnv } from "../env";
-
-export type HTTPMethod =
-	| "ACL"
-	| "BIND"
-	| "CHECKOUT"
-	| "CONNECT"
-	| "COPY"
-	| "DELETE"
-	| "GET"
-	| "HEAD"
-	| "LINK"
-	| "LOCK"
-	| "M-SEARCH"
-	| "MERGE"
-	| "MKACTIVITY"
-	| "MKCALENDAR"
-	| "MKCOL"
-	| "MOVE"
-	| "NOTIFY"
-	| "OPTIONS"
-	| "PATCH"
-	| "POST"
-	| "PROPFIND"
-	| "PROPPATCH"
-	| "PURGE"
-	| "PUT"
-	| "REBIND"
-	| "REPORT"
-	| "SEARCH"
-	| "SOURCE"
-	| "SUBSCRIBE"
-	| "TRACE"
-	| "UNBIND"
-	| "UNLINK"
-	| "UNLOCK"
-	| "UNSUBSCRIBE";
 
 export type Origin = string | RegExp;
 
