@@ -1,5 +1,5 @@
 import { sessionExpiresSpan } from "../../../common/constants";
-import { ulid } from "../../../common/utils/ulid";
+import { ulid } from "../../../common/utils";
 import type { Session } from "../../../domain/session";
 import type { User } from "../../../domain/user";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";

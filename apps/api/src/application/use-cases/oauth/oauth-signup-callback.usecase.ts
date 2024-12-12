@@ -1,5 +1,5 @@
 import { sessionExpiresSpan } from "../../../common/constants";
-import { ulid } from "../../../common/utils/ulid";
+import { ulid } from "../../../common/utils";
 import type { OAuthProvider } from "../../../domain/oauth-account/provider";
 import type { Session } from "../../../domain/session";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";

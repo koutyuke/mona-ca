@@ -8,7 +8,7 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
-import { convertRedirectableMobileScheme } from "../../../../../common/utils/convert-redirectable-mobile-scheme/convert-redirectable-mobile-scheme";
+import { convertRedirectableMobileScheme } from "../../../../../common/utils";
 import { oAuthProviderSchema } from "../../../../../domain/oauth-account/provider";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";

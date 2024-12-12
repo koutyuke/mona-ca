@@ -1,7 +1,7 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import type { HTTPMethod } from "elysia/types";
-import { getIP } from "../../common/utils/get-ip";
+import { getIP } from "../../common/utils";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { BadRequestException } from "../error/exceptions";
 
