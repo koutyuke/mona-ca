@@ -1,6 +1,5 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
-import type { HTTPMethod } from "elysia/types";
 import { getIP } from "../../common/utils";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { BadRequestException } from "../error/exceptions";
@@ -90,8 +89,7 @@ const rateLimiter = (prefix: string, { refillRate, maxTokens, interval }: Limite
 			clientMeta.userAgent = userAgent;
 		}
 
-		const consume = async (key: string, costOrFunction: number | ((method: HTTPMethod) => number)) => {
-			const cost = typeof costOrFunction === "function" ? costOrFunction(request.method as HTTPMethod) : costOrFunction;
+		const consume = async (key: string, cost: number) => {
 			const { success, limit, remaining, reset } = await rateLimit.limit(key, {
 				...clientMeta,
 				rate: cost,
