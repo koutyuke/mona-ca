@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { convertRedirectableMobileScheme } from "./convert-redirectable-mobile-scheme";
+import { convertRedirectableMobileScheme } from "../convert-redirectable-mobile-scheme";
 
 describe("Pass to convertRedirectableMobileScheme", () => {
 	test("should convert redirectable mobile scheme", () => {
