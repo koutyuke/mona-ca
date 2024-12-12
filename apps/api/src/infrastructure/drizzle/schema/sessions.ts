@@ -1,8 +1,8 @@
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
-export const session = sqliteTable(
-	"session",
+export const sessions = sqliteTable(
+	"sessions",
 	{
 		id: text("id").primaryKey().notNull(),
 		userId: text("user_id")

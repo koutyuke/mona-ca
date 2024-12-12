@@ -7,21 +7,24 @@ export class SessionRepository implements ISessionRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
 	public async find(sessionId: string): Promise<Session | null> {
-		const session = await this.drizzleService.db.query.session.findFirst({
+		const session = await this.drizzleService.db.query.sessions.findFirst({
 			where: (session, { eq }) => eq(session.id, sessionId),
 		});
 		return session ? new Session(session) : null;
 	}
 
 	public async findManyByUserId(userId: string): Promise<Session[]> {
-		const sessions = await this.drizzleService.db.query.session.findMany({
+		const sessions = await this.drizzleService.db.query.sessions.findMany({
 			where: (session, { eq }) => eq(session.userId, userId),
 		});
 		return sessions.map(session => new Session(session));
 	}
 
 	public async create(session: Omit<SessionConstructor, "fresh">): Promise<Session> {
-		const results = await this.drizzleService.db.insert(this.drizzleService.schema.session).values(session).returning();
+		const results = await this.drizzleService.db
+			.insert(this.drizzleService.schema.sessions)
+			.values(session)
+			.returning();
 		if (results.length !== 1) {
 			throw new Error("Failed to create session.");
 		}
@@ -30,11 +33,11 @@ export class SessionRepository implements ISessionRepository {
 
 	public async updateExpiration(sessionId: string, expiresAt: Date): Promise<Session> {
 		const results = await this.drizzleService.db
-			.update(this.drizzleService.schema.session)
+			.update(this.drizzleService.schema.sessions)
 			.set({
 				expiresAt,
 			})
-			.where(eq(this.drizzleService.schema.session.id, sessionId))
+			.where(eq(this.drizzleService.schema.sessions.id, sessionId))
 			.returning();
 
 		if (results.length !== 1) {
@@ -45,22 +48,22 @@ export class SessionRepository implements ISessionRepository {
 
 	public async delete(sessionId: string): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.session)
-			.where(eq(this.drizzleService.schema.session.id, sessionId))
+			.delete(this.drizzleService.schema.sessions)
+			.where(eq(this.drizzleService.schema.sessions.id, sessionId))
 			.execute();
 	}
 
 	public async deleteManyByExpired(): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.session)
-			.where(lte(this.drizzleService.schema.session.expiresAt, new Date()))
+			.delete(this.drizzleService.schema.sessions)
+			.where(lte(this.drizzleService.schema.sessions.expiresAt, new Date()))
 			.execute();
 	}
 
 	public async deleteManyByUserId(userId: string): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.session)
-			.where(eq(this.drizzleService.schema.session.userId, userId))
+			.delete(this.drizzleService.schema.sessions)
+			.where(eq(this.drizzleService.schema.sessions.userId, userId))
 			.execute();
 	}
 }
