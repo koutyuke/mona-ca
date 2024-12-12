@@ -1,12 +1,12 @@
 import { t } from "elysia";
-import { SendEmailUseCase } from "../../../../application/use-cases/email";
-import { EmailVerificationRequestUseCase } from "../../../../application/use-cases/email-verification";
-import { verificationEmailTemplate } from "../../../../application/use-cases/email/templates";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
-import { EmailVerificationCodeRepository } from "../../../../interface-adapter/repositories/email-verification-code";
-import { UserRepository } from "../../../../interface-adapter/repositories/user";
-import { authGuard } from "../../../../modules/auth-guard";
-import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { SendEmailUseCase } from "../../../../../application/use-cases/email";
+import { EmailVerificationRequestUseCase } from "../../../../../application/use-cases/email-verification";
+import { verificationEmailTemplate } from "../../../../../application/use-cases/email/templates";
+import { DrizzleService } from "../../../../../infrastructure/drizzle";
+import { EmailVerificationCodeRepository } from "../../../../../interface-adapter/repositories/email-verification-code";
+import { UserRepository } from "../../../../../interface-adapter/repositories/user";
+import { authGuard } from "../../../../../modules/auth-guard";
+import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { VerificationConfirm } from "./confirm";
 
 const Verification = new ElysiaWithEnv({

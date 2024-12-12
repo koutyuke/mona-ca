@@ -1,10 +1,10 @@
 import { t } from "elysia";
-import { ChangeEmailUseCase } from "../../../application/use-cases/user";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { EmailVerificationCodeRepository } from "../../../interface-adapter/repositories/email-verification-code";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { authGuard } from "../../../modules/auth-guard";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ChangeEmailUseCase } from "../../../../application/use-cases/user";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { EmailVerificationCodeRepository } from "../../../../interface-adapter/repositories/email-verification-code";
+import { UserRepository } from "../../../../interface-adapter/repositories/user";
+import { authGuard } from "../../../../modules/auth-guard";
+import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
 import { Verification } from "./verification";
 
 const Email = new ElysiaWithEnv({

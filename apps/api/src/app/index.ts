@@ -4,8 +4,8 @@ import { ElysiaWithEnv } from "../modules/elysia-with-env";
 import type { AppEnv } from "../modules/env";
 import { error } from "../modules/error";
 import { rateLimiter } from "../modules/rate-limiter";
-import { Me } from "./@me";
 import { Auth } from "./auth";
+import { Users } from "./users";
 
 const root = new ElysiaWithEnv({
 	aot: false,
@@ -38,7 +38,7 @@ const app = root
 
 	// Other Routes
 	.use(Auth)
-	.use(Me)
+	.use(Users)
 
 	// Route
 	.use(
