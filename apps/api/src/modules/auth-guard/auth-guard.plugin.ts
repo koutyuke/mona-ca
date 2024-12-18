@@ -1,6 +1,6 @@
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { readBearerToken, readSessionCookie } from "../../common/utils";
+import { readBearerToken } from "../../common/utils";
 import type { Session } from "../../domain/session";
 import type { User } from "../../domain/user";
 import { DrizzleService } from "../../infrastructure/drizzle";
@@ -67,7 +67,7 @@ const authGuard = <
 
 			const validateSessionUseCase = new ValidateSessionUseCase(sessionTokenService, sessionRepository, userRepository);
 
-			const sessionToken = readSessionCookie(cookie) || readBearerToken(authorization ?? "");
+			const sessionToken = cookie[SESSION_COOKIE_NAME]?.value || readBearerToken(authorization ?? "");
 
 			if (!sessionToken) {
 				throw new UnauthorizedException();
