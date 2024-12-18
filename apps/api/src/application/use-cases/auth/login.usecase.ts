@@ -1,5 +1,4 @@
 import { sessionExpiresSpan } from "../../../common/constants";
-import type { Session } from "../../../domain/session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
@@ -32,24 +31,17 @@ export class LoginUseCase implements ILoginUseCase {
 		}
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
+		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
 
-		const session = await this.createSession(sessionToken, user.id);
+		const session = await this.sessionRepository.create({
+			id: sessionId,
+			userId: user.id,
+			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
+		});
 
 		return {
 			session,
 			sessionToken,
 		};
-	}
-
-	private async createSession(sessionToken: string, userId: string): Promise<Session> {
-		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
-
-		const session = await this.sessionRepository.create({
-			id: sessionId,
-			userId,
-			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
-		});
-
-		return session;
 	}
 }

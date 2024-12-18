@@ -25,7 +25,7 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 			return { code: null };
 		}
 
-		const code = generateRandomString(6, {
+		const code = generateRandomString(8, {
 			number: true,
 		});
 

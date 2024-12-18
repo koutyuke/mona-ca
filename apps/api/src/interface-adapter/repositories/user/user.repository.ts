@@ -40,10 +40,10 @@ export class UserRepository implements IUserRepository {
 			.select()
 			.from(this.drizzleService.schema.users)
 			.innerJoin(
-				this.drizzleService.schema.session,
-				eq(this.drizzleService.schema.session.userId, this.drizzleService.schema.users.id),
+				this.drizzleService.schema.sessions,
+				eq(this.drizzleService.schema.sessions.userId, this.drizzleService.schema.users.id),
 			)
-			.where(eq(this.drizzleService.schema.session.id, sessionId));
+			.where(eq(this.drizzleService.schema.sessions.id, sessionId));
 
 		return result.length === 1 ? new User(result[0]!.users) : null;
 	}

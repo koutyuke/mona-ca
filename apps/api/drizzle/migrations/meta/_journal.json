@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1720601578873,
-      "tag": "0000_burly_shinko_yamashiro",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1726627395186,
-      "tag": "0001_shiny_maria_hill",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1727156150314,
-      "tag": "0002_clever_vector",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1729999188658,
-      "tag": "0003_shallow_nico_minoru",
+      "when": 1734532505135,
+      "tag": "0000_chilly_mephistopheles",
       "breakpoints": true
     }
   ]

@@ -1,10 +1,11 @@
 import { t } from "elysia";
-import { ChangeEmailUseCase } from "../../../application/use-cases/user";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { EmailVerificationCodeRepository } from "../../../interface-adapter/repositories/email-verification-code";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { authGuard } from "../../../modules/auth-guard";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ChangeEmailUseCase } from "../../../../application/use-cases/user";
+import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { EmailVerificationCodeRepository } from "../../../../interface-adapter/repositories/email-verification-code";
+import { UserRepository } from "../../../../interface-adapter/repositories/user";
+import { authGuard } from "../../../../modules/auth-guard";
+import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { rateLimiter } from "../../../../modules/rate-limiter";
 import { Verification } from "./verification";
 
 const Email = new ElysiaWithEnv({
@@ -15,6 +16,16 @@ const Email = new ElysiaWithEnv({
 
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
+	.use(
+		rateLimiter("email-verification-request", {
+			refillRate: 10,
+			maxTokens: 10,
+			interval: {
+				value: 30,
+				unit: "m",
+			},
+		}),
+	)
 
 	// Route
 	.patch(
@@ -38,6 +49,18 @@ const Email = new ElysiaWithEnv({
 			return null;
 		},
 		{
+			beforeHandle: async ({ rateLimiter, set, user }) => {
+				const { success, reset } = await rateLimiter.consume(user.id, 1);
+
+				if (!success) {
+					set.status = 429;
+					return {
+						name: "TooManyRequests",
+						resetTime: reset,
+					};
+				}
+				return;
+			},
 			body: t.Object({
 				email: t.String({
 					format: "email",

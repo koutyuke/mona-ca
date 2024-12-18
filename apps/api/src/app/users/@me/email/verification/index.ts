@@ -1,12 +1,13 @@
 import { t } from "elysia";
-import { SendEmailUseCase } from "../../../../application/use-cases/email";
-import { EmailVerificationRequestUseCase } from "../../../../application/use-cases/email-verification";
-import { verificationEmailTemplate } from "../../../../application/use-cases/email/templates";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
-import { EmailVerificationCodeRepository } from "../../../../interface-adapter/repositories/email-verification-code";
-import { UserRepository } from "../../../../interface-adapter/repositories/user";
-import { authGuard } from "../../../../modules/auth-guard";
-import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { SendEmailUseCase } from "../../../../../application/use-cases/email";
+import { EmailVerificationRequestUseCase } from "../../../../../application/use-cases/email-verification";
+import { verificationEmailTemplate } from "../../../../../application/use-cases/email/templates";
+import { DrizzleService } from "../../../../../infrastructure/drizzle";
+import { EmailVerificationCodeRepository } from "../../../../../interface-adapter/repositories/email-verification-code";
+import { UserRepository } from "../../../../../interface-adapter/repositories/user";
+import { authGuard } from "../../../../../modules/auth-guard";
+import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { VerificationConfirm } from "./confirm";
 
 const Verification = new ElysiaWithEnv({
@@ -17,6 +18,16 @@ const Verification = new ElysiaWithEnv({
 
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
+	.use(
+		rateLimiter("email-verification-request", {
+			refillRate: 5,
+			maxTokens: 5,
+			interval: {
+				value: 30,
+				unit: "m",
+			},
+		}),
+	)
 
 	// Route
 	.post(
@@ -52,6 +63,18 @@ const Verification = new ElysiaWithEnv({
 			return null;
 		},
 		{
+			beforeHandle: async ({ rateLimiter, set, user }) => {
+				const { success, reset } = await rateLimiter.consume(user.id, 1);
+
+				if (!success) {
+					set.status = 429;
+					return {
+						name: "TooManyRequests",
+						resetTime: reset,
+					};
+				}
+				return;
+			},
 			body: t.Object({
 				email: t.Optional(
 					t.String({

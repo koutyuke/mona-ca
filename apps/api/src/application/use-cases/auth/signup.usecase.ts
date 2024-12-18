@@ -24,9 +24,21 @@ export class SignupUseCase implements ISignupUseCase {
 		password: string,
 		gender: "man" | "woman",
 	): Promise<{ user: User; session: Session; sessionToken: string }> {
-		const userId = ulid();
+		const existingSameEmailUser = await this.userRepository.findByEmail(email);
+
+		if (existingSameEmailUser) {
+			if (existingSameEmailUser.emailVerified) {
+				throw new Error("EmailIsAlreadyUsed");
+			}
+
+			await this.userRepository.delete(existingSameEmailUser.id);
+		}
+
 		const passwordHash = await this.passwordService.hashPassword(password);
 		const sessionToken = this.sessionTokenService.generateSessionToken();
+
+		const userId = ulid();
+		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
 
 		const user = await this.userRepository.create({
 			id: userId,
@@ -38,7 +50,11 @@ export class SignupUseCase implements ISignupUseCase {
 		});
 
 		const [session] = await Promise.all([
-			this.createSession(sessionToken, userId),
+			this.sessionRepository.create({
+				id: sessionId,
+				userId,
+				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
+			}),
 			this.userCredentialRepository.create({
 				userId,
 				passwordHash,
@@ -50,17 +66,5 @@ export class SignupUseCase implements ISignupUseCase {
 			session,
 			sessionToken,
 		};
-	}
-
-	private async createSession(sessionToken: string, userId: string): Promise<Session> {
-		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
-
-		const session = await this.sessionRepository.create({
-			id: sessionId,
-			userId,
-			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
-		});
-
-		return session;
 	}
 }

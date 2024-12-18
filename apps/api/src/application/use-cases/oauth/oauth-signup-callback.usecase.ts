@@ -1,7 +1,6 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { ulid } from "../../../common/utils";
 import type { OAuthProvider } from "../../../domain/oauth-account/provider";
-import type { Session } from "../../../domain/session";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
@@ -65,9 +64,14 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			}));
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
+		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
 
 		const [session] = await Promise.all([
-			this.createSession(sessionToken, linkedUser.id),
+			this.sessionRepository.create({
+				id: sessionId,
+				userId: linkedUser.id,
+				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
+			}),
 			this.userCredentialRepository.create({
 				userId: linkedUser.id,
 				passwordHash: null,
@@ -84,17 +88,5 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			session,
 			sessionToken,
 		};
-	}
-
-	private async createSession(sessionToken: string, userId: string): Promise<Session> {
-		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
-
-		const session = await this.sessionRepository.create({
-			id: sessionId,
-			userId,
-			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
-		});
-
-		return session;
 	}
 }
