@@ -53,20 +53,20 @@ export class SessionTableHelper {
 		const id = sessionToken ? sessionTokenService.hashSessionToken(sessionToken) : this.baseSession.id;
 
 		await this.db
-			.prepare("INSERT INTO session (id, user_id, expires_at) VALUES (?1, ?2, ?3)")
+			.prepare("INSERT INTO sessions (id, user_id, expires_at) VALUES (?1, ?2, ?3)")
 			.bind(id, user_id, expires_at)
 			.run();
 	}
 
 	public async find(id: string): Promise<DatabaseSession[]> {
-		const { results } = await this.db.prepare("SELECT * FROM session WHERE id = ?1").bind(id).all<DatabaseSession>();
+		const { results } = await this.db.prepare("SELECT * FROM sessions WHERE id = ?1").bind(id).all<DatabaseSession>();
 
 		return results;
 	}
 
 	public async findByUserId(userId: string): Promise<DatabaseSession[]> {
 		const { results } = await this.db
-			.prepare("SELECT * FROM session WHERE user_id = ?1")
+			.prepare("SELECT * FROM sessions WHERE user_id = ?1")
 			.bind(userId)
 			.all<DatabaseSession>();
 
