@@ -1,6 +1,6 @@
 name: App-Static-Check
 
-on: 
+on:
   pull_request:
     types:
       - opened
@@ -11,27 +11,14 @@ jobs:
   static-check:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: moonrepo/setup-toolchain@v0
-        with:
-          auto-install: true
+      - name: Setup
+        uses: jdx/mise-action@v2
 
-      - name: Get bun cache directory
-        id: get-bun-cache-directory
-        run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
-
-      - name: Get bun cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.get-bun-cache-directory.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-cache-bun-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: ${{ runner.os }}-cache-bun-
-      
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
