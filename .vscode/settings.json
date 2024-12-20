@@ -14,6 +14,9 @@
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
   "commit-message-editor.dynamicTemplate": [
     "{type}{scope}{breaking_change_exclamation}: {description}",
     "",
@@ -30,167 +33,167 @@
       "name": "type",
       "options": [
         {
-          "label": "✨ feat (機能: 新規)",
           "description": "Implementation of new features.",
+          "label": "✨ feat (機能: 新規)",
           "value": "✨ feat"
         },
         {
-          "label": "🎈 feat (機能: 更新)",
           "description": "Repair of existing features.",
+          "label": "🎈 feat (機能: 更新)",
           "value": "🎈 feat"
         },
         {
-          "label": "🪦 feat (機能: 削除)",
           "description": "Deletion of features.",
+          "label": "🪦 feat (機能: 削除)",
           "value": "🪦 feat"
         },
         {
-          "label": "🐛 fix (修正)",
           "description": "Bug fixes.",
+          "label": "🐛 fix (修正)",
           "value": "🐛 fix"
         },
         {
-          "label": "🔥 hotfix (修正: 緊急)",
           "description": "Critical bug fixes or major changes.",
+          "label": "🔥 hotfix (修正: 緊急)",
           "value": "🔥 hotfix"
         },
         {
-          "label": "📝 doc (ドキュメント)",
           "description": "Documentation changes.",
+          "label": "📝 doc (ドキュメント)",
           "value": "📝 doc"
         },
         {
-          "label": "💄 style (スタイル)",
           "description": "Code Style Changes. (e.g. white-space, formatting, rename, typo, etc)",
+          "label": "💄 style (スタイル)",
           "value": "💄 style"
         },
         {
-          "label": "♻️ refactor (リファクタリング)",
           "description": "Code Refactoring Changes.",
+          "label": "♻️ refactor (リファクタリング)",
           "value": "♻️ refactor"
         },
         {
-          "label": "🏎️ perf (パフォーマンス)",
           "description": "Performance Improvement for Changes.",
+          "label": "🏎️ perf (パフォーマンス)",
           "value": "🏎️ perf"
         },
         {
-          "label": "🧪 test (テスト)",
           "description": "Test cases changes.",
+          "label": "🧪 test (テスト)",
           "value": "🧪 test"
         },
         {
-          "label": "📦️ build (ビルド)",
           "description": "Build system or dependency changes.(e.g. npm, lock file, etc)",
+          "label": "📦️ build (ビルド)",
           "value": "📦️ build"
         },
         {
-          "label": "🦺 ci (継続的インテグレーション)",
           "description": "Continuous Integration Configuration File Changes.",
+          "label": "🦺 ci (継続的インテグレーション)",
           "value": "🦺 ci"
         },
         {
-          "label": "🚀 cd (継続的デリバリー)",
           "description": "Continuous Delivery Configuration File changes.",
+          "label": "🚀 cd (継続的デリバリー)",
           "value": "🚀 cd"
         },
         {
-          "label": "📦 dep (依存関係)",
           "description": "Update dependencies.",
+          "label": "📦 dep (依存関係)",
           "value": "📦 dep"
         },
         {
-          "label": "🔧 chore (雑務)",
           "description": "Other changes that don't modify src or test files.",
+          "label": "🔧 chore (雑務)",
           "value": "🔧 chore"
         },
         {
-          "label": "⚙️ chore (雑務: 設定)",
           "description": "Configuration changes.",
+          "label": "⚙️ chore (雑務: 設定)",
           "value": "⚙️ chore"
         },
         {
-          "label": "🛠️ chore (雑務: スクリプト)",
           "description": "Development script changes.",
+          "label": "🛠️ chore (雑務: スクリプト)",
           "value": "🛠️ chore"
         },
         {
-          "label": "🗑 chore (雑務: 削除)",
           "description": "Removal of files or code.",
+          "label": "🗑 chore (雑務: 削除)",
           "value": "🗑 chore"
         },
         {
-          "label": "⏪️ revert (取り消し)",
           "description": "Reversion of changes.",
+          "label": "⏪️ revert (取り消し)",
           "value": "⏪️ revert"
         },
         {
-          "label": "🐳 container (コンテナ)",
           "description": "The Dockerfile changes.",
+          "label": "🐳 container (コンテナ)",
           "value": "🐳 container"
         },
         {
-          "label": "🐙 compose (コンポーズ)",
           "description": "The docker-compose changes.",
+          "label": "🐙 compose (コンポーズ)",
           "value": "🐙 compose"
         },
         {
-          "label": "🚧 wip (開発途中)",
           "description": "Changes that will be squashed.",
+          "label": "🚧 wip (開発途中)",
           "value": "🚧 wip"
         },
         {
-          "label": "🎉 initial (ファーストコミット)",
           "description": "The first commit.",
+          "label": "🎉 initial (ファーストコミット)",
           "value": "🎉 initial"
         }
       ],
       "type": "enum"
     },
     {
-      "name": "breaking_change_exclamation",
-      "label": "Breaking Change (Exclamation)",
+      "default": false,
       "description": "Indicates that this commit is a Breaking Change. (e.g. 'feat!: ...')",
+      "label": "Breaking Change (Exclamation)",
+      "name": "breaking_change_exclamation",
       "type": "boolean",
-      "value": "!",
-      "default": false
+      "value": "!"
     },
     {
-      "name": "scope",
-      "label": "Scope",
       "description": "Scope of Changes. (e.g. api, mobile, web, etc)",
+      "label": "Scope",
+      "name": "scope",
       "prefix": "(",
       "suffix": ")",
       "type": "text"
     },
     {
-      "name": "description",
-      "label": "Short Description",
       "description": "Commit summary.",
+      "label": "Short Description",
+      "name": "description",
       "type": "text"
     },
     {
-      "name": "body",
-      "label": "Body",
       "description": "Detailed description of commit.",
-      "type": "text",
+      "label": "Body",
       "lines": 5,
       "maxLines": 10,
-      "multiline": true
+      "multiline": true,
+      "name": "body",
+      "type": "text"
     },
     {
+      "default": false,
       "label": "Breaking Change (Footer)",
       "name": "breaking_change_footer",
       "type": "boolean",
-      "value": "BREAKING CHANGE: ",
-      "default": false
+      "value": "BREAKING CHANGE: "
     },
     {
-      "name": "footer",
-      "label": "Footer",
       "description": "Description of disruptive changes or signature.",
-      "type": "text",
-      "multiline": true
+      "label": "Footer",
+      "multiline": true,
+      "name": "footer",
+      "type": "text"
     }
   ],
   "commit-message-editor.view.defaultView": "form",

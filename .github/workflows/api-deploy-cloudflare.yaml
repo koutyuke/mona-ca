@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  
+
 jobs:
   filter:
     runs-on: ubuntu-latest
@@ -31,12 +31,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Setup Bun
-        uses: moonrepo/setup-toolchain@v0
-        with:
-          auto-install: true
-      
+
+      - name: Setup
+        uses: jdx/mise-action@v2
+
       - name: Install
         run: bun install --frozen-lockfile
 
