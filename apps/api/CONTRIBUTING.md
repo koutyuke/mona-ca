@@ -39,25 +39,25 @@ If there are no children, create `route-name.ts` in the parent directory.
 
 ### application/use-case
 
-This folder will be the `use-case` part of the application. 
+This folder will be the `use-case` part of the application.
 
 ### domain
 
-This folder will be the `entity(domain)` part of the application. 
+This folder will be the `entity(domain)` part of the application.
 
 ### infrastructure
 
-This folder will be the `infrastructure` part of the application. 
+This folder will be the `infrastructure` part of the application.
 
 In particular, place classes such as external libraries and DBs, external API adapter.
 
 ### interface-adapter
 
-This folder will be the `interface-adapter` part of the application. 
+This folder will be the `interface-adapter` part of the application.
 
 ### interface-adapter/repositories
 
-This folder will be the `repositories` part of the application. 
+This folder will be the `repositories` part of the application.
 
 This folder specifically places classes for DB abstraction.
 
@@ -130,7 +130,7 @@ When adding or using `plugins`, `middleware`, or `other routes`, the following s
 
 ```txt
 HIGHT
-↑
+│
 ├── Global Middleware & Plugin
 │
 ├── Other Route
@@ -138,7 +138,7 @@ HIGHT
 ├── Local Middleware & Plugin
 │
 ├── Route
-↓
+│
 LOW
 ```
 
