@@ -9,7 +9,7 @@ import {
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../domain/oauth-account/provider";
+import { oAuthProviderSchema } from "../../../../../entities/oauth-account";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";

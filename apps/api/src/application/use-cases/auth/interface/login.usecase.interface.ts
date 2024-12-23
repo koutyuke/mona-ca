@@ -1,4 +1,4 @@
-import type { Session } from "../../../../domain/session";
+import type { Session } from "../../../../entities/session";
 
 export interface ILoginUseCaseResult {
 	session: Session;

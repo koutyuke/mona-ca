@@ -1,5 +1,5 @@
 import { and, eq, lte } from "drizzle-orm";
-import { EmailVerificationCode } from "../../../domain/email-verification-code";
+import { EmailVerificationCode } from "../../../entities/email-verification-code";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IEmailVerificationCodeRepository } from "./interface/email-verification-code.repository.interface";
 

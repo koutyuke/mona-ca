@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { User } from "../../../../domain/user";
+import { User } from "../../../../entities/user";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";

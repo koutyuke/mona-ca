@@ -1,4 +1,16 @@
-import type { OAuthProvider } from "./provider";
+import { type Static, t } from "elysia";
+
+export const oAuthProviderSchema = t.Union([t.Literal("discord")]);
+
+export type OAuthProvider = Static<typeof oAuthProviderSchema>;
+
+export const OAuthAccountSchema = t.Object({
+	provider: oAuthProviderSchema,
+	providerId: t.String(),
+	userId: t.String(),
+	createdAt: t.Date(),
+	updatedAt: t.Date(),
+});
 
 export class OAuthAccount {
 	readonly provider: OAuthProvider;

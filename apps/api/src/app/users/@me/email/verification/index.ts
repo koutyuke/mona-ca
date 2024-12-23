@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { SendEmailUseCase } from "../../../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../../../application/use-cases/email-verification";
-import { verificationEmailTemplate } from "../../../../../application/use-cases/email/templates";
+import { verificationEmailTemplate } from "../../../../../application/use-cases/email/mail-context";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { EmailVerificationCodeRepository } from "../../../../../interface-adapter/repositories/email-verification-code";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
