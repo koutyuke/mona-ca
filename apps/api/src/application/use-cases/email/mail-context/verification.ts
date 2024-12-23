@@ -1,8 +1,8 @@
 import { MC_DEFAULT_EMAIL_ADDRESS } from "@mona-ca/core/const";
-import type { EmailVerificationCode } from "../../../../domain/email-verification-code";
-import type { EmailTemplate } from "./type";
+import type { EmailVerificationCode } from "../../../../entities/email-verification-code";
+import type { EmailContext } from "./type";
 
-export const verificationEmailTemplate = (code: EmailVerificationCode): EmailTemplate => {
+export const verificationEmailTemplate = (code: EmailVerificationCode): EmailContext => {
 	const from = MC_DEFAULT_EMAIL_ADDRESS;
 	const to = code.email;
 	const subject = `メールアドレス検証コードは ${code.code} です。`;

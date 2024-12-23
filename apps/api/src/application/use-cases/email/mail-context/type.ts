@@ -1,4 +1,4 @@
-export type EmailTemplate = {
+export type EmailContext = {
 	from: string;
 	to: string;
 	subject: string;
