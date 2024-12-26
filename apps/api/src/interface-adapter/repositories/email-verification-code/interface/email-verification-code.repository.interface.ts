@@ -1,4 +1,4 @@
-import type { EmailVerificationCode } from "../../../../domain/email-verification-code";
+import type { EmailVerificationCode } from "../../../../entities/email-verification-code";
 
 export interface IEmailVerificationCodeRepository {
 	findByUserId(userId: EmailVerificationCode["userId"]): Promise<EmailVerificationCode | null>;
