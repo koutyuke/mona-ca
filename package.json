@@ -20,15 +20,15 @@
     "ui": "cd ./packages/ui && bun"
   },
   "dependencies": {
-    "@types/bun": "^1.1.11"
+    "@types/bun": "^1.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "cross-env": "^7.0.3",
-    "dotenv": "^16.4.5",
-    "lefthook": "^1.7.22",
-    "turbo": "^2.2.1",
-    "typescript": "^5.6.3"
+    "dotenv": "^16.4.7",
+    "lefthook": "^1.10.10",
+    "turbo": "^2.3.4",
+    "typescript": "^5.7.3"
   },
   "packageManager": "bun@1.1.26",
   "trustedDependencies": [
