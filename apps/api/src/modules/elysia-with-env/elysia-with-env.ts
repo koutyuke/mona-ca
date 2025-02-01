@@ -21,19 +21,15 @@ type CustomSingleton = {
  * @template BasePath - The base path for the Elysia instance. Defaults to an empty string.
  * @template Scoped - A boolean indicating whether the instance is scoped. Defaults to false.
  *
- * @extends Elysia<BasePath, Scoped, CustomSingleton>
+ * @extends Elysia<BasePath, CustomSingleton>
  */
-export class ElysiaWithEnv<const BasePath extends string = "", const Scoped extends boolean = false> extends Elysia<
-	BasePath,
-	Scoped,
-	CustomSingleton
-> {
+export class ElysiaWithEnv<const BasePath extends string = ""> extends Elysia<BasePath, CustomSingleton> {
 	/**
 	 * Constructs an instance of ElysiaWithEnv.
 	 *
-	 * @param {ElysiaConfig<BasePath, Scoped>} [config] - Optional configuration object for the Elysia instance.
+	 * @param {ElysiaConfig<BasePath>} [config] - Optional configuration object for the Elysia instance.
 	 */
-	constructor(config?: ElysiaConfig<BasePath, Scoped>) {
+	constructor(config?: ElysiaConfig<BasePath>) {
 		super(config);
 	}
 

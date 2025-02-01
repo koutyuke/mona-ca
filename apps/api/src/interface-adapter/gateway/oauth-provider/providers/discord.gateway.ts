@@ -23,13 +23,13 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 		this.discord = new DiscordProvider(clientId, clientSecret, redirectUrl);
 	}
 
-	public genAuthUrl(state: string, _codeVerifier: string): URL {
-		const url = this.discord.createAuthorizationURL(state, this.scope);
+	public genAuthUrl(state: string, codeVerifier: string): URL {
+		const url = this.discord.createAuthorizationURL(state, codeVerifier, this.scope);
 		return url;
 	}
 
-	public getTokens(code: string, _codeVerifier: string): Promise<OAuth2Tokens> {
-		return this.discord.validateAuthorizationCode(code);
+	public getTokens(code: string, codeVerifier: string): Promise<OAuth2Tokens> {
+		return this.discord.validateAuthorizationCode(code, codeVerifier);
 	}
 
 	public async getAccountInfo(accessToken: string): Promise<AccountInfo | null> {
