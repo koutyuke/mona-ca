@@ -1,15 +1,6 @@
 import { twMerge } from "@mona-ca/tailwind-helpers";
-import {
-	type ElementRef,
-	type ElementType,
-	type FC,
-	type ReactElement,
-	type ReactNode,
-	type Ref,
-	forwardRef,
-} from "react";
+import { type ElementRef, type FC, type ReactElement, type ReactNode, type Ref, forwardRef } from "react";
 import { Pressable, Text } from "react-native";
-import type { PolymorphicProps } from "../../types";
 import { LoadingSpinner } from "../loading-spinner/index.native";
 import type { SupportColor, SupportSize, SupportVariant } from "./type";
 import { filledColorVariants } from "./variants/filled-color.variant";
@@ -46,9 +37,8 @@ type Props<LP extends {}, RP extends {}> = Variants & {
 	leftIconProps?: Omit<LP, "className">;
 };
 
-const _Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pressable>(
+const Btn = <LP extends {}, RP extends {}>(
 	{
-		as,
 		size = "md",
 		variant = "outline",
 		color,
@@ -67,12 +57,11 @@ const _Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pr
 		rightIconProps,
 		leftIconProps,
 		...props
-	}: PolymorphicProps<E, Props<LP, RP>>,
-	ref: Ref<ElementRef<E>>,
+	}: Props<LP, RP>,
+	ref: Ref<ElementRef<typeof Pressable>>,
 ): ReactNode => {
 	const LeftIcon = leftIcon as unknown as FC<{ className?: string }>;
 	const RightIcon = rightIcon as unknown as FC<{ className?: string }>;
-	const Component = as || Pressable;
 
 	const leftIconStyleOverride = typeof iconClassName === "object" ? iconClassName.left : iconClassName;
 
@@ -112,23 +101,22 @@ const _Button = <LP extends {}, RP extends {}, E extends ElementType = typeof Pr
 	});
 
 	return (
-		<Component
+		<Pressable
 			className={twMerge(body(), bodyColor(), bodyClassName)}
 			disabled={loading || disabled}
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			ref={ref as any}
+			ref={ref}
 			{...props}
 		>
 			{LeftIcon && <LeftIcon className={twMerge(icon(), iconColor(), leftIconStyleOverride)} {...leftIconProps} />}
 			<Text className={twMerge(text(), textColor(), textClassName)}>{children}</Text>
 			{RightIcon && <RightIcon className={twMerge(icon(), iconColor(), rightIconStyleOverride)} {...rightIconProps} />}
 			{!disabled && loading && <LoadingSpinner className={twMerge(spinner(), spinnerColor())} />}
-		</Component>
+		</Pressable>
 	);
 };
 
-const Button = forwardRef(_Button) as <LP extends {}, RP extends {}, E extends ElementType = typeof Pressable>(
-	props: PolymorphicProps<E, Props<LP, RP>> & { ref?: Ref<ElementRef<E>> },
+const Button = forwardRef(Btn) as <LP extends {}, RP extends {}>(
+	props: Props<LP, RP> & { ref?: Ref<ElementRef<typeof Pressable>> },
 ) => ReactElement | null;
 
 export { Button };

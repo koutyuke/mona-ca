@@ -40,7 +40,8 @@ const AnimationRect: FC<AnimationRectProps> = ({ index, ...props }) => {
 		}, initialDuration);
 	}, []);
 
-	return <AnimatedRect {...props} opacity={opacity} />;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	return <AnimatedRect {...props} opacity={opacity as any} />;
 };
 
 type LoadingSpinnerProps = {

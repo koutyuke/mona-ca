@@ -38,9 +38,9 @@ export default function TabLayout() {
 					borderTopWidth: 1,
 					borderTopColor: colors[colorTheme].sand[5],
 				},
-			}}
-			sceneContainerStyle={{
-				backgroundColor: colors[colorTheme].sand[1],
+				sceneStyle: {
+					backgroundColor: colors[colorTheme].sand[1],
+				},
 			}}
 		>
 			<Tabs.Screen
