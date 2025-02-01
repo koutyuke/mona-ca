@@ -38,7 +38,7 @@ const WelcomePageBody: FC<WelcomePageBodyProps> = ({ animatedBodyRef }) => {
 				</Text>
 			</View>
 			<View className="flex w-full flex-col gap-2">
-				<Link href="/(auth)/log-in/" asChild>
+				<Link href="/(auth)/log-in" asChild>
 					<Button color="white" variant="filled" size="md" bold textClassName="text-mona-ca" fullWidth>
 						Log in
 					</Button>

@@ -47,8 +47,8 @@ const LogInPageBody: FC<LogInPageBodyProps> = ({ animatedBodyRef }) => {
 				<View className="gap-2">
 					<TextInput label="Email Address" placeholder="email@example.com" icon={EmailIcon} />
 					<TextInput label="Password" placeholder="Password" credentials icon={PasswordIcon} />
-					<Link href="/(auth)/" asChild>
-						<Button variant="ghost" color="salmon" bold size="sm" className="self-end">
+					<Link href="/(auth)" asChild>
+						<Button variant="ghost" color="salmon" bold size="sm" bodyClassName="self-end">
 							パスワードをお忘れですか？
 						</Button>
 					</Link>
@@ -67,7 +67,7 @@ const LogInPageBody: FC<LogInPageBodyProps> = ({ animatedBodyRef }) => {
 					<GoogleButton fullWidth />
 					<DiscordButton fullWidth />
 					<Link href="/(auth)/sign-up" replace asChild>
-						<Button variant="ghost" color="salmon" bold size="sm" className="self-end">
+						<Button variant="ghost" color="salmon" bold size="sm" bodyClassName="self-end">
 							アカウントの新規登録はこちら
 						</Button>
 					</Link>
