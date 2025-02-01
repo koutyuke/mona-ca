@@ -9,7 +9,7 @@ services:
       TZ: Asia/Tokyo
     volumes:
       - type: bind
-        source: ./data/redis
+        source: ./docker/data/redis
         target: /data
   serverless-redis-http:
     image: hiett/serverless-redis-http:latest
