@@ -44,7 +44,7 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
 
 		const [session] = await Promise.all([
-			await this.sessionRepository.create({
+			this.sessionRepository.create({
 				id: sessionId,
 				userId: existingOAuthAccount.userId,
 				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),

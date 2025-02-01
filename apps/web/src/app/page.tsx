@@ -12,7 +12,7 @@ export default function Page(): JSX.Element {
 				width: "100svw",
 			}}
 		>
-			<a href="http://localhost:8787/auth/web/signup/discord?gender=man&redirect-url=/">signup with discord</a>
+			{/* <a href="http://localhost:8787/auth/web/signup/discord?gender=man&redirect-url=/">signup with discord</a>
 			<a href="http://localhost:8787/auth/web/login/discord?redirect-url=/">login with discord</a>
 			<button
 				type="button"
@@ -24,7 +24,7 @@ export default function Page(): JSX.Element {
 				}}
 			>
 				logout
-			</button>
+			</button> */}
 		</main>
 	);
 }

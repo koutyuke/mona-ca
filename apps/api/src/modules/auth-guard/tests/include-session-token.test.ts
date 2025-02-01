@@ -42,8 +42,7 @@ describe("AuthGuard includeSessionToken option", () => {
 			.use(authGuard({ includeSessionToken: false }))
 			.get("/", context => {
 				expect(context).not.toHaveProperty("sessionToken");
-
-				return context;
+				return "Test";
 			});
 
 		const res = await app.fetch(

@@ -8,8 +8,8 @@
     "check:fix": "bun run check --write"
   },
   "dependencies": {
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38"
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.1"
   },
   "devDependencies": {
     "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",

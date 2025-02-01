@@ -67,8 +67,8 @@ const error = new Elysia({
 
 		if (code !== "NOT_FOUND") {
 			console.error({
-				name: error.name,
-				message: error.message,
+				name: "Not Found",
+				message: "The requested resource was not found",
 			});
 		}
 

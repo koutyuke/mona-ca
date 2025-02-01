@@ -1,0 +1,60 @@
+diff --git a/dist/universal/file.mjs b/dist/universal/file.mjs
+index 059c1ec74e7b36321b72c4e97de9f352004e1a26..27774bccee028c1b1fe52dc97c6b42711d050e37 100644
+--- a/dist/universal/file.mjs
++++ b/dist/universal/file.mjs
+@@ -1,4 +1,4 @@
+-import{ isBun }from"./utils.mjs";
++import { isBun } from "./utils.mjs";
+ const mime = {
+   aac: "audio/aac",
+   abw: "application/x-abiword",
+@@ -74,7 +74,7 @@ const mime = {
+   "3gp_DOES_NOT_CONTAIN_VIDEO": "audio/3gpp",
+   "3gp2": "video/3gpp2",
+   "3gp2_DOES_NOT_CONTAIN_VIDEO": "audio/3gpp2",
+-  "7z": "application/x-7z-compressed"
++  "7z": "application/x-7z-compressed",
+ };
+ const getFileExtension = (path) => {
+   const index = path.lastIndexOf(".");
+@@ -93,11 +93,11 @@ class ElysiaFile {
+         console.warn("Browser environment does not support file");
+       } else {
+         if (!createReadStream || !stat) {
+-          this.value = import("fs").then((fs) => {
++          this.value = import("node:fs").then((fs) => {
+             createReadStream = fs.createReadStream;
+             return fs.createReadStream(path);
+           });
+-          this.stats = import("fs/promises").then((fs) => {
++          this.stats = import("node:fs/promises").then((fs) => {
+             stat = fs.stat;
+             return fs.stat(path);
+           });
+@@ -119,9 +119,4 @@ class ElysiaFile {
+     return this.stats?.then((x) => x.size) ?? 0;
+   }
+ }
+-export {
+-  ElysiaFile,
+-  file,
+-  getFileExtension,
+-  mime
+-};
++export { ElysiaFile, file, getFileExtension, mime };
+diff --git a/dist/utils.mjs b/dist/utils.mjs
+index 763ff252964401c48a37634322bfac5ea9b09e0e..c5c8d01b4d8920e02db728a1400cd54bc47bf4dd 100644
+--- a/dist/utils.mjs
++++ b/dist/utils.mjs
+@@ -1034,7 +1034,10 @@ const cloneInference = (inference) => ({
+   request: inference.request,
+   route: inference.route
+ });
+-const redirect = (url, status = 302) => Response.redirect(url, status);
++const redirect = (url, status = 302) => {
++  const _res = Response.redirect(url, status);
++  return new Response(_res.body, _res);
++};
+ const ELYSIA_FORM_DATA = Symbol("ElysiaFormData");
+ const ELYSIA_REQUEST_ID = Symbol("ElysiaRequestId");
+ const form = (items) => {

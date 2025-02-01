@@ -45,7 +45,7 @@ const SignUpSelectMethodPageBody: FC<SignUpSelectMethodPageBodyProps> = ({ anima
 					</Link>
 				</View>
 				<View className="flex flex-row-reverse">
-					<Link href="/(auth)/log-in/" replace asChild>
+					<Link href="/(auth)/log-in" replace asChild>
 						<Button variant="ghost" color="salmon" bold size="sm">
 							既にアカウントをお持ちの方はこちら
 						</Button>

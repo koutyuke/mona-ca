@@ -13,7 +13,6 @@ const configColors = createConfigColors({
 });
 
 const baseConfig = {
-	mode: "jit",
 	content: ["./src/**/*.{tsx,ts}"],
 	theme: {
 		screens: breakpoints,

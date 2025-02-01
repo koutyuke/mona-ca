@@ -16,7 +16,7 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+const RootLayout = () => {
 	const [loaded, error] = useFonts({
 		...FontAwesome.font,
 	});
@@ -36,9 +36,9 @@ export default function RootLayout() {
 	}
 
 	return <RootLayoutNav />;
-}
+};
 
-function RootLayoutNav() {
+const RootLayoutNav = () => {
 	return (
 		<SafeAreaProvider>
 			<KeyboardProvider>
@@ -51,4 +51,6 @@ function RootLayoutNav() {
 			</KeyboardProvider>
 		</SafeAreaProvider>
 	);
-}
+};
+
+export default RootLayout;
