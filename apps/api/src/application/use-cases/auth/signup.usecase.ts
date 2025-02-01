@@ -24,7 +24,7 @@ export class SignupUseCase implements ISignupUseCase {
 		password: string,
 		gender: "man" | "woman",
 	): Promise<{ user: User; session: Session; sessionToken: string }> {
-		const existingSameEmailUser = await this.userRepository.findByEmail(email);
+		const existingSameEmailUser = await this.userRepository.findByEmail(email); // check pre-register user
 
 		if (existingSameEmailUser) {
 			if (existingSameEmailUser.emailVerified) {
@@ -44,7 +44,7 @@ export class SignupUseCase implements ISignupUseCase {
 			id: userId,
 			name,
 			email,
-			emailVerified: false,
+			emailVerified: false, // pre-register user
 			iconUrl: null,
 			gender,
 		});
