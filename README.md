@@ -1,8 +1,12 @@
+<div align="center">
+
 <img src="https://github.com/user-attachments/assets/dd71116e-4799-47e5-a3de-73384f564ef2"  width="100%" height="auto"  />
 
 # mona-ca
 
-mona-ca is an Application that shares information about a girl's period with her partner.
+**mona-ca is an Application that shares information about a girl's period with her partner.**
+
+</div>
 
 ## What's inside?
 
@@ -25,7 +29,6 @@ It includes packages and libraries that will be reused throughout the project.
 
 It includes tools and settings related to development and operation.
 
-
 ## Setup the Development Environment
 
 ### 1. clone git repository
@@ -36,10 +39,10 @@ git clone https://github.com/koutyuke/mona-ca.git && cd mona-ca
 
 ### 2. install runtime & package manager
 
-We use [proto](https://moonrepo.dev/proto) as a version control tool.
+We use [mise](https://mise.jdx.dev/) as a version control tool.
 
 ```sh
-proto use
+mise install
 ```
 
 ### 3. set environment variables
@@ -62,10 +65,10 @@ bunx lefthook install
 
 ```sh
 # up
-docker compose -f ./docker/docker-compose.development.yaml up -d
+docker compose up -d
 
 # down
-docker compose -f ./docker/docker-compose.development.yaml down
+docker compose down
 ```
 
 ## Development Tool Commands
