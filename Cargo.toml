@@ -1,5 +1,5 @@
 [workspace]
-members = ["packages/argon2id", "packages/swc-plugin-*"]
+members = ["packages/argon2id"]
 resolver = "2"
 
 [profile.release]
