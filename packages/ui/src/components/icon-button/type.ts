@@ -1,6 +1,4 @@
-import type { ScaleColor } from "@mona-ca/tailwind-helpers";
-
-export type SupportColor = Extract<ScaleColor, "red" | "blue" | "green" | "yellow" | "salmon" | "gray"> | "white";
+export type SupportColor = "red" | "blue" | "green" | "yellow" | "salmon" | "gray" | "white";
 
 export type SupportSlot = "body" | "spinner" | "icon";
 
