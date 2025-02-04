@@ -1,4 +1,3 @@
-import { twPseudo } from "@mona-ca/tailwind-helpers";
 import { tv } from "@mona-ca/tailwind-helpers";
 import { Text } from "@mona-ca/ui/native/components";
 import { type ComponentPropsWithoutRef, forwardRef } from "react";
@@ -14,9 +13,7 @@ type DiscordButtonProps = {
 
 const styleVariants = tv({
 	slots: {
-		body: twPseudo("group relative flex flex-row items-center justify-center gap-2 self-start bg-discord transition", {
-			active: "bg-discord/90",
-		}),
+		body: "group relative flex flex-row items-center justify-center gap-2 self-start bg-discord transition active:bg-discord/90",
 		icon: "self-auto",
 	},
 	variants: {

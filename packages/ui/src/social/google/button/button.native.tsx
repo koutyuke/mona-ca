@@ -1,4 +1,3 @@
-import { twPseudo } from "@mona-ca/tailwind-helpers";
 import { tv } from "@mona-ca/tailwind-helpers";
 import { type ComponentPropsWithoutRef, forwardRef } from "react";
 import { Pressable } from "react-native";
@@ -14,12 +13,7 @@ type GoogleButtonProps = {
 
 const styleVariants = tv({
 	slots: {
-		body: twPseudo(
-			"group relative flex flex-row items-center justify-center gap-2 self-start border-[1.5px] border-slate-7 bg-google transition",
-			{
-				active: "border-slate-8 bg-slate-2",
-			},
-		),
+		body: "group relative flex flex-row items-center justify-center gap-2 self-start border-[1.5px] border-slate-7 bg-google transition active:border-slate-8 active:bg-slate-2",
 		icon: "self-auto",
 	},
 	variants: {
