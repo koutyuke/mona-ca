@@ -40,3 +40,7 @@ yarn-error.log*
 
 # Rust
 target/
+
+# TypeScript
+**/tsconfig.tsbuildinfo
+**/*.tsbuildinfo

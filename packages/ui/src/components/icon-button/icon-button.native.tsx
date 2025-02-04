@@ -1,7 +1,6 @@
 import { twMerge } from "@mona-ca/tailwind-helpers";
-import type { ElementType, FC } from "react";
+import type { FC } from "react";
 import { Pressable } from "react-native";
-import type { PolymorphicProps } from "../../types";
 import { LoadingSpinner } from "../loading-spinner/index.native";
 import type { SupportColor, SupportSize, SupportVariant } from "./type";
 import { filledColorVariants } from "./variants/filled-color.variant";
@@ -27,8 +26,7 @@ type Props<P extends {}> = Variants & {
 	iconProps?: Omit<P, "className">;
 };
 
-const IconButton = <P extends {}, E extends ElementType = typeof Pressable>({
-	as,
+const IconButton = <P extends {}>({
 	size = "md",
 	variant = "outline",
 	color,
@@ -41,9 +39,8 @@ const IconButton = <P extends {}, E extends ElementType = typeof Pressable>({
 	icon,
 	iconProps,
 	...props
-}: PolymorphicProps<E, Props<P>>) => {
+}: Props<P>) => {
 	const Icon = icon as unknown as FC<{ className?: string }>;
-	const Component = as || Pressable;
 
 	const colorVariant =
 		variant === "outline"
@@ -81,14 +78,14 @@ const IconButton = <P extends {}, E extends ElementType = typeof Pressable>({
 	});
 
 	return (
-		<Component
+		<Pressable
 			className={twMerge(bodyStyle(), bodyColor(), bodyOverrideClassName)}
 			disabled={loading || disabled}
 			{...props}
 		>
 			<Icon className={twMerge(iconStyle(), iconColor(), iconOverrideClassName)} {...iconProps} />
 			{!disabled && loading && <LoadingSpinner className={twMerge(spinnerStyle(), spinnerColor())} />}
-		</Component>
+		</Pressable>
 	);
 };
 

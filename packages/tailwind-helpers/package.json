@@ -5,22 +5,18 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./transforms": "./src/babel/transforms.ts",
-    "./babel-plugin": "./dist/plugin.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
-    "prepare": "bun run build",
     "gen:pseudo-class": "bun run ./src/scripts/generate-pseudo-class.ts",
-    "build": "tsup",
     "check": "biome check --error-on-warnings --no-errors-on-unmatched",
     "check:fix": "bun run check --write",
-    "pretest": "bun run build",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@mona-ca/tailwind-config": "workspace:*",
+    "clsx": "^2.1.1",
     "tailwind-merge": "^2.4.0",
     "tailwind-variants": "^0.2.1"
   },

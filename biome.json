@@ -51,7 +51,7 @@
         "useSortedClasses": {
           "level": "warn",
           "options": {
-            "functions": ["tv", "twMerge", "twPseudo", "twColorPalette"]
+            "functions": ["tv", "twMerge", "cn", "clsx"]
           }
         }
       },
