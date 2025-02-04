@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@mona-ca/tailwind-config": "workspace:*",
+    "clsx": "^2.1.1",
     "tailwind-merge": "^2.4.0",
     "tailwind-variants": "^0.2.1"
   },

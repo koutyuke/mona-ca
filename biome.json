@@ -51,7 +51,7 @@
         "useSortedClasses": {
           "level": "warn",
           "options": {
-            "functions": ["tv", "twMerge"]
+            "functions": ["tv", "twMerge", "cn", "clsx"]
           }
         }
       },
