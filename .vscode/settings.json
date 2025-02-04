@@ -205,6 +205,7 @@
   "npm.packageManager": "bun",
   "svg.preview.background": "transparent",
   "tailwindCSS.experimental.classRegex": [
+    ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
     ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
     ["twMerge\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
     ["tv\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
