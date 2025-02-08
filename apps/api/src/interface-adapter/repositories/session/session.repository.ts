@@ -1,6 +1,6 @@
 import { eq, lte } from "drizzle-orm";
-import { Session } from "../../../entities/session";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
+import { Session } from "../../../models/entities/session";
 import type { ISessionRepository, SessionConstructor } from "./interfaces/session.repository.interface";
 
 export class SessionRepository implements ISessionRepository {

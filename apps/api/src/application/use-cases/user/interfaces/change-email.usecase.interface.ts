@@ -1,4 +1,4 @@
-import type { User } from "../../../../entities/user";
+import type { User } from "../../../../models/entities/user";
 
 export interface IChangeEmailUseCaseResult {
 	success: boolean;

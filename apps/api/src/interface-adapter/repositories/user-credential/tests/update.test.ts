@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { UserCredential } from "../../../../entities/user-credential";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { UserCredential } from "../../../../models/entities/user-credential";
 import { UserCredentialTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { UserCredentialRepository } from "../user-credential.repository";
 

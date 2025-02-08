@@ -1,4 +1,4 @@
-import type { OAuthAccount } from "../../../../entities/oauth-account";
+import type { OAuthAccount } from "../../../../models/entities/oauth-account";
 
 export interface IOAuthAccountRepository {
 	findByUserId(userId: OAuthAccount["userId"]): Promise<OAuthAccount | null>;

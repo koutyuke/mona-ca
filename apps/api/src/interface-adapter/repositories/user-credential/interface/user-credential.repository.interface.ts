@@ -1,4 +1,4 @@
-import type { UserCredential } from "../../../../entities/user-credential";
+import type { UserCredential } from "../../../../models/entities/user-credential";
 
 export interface IUserCredentialRepository {
 	create(

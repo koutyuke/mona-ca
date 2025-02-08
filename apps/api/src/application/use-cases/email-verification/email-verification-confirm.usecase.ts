@@ -1,6 +1,6 @@
-import type { User } from "../../../entities/user";
 import type { IEmailVerificationCodeRepository } from "../../../interface-adapter/repositories/email-verification-code";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
+import type { User } from "../../../models/entities/user";
 import type {
 	IEmailVerificationConfirmUseCase,
 	IEmailVerificationConfirmUseCaseResult,

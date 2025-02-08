@@ -8,8 +8,8 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
-import { oAuthProviderSchema } from "../../../../../entities/oauth-account";
 import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { oAuthProviderSchema } from "../../../../../models/entities/oauth-account";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { CookieService } from "../../../../../services/cookie";

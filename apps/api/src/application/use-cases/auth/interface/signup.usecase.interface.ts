@@ -1,5 +1,5 @@
-import type { Session } from "../../../../entities/session";
-import type { User } from "../../../../entities/user";
+import type { Session } from "../../../../models/entities/session";
+import type { User } from "../../../../models/entities/user";
 
 export interface ISignupUseCaseResult {
 	user: User;

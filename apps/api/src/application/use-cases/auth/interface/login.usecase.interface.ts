@@ -1,4 +1,4 @@
-import type { Session } from "../../../../entities/session";
+import type { Session } from "../../../../models/entities/session";
 
 export interface ILoginUseCaseResult {
 	session: Session;

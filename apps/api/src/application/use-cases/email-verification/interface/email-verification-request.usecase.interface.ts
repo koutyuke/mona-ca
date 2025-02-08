@@ -1,5 +1,5 @@
-import type { EmailVerificationCode } from "../../../../entities/email-verification-code";
-import type { User } from "../../../../entities/user";
+import type { EmailVerificationCode } from "../../../../models/entities/email-verification-code";
+import type { User } from "../../../../models/entities/user";
 
 export interface IEmailVerificationRequestUseCaseResult {
 	code: EmailVerificationCode | null;
