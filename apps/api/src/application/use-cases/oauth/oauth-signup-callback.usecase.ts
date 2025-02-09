@@ -6,7 +6,7 @@ import type { ISessionRepository } from "../../../interface-adapter/repositories
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
 import type { OAuthProvider } from "../../../models/entities/oauth-account";
-import type { ISessionTokenService } from "../../../services/session-token";
+import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	IOAuthSignupCallbackUseCase,
 	IOAuthSignupCallbackUseCaseResult,

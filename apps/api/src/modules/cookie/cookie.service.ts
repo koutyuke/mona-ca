@@ -1,7 +1,6 @@
 import { Value } from "@sinclair/typebox/value";
 import type { Cookie, Static, TSchema } from "elysia";
-import type { ICookieService, RemoveIndexSignature } from "./interfaces/cookie.service.interface";
-import type { CookieAttributes } from "./interfaces/cookie.type";
+import type { CookieAttributes, ICookieService, RemoveIndexSignature } from "./interfaces/cookie.service.interface";
 
 export class CookieService<
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

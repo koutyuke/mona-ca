@@ -5,8 +5,8 @@ import type { IUserRepository } from "../../../interface-adapter/repositories/us
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
 import type { Session } from "../../../models/entities/session";
 import type { User } from "../../../models/entities/user";
-import type { IPasswordService } from "../../../services/password";
-import type { ISessionTokenService } from "../../../services/session-token";
+import type { IPasswordService } from "../../services/password";
+import type { ISessionTokenService } from "../../services/session-token";
 import type { ISignupUseCase } from "./interfaces/signup.usecase.interface";
 
 export class SignupUseCase implements ISignupUseCase {

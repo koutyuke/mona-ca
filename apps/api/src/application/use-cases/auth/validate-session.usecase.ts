@@ -2,7 +2,7 @@ import { sessionExpiresSpan, sessionRefreshSpan } from "../../../common/constant
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import { Session } from "../../../models/entities/session";
-import type { ISessionTokenService } from "../../../services/session-token";
+import type { ISessionTokenService } from "../../services/session-token";
 import type { IValidateSessionUseCase, IValidateSessionUseCaseResult } from "./interfaces/validate-session.usecase";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {

@@ -1,5 +1,6 @@
 import { getAPIBaseUrl, getMobileScheme, getWebBaseUrl, validateRedirectUrl } from "@mona-ca/core/utils";
 import { t } from "elysia";
+import { SessionTokenService } from "../../../../../application/services/session-token";
 import { OAuthLoginCallbackUseCase } from "../../../../../application/use-cases/oauth";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -17,7 +18,6 @@ import { oAuthProviderSchema } from "../../../../../models/entities/oauth-accoun
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
-import { SessionTokenService } from "../../../../../services/session-token";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),

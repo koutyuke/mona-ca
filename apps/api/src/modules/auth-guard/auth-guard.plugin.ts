@@ -1,3 +1,4 @@
+import { SessionTokenService } from "../../application/services/session-token";
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { readBearerToken } from "../../common/utils";
@@ -6,7 +7,6 @@ import { SessionRepository } from "../../interface-adapter/repositories/session"
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import type { Session } from "../../models/entities/session";
 import type { User } from "../../models/entities/user";
-import { SessionTokenService } from "../../services/session-token";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { UnauthorizedException } from "../error/exceptions";
 

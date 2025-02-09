@@ -1,4 +1,4 @@
-import { Argon2idService, type IArgon2idService } from "../../infrastructure/argon2id";
+import { Argon2idService, type IArgon2idService } from "../../../infrastructure/argon2id";
 import type { IPasswordService } from "./interfaces/password.service.interface";
 
 export class PasswordService implements IPasswordService {
