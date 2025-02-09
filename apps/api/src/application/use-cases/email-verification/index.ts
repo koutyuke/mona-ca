@@ -3,8 +3,8 @@ export { EmailVerificationConfirmUseCase } from "./email-verification-confirm.us
 export type {
 	IEmailVerificationRequestUseCase,
 	IEmailVerificationRequestUseCaseResult,
-} from "./interface/email-verification-request.usecase.interface";
+} from "./interfaces/email-verification-request.usecase.interface";
 export type {
 	IEmailVerificationConfirmUseCase,
 	IEmailVerificationConfirmUseCaseResult,
-} from "./interface/email-verification-confirm.usecase.interface";
+} from "./interfaces/email-verification-confirm.usecase.interface";

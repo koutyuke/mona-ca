@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { UserCredential } from "../../../entities/user-credential";
+import { UserCredential } from "../../../domain/entities/user-credential";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { IUserCredentialRepository } from "./interface/user-credential.repository.interface";
+import type { IUserCredentialRepository } from "./interfaces/user-credential.repository.interface";
 
 export class UserCredentialRepository implements IUserCredentialRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}

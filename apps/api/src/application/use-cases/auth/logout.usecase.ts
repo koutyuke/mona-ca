@@ -1,6 +1,6 @@
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { ISessionTokenService } from "../../../services/session-token";
-import type { ILogoutUseCase } from "./interface/logout.usecase.interface";
+import type { ISessionTokenService } from "../../services/session-token";
+import type { ILogoutUseCase } from "./interfaces/logout.usecase.interface";
 
 export class LogoutUseCase implements ILogoutUseCase {
 	constructor(

@@ -1,5 +1,6 @@
 import { getAPIBaseUrl, getMobileScheme, getWebBaseUrl, validateRedirectUrl } from "@mona-ca/core/utils";
 import { t } from "elysia";
+import { SessionTokenService } from "../../../../../application/services/session-token";
 import { OAuthLoginCallbackUseCase } from "../../../../../application/use-cases/oauth";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -9,15 +10,14 @@ import {
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../entities/oauth-account";
+import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
-import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../../../interface-adapter/repositories/session";
+import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
-import { CookieService } from "../../../../../services/cookie";
-import { SessionTokenService } from "../../../../../services/session-token";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -71,7 +71,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 			const sessionRepository = new SessionRepository(drizzleService);
 			const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
-			const oAuthProviderGateway = selectOAuthProviderGateway({
+			const oAuthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),

@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
+import { SessionTokenService } from "../../application/services/session-token";
 import { sessionExpiresSpan } from "../../common/constants";
-import { SessionTokenService } from "../../services/session-token";
 
 export type DatabaseSession = {
 	id: string;

@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
-import type { Session } from "../../../entities/session";
-import { User } from "../../../entities/user";
+import type { Session } from "../../../domain/entities/session";
+import { User } from "../../../domain/entities/user";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { IUserRepository } from "./interface/user.repository.interface";
+import type { IUserRepository } from "./interfaces/user.repository.interface";
 
 export class UserRepository implements IUserRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}

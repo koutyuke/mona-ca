@@ -1,13 +1,13 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { ulid } from "../../../common/utils";
-import type { Session } from "../../../entities/session";
-import type { User } from "../../../entities/user";
+import type { Session } from "../../../domain/entities/session";
+import type { User } from "../../../domain/entities/user";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
-import type { IPasswordService } from "../../../services/password";
-import type { ISessionTokenService } from "../../../services/session-token";
-import type { ISignupUseCase } from "./interface/signup.usecase.interface";
+import type { IPasswordService } from "../../services/password";
+import type { ISessionTokenService } from "../../services/session-token";
+import type { ISignupUseCase } from "./interfaces/signup.usecase.interface";
 
 export class SignupUseCase implements ISignupUseCase {
 	constructor(

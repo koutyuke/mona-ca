@@ -1,5 +1,5 @@
-import type { OAuthProvider } from "../../../../entities/oauth-account";
-import type { Session } from "../../../../entities/session";
+import type { OAuthProvider } from "../../../../domain/entities/oauth-account";
+import type { Session } from "../../../../domain/entities/session";
 
 export interface IOAuthLoginCallbackUseCaseResult {
 	session: Session;

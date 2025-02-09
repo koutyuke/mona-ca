@@ -7,12 +7,12 @@ import {
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../../../common/constants";
-import { clientSchema } from "../../../../../common/schema";
-import { oAuthProviderSchema } from "../../../../../entities/oauth-account";
-import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { clientSchema, genderSchema } from "../../../../../common/schema";
+import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
+import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
-import { CookieService } from "../../../../../services/cookie";
 import { ProviderCallback } from "./callback";
 
 const cookieSchemaObject = {
@@ -21,7 +21,7 @@ const cookieSchemaObject = {
 	[OAUTH_REDIRECT_URL_COOKIE_NAME]: t.Optional(t.String()),
 	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
 		t.Object({
-			gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
+			gender: genderSchema,
 		}),
 	),
 };
@@ -60,7 +60,7 @@ export const Provider = new ElysiaWithEnv({
 			const providerRedirectUrl = new URL(`auth/${client}/signup/${provider}/callback`, apiBaseUrl);
 
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
-			const oAuthProviderGateway = selectOAuthProviderGateway({
+			const oAuthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),
@@ -111,7 +111,7 @@ export const Provider = new ElysiaWithEnv({
 			},
 			query: t.Object({
 				"redirect-url": t.Optional(t.String()),
-				gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
+				gender: genderSchema,
 			}),
 			params: t.Object({
 				client: clientSchema,

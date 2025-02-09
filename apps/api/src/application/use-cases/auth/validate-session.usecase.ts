@@ -1,9 +1,9 @@
 import { sessionExpiresSpan, sessionRefreshSpan } from "../../../common/constants";
-import { Session } from "../../../entities/session";
+import { Session } from "../../../domain/entities/session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { ISessionTokenService } from "../../../services/session-token";
-import type { IValidateSessionUseCase, IValidateSessionUseCaseResult } from "./interface/validate-session.usecase";
+import type { ISessionTokenService } from "../../services/session-token";
+import type { IValidateSessionUseCase, IValidateSessionUseCaseResult } from "./interfaces/validate-session.usecase";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(

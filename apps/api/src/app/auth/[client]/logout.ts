@@ -1,13 +1,13 @@
 import { t } from "elysia";
+import { SessionTokenService } from "../../../application/services/session-token";
 import { LogoutUseCase } from "../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../../common/constants";
 import { clientSchema } from "../../../common/schema";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { authGuard } from "../../../modules/auth-guard";
+import { CookieService } from "../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
-import { CookieService } from "../../../services/cookie";
-import { SessionTokenService } from "../../../services/session-token";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),

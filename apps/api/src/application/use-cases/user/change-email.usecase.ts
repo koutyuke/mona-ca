@@ -1,4 +1,4 @@
-import type { User } from "../../../entities/user";
+import type { User } from "../../../domain/entities/user";
 import type { IEmailVerificationCodeRepository } from "../../../interface-adapter/repositories/email-verification-code";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IChangeEmailUseCase, IChangeEmailUseCaseResult } from "./interfaces/change-email.usecase.interface";

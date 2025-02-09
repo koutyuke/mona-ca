@@ -1,7 +1,7 @@
 import { Value } from "@sinclair/typebox/value";
 import { Discord as DiscordProvider, type OAuth2Tokens } from "arctic";
 import { t } from "elysia";
-import type { AccountInfo, IOAuthProviderGateway } from "../interface/oauth-provider.gateway.interface";
+import type { AccountInfo, IOAuthProviderGateway } from "../interfaces/oauth-provider.gateway.interface";
 
 const discordAccountInfoSchema = t.Object({
 	id: t.String(),
