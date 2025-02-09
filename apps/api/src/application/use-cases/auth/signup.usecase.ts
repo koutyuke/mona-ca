@@ -1,10 +1,10 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { ulid } from "../../../common/utils";
+import type { Session } from "../../../domain/entities/session";
+import type { User } from "../../../domain/entities/user";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
-import type { Session } from "../../../models/entities/session";
-import type { User } from "../../../models/entities/user";
 import type { IPasswordService } from "../../services/password";
 import type { ISessionTokenService } from "../../services/session-token";
 import type { ISignupUseCase } from "./interfaces/signup.usecase.interface";

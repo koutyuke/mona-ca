@@ -10,11 +10,11 @@ import {
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme } from "../../../../../common/utils";
+import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../../../interface-adapter/repositories/session";
-import { oAuthProviderSchema } from "../../../../../models/entities/oauth-account";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";

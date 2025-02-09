@@ -1,4 +1,4 @@
-import type { OAuthProvider } from "../../../models/entities/oauth-account";
+import type { OAuthProvider } from "../../../domain/entities/oauth-account";
 import type { OAuthProviderEnv } from "../../../modules/env";
 import type { IOAuthProviderGateway } from "./interfaces/oauth-provider.gateway.interface";
 import { DiscordOAuthGateway } from "./providers/discord.gateway";

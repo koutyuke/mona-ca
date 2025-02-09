@@ -1,11 +1,11 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { ulid } from "../../../common/utils";
+import type { OAuthProvider } from "../../../domain/entities/oauth-account";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
-import type { OAuthProvider } from "../../../models/entities/oauth-account";
 import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	IOAuthSignupCallbackUseCase,

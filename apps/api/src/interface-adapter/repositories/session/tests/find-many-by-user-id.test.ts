@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
+import { Session } from "../../../../domain/entities/session";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
-import { Session } from "../../../../models/entities/session";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
 

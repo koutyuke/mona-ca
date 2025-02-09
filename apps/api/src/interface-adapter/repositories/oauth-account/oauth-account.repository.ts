@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
+import { OAuthAccount } from "../../../domain/entities/oauth-account";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import { OAuthAccount } from "../../../models/entities/oauth-account";
 import type { IOAuthAccountRepository } from "./interfaces/oauth-account.repository.interface";
 
 export class OAuthAccountRepository implements IOAuthAccountRepository {

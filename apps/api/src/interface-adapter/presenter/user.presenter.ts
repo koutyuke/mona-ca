@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import type { User } from "../../models/entities/user";
+import type { User } from "../../domain/entities/user";
 
 export type UserPresenterResult = {
 	id: string;

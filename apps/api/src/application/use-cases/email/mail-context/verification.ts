@@ -1,5 +1,5 @@
 import { MC_DEFAULT_EMAIL_ADDRESS } from "@mona-ca/core/const";
-import type { EmailVerificationCode } from "../../../../models/entities/email-verification-code";
+import type { EmailVerificationCode } from "../../../../domain/entities/email-verification-code";
 import type { EmailContext } from "./type";
 
 export const verificationEmailTemplate = (code: EmailVerificationCode): EmailContext => {
