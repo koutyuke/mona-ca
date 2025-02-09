@@ -8,7 +8,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
-import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { oAuthProviderSchema } from "../../../../../models/entities/oauth-account";
 import { CookieService } from "../../../../../models/services/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
@@ -60,7 +60,7 @@ export const Provider = new ElysiaWithEnv({
 			const providerRedirectUrl = new URL(`auth/${client}/signup/${provider}/callback`, apiBaseUrl);
 
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
-			const oAuthProviderGateway = selectOAuthProviderGateway({
+			const oAuthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),

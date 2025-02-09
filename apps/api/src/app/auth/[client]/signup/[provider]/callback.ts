@@ -11,7 +11,7 @@ import {
 import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme } from "../../../../../common/utils";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
-import { selectOAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
+import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
@@ -81,7 +81,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 			const userRepository = new UserRepository(drizzleService);
 			const userCredentialRepository = new UserCredentialRepository(drizzleService);
 
-			const oAuthProviderGateway = selectOAuthProviderGateway({
+			const oAuthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),
