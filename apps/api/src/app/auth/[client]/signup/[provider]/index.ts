@@ -7,7 +7,7 @@ import {
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../../../common/constants";
-import { clientSchema } from "../../../../../common/schema";
+import { clientSchema, genderSchema } from "../../../../../common/schema";
 import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
@@ -21,7 +21,7 @@ const cookieSchemaObject = {
 	[OAUTH_REDIRECT_URL_COOKIE_NAME]: t.Optional(t.String()),
 	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
 		t.Object({
-			gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
+			gender: genderSchema,
 		}),
 	),
 };
@@ -111,7 +111,7 @@ export const Provider = new ElysiaWithEnv({
 			},
 			query: t.Object({
 				"redirect-url": t.Optional(t.String()),
-				gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
+				gender: genderSchema,
 			}),
 			params: t.Object({
 				client: clientSchema,

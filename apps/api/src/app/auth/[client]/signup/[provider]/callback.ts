@@ -9,7 +9,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "../../../../../common/constants";
-import { clientSchema } from "../../../../../common/schema";
+import { clientSchema, genderSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme } from "../../../../../common/utils";
 import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
@@ -35,7 +35,7 @@ const cookieSchemaObject = {
 	}),
 	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
 		t.Object({
-			gender: t.Optional(t.Union([t.Literal("man"), t.Literal("woman")])),
+			gender: genderSchema,
 		}),
 	),
 };
