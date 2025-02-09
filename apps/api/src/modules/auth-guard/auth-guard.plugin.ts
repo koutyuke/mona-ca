@@ -6,7 +6,7 @@ import { SessionRepository } from "../../interface-adapter/repositories/session"
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import type { Session } from "../../models/entities/session";
 import type { User } from "../../models/entities/user";
-import { SessionTokenService } from "../../models/services/session-token";
+import { SessionTokenService } from "../../services/session-token";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { UnauthorizedException } from "../error/exceptions";
 

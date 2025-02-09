@@ -10,9 +10,9 @@ import {
 import { clientSchema } from "../../../../../common/schema";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { oAuthProviderSchema } from "../../../../../models/entities/oauth-account";
-import { CookieService } from "../../../../../models/services/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
+import { CookieService } from "../../../../../services/cookie";
 import { ProviderCallback } from "./callback";
 
 const cookieSchemaObject = {

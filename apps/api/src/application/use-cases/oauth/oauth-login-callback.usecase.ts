@@ -3,7 +3,7 @@ import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/o
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { OAuthProvider } from "../../../models/entities/oauth-account";
-import type { ISessionTokenService } from "../../../models/services/session-token";
+import type { ISessionTokenService } from "../../../services/session-token";
 import type {
 	IOAuthLoginCallbackUseCase,
 	IOAuthLoginCallbackUseCaseResult,
