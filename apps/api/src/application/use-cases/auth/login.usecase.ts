@@ -4,7 +4,7 @@ import type { IUserRepository } from "../../../interface-adapter/repositories/us
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
 import type { IPasswordService } from "../../../models/services/password";
 import type { ISessionTokenService } from "../../../models/services/session-token";
-import type { ILoginUseCase, ILoginUseCaseResult } from "./interface/login.usecase.interface";
+import type { ILoginUseCase, ILoginUseCaseResult } from "./interfaces/login.usecase.interface";
 
 export class LoginUseCase implements ILoginUseCase {
 	constructor(

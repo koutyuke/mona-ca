@@ -1,6 +1,6 @@
 import type { OAuthProvider } from "../../../models/entities/oauth-account";
 import type { OAuthProviderEnv } from "../../../modules/env";
-import type { IOAuthProviderGateway } from "./interface/oauth-provider.gateway.interface";
+import type { IOAuthProviderGateway } from "./interfaces/oauth-provider.gateway.interface";
 import { DiscordOAuthGateway } from "./providers/discord.gateway";
 
 const OAuthProviderGateway = (args: {

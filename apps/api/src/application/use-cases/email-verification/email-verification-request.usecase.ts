@@ -6,7 +6,7 @@ import type { User } from "../../../models/entities/user";
 import type {
 	IEmailVerificationRequestUseCase,
 	IEmailVerificationRequestUseCaseResult,
-} from "./interface/email-verification-request.usecase.interface";
+} from "./interfaces/email-verification-request.usecase.interface";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(

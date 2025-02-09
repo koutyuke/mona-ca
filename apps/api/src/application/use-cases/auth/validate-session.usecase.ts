@@ -3,7 +3,7 @@ import type { ISessionRepository } from "../../../interface-adapter/repositories
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import { Session } from "../../../models/entities/session";
 import type { ISessionTokenService } from "../../../models/services/session-token";
-import type { IValidateSessionUseCase, IValidateSessionUseCaseResult } from "./interface/validate-session.usecase";
+import type { IValidateSessionUseCase, IValidateSessionUseCaseResult } from "./interfaces/validate-session.usecase";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(

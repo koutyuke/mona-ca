@@ -4,7 +4,7 @@ import type { User } from "../../../models/entities/user";
 import type {
 	IEmailVerificationConfirmUseCase,
 	IEmailVerificationConfirmUseCaseResult,
-} from "./interface/email-verification-confirm.usecase.interface";
+} from "./interfaces/email-verification-confirm.usecase.interface";
 
 export class EmailVerificationConfirmUseCase implements IEmailVerificationConfirmUseCase {
 	constructor(

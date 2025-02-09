@@ -7,7 +7,7 @@ import type { Session } from "../../../models/entities/session";
 import type { User } from "../../../models/entities/user";
 import type { IPasswordService } from "../../../models/services/password";
 import type { ISessionTokenService } from "../../../models/services/session-token";
-import type { ISignupUseCase } from "./interface/signup.usecase.interface";
+import type { ISignupUseCase } from "./interfaces/signup.usecase.interface";
 
 export class SignupUseCase implements ISignupUseCase {
 	constructor(

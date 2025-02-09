@@ -1,7 +1,7 @@
 import { validateRedirectUrl } from "@mona-ca/core/utils";
 import { generateCodeVerifier, generateState } from "arctic";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
-import type { IOAuthRequestUseCase, IOAuthRequestUseCaseResult } from "./interface/oauth-request.usecase.interface";
+import type { IOAuthRequestUseCase, IOAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
 
 export class OAuthRequestUseCase implements IOAuthRequestUseCase {
 	constructor(private oAuthProviderGateway: IOAuthProviderGateway) {}

@@ -1,2 +1,2 @@
 export { UserCredentialRepository } from "./user-credential.repository";
-export type { IUserCredentialRepository } from "./interface/user-credential.repository.interface";
+export type { IUserCredentialRepository } from "./interfaces/user-credential.repository.interface";

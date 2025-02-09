@@ -10,7 +10,7 @@ import type { ISessionTokenService } from "../../../models/services/session-toke
 import type {
 	IOAuthSignupCallbackUseCase,
 	IOAuthSignupCallbackUseCaseResult,
-} from "./interface/oauth-signup-callback.usecase.interface";
+} from "./interfaces/oauth-signup-callback.usecase.interface";
 
 export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 	constructor(
