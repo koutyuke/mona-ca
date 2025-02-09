@@ -5,8 +5,8 @@ import { clientSchema } from "../../../common/schema";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { authGuard } from "../../../modules/auth-guard";
+import { CookieService } from "../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
-import { CookieService } from "../../../services/cookie";
 import { SessionTokenService } from "../../../services/session-token";
 
 const cookieSchemaObject = {

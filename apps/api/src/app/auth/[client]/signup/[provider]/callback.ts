@@ -17,9 +17,9 @@ import { SessionRepository } from "../../../../../interface-adapter/repositories
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../../interface-adapter/repositories/user-credential";
 import { oAuthProviderSchema } from "../../../../../models/entities/oauth-account";
+import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
-import { CookieService } from "../../../../../services/cookie";
 import { SessionTokenService } from "../../../../../services/session-token";
 
 const cookieSchemaObject = {

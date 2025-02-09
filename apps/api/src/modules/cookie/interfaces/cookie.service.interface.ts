@@ -1,5 +1,14 @@
 import type { Cookie, Static, TSchema } from "elysia";
-import type { CookieAttributes } from "./cookie.type";
+
+export type CookieAttributes = {
+	secure?: boolean;
+	path?: string;
+	domain?: string;
+	sameSite?: "lax" | "strict" | "none";
+	httpOnly?: boolean;
+	maxAge?: number;
+	expires?: Date;
+};
 
 export type RemoveIndexSignature<T> = {
 	[K in keyof T as K extends string ? (string extends K ? never : K) : never]: T[K];
