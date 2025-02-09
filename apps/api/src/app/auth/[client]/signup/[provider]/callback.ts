@@ -17,10 +17,10 @@ import { SessionRepository } from "../../../../../interface-adapter/repositories
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../../interface-adapter/repositories/user-credential";
 import { oAuthProviderSchema } from "../../../../../models/entities/oauth-account";
+import { CookieService } from "../../../../../models/services/cookie";
+import { SessionTokenService } from "../../../../../models/services/session-token";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
-import { CookieService } from "../../../../../services/cookie";
-import { SessionTokenService } from "../../../../../services/session-token";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),

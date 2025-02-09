@@ -6,11 +6,11 @@ import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
+import { CookieService } from "../../../../models/services/cookie";
+import { PasswordService } from "../../../../models/services/password";
+import { SessionTokenService } from "../../../../models/services/session-token";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
 import { rateLimiter } from "../../../../modules/rate-limiter";
-import { CookieService } from "../../../../services/cookie";
-import { PasswordService } from "../../../../services/password";
-import { SessionTokenService } from "../../../../services/session-token";
 import { Provider } from "./[provider]";
 
 const cookieSchemaObject = {
