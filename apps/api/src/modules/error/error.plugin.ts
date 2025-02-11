@@ -7,72 +7,117 @@ import {
 	ImATeapotException,
 	InternalServerErrorException,
 	MethodNotAllowedException,
-	NotImplementedException,
+	ResponseException,
 	ServiceUnavailableException,
 	UnauthorizedException,
 } from "./exceptions";
 
 /**
- * 400 - Bad Request
- * BadRequestException
+ * Initializes an Elysia error handling plugin with the specified error handling configuration.
  *
- * 401 - Unauthorized
- * UnauthorizedException
+ * 400 - Bad Request: BadRequestException
  *
- * 403 - Forbidden
- * ForbiddenException
+ * 401 - Unauthorized: UnauthorizedException
  *
- * 404 - Not Found
- * Elysia handles this by default
+ * 403 - Forbidden: ForbiddenException
  *
- * 405 - Method Not Allowed
- * MethodNotAllowedException
+ * 404 - Not Found: Elysia handles this by default
  *
- * 409 - Conflict
- * ConflictException
+ * 405 - Method Not Allowed: MethodNotAllowedException
  *
- * 418 - I'm a teapot
- * ImATeapotException
+ * 409 - Conflict: ConflictException
  *
- * 500 - Internal Server Error
- * InternalServerErrorException
+ * 418 - I'm a teapot: ImATeapotException
  *
- * 501 - Not Implemented
- * NotImplementedException
+ * 500 - Internal Server Error: InternalServerErrorException
  *
- * 502 - Bad Gateway
- * BadGatewayException
+ * 502 - Bad Gateway: BadGatewayException
  *
- * 503 - Service Unavailable
- * ServiceUnavailableException
+ * 503 - Service Unavailable: ServiceUnavailableException
+ *
+ * @example
+ * const error = new Elysia({
+ *   name: "@mona-ca/error",
+ * })
+ * .error({
+ *   BadGatewayException,
+ *   BadRequestException,
+ *   ConflictException,
+ *   ForbiddenException,
+ *   ImATeapotException,
+ *   InternalServerErrorException,
+ *   MethodNotAllowedException,
+ *   ServiceUnavailableException,
+ *   UnauthorizedException,
+ * })
+ * .onError({ as: "global" }, ctx => {
+ *   const { code, error, set } = ctx;
+ *
+ *   console.log(ctx);
+ *
+ *   if (error instanceof ResponseException) {
+ *     set.status = error.status;
+ *     return {
+ *       error: error.code,
+ *       message: error.message,
+ *     };
+ *   }
+ *
+ *   return error;
+ * });
  */
-
 const error = new Elysia({
 	name: "@mona-ca/error",
 })
 	.error({
-		BadGatewayException,
+		ResponseException,
 		BadRequestException,
-		ConflictException,
+		UnauthorizedException,
 		ForbiddenException,
+		MethodNotAllowedException,
+		ConflictException,
 		ImATeapotException,
 		InternalServerErrorException,
-		MethodNotAllowedException,
-		NotImplementedException,
+		BadGatewayException,
 		ServiceUnavailableException,
-		UnauthorizedException,
 	})
-	.onError({ as: "global" }, ctx => {
-		const { code, error } = ctx;
-
-		if (code !== "NOT_FOUND") {
-			console.error({
-				name: "Not Found",
-				message: "The requested resource was not found",
-			});
+	.onError({ as: "global" }, ({ code, error, set }) => {
+		if (error instanceof ResponseException) {
+			set.status = error.status;
+			return {
+				error: error.code,
+				message: error.message,
+			};
 		}
 
-		return error;
+		switch (code) {
+			case "NOT_FOUND":
+				set.status = 404;
+				return {
+					error: "NOT_FOUND",
+					message: "The requested resource was not found.",
+				};
+			case "VALIDATION":
+				set.status = 400;
+				console.error(error.message);
+
+				return {
+					error: "VALIDATION",
+					message: JSON.parse(error.message).summary.replace("  ", " "),
+				};
+		}
+
+		console.error(error);
+
+		set.status = 500;
+		return {
+			error: "INTERNAL_SERVER_ERROR",
+			name: error.toString(),
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			cause: (error as any).cause ?? null,
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			stack: (error as any).stack ?? null,
+		};
 	});
 
 export { error };

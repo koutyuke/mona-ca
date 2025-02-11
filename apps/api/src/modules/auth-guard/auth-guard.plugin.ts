@@ -8,7 +8,7 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "../elysia-with-env";
-import { UnauthorizedException } from "../error/exceptions";
+import { UnauthorizedException } from "../error";
 
 type AuthGuardOptions<T extends boolean> = {
 	requireEmailVerification?: boolean;
