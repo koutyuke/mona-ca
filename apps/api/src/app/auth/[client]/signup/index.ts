@@ -3,7 +3,7 @@ import { PasswordService } from "../../../../application/services/password";
 import { SessionTokenService } from "../../../../application/services/session-token";
 import { SignupUseCase } from "../../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../../../common/constants";
-import { clientSchema } from "../../../../common/schema";
+import { clientSchema, genderSchema } from "../../../../common/schema";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
@@ -101,7 +101,7 @@ export const Signup = new ElysiaWithEnv({
 					minLength: 3,
 					maxLength: 32,
 				}),
-				gender: t.Union([t.Literal("man"), t.Literal("woman")]),
+				gender: genderSchema,
 			}),
 		},
 	);

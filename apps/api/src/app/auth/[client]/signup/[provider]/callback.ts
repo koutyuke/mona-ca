@@ -36,7 +36,7 @@ const cookieSchemaObject = {
 	}),
 	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
 		t.Object({
-			gender: genderSchema,
+			gender: t.Optional(genderSchema),
 		}),
 	),
 };

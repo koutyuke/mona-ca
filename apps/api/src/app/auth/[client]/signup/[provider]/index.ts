@@ -22,7 +22,7 @@ const cookieSchemaObject = {
 	[OAUTH_REDIRECT_URL_COOKIE_NAME]: t.Optional(t.String()),
 	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
 		t.Object({
-			gender: genderSchema,
+			gender: t.Optional(genderSchema),
 		}),
 	),
 };
@@ -108,7 +108,7 @@ export const Provider = new ElysiaWithEnv({
 			},
 			query: t.Object({
 				"redirect-url": t.Optional(t.String()),
-				gender: genderSchema,
+				gender: t.Optional(genderSchema),
 			}),
 			params: t.Object({
 				client: clientSchema,
