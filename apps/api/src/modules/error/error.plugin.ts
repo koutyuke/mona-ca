@@ -9,6 +9,7 @@ import {
 	MethodNotAllowedException,
 	ResponseException,
 	ServiceUnavailableException,
+	TooManyRequestsException,
 	UnauthorizedException,
 } from "./exceptions";
 
@@ -28,6 +29,8 @@ import {
  * 409 - Conflict: ConflictException
  *
  * 418 - I'm a teapot: ImATeapotException
+ *
+ * 429 - Too Many Requests: TooManyRequestsException
  *
  * 500 - Internal Server Error: InternalServerErrorException
  *
@@ -77,11 +80,23 @@ const error = new Elysia({
 		MethodNotAllowedException,
 		ConflictException,
 		ImATeapotException,
+		TooManyRequestsException,
 		InternalServerErrorException,
 		BadGatewayException,
 		ServiceUnavailableException,
 	})
 	.onError({ as: "global" }, ({ code, error, set }) => {
+		if (error instanceof TooManyRequestsException) {
+			set.status = error.status;
+			set.headers = {
+				"x-ratelimit-reset": error.reset,
+			};
+			return {
+				code: error.code,
+				message: error.message,
+			};
+		}
+
 		if (error instanceof ResponseException) {
 			set.status = error.status;
 			return {

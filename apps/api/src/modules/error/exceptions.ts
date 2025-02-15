@@ -53,10 +53,29 @@ class ConflictException extends ResponseException {
 }
 
 class ImATeapotException extends ResponseException {
-	constructor(option?: { name?: string; message?: string }) {
-		const { name, message } = option ?? {};
-		super("IM_A_TEAPOT", 418, message ?? "I'm a teapot. This request cannot be handled by a coffee pot.");
-		this.name = name ?? "IM_A_TEAPOT";
+	constructor(option?: { name?: string; message?: string; code?: string }) {
+		const { name, message, code } = option ?? {};
+		super(
+			name ?? "IM_A_TEAPOT",
+			message ?? "I'm a teapot. This request cannot be handled by a coffee pot.",
+			code ?? name ?? "IM_A_TEAPOT",
+			418,
+		);
+	}
+}
+
+class TooManyRequestsException extends ResponseException {
+	constructor(
+		public readonly reset: number,
+		option?: { name?: string; message?: string; code?: string },
+	) {
+		const { name, message, code } = option ?? {};
+		super(
+			name ?? "TOO_MANY_REQUESTS",
+			message ?? "You have sent too many requests in a given amount of time.",
+			code ?? name ?? "TOO_MANY_REQUESTS",
+			429,
+		);
 	}
 }
 
@@ -92,6 +111,7 @@ export {
 	MethodNotAllowedException,
 	ConflictException,
 	ImATeapotException,
+	TooManyRequestsException,
 	InternalServerErrorException,
 	BadGatewayException,
 	ServiceUnavailableException,
