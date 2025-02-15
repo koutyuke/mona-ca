@@ -100,7 +100,7 @@ const error = new Elysia({
 		if (error instanceof ResponseException) {
 			set.status = error.status;
 			return {
-				error: error.code,
+				code: error.code,
 				message: error.message,
 			};
 		}
@@ -109,7 +109,7 @@ const error = new Elysia({
 			case "NOT_FOUND":
 				set.status = 404;
 				return {
-					error: "NOT_FOUND",
+					code: "NOT_FOUND",
 					message: "The requested resource was not found.",
 				};
 			case "VALIDATION":
@@ -117,7 +117,7 @@ const error = new Elysia({
 				console.error(error.message);
 
 				return {
-					error: "VALIDATION",
+					code: "VALIDATION",
 					message: JSON.parse(error.message).summary.replace("  ", " "),
 				};
 		}
@@ -126,8 +126,8 @@ const error = new Elysia({
 
 		set.status = 500;
 		return {
-			error: "INTERNAL_SERVER_ERROR",
-			name: error.toString(),
+			code: "INTERNAL_SERVER_ERROR",
+			error: error.toString(),
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			cause: (error as any).cause ?? null,
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
