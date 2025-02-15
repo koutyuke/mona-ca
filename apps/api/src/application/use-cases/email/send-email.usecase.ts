@@ -1,4 +1,4 @@
-import { renderAsync } from "@react-email/render";
+import { render } from "@react-email/render";
 import type { ReactElement } from "react";
 import { type CreateEmailOptions, type CreateEmailRequestOptions, type CreateEmailResponse, Resend } from "resend";
 import type { ISendEmailUseCase } from "./interfaces/send-email.usecase.interface";
@@ -40,7 +40,7 @@ export class SendEmailUseCase implements ISendEmailUseCase {
 		emailRenderOptions: RequireAtLeastOne<EmailRenderOptions>,
 	): Promise<{ text: string | undefined; html: string | undefined }> {
 		if (emailRenderOptions.react) {
-			emailRenderOptions.html = await renderAsync(emailRenderOptions.react as ReactElement);
+			emailRenderOptions.html = await render(emailRenderOptions.react as ReactElement);
 		}
 
 		return {
