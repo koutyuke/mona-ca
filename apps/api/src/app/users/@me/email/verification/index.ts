@@ -7,6 +7,7 @@ import { EmailVerificationCodeRepository } from "../../../../../interface-adapte
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { TooManyRequestsException } from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { VerificationConfirm } from "./confirm";
 
@@ -63,15 +64,11 @@ const Verification = new ElysiaWithEnv({
 			return null;
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, user }) => {
+			beforeHandle: async ({ rateLimiter, user }) => {
 				const { success, reset } = await rateLimiter.consume(user.id, 1);
 
 				if (!success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: reset,
-					};
+					throw new TooManyRequestsException(reset);
 				}
 				return;
 			},

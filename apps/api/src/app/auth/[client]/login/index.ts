@@ -10,6 +10,7 @@ import { UserRepository } from "../../../../interface-adapter/repositories/user"
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { TooManyRequestsException } from "../../../../modules/error";
 import { rateLimiter } from "../../../../modules/rate-limiter";
 import { Provider } from "./[provider]";
 
@@ -77,14 +78,10 @@ export const Login = new ElysiaWithEnv({
 			return null;
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, ip, body: { email } }) => {
+			beforeHandle: async ({ rateLimiter, ip, body: { email } }) => {
 				const [ipResult, emailResult] = await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(email, 10)]);
 				if (!ipResult.success || !emailResult.success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: !ipResult.success ? ipResult.reset : emailResult.reset,
-					};
+					throw new TooManyRequestsException(!ipResult.success ? ipResult.reset : emailResult.reset);
 				}
 				return;
 			},

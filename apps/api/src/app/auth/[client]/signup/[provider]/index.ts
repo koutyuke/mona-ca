@@ -12,6 +12,7 @@ import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-accoun
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { TooManyRequestsException } from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { ProviderCallback } from "./callback";
 
@@ -98,14 +99,10 @@ export const Provider = new ElysiaWithEnv({
 			return redirect(redirectToProviderUrl.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, ip }) => {
+			beforeHandle: async ({ rateLimiter, ip }) => {
 				const { success, reset } = await rateLimiter.consume(ip, 1);
 				if (!success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: reset,
-					};
+					throw new TooManyRequestsException(reset);
 				}
 				return;
 			},

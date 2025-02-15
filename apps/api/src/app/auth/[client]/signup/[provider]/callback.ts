@@ -20,6 +20,7 @@ import { UserRepository } from "../../../../../interface-adapter/repositories/us
 import { UserCredentialRepository } from "../../../../../interface-adapter/repositories/user-credential";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import { TooManyRequestsException } from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 
 const cookieSchemaObject = {
@@ -162,14 +163,10 @@ export const ProviderCallback = new ElysiaWithEnv({
 			return redirect(redirectUrlCookieValue.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, ip }) => {
+			beforeHandle: async ({ rateLimiter, ip }) => {
 				const { success, reset } = await rateLimiter.consume(ip, 1);
 				if (!success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: reset,
-					};
+					throw new TooManyRequestsException(reset);
 				}
 				return;
 			},
