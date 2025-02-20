@@ -15,7 +15,7 @@ export class SendEmailUseCase implements ISendEmailUseCase {
 
 	public async execute(payload: CreateEmailOptions, options?: CreateEmailRequestOptions): Promise<CreateEmailResponse> {
 		if (this.production) {
-			return this.resend.emails.send(payload, options);
+			return await this.resend.emails.send(payload, options);
 		}
 
 		const contents = await this.render(payload);
