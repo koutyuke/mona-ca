@@ -74,9 +74,9 @@ export class OAuthAccountRepository implements IOAuthAccountRepository {
 			);
 	}
 
-	public async deleteByProviderId(
-		providerId: OAuthAccount["providerId"],
+	public async deleteByProviderAndProviderId(
 		provider: OAuthAccount["provider"],
+		providerId: OAuthAccount["providerId"],
 	): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.oAuthAccounts)
