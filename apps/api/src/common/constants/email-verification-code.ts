@@ -1,4 +1,4 @@
-import { TimeSpan } from "../utils/time-span";
+import { TimeSpan } from "../utils";
 
 export const EMAIL_VERIFICATION_CODE_EXPIRES_SPAN_MINUTES = 15 as const;
 
