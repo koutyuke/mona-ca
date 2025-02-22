@@ -1,10 +1,11 @@
 import { sessionExpiresSpan } from "../../../common/constants";
+import { err } from "../../../common/utils";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
 import type { IPasswordService } from "../../services/password";
 import type { ISessionTokenService } from "../../services/session-token";
-import type { ILoginUseCase, ILoginUseCaseResult } from "./interfaces/login.usecase.interface";
+import type { ILoginUseCase, LoginUseCaseResult } from "./interfaces/login.usecase.interface";
 
 export class LoginUseCase implements ILoginUseCase {
 	constructor(
@@ -15,7 +16,7 @@ export class LoginUseCase implements ILoginUseCase {
 		private readonly sessionTokenService: ISessionTokenService,
 	) {}
 
-	public async execute(email: string, password: string): Promise<ILoginUseCaseResult> {
+	public async execute(email: string, password: string): Promise<LoginUseCaseResult> {
 		const user = await this.userRepository.findByEmail(email);
 		const credentials = user ? await this.userCredentialRepository.find(user.id) : null;
 
@@ -27,7 +28,7 @@ export class LoginUseCase implements ILoginUseCase {
 				(await this.passwordService.verifyPassword(password, credentials.passwordHash))
 			)
 		) {
-			throw new Error("Invalid email or password.");
+			return err("INVALID_EMAIL_OR_PASSWORD");
 		}
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
