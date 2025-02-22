@@ -1,16 +1,17 @@
 import { validateRedirectUrl } from "@mona-ca/core/utils";
 import { generateCodeVerifier, generateState } from "arctic";
+import { err } from "../../../common/utils";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
-import type { IOAuthRequestUseCase, IOAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
+import type { IOAuthRequestUseCase, OAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
 
 export class OAuthRequestUseCase implements IOAuthRequestUseCase {
 	constructor(private oAuthProviderGateway: IOAuthProviderGateway) {}
 
-	public execute(clientBaseUrl: URL, queryRedirectUrl: string): IOAuthRequestUseCaseResult {
+	public execute(clientBaseUrl: URL, queryRedirectUrl: string): OAuthRequestUseCaseResult {
 		const validatedRedirectUrl = validateRedirectUrl(clientBaseUrl, queryRedirectUrl ?? "/");
 
 		if (!validatedRedirectUrl) {
-			throw new Error("Invalid redirect URL");
+			return err("INVALID_REDIRECT_URL");
 		}
 
 		const state = generateState();
