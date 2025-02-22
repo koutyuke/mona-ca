@@ -1,11 +1,14 @@
 export type {
 	IOAuthLoginCallbackUseCase,
-	IOAuthLoginCallbackUseCaseResult,
+	OAuthLoginCallbackUseCaseSuccessResult,
 } from "./interfaces/oauth-login-callback.usecase.interface";
-export type { IOAuthRequestUseCase, IOAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
+export type {
+	IOAuthRequestUseCase,
+	OAuthRequestUseCaseSuccessResult,
+} from "./interfaces/oauth-request.usecase.interface";
 export type {
 	IOAuthSignupCallbackUseCase,
-	IOAuthSignupCallbackUseCaseResult,
+	OAuthSignupCallbackUseCaseSuccessResult,
 } from "./interfaces/oauth-signup-callback.usecase.interface";
 export { OAuthLoginCallbackUseCase } from "./oauth-login-callback.usecase";
 export { OAuthRequestUseCase } from "./oauth-request.usecase";

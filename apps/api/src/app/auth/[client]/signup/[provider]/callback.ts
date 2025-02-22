@@ -10,7 +10,7 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema, genderSchema } from "../../../../../common/schema";
-import { convertRedirectableMobileScheme } from "../../../../../common/utils";
+import { convertRedirectableMobileScheme, isErr } from "../../../../../common/utils";
 import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
@@ -20,7 +20,11 @@ import { UserRepository } from "../../../../../interface-adapter/repositories/us
 import { UserCredentialRepository } from "../../../../../interface-adapter/repositories/user-credential";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
-import { TooManyRequestsException } from "../../../../../modules/error";
+import {
+	BadRequestException,
+	InternalServerErrorException,
+	TooManyRequestsException,
+} from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 
 const cookieSchemaObject = {
@@ -105,10 +109,10 @@ export const ProviderCallback = new ElysiaWithEnv({
 			const redirectToClientUrl = validateRedirectUrl(clientBaseUrl, redirectUrlCookieValue ?? "/");
 
 			if (!redirectToClientUrl) {
-				set.status = 400;
-				return {
-					error: "INVALID_REDIRECT_URL",
-				};
+				throw new BadRequestException({
+					name: "INVALID_REDIRECT_URL",
+					message: "Invalid redirect URL.",
+				});
 			}
 
 			if (error) {
@@ -122,18 +126,11 @@ export const ProviderCallback = new ElysiaWithEnv({
 			}
 
 			if (!code || !queryState || queryState !== cookieState) {
-				set.status = 400;
-				return {
-					error: "INVALID_CREDENTIALS",
-				};
+				redirectToClientUrl.searchParams.set("error", "INVALID_STATE");
+				return redirect(redirectToClientUrl.toString());
 			}
 
-			const { session, sessionToken } = await oAuthSignupCallbackUseCase.execute(
-				code,
-				codeVerifier,
-				provider,
-				userOption,
-			);
+			const result = await oAuthSignupCallbackUseCase.execute(code, codeVerifier, provider, userOption);
 
 			cookieService.deleteCookie(OAUTH_STATE_COOKIE_NAME);
 			cookieService.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
@@ -141,6 +138,22 @@ export const ProviderCallback = new ElysiaWithEnv({
 			cookieService.deleteCookie(OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME);
 
 			set.headers["Referrer-Policy"] = "strict-origin";
+
+			if (isErr(result)) {
+				switch (result.code) {
+					case "FAILED_TO_GET_ACCOUNT_INFO":
+					case "EMAIL_ALREADY_EXISTS_BUT_LINKABLE":
+					case "ACCOUNT_IS_ALREADY_USED":
+						redirectToClientUrl.searchParams.set("error", result.code);
+						return redirect(redirectToClientUrl.toString());
+					default:
+						throw new InternalServerErrorException({
+							message: "Unknown OAuthSignupCallbackUseCase error result.",
+						});
+				}
+			}
+
+			const { session, sessionToken } = result;
 
 			if (client === "mobile") {
 				redirectToClientUrl.searchParams.set("access-token", sessionToken);
