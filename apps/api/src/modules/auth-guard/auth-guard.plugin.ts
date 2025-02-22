@@ -2,19 +2,14 @@ import { SessionTokenService } from "../../application/services/session-token";
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { readBearerToken } from "../../common/utils";
+import { isErr } from "../../common/utils";
 import type { Session } from "../../domain/entities/session";
 import type { User } from "../../domain/entities/user";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "../elysia-with-env";
-import { UnauthorizedException } from "../error";
-
-type AuthGuardOptions<T extends boolean> = {
-	requireEmailVerification?: boolean;
-	enableSessionCookieRefresh?: boolean;
-	includeSessionToken?: T;
-};
+import { InternalServerErrorException, UnauthorizedException } from "../error";
 
 /**
  * Creates an authentication guard plugin for Elysia with environment configuration.
@@ -41,9 +36,11 @@ const authGuard = <
 				user: User;
 				session: Session;
 			},
->(
-	options?: AuthGuardOptions<T>,
-) => {
+>(options?: {
+	requireEmailVerification?: boolean;
+	enableSessionCookieRefresh?: boolean;
+	includeSessionToken?: T;
+}) => {
 	const {
 		requireEmailVerification = true,
 		enableSessionCookieRefresh = true,
@@ -73,15 +70,28 @@ const authGuard = <
 				throw new UnauthorizedException();
 			}
 
-			const { user, session } = await validateSessionUseCase.execute(sessionToken);
+			const result = await validateSessionUseCase.execute(sessionToken);
 
-			if (!user || !session) {
-				throw new UnauthorizedException();
+			if (isErr(result)) {
+				const { code } = result;
+				switch (code) {
+					case "SESSION_EXPIRED":
+					case "SESSION_OR_USER_NOT_FOUND":
+						throw new UnauthorizedException({
+							name: code,
+						});
+					default:
+						throw new InternalServerErrorException({
+							message: "Unknown ValidateSessionUseCase error result.",
+						});
+				}
 			}
+
+			const { user, session } = result;
 
 			if (requireEmailVerification && !user.emailVerified) {
 				throw new UnauthorizedException({
-					name: "EmailVerificationRequired",
+					name: "EMAIL_VERIFICATION_IS_REQUIRED",
 					message: "Email verification is required.",
 				});
 			}
