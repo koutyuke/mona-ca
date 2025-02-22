@@ -2,12 +2,17 @@ import { t } from "elysia";
 import { SendEmailUseCase } from "../../../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../../../application/use-cases/email/mail-context";
+import { isErr } from "../../../../../common/utils";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { EmailVerificationCodeRepository } from "../../../../../interface-adapter/repositories/email-verification-code";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
-import { TooManyRequestsException } from "../../../../../modules/error";
+import {
+	BadRequestException,
+	InternalServerErrorException,
+	TooManyRequestsException,
+} from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { VerificationConfirm } from "./confirm";
 
@@ -46,11 +51,26 @@ const Verification = new ElysiaWithEnv({
 			);
 
 			const email = bodyEmail || user.email;
-			const { code } = await emailVerificationRequestUseCase.execute(email, user);
+			const result = await emailVerificationRequestUseCase.execute(email, user);
 
-			if (!code) {
-				return null;
+			if (isErr(result)) {
+				const { code } = result;
+
+				switch (code) {
+					case "EMAIL_IS_ALREADY_USED":
+					case "EMAIL_IS_ALREADY_VERIFIED":
+						throw new BadRequestException({
+							name: code,
+							message: "Email is already used or verified.",
+						});
+					default:
+						throw new InternalServerErrorException({
+							message: "Unknown EmailVerificationRequestUseCase error result.",
+						});
+				}
 			}
+
+			const { code } = result;
 
 			const mailContents = verificationEmailTemplate(code);
 
