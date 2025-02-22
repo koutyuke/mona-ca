@@ -4,13 +4,14 @@ import { SessionTokenService } from "../../../../application/services/session-to
 import { SignupUseCase } from "../../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../../../common/constants";
 import { clientSchema, genderSchema } from "../../../../common/schema";
+import { isErr } from "../../../../common/utils";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
-import { TooManyRequestsException } from "../../../../modules/error";
+import { BadRequestException, InternalServerErrorException, TooManyRequestsException } from "../../../../modules/error";
 import { rateLimiter } from "../../../../modules/rate-limiter";
 import { Provider } from "./[provider]";
 
@@ -63,7 +64,24 @@ export const Signup = new ElysiaWithEnv({
 				sessionTokenService,
 			);
 
-			const { session, sessionToken } = await signupUseCase.execute(name, email, password, gender);
+			const result = await signupUseCase.execute(name, email, password, gender);
+
+			if (isErr(result)) {
+				const { code } = result;
+				switch (code) {
+					case "EMAIL_IS_ALREADY_USED":
+						throw new BadRequestException({
+							name: code,
+							message: "Email is already used.",
+						});
+					default:
+						throw new InternalServerErrorException({
+							message: "Unknown SignupUseCase error result.",
+						});
+				}
+			}
+
+			const { session, sessionToken } = result;
 
 			if (client === "mobile") {
 				return {

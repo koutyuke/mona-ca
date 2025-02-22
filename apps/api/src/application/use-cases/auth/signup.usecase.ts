@@ -1,13 +1,12 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { ulid } from "../../../common/utils";
-import type { Session } from "../../../domain/entities/session";
-import type { User } from "../../../domain/entities/user";
+import { err } from "../../../common/utils";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
 import type { IPasswordService } from "../../services/password";
 import type { ISessionTokenService } from "../../services/session-token";
-import type { ISignupUseCase } from "./interfaces/signup.usecase.interface";
+import type { ISignupUseCase, SignupUseCaseResult } from "./interfaces/signup.usecase.interface";
 
 export class SignupUseCase implements ISignupUseCase {
 	constructor(
@@ -23,12 +22,12 @@ export class SignupUseCase implements ISignupUseCase {
 		email: string,
 		password: string,
 		gender: "man" | "woman",
-	): Promise<{ user: User; session: Session; sessionToken: string }> {
+	): Promise<SignupUseCaseResult> {
 		const existingSameEmailUser = await this.userRepository.findByEmail(email); // check pre-register user
 
 		if (existingSameEmailUser) {
 			if (existingSameEmailUser.emailVerified) {
-				throw new Error("EmailIsAlreadyUsed");
+				return err("EMAIL_IS_ALREADY_USED");
 			}
 
 			await this.userRepository.delete(existingSameEmailUser.id);
