@@ -1,4 +1,4 @@
-import { TimeSpan } from "../utils/time-span";
+import { TimeSpan } from "../utils";
 
 export const SESSION_EXPIRES_SPAN_DAYS = 30 as const;
 export const SESSION_REFRESH_SPAN_DAYS = 15 as const;

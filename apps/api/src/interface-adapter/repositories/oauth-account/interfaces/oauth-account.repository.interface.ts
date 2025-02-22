@@ -14,5 +14,8 @@ export interface IOAuthAccountRepository {
 		oAuthAccount: Partial<Omit<ConstructorParameters<typeof OAuthAccount>[0], "id" | "createdAt" | "updatedAt">>,
 	): Promise<OAuthAccount>;
 	deleteByUserId(userId: OAuthAccount["userId"], provider: OAuthAccount["provider"]): Promise<void>;
-	deleteByProviderId(providerId: OAuthAccount["providerId"], provider: OAuthAccount["provider"]): Promise<void>;
+	deleteByProviderAndProviderId(
+		provider: OAuthAccount["provider"],
+		providerId: OAuthAccount["providerId"],
+	): Promise<void>;
 }

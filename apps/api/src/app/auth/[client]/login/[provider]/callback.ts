@@ -9,14 +9,20 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
-import { convertRedirectableMobileScheme } from "../../../../../common/utils";
+import { convertRedirectableMobileScheme, isErr } from "../../../../../common/utils";
 import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../../../interface-adapter/repositories/session";
+import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import {
+	BadRequestException,
+	InternalServerErrorException,
+	TooManyRequestsException,
+} from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 
 const cookieSchemaObject = {
@@ -69,6 +75,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
 			const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
 
 			const oAuthProviderGateway = OAuthProviderGateway({
@@ -82,6 +89,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 				oAuthProviderGateway,
 				sessionRepository,
 				oAuthAccountRepository,
+				userRepository,
 			);
 
 			const cookieState = cookieService.getCookie(OAUTH_STATE_COOKIE_NAME);
@@ -91,10 +99,10 @@ export const ProviderCallback = new ElysiaWithEnv({
 			const redirectToClientUrl = validateRedirectUrl(clientBaseUrl, redirectUrlCookieValue ?? "/");
 
 			if (!redirectToClientUrl) {
-				set.status = 400;
-				return {
-					error: "INVALID_REDIRECT_URL",
-				};
+				throw new BadRequestException({
+					name: "INVALID_REDIRECT_URL",
+					message: "Invalid redirect URL",
+				});
 			}
 
 			if (error) {
@@ -108,17 +116,32 @@ export const ProviderCallback = new ElysiaWithEnv({
 			}
 
 			if (!code || !queryState || queryState !== cookieState) {
-				set.status = 400;
-				return {
-					error: "INVALID_CREDENTIALS",
-				};
+				redirectToClientUrl.searchParams.set("error", "INVALID_STATE");
+				return redirect(redirectToClientUrl.toString());
 			}
 
-			const { session, sessionToken } = await oAuthLoginCallbackUseCase.execute(code, codeVerifier, provider);
+			const result = await oAuthLoginCallbackUseCase.execute(code, codeVerifier, provider);
 
 			cookieService.deleteCookie(OAUTH_STATE_COOKIE_NAME);
 			cookieService.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			cookieService.deleteCookie(OAUTH_REDIRECT_URL_COOKIE_NAME);
+
+			if (isErr(result)) {
+				switch (result.code) {
+					case "FAILED_TO_GET_ACCOUNT_INFO":
+					case "OAUTH_ACCOUNT_NOT_FOUND":
+					case "OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE":
+						redirectToClientUrl.searchParams.set("error", result.code);
+						return redirect(redirectToClientUrl.toString());
+					default:
+						throw new InternalServerErrorException({
+							name: "UNKNOWN_ERROR",
+							message: "Unknown OAuthLoginCallbackUseCase error result.",
+						});
+				}
+			}
+
+			const { session, sessionToken } = result;
 
 			if (client === "mobile") {
 				redirectToClientUrl.searchParams.set("access-token", sessionToken);
@@ -142,14 +165,10 @@ export const ProviderCallback = new ElysiaWithEnv({
 			return redirect(redirectUrlCookieValue.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, ip }) => {
+			beforeHandle: async ({ rateLimiter, ip }) => {
 				const { success, reset } = await rateLimiter.consume(ip, 1);
 				if (!success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: reset,
-					};
+					throw new TooManyRequestsException(reset);
 				}
 				return;
 			},

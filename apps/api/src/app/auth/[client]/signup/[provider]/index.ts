@@ -8,10 +8,16 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema, genderSchema } from "../../../../../common/schema";
+import { isErr } from "../../../../../common/utils";
 import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import {
+	BadRequestException,
+	InternalServerErrorException,
+	TooManyRequestsException,
+} from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { ProviderCallback } from "./callback";
 
@@ -21,7 +27,7 @@ const cookieSchemaObject = {
 	[OAUTH_REDIRECT_URL_COOKIE_NAME]: t.Optional(t.String()),
 	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
 		t.Object({
-			gender: genderSchema,
+			gender: t.Optional(genderSchema),
 		}),
 	),
 };
@@ -68,10 +74,24 @@ export const Provider = new ElysiaWithEnv({
 
 			const oAuthRequestUseCase = new OAuthRequestUseCase(oAuthProviderGateway);
 
-			const { state, codeVerifier, redirectToClientUrl, redirectToProviderUrl } = oAuthRequestUseCase.execute(
-				clientBaseUrl,
-				queryRedirectUrl,
-			);
+			const result = oAuthRequestUseCase.execute(clientBaseUrl, queryRedirectUrl);
+
+			if (isErr(result)) {
+				const { code } = result;
+				switch (code) {
+					case "INVALID_REDIRECT_URL":
+						throw new BadRequestException({
+							name: code,
+							message: "Invalid redirect URL.",
+						});
+					default:
+						throw new InternalServerErrorException({
+							message: "Unknown OAuthRequestUseCase error result.",
+						});
+				}
+			}
+
+			const { state, codeVerifier, redirectToClientUrl, redirectToProviderUrl } = result;
 
 			cookieService.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
 				maxAge: 60 * 10,
@@ -98,20 +118,16 @@ export const Provider = new ElysiaWithEnv({
 			return redirect(redirectToProviderUrl.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, ip }) => {
+			beforeHandle: async ({ rateLimiter, ip }) => {
 				const { success, reset } = await rateLimiter.consume(ip, 1);
 				if (!success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: reset,
-					};
+					throw new TooManyRequestsException(reset);
 				}
 				return;
 			},
 			query: t.Object({
 				"redirect-url": t.Optional(t.String()),
-				gender: genderSchema,
+				gender: t.Optional(genderSchema),
 			}),
 			params: t.Object({
 				client: clientSchema,

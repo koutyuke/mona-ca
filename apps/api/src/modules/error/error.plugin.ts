@@ -9,6 +9,7 @@ import {
 	MethodNotAllowedException,
 	ResponseException,
 	ServiceUnavailableException,
+	TooManyRequestsException,
 	UnauthorizedException,
 } from "./exceptions";
 
@@ -28,6 +29,8 @@ import {
  * 409 - Conflict: ConflictException
  *
  * 418 - I'm a teapot: ImATeapotException
+ *
+ * 429 - Too Many Requests: TooManyRequestsException
  *
  * 500 - Internal Server Error: InternalServerErrorException
  *
@@ -77,15 +80,27 @@ const error = new Elysia({
 		MethodNotAllowedException,
 		ConflictException,
 		ImATeapotException,
+		TooManyRequestsException,
 		InternalServerErrorException,
 		BadGatewayException,
 		ServiceUnavailableException,
 	})
 	.onError({ as: "global" }, ({ code, error, set }) => {
+		if (error instanceof TooManyRequestsException) {
+			set.status = error.status;
+			set.headers = {
+				"x-ratelimit-reset": error.reset,
+			};
+			return {
+				code: error.code,
+				message: error.message,
+			};
+		}
+
 		if (error instanceof ResponseException) {
 			set.status = error.status;
 			return {
-				error: error.code,
+				code: error.code,
 				message: error.message,
 			};
 		}
@@ -94,7 +109,7 @@ const error = new Elysia({
 			case "NOT_FOUND":
 				set.status = 404;
 				return {
-					error: "NOT_FOUND",
+					code: "NOT_FOUND",
 					message: "The requested resource was not found.",
 				};
 			case "VALIDATION":
@@ -102,7 +117,7 @@ const error = new Elysia({
 				console.error(error.message);
 
 				return {
-					error: "VALIDATION",
+					code: "VALIDATION",
 					message: JSON.parse(error.message).summary.replace("  ", " "),
 				};
 		}
@@ -111,8 +126,8 @@ const error = new Elysia({
 
 		set.status = 500;
 		return {
-			error: "INTERNAL_SERVER_ERROR",
-			name: error.toString(),
+			code: "INTERNAL_SERVER_ERROR",
+			error: error.toString(),
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			cause: (error as any).cause ?? null,
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>

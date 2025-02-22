@@ -2,9 +2,12 @@ export { EmailVerificationRequestUseCase } from "./email-verification-request.us
 export { EmailVerificationConfirmUseCase } from "./email-verification-confirm.usecase";
 export type {
 	IEmailVerificationRequestUseCase,
-	IEmailVerificationRequestUseCaseResult,
+	EmailVerificationRequestUseCaseSuccessResult,
+	EmailVerificationRequestUseCaseErrorResult,
+	EmailVerificationRequestUseCaseResult,
 } from "./interfaces/email-verification-request.usecase.interface";
 export type {
 	IEmailVerificationConfirmUseCase,
-	IEmailVerificationConfirmUseCaseResult,
+	EmailVerificationConfirmUseCaseResult,
+	EmailVerificationConfirmUseCaseErrorResult,
 } from "./interfaces/email-verification-confirm.usecase.interface";

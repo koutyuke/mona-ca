@@ -1,10 +1,21 @@
+import type { Err, Result } from "../../../../common/utils";
 import type { OAuthProvider } from "../../../../domain/entities/oauth-account";
 import type { Session } from "../../../../domain/entities/session";
 
-export interface IOAuthSignupCallbackUseCaseResult {
+export type OAuthSignupCallbackUseCaseSuccessResult = {
 	session: Session;
 	sessionToken: string;
-}
+};
+
+export type OAuthSignupCallbackUseCaseErrorResult =
+	| Err<"FAILED_TO_GET_ACCOUNT_INFO">
+	| Err<"ACCOUNT_IS_ALREADY_USED">
+	| Err<"EMAIL_ALREADY_EXISTS_BUT_LINKABLE">;
+
+export type OAuthSignupCallbackUseCaseResult = Result<
+	OAuthSignupCallbackUseCaseSuccessResult,
+	OAuthSignupCallbackUseCaseErrorResult
+>;
 
 export interface IOAuthSignupCallbackUseCase {
 	execute(
@@ -14,5 +25,5 @@ export interface IOAuthSignupCallbackUseCase {
 		userOption?: {
 			gender?: "man" | "woman";
 		},
-	): Promise<IOAuthSignupCallbackUseCaseResult>;
+	): Promise<OAuthSignupCallbackUseCaseResult>;
 }

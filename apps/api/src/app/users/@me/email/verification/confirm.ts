@@ -1,10 +1,16 @@
 import { t } from "elysia";
 import { EmailVerificationConfirmUseCase } from "../../../../../application/use-cases/email-verification";
+import { isErr } from "../../../../../common/utils";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { EmailVerificationCodeRepository } from "../../../../../interface-adapter/repositories/email-verification-code";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
+import {
+	BadRequestException,
+	InternalServerErrorException,
+	TooManyRequestsException,
+} from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 
 const VerificationConfirm = new ElysiaWithEnv({
@@ -26,7 +32,7 @@ const VerificationConfirm = new ElysiaWithEnv({
 	// Route
 	.post(
 		"/",
-		async ({ cfModuleEnv: { DB }, body: { code }, user, set }) => {
+		async ({ cfModuleEnv: { DB }, body: { code }, user }) => {
 			const drizzleService = new DrizzleService(DB);
 
 			const emailVerificationCodeRepository = new EmailVerificationCodeRepository(drizzleService);
@@ -37,26 +43,32 @@ const VerificationConfirm = new ElysiaWithEnv({
 				userRepository,
 			);
 
-			const { success } = await emailVerificationConfirmUseCase.execute(code, user);
+			const result = await emailVerificationConfirmUseCase.execute(code, user);
 
-			if (!success) {
-				set.status = 400;
-				return {
-					error: "Invalid verification code",
-				};
+			if (isErr(result)) {
+				const { code } = result;
+
+				switch (code) {
+					case "INVALID_CODE":
+						throw new BadRequestException({
+							name: code,
+							message: "Invalid verification code",
+						});
+					default:
+						throw new InternalServerErrorException({
+							message: "Unknown EmailVerificationConfirmUseCase error result.",
+						});
+				}
 			}
+
 			return null;
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, user }) => {
+			beforeHandle: async ({ rateLimiter, user }) => {
 				const { success, reset } = await rateLimiter.consume(user.id, 1);
 
 				if (!success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: reset,
-					};
+					throw new TooManyRequestsException(reset);
 				}
 				return;
 			},

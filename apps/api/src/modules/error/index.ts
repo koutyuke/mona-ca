@@ -8,6 +8,7 @@ export {
 	MethodNotAllowedException,
 	ConflictException,
 	ImATeapotException,
+	TooManyRequestsException,
 	InternalServerErrorException,
 	BadGatewayException,
 	ServiceUnavailableException,

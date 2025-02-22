@@ -4,12 +4,14 @@ import { SessionTokenService } from "../../../../application/services/session-to
 import { LoginUseCase } from "../../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../../../common/constants";
 import { clientSchema } from "../../../../common/schema";
+import { isErr } from "../../../../common/utils";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
+import { BadRequestException, InternalServerErrorException, TooManyRequestsException } from "../../../../modules/error";
 import { rateLimiter } from "../../../../modules/rate-limiter";
 import { Provider } from "./[provider]";
 
@@ -62,7 +64,23 @@ export const Login = new ElysiaWithEnv({
 				sessionTokenService,
 			);
 
-			const { session, sessionToken } = await loginUseCase.execute(email, password);
+			const result = await loginUseCase.execute(email, password);
+
+			if (isErr(result)) {
+				const { code } = result;
+				switch (code) {
+					case "INVALID_EMAIL_OR_PASSWORD":
+						throw new BadRequestException({
+							name: code,
+							message: "Invalid email or password",
+						});
+					default:
+						throw new InternalServerErrorException({
+							message: "Unknown LoginUseCase error result.",
+						});
+				}
+			}
+			const { session, sessionToken } = result;
 
 			if (client === "mobile") {
 				return {
@@ -77,14 +95,10 @@ export const Login = new ElysiaWithEnv({
 			return null;
 		},
 		{
-			beforeHandle: async ({ rateLimiter, set, ip, body: { email } }) => {
+			beforeHandle: async ({ rateLimiter, ip, body: { email } }) => {
 				const [ipResult, emailResult] = await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(email, 10)]);
 				if (!ipResult.success || !emailResult.success) {
-					set.status = 429;
-					return {
-						name: "TooManyRequests",
-						resetTime: !ipResult.success ? ipResult.reset : emailResult.reset,
-					};
+					throw new TooManyRequestsException(!ipResult.success ? ipResult.reset : emailResult.reset);
 				}
 				return;
 			},

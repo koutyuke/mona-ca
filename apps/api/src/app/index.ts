@@ -8,6 +8,7 @@ import { Users } from "./users";
 
 const root = new ElysiaWithEnv({
 	aot: false,
+	strictPath: false,
 });
 
 const app = root
