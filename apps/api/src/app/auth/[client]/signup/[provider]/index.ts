@@ -13,11 +13,7 @@ import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-accoun
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
-import {
-	BadRequestException,
-	InternalServerErrorException,
-	TooManyRequestsException,
-} from "../../../../../modules/error";
+import { BadRequestException, InternalServerErrorException } from "../../../../../modules/error";
 import { rateLimiter } from "../../../../../modules/rate-limiter";
 import { ProviderCallback } from "./callback";
 
@@ -119,11 +115,7 @@ export const Provider = new ElysiaWithEnv({
 		},
 		{
 			beforeHandle: async ({ rateLimiter, ip }) => {
-				const { success, reset } = await rateLimiter.consume(ip, 1);
-				if (!success) {
-					throw new TooManyRequestsException(reset);
-				}
-				return;
+				await rateLimiter.consume(ip, 1);
 			},
 			query: t.Object({
 				"redirect-url": t.Optional(t.String()),

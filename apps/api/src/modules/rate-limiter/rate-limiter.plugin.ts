@@ -2,7 +2,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import { getIP } from "../../common/utils";
 import { ElysiaWithEnv } from "../elysia-with-env";
-import { BadRequestException } from "../error";
+import { BadRequestException, TooManyRequestsException } from "../error";
 
 type LimiterConfig = {
 	refillRate: number;
@@ -90,12 +90,14 @@ const rateLimiter = (prefix: string, { refillRate, maxTokens, interval }: Limite
 		}
 
 		const consume = async (key: string, cost: number) => {
-			const { success, limit, remaining, reset } = await rateLimit.limit(key, {
+			const { success, reset } = await rateLimit.limit(key, {
 				...clientMeta,
 				rate: cost,
 			});
 
-			return { success, limit, remaining, reset };
+			if (!success) {
+				throw new TooManyRequestsException(reset);
+			}
 		};
 
 		return {

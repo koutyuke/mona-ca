@@ -11,7 +11,7 @@ import { UserRepository } from "../../../../interface-adapter/repositories/user"
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
-import { BadRequestException, InternalServerErrorException, TooManyRequestsException } from "../../../../modules/error";
+import { BadRequestException, InternalServerErrorException } from "../../../../modules/error";
 import { rateLimiter } from "../../../../modules/rate-limiter";
 import { Provider } from "./[provider]";
 
@@ -96,11 +96,7 @@ export const Login = new ElysiaWithEnv({
 		},
 		{
 			beforeHandle: async ({ rateLimiter, ip, body: { email } }) => {
-				const [ipResult, emailResult] = await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(email, 10)]);
-				if (!ipResult.success || !emailResult.success) {
-					throw new TooManyRequestsException(!ipResult.success ? ipResult.reset : emailResult.reset);
-				}
-				return;
+				await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(email, 10)]);
 			},
 			cookie: t.Cookie(cookieSchemaObject),
 			params: t.Object({
