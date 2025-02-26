@@ -8,12 +8,12 @@
 
 import type { Context, HTTPMethod } from "elysia";
 import { ElysiaWithEnv } from "../elysia-with-env";
-import type { AppStatusEnv } from "../env";
+import type { PublicEnv } from "../env";
 
 export type Origin = string | RegExp;
 
 export interface CORSConfig {
-	origin?: boolean | ((app_env: AppStatusEnv["APP_ENV"]) => Origin[]);
+	origin?: boolean | ((app_env: PublicEnv["APP_ENV"]) => Origin[]);
 
 	methods?: boolean | HTTPMethod[];
 
@@ -80,7 +80,7 @@ export const cors = (config?: CORSConfig) => {
 
 	const flattenMethod = typeof methods === "boolean" ? methods : !methods.length ? false : methods.join(", ");
 
-	const handleOrigin = (set: Context["set"], request: Request, app_env: AppStatusEnv["APP_ENV"]) => {
+	const handleOrigin = (set: Context["set"], request: Request, app_env: PublicEnv["APP_ENV"]) => {
 		if (origin === false) {
 			return;
 		}
