@@ -9,6 +9,7 @@ import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
+import { captcha } from "../../../../modules/captcha";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
 import { BadRequestException, InternalServerErrorException } from "../../../../modules/error";
@@ -36,6 +37,7 @@ export const Login = new ElysiaWithEnv({
 			},
 		}),
 	)
+	.use(captcha)
 
 	// Route
 	.post(
@@ -95,14 +97,19 @@ export const Login = new ElysiaWithEnv({
 			return null;
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip, body: { email } }) => {
-				await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(email, 10)]);
+			beforeHandle: async ({ rateLimiter, ip, captcha, body: { email, cfTurnstileResponse } }) => {
+				await Promise.all([
+					rateLimiter.consume(ip, 1),
+					rateLimiter.consume(email, 10),
+					captcha.verify(cfTurnstileResponse),
+				]);
 			},
 			cookie: t.Cookie(cookieSchemaObject),
 			params: t.Object({
 				client: clientSchema,
 			}),
 			body: t.Object({
+				cfTurnstileResponse: t.String(),
 				email: t.String({
 					format: "email",
 				}),
