@@ -9,9 +9,10 @@ import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
+import { captcha } from "../../../../modules/captcha";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
-import { BadRequestException, InternalServerErrorException, TooManyRequestsException } from "../../../../modules/error";
+import { BadRequestException, InternalServerErrorException } from "../../../../modules/error";
 import { rateLimiter } from "../../../../modules/rate-limiter";
 import { Provider } from "./[provider]";
 
@@ -36,6 +37,7 @@ export const Signup = new ElysiaWithEnv({
 			},
 		}),
 	)
+	.use(captcha)
 
 	// Route
 	.post(
@@ -96,18 +98,15 @@ export const Signup = new ElysiaWithEnv({
 			return null;
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip }) => {
-				const { success, reset } = await rateLimiter.consume(ip, 1);
-				if (!success) {
-					throw new TooManyRequestsException(reset);
-				}
-				return;
+			beforeHandle: async ({ rateLimiter, ip, captcha, body: { cfTurnstileResponse } }) => {
+				await Promise.all([rateLimiter.consume(ip, 1), captcha.verify(cfTurnstileResponse)]);
 			},
 			cookie: t.Cookie(cookieSchemaObject),
 			params: t.Object({
 				client: clientSchema,
 			}),
 			body: t.Object({
+				cfTurnstileResponse: t.String(),
 				email: t.String({
 					format: "email",
 				}),

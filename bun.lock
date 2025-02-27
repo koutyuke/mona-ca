@@ -171,6 +171,7 @@
         "next": "^14.2.5",
         "react": "18.3.1",
         "react-dom": "18.3.1",
+        "react-turnstile": "^1.1.4",
         "tailwindcss": "^3.4.7",
       },
       "devDependencies": {
@@ -2960,6 +2961,8 @@
     "react-shallow-renderer": ["react-shallow-renderer@16.15.0", "", { "dependencies": { "object-assign": "^4.1.1", "react-is": "^16.12.0 || ^17.0.0 || ^18.0.0" }, "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0" } }, "sha512-oScf2FqQ9LFVQgA73vr86xl2NaOIX73rh+YFqcOp68CWj56tSfgtGKrEbyhCj0rSijyG9M1CYprTh39fBi5hzA=="],
 
     "react-test-renderer": ["react-test-renderer@18.2.0", "", { "dependencies": { "react-is": "^18.2.0", "react-shallow-renderer": "^16.15.0", "scheduler": "^0.23.0" }, "peerDependencies": { "react": "^18.2.0" } }, "sha512-JWD+aQ0lh2gvh4NM3bBM42Kx+XybOxCpgYK7F8ugAlpaTSnWsX+39Z4XkOykGZAHrjwwTZT3x3KxswVWxHPUqA=="],
+
+    "react-turnstile": ["react-turnstile@1.1.4", "", { "peerDependencies": { "react": ">= 16.13.1", "react-dom": ">= 16.13.1" } }, "sha512-oluyRWADdsufCt5eMqacW4gfw8/csr6Tk+fmuaMx0PWMKP1SX1iCviLvD2D5w92eAzIYDHi/krUWGHhlfzxTpQ=="],
 
     "read-cache": ["read-cache@1.0.0", "", { "dependencies": { "pify": "^2.3.0" } }, "sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA=="],
 

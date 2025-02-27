@@ -86,22 +86,18 @@ const error = new Elysia({
 		ServiceUnavailableException,
 	})
 	.onError({ as: "global" }, ({ code, error, set }) => {
-		if (error instanceof TooManyRequestsException) {
-			set.status = error.status;
-			set.headers = {
-				"x-ratelimit-reset": error.reset,
-			};
-			return {
-				code: error.code,
-				message: error.message,
-			};
-		}
-
 		if (error instanceof ResponseException) {
+			if (error instanceof TooManyRequestsException) {
+				set.headers = {
+					"x-ratelimit-reset": error.reset,
+				};
+			}
+
 			set.status = error.status;
 			return {
 				code: error.code,
 				message: error.message,
+				...(error.additional ?? {}),
 			};
 		}
 
@@ -114,7 +110,6 @@ const error = new Elysia({
 				};
 			case "VALIDATION":
 				set.status = 400;
-				console.error(error.message);
 
 				return {
 					code: "VALIDATION",

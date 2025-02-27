@@ -1,10 +1,10 @@
 import { Value } from "@sinclair/typebox/value";
 import { Elysia, type ElysiaConfig } from "elysia";
-import { type AppEnv, type AppEnvWithoutCFModuleEnv, AppEnvWithoutCFModuleEnvSchema, type CFModuleEnv } from "../env";
+import { type AppEnv, type AppEnvWithoutCFModule, AppEnvWithoutCFModuleSchema, type CFModuleEnv } from "../env";
 
 type CustomSingleton = {
 	decorator: {
-		env: AppEnvWithoutCFModuleEnv;
+		env: AppEnvWithoutCFModule;
 		cfModuleEnv: CFModuleEnv;
 	};
 	// biome-ignore lint/complexity/noBannedTypes: <explanation>
@@ -44,12 +44,9 @@ export class ElysiaWithEnv<const BasePath extends string = ""> extends Elysia<Ba
 	public setEnv(env: AppEnv): this {
 		const { DB, ...otherEnv } = env;
 
-		const preparedEnv = Value.Clean(
-			AppEnvWithoutCFModuleEnvSchema,
-			Value.Convert(AppEnvWithoutCFModuleEnvSchema, otherEnv),
-		);
+		const preparedEnv = Value.Clean(AppEnvWithoutCFModuleSchema, Value.Convert(AppEnvWithoutCFModuleSchema, otherEnv));
 
-		if (!Value.Check(AppEnvWithoutCFModuleEnvSchema, preparedEnv)) {
+		if (!Value.Check(AppEnvWithoutCFModuleSchema, preparedEnv)) {
 			console.error("🚨 Invalid environment variables");
 			throw new Error("🚨 Invalid environment variables");
 		}

@@ -3,6 +3,8 @@ compatibility_date = "2024-04-19"
 compatibility_flags = ["nodejs_compat"]
 main = "./src/app/index.ts"
 
+routes = [{ pattern = "api.mona-ca.com", custom_domain = true }]
+
 vars = { APP_ENV = "development" }
 d1_databases = [
   { binding = "DB", database_name = "mona-ca_db", database_id = "b7773705-8f1f-49e2-9a42-564971632cf4", migrations_dir = "drizzle/migrations" },

@@ -18,6 +18,10 @@ export const UpstashRedisSchema = t.Object({
 	UPSTASH_REDIS_REST_TOKEN: t.String(),
 });
 
+export const TurnstileSchema = t.Object({
+	CF_TURNSTILE_SECRET: t.String(),
+});
+
 export const OAuthProviderSchema = t.Object({
 	DISCORD_CLIENT_ID: t.String(),
 	DISCORD_CLIENT_SECRET: t.String(),
@@ -29,6 +33,7 @@ export const AppEnvWithoutCFModuleSchema = t.Intersect([
 	PublicSchema,
 	PepperSchema,
 	ResendSchema,
+	TurnstileSchema,
 	UpstashRedisSchema,
 	OAuthProviderSchema,
 ]);
