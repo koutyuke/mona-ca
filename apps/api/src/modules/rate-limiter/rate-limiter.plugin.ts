@@ -32,7 +32,8 @@ const cache = new Map();
  * @param config.interval.value - The value of the interval.
  * @param config.interval.unit - The unit of the interval (e.g., seconds, minutes).
  *
- * @returns An instance of the Elysia plugin configured with rate limiting.
+ * @throws {BadRequestException} - If the IP address is not found in the request headers.
+ * @throws {TooManyRequestsException} - If the rate limit is exceeded.
  *
  * @example
  * new Elysia()

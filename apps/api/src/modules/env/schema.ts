@@ -33,6 +33,7 @@ export const AppEnvWithoutCFModuleSchema = t.Intersect([
 	PublicSchema,
 	PepperSchema,
 	ResendSchema,
+	TurnstileSchema,
 	UpstashRedisSchema,
 	OAuthProviderSchema,
 ]);
