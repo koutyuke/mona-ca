@@ -1,6 +1,6 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { err, ulid } from "../../../common/utils";
-import type { OAuthProvider } from "../../../domain/entities/oauth-account";
+import type { OAuthProvider } from "../../../domain/entities";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";

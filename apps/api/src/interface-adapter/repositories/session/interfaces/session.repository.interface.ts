@@ -1,4 +1,4 @@
-import type { Session } from "../../../../domain/entities/session";
+import type { Session } from "../../../../domain/entities";
 
 export type SessionConstructor = ConstructorParameters<typeof Session>[0];
 

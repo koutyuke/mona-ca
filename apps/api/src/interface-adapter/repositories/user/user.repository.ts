@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
-import type { Session } from "../../../domain/entities/session";
-import { User } from "../../../domain/entities/user";
+import { type Session, User } from "../../../domain/entities";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IUserRepository } from "./interfaces/user.repository.interface";
 

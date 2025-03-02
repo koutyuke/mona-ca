@@ -1,5 +1,5 @@
 import { eq, lte } from "drizzle-orm";
-import { Session } from "../../../domain/entities/session";
+import { Session } from "../../../domain/entities";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { ISessionRepository, SessionConstructor } from "./interfaces/session.repository.interface";
 

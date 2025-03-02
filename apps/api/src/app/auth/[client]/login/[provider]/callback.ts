@@ -10,7 +10,7 @@ import {
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme, isErr } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
+import { oAuthProviderSchema } from "../../../../../domain/entities";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";

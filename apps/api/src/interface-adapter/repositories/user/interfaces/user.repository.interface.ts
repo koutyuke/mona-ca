@@ -1,5 +1,4 @@
-import type { Session } from "../../../../domain/entities/session";
-import type { User } from "../../../../domain/entities/user";
+import type { Session, User } from "../../../../domain/entities";
 
 export interface IUserRepository {
 	find(id: User["id"]): Promise<User | null>;

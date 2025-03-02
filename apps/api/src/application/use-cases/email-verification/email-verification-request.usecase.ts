@@ -1,7 +1,7 @@
 import { emailVerificationCodeExpiresSpan } from "../../../common/constants";
 import { generateRandomString, ulid } from "../../../common/utils";
 import { err } from "../../../common/utils";
-import type { User } from "../../../domain/entities/user";
+import type { User } from "../../../domain/entities";
 import type { IEmailVerificationCodeRepository } from "../../../interface-adapter/repositories/email-verification-code";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type {

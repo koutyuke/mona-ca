@@ -8,7 +8,7 @@ import {
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { isErr } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
+import { oAuthProviderSchema } from "../../../../../domain/entities";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";

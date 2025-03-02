@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { UserCredential } from "../../../domain/entities/user-credential";
+import { UserCredential } from "../../../domain/entities";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IUserCredentialRepository } from "./interfaces/user-credential.repository.interface";
 

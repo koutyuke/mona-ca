@@ -1,6 +1,5 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session } from "../../../../domain/entities/session";
-import type { User } from "../../../../domain/entities/user";
+import type { Session, User } from "../../../../domain/entities";
 
 export type ValidateSessionUseCaseSuccessResult = {
 	session: Session;

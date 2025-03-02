@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { EmailVerificationCode } from "../../../../domain/entities/email-verification-code";
+import { EmailVerificationCode } from "../../../../domain/entities";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { EmailVerificationCodeTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { EmailVerificationCodeRepository } from "../email-verification-code.repository";

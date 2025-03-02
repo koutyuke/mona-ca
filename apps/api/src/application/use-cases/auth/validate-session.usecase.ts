@@ -1,6 +1,6 @@
 import { sessionExpiresSpan, sessionRefreshSpan } from "../../../common/constants";
 import { err } from "../../../common/utils";
-import { Session } from "../../../domain/entities/session";
+import { Session } from "../../../domain/entities";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ISessionTokenService } from "../../services/session-token";

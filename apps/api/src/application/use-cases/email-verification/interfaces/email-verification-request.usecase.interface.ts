@@ -1,6 +1,5 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { EmailVerificationCode } from "../../../../domain/entities/email-verification-code";
-import type { User } from "../../../../domain/entities/user";
+import type { EmailVerificationCode, User } from "../../../../domain/entities";
 
 export type EmailVerificationRequestUseCaseSuccessResult = {
 	code: EmailVerificationCode;
