@@ -1,12 +1,14 @@
+import type { SessionId, UserId } from "../value-object";
+
 export class Session {
-	readonly id: string;
-	readonly userId: string;
+	readonly id: SessionId;
+	readonly userId: UserId;
 	readonly expiresAt: Date;
 	readonly fresh: boolean;
 
 	constructor(args: {
-		id: string;
-		userId: string;
+		id: SessionId;
+		userId: UserId;
 		expiresAt: Date;
 		fresh?: boolean;
 	}) {

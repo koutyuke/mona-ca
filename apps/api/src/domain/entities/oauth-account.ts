@@ -1,20 +1,16 @@
-import { type Static, t } from "elysia";
-
-export const oAuthProviderSchema = t.Union([t.Literal("discord")]);
-
-export type OAuthProvider = Static<typeof oAuthProviderSchema>;
+import type { OAuthProvider, OAuthProviderId, UserId } from "../value-object";
 
 export class OAuthAccount {
 	readonly provider: OAuthProvider;
-	readonly providerId: string;
-	readonly userId: string;
+	readonly providerId: OAuthProviderId;
+	readonly userId: UserId;
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 
 	constructor(args: {
 		provider: OAuthProvider;
-		providerId: string;
-		userId: string;
+		providerId: OAuthProviderId;
+		userId: UserId;
 		createdAt: Date;
 		updatedAt: Date;
 	}) {

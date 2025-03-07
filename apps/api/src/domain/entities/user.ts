@@ -1,20 +1,23 @@
+import type { Gender } from "../value-object/gender";
+import type { UserId } from "../value-object/ids";
+
 export class User {
-	readonly id: string;
+	readonly id: UserId;
 	readonly email: string;
 	readonly emailVerified: boolean;
 	readonly name: string;
 	readonly iconUrl: string | null;
-	readonly gender: "man" | "woman";
+	readonly gender: Gender;
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 
 	constructor(args: {
-		id: string;
+		id: UserId;
 		email: string;
 		emailVerified: boolean;
 		name: string;
 		iconUrl: string | null;
-		gender: "man" | "woman";
+		gender: Gender;
 		createdAt: Date;
 		updatedAt: Date;
 	}) {
