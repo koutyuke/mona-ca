@@ -10,7 +10,7 @@ export class SessionTokenService implements ISessionTokenService {
 	}
 
 	public generateSessionToken(): string {
-		const bytes = new Uint8Array(24);
+		const bytes = new Uint8Array(32);
 		crypto.getRandomValues(bytes);
 		const token = encodeBase32LowerCaseNoPadding(bytes);
 		return token;
