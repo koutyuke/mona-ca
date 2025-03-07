@@ -12,7 +12,7 @@ export const sessions = sqliteTable(
 	},
 	table => {
 		return {
-			expiresAtIdx: index("idx_session_expires_at").on(table.expiresAt),
+			expiresAtIdx: index("idx_sessions__expires_at").on(table.expiresAt),
 		};
 	},
 );

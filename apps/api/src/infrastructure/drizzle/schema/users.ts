@@ -12,6 +12,7 @@ export const users = sqliteTable(
 		gender: text("gender", { enum: ["man", "woman"] })
 			.default("man")
 			.notNull(),
+		passwordHash: text("password_hash"),
 		createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now'))`),
 		updatedAt: integer("updated_at", { mode: "timestamp" })
 			.notNull()
@@ -20,8 +21,8 @@ export const users = sqliteTable(
 	},
 	table => {
 		return {
-			emailIdx: index("idx_users_email").on(table.email),
-			updatedAtIdx: index("idx_users_updated_at").on(table.updatedAt),
+			emailIdx: index("idx_users__email").on(table.email),
+			updatedAtIdx: index("idx_users__updated_at").on(table.updatedAt),
 		};
 	},
 );

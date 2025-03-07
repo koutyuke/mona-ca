@@ -18,9 +18,9 @@ export const oAuthAccounts = sqliteTable(
 	},
 	table => {
 		return {
-			uniqueProviderAccount: unique("unique_oauth_accounts_provider_account").on(table.provider, table.providerId),
-			uniqueProviderUser: unique("unique_oauth_accounts_provider_user").on(table.provider, table.userId),
-			updatedAtIndex: index("idx_oauth_accounts_updated_at").on(table.updatedAt),
+			uniqueProviderAccount: unique("unq_oauth_accounts__provider_account").on(table.provider, table.providerId),
+			uniqueProviderUser: unique("unq_oauth_accounts__provider_user").on(table.provider, table.userId),
+			updatedAtIndex: index("idx_oauth_accounts__updated_at").on(table.updatedAt),
 		};
 	},
 );
