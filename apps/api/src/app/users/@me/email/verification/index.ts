@@ -4,7 +4,7 @@ import { EmailVerificationRequestUseCase } from "../../../../../application/use-
 import { verificationEmailTemplate } from "../../../../../application/use-cases/email/mail-context";
 import { isErr } from "../../../../../common/utils";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
-import { EmailVerificationCodeRepository } from "../../../../../interface-adapter/repositories/email-verification-code";
+import { EmailVerificationRepository } from "../../../../../interface-adapter/repositories/email-verification";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
@@ -37,7 +37,7 @@ const Verification = new ElysiaWithEnv({
 		async ({ cfModuleEnv: { DB }, env: { APP_ENV, RESEND_API_KEY }, body: { email: bodyEmail }, user }) => {
 			const drizzleService = new DrizzleService(DB);
 
-			const emailVerificationCodeRepository = new EmailVerificationCodeRepository(drizzleService);
+			const emailVerificationCodeRepository = new EmailVerificationRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
 			const sendEmailUseCase = new SendEmailUseCase(RESEND_API_KEY, APP_ENV === "production");
@@ -66,9 +66,7 @@ const Verification = new ElysiaWithEnv({
 				}
 			}
 
-			const { code } = result;
-
-			const mailContents = verificationEmailTemplate(code);
+			const mailContents = verificationEmailTemplate(result);
 
 			await sendEmailUseCase.execute({
 				from: mailContents.from,

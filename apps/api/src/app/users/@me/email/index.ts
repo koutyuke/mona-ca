@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { ChangeEmailUseCase } from "../../../../application/use-cases/user";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
-import { EmailVerificationCodeRepository } from "../../../../interface-adapter/repositories/email-verification-code";
+import { EmailVerificationRepository } from "../../../../interface-adapter/repositories/email-verification";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
@@ -33,7 +33,7 @@ const Email = new ElysiaWithEnv({
 		async ({ cfModuleEnv: { DB }, body: { code, email }, user, set }) => {
 			const drizzleService = new DrizzleService(DB);
 
-			const emailVerificationCodeRepository = new EmailVerificationCodeRepository(drizzleService);
+			const emailVerificationCodeRepository = new EmailVerificationRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
 			const changeEmailUseCase = new ChangeEmailUseCase(userRepository, emailVerificationCodeRepository);

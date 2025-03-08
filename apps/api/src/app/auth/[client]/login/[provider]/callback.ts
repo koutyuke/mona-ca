@@ -10,7 +10,7 @@ import {
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme, isErr } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../domain/entities";
+import { newOAuthProvider, oauthProviderSchema } from "../../../../../domain/value-object";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
@@ -56,11 +56,12 @@ export const ProviderCallback = new ElysiaWithEnv({
 			env: { APP_ENV, SESSION_PEPPER, PASSWORD_PEPPER, ...otherEnv },
 			cfModuleEnv: { DB },
 			cookie,
-			params: { client, provider },
+			params: { client, provider: _provider },
 			redirect,
 			query: { code, state: queryState, error },
 			set,
 		}) => {
+			const provider = newOAuthProvider(_provider);
 			const apiBaseUrl = getAPIBaseUrl(APP_ENV === "production");
 			const clientBaseUrl = client === "web" ? getWebBaseUrl(APP_ENV === "production") : getMobileScheme();
 
@@ -72,19 +73,19 @@ export const ProviderCallback = new ElysiaWithEnv({
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
-			const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 
-			const oAuthProviderGateway = OAuthProviderGateway({
+			const oauthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),
 			});
 
-			const oAuthLoginCallbackUseCase = new OAuthLoginCallbackUseCase(
+			const oauthLoginCallbackUseCase = new OAuthLoginCallbackUseCase(
 				sessionTokenService,
-				oAuthProviderGateway,
+				oauthProviderGateway,
 				sessionRepository,
-				oAuthAccountRepository,
+				oauthAccountRepository,
 				userRepository,
 			);
 
@@ -116,7 +117,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 				return redirect(redirectToClientUrl.toString());
 			}
 
-			const result = await oAuthLoginCallbackUseCase.execute(code, codeVerifier, provider);
+			const result = await oauthLoginCallbackUseCase.execute(code, codeVerifier, provider);
 
 			cookieService.deleteCookie(OAUTH_STATE_COOKIE_NAME);
 			cookieService.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
@@ -182,7 +183,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 			),
 			params: t.Object({
 				client: clientSchema,
-				provider: oAuthProviderSchema,
+				provider: oauthProviderSchema,
 			}),
 			cookie: t.Cookie(cookieSchemaObject),
 		},

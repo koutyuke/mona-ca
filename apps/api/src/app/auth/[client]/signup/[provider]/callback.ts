@@ -9,15 +9,15 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "../../../../../common/constants";
-import { clientSchema, genderSchema } from "../../../../../common/schema";
+import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme, isErr } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../domain/entities";
+import { newOAuthProvider, oauthProviderSchema } from "../../../../../domain/value-object";
+import { genderSchema } from "../../../../../domain/value-object";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
-import { UserCredentialRepository } from "../../../../../interface-adapter/repositories/user-credential";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
 import { BadRequestException, InternalServerErrorException } from "../../../../../modules/error";
@@ -63,11 +63,12 @@ export const ProviderCallback = new ElysiaWithEnv({
 			env: { APP_ENV, SESSION_PEPPER, PASSWORD_PEPPER, ...otherEnv },
 			cfModuleEnv: { DB },
 			cookie,
-			params: { client, provider },
+			params: { client, provider: _provider },
 			query: { code, state: queryState, error },
 			redirect,
 			set,
 		}) => {
+			const provider = newOAuthProvider(_provider);
 			const apiBaseUrl = getAPIBaseUrl(APP_ENV === "production");
 			const clientBaseUrl = client === "web" ? getWebBaseUrl(APP_ENV === "production") : getMobileScheme();
 
@@ -78,29 +79,26 @@ export const ProviderCallback = new ElysiaWithEnv({
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
-			const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
-			const userCredentialRepository = new UserCredentialRepository(drizzleService);
 
-			const oAuthProviderGateway = OAuthProviderGateway({
+			const oauthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),
 			});
 
-			const oAuthSignupCallbackUseCase = new OAuthSignupCallbackUseCase(
+			const oauthSignupCallbackUseCase = new OAuthSignupCallbackUseCase(
 				sessionTokenService,
-				oAuthProviderGateway,
+				oauthProviderGateway,
 				sessionRepository,
-				oAuthAccountRepository,
+				oauthAccountRepository,
 				userRepository,
-				userCredentialRepository,
 			);
 
 			const cookieState = cookieService.getCookie(OAUTH_STATE_COOKIE_NAME);
 			const codeVerifier = cookieService.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			const redirectUrlCookieValue = cookieService.getCookie(OAUTH_REDIRECT_URL_COOKIE_NAME);
-			const userOption = cookieService.getCookie(OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME);
 
 			const redirectToClientUrl = validateRedirectUrl(clientBaseUrl, redirectUrlCookieValue ?? "/");
 
@@ -126,7 +124,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 				return redirect(redirectToClientUrl.toString());
 			}
 
-			const result = await oAuthSignupCallbackUseCase.execute(code, codeVerifier, provider, userOption);
+			const result = await oauthSignupCallbackUseCase.execute(code, codeVerifier, provider);
 
 			cookieService.deleteCookie(OAUTH_STATE_COOKIE_NAME);
 			cookieService.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
@@ -192,7 +190,7 @@ export const ProviderCallback = new ElysiaWithEnv({
 				{ additionalProperties: true },
 			),
 			params: t.Object({
-				provider: oAuthProviderSchema,
+				provider: oauthProviderSchema,
 				client: clientSchema,
 			}),
 			cookie: t.Cookie(cookieSchemaObject),

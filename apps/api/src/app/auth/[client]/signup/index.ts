@@ -3,12 +3,12 @@ import { PasswordService } from "../../../../application/services/password";
 import { SessionTokenService } from "../../../../application/services/session-token";
 import { SignupUseCase } from "../../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../../../common/constants";
-import { clientSchema, genderSchema } from "../../../../common/schema";
+import { clientSchema } from "../../../../common/schema";
 import { isErr } from "../../../../common/utils";
+import { genderSchema, newGender } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
-import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { captcha } from "../../../../modules/captcha";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
@@ -56,17 +56,10 @@ export const Signup = new ElysiaWithEnv({
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
-			const userCredentialRepository = new UserCredentialRepository(drizzleService);
 
-			const signupUseCase = new SignupUseCase(
-				sessionRepository,
-				userRepository,
-				userCredentialRepository,
-				passwordService,
-				sessionTokenService,
-			);
+			const signupUseCase = new SignupUseCase(sessionRepository, userRepository, passwordService, sessionTokenService);
 
-			const result = await signupUseCase.execute(name, email, password, gender);
+			const result = await signupUseCase.execute(name, email, password, newGender(gender));
 
 			if (isErr(result)) {
 				const { code } = result;
