@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `unq_email_verifications__user_id_email` ON `email_verifications` (`user_id`,`email`);
