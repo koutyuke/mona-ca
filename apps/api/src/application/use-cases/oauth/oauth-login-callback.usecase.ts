@@ -1,6 +1,7 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { err } from "../../../common/utils";
-import type { OAuthProvider } from "../../../domain/entities";
+import { Session } from "../../../domain/entities";
+import { type OAuthProvider, newOAuthProviderId, newSessionId } from "../../../domain/value-object";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
@@ -14,9 +15,9 @@ import type {
 export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 	constructor(
 		private readonly sessionTokenService: ISessionTokenService,
-		private readonly oAuthProviderGateway: IOAuthProviderGateway,
+		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly oAuthAccountRepository: IOAuthAccountRepository,
+		private readonly oauthAccountRepository: IOAuthAccountRepository,
 		private readonly userRepository: IUserRepository,
 	) {}
 
@@ -25,20 +26,20 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		codeVerifier: string,
 		provider: OAuthProvider,
 	): Promise<OAuthLoginCallbackUseCaseResult> {
-		const tokens = await this.oAuthProviderGateway.getTokens(code, codeVerifier);
+		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
 		const accessToken = tokens.accessToken();
 
-		const providerAccount = await this.oAuthProviderGateway.getAccountInfo(accessToken);
+		const providerAccount = await this.oauthProviderGateway.getAccountInfo(accessToken);
 
-		await this.oAuthProviderGateway.revokeToken(accessToken);
+		await this.oauthProviderGateway.revokeToken(accessToken);
 
 		if (!providerAccount) {
 			return err("FAILED_TO_GET_ACCOUNT_INFO");
 		}
 
-		const existingOAuthAccount = await this.oAuthAccountRepository.findByProviderAndProviderId(
+		const existingOAuthAccount = await this.oauthAccountRepository.findByProviderAndProviderId(
 			provider,
-			providerAccount.id,
+			newOAuthProviderId(providerAccount.id),
 		);
 
 		const sameEmailUser = await this.userRepository.findByEmail(providerAccount.email);
@@ -51,13 +52,14 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		}
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
-
-		const session = await this.sessionRepository.create({
+		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const session = new Session({
 			id: sessionId,
 			userId: existingOAuthAccount.userId,
 			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
 		});
+
+		await this.sessionRepository.save(session);
 
 		return {
 			session,

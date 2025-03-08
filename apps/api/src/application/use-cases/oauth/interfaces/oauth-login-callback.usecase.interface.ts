@@ -1,5 +1,6 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { OAuthProvider, Session } from "../../../../domain/entities";
+import type { Session } from "../../../../domain/entities";
+import type { OAuthProvider } from "../../../../domain/value-object";
 
 export type OAuthLoginCallbackUseCaseSuccessResult = {
 	session: Session;

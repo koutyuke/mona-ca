@@ -5,7 +5,7 @@ import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/o
 import type { IOAuthRequestUseCase, OAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
 
 export class OAuthRequestUseCase implements IOAuthRequestUseCase {
-	constructor(private oAuthProviderGateway: IOAuthProviderGateway) {}
+	constructor(private oauthProviderGateway: IOAuthProviderGateway) {}
 
 	public execute(clientBaseUrl: URL, queryRedirectUrl: string): OAuthRequestUseCaseResult {
 		const validatedRedirectUrl = validateRedirectUrl(clientBaseUrl, queryRedirectUrl ?? "/");
@@ -16,7 +16,7 @@ export class OAuthRequestUseCase implements IOAuthRequestUseCase {
 
 		const state = generateState();
 		const codeVerifier = generateCodeVerifier();
-		const redirectToProvider = this.oAuthProviderGateway.genAuthUrl(state, codeVerifier);
+		const redirectToProvider = this.oauthProviderGateway.genAuthUrl(state, codeVerifier);
 
 		return {
 			state,
