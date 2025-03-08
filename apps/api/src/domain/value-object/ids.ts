@@ -14,6 +14,6 @@ export const newSessionId = (rawSessionId: string) => {
 
 export type EmailVerificationId = NewType<"EmailVerificationId", string>;
 
-export const newEmailVerificationId = (rawEmailVerificationCodeId: string) => {
-	return rawEmailVerificationCodeId as EmailVerificationId;
+export const newEmailVerificationId = (rawEmailVerificationId: string) => {
+	return rawEmailVerificationId as EmailVerificationId;
 };
