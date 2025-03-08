@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
 import { User } from "../../../../domain/entities";
+import { newSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
@@ -32,7 +33,7 @@ describe("UserRepository.findBySessionId", async () => {
 	});
 
 	test("should return null if user not found.", async () => {
-		const foundUser = await userRepository.findBySessionId("invalidSessionId");
+		const foundUser = await userRepository.findBySessionId(newSessionId("invalidSessionId"));
 		expect(foundUser).toBeNull();
 	});
 });

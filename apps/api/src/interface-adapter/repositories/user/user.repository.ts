@@ -1,40 +1,60 @@
 import { eq } from "drizzle-orm";
-import { type Session, User } from "../../../domain/entities";
+import { User } from "../../../domain/entities";
+import { type Gender, type SessionId, type UserId, newGender, newUserId } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IUserRepository } from "./interfaces/user.repository.interface";
+
+interface FoundUserDto {
+	id: string;
+	email: string;
+	name: string;
+	emailVerified: boolean;
+	iconUrl: string | null;
+	gender: "man" | "woman";
+	passwordHash: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+interface UpdateUserDto {
+	email: string;
+	emailVerified: boolean;
+	name: string;
+	iconUrl: string | null;
+	gender: Gender;
+	passwordHash?: string | null;
+	updatedAt: Date;
+}
 
 export class UserRepository implements IUserRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
-	public async find(id: string): Promise<User | null> {
-		const user = await this.drizzleService.db.query.users.findFirst({
-			where: (users, { eq }) => eq(users.id, id),
-		});
+	public async findById(id: UserId): Promise<User | null> {
+		const users = await this.drizzleService.db
+			.select()
+			.from(this.drizzleService.schema.users)
+			.where(eq(this.drizzleService.schema.users.id, id));
 
-		return user
-			? new User({
-					...user,
-					createdAt: new Date(user.createdAt),
-					updatedAt: new Date(user.updatedAt),
-				})
-			: null;
+		if (users.length > 1) {
+			throw new Error("Multiple users found for the same id");
+		}
+
+		return users.length === 1 ? this.convertToUser(users[0]!) : null;
 	}
 
 	public async findByEmail(email: string): Promise<User | null> {
-		const user = await this.drizzleService.db.query.users.findFirst({
-			where: (users, { eq }) => eq(users.email, email),
-		});
+		const users = await this.drizzleService.db
+			.select()
+			.from(this.drizzleService.schema.users)
+			.where(eq(this.drizzleService.schema.users.email, email));
 
-		return user
-			? new User({
-					...user,
-					createdAt: new Date(user.createdAt),
-					updatedAt: new Date(user.updatedAt),
-				})
-			: null;
+		if (users.length > 1) {
+			throw new Error("Multiple users found for the same email");
+		}
+		return users.length === 1 ? this.convertToUser(users[0]!) : null;
 	}
 
-	public async findBySessionId(sessionId: Session["id"]): Promise<User | null> {
+	public async findBySessionId(sessionId: SessionId): Promise<User | null> {
 		const result = await this.drizzleService.db
 			.select()
 			.from(this.drizzleService.schema.users)
@@ -44,40 +64,77 @@ export class UserRepository implements IUserRepository {
 			)
 			.where(eq(this.drizzleService.schema.sessions.id, sessionId));
 
-		return result.length === 1 ? new User(result[0]!.users) : null;
-	}
-
-	public async create(user: Omit<ConstructorParameters<typeof User>[0], "createdAt" | "updatedAt">): Promise<User> {
-		const results = await this.drizzleService.db.insert(this.drizzleService.schema.users).values(user).returning();
-
-		if (results.length !== 1) {
-			throw new Error("Failed to create user");
+		if (result.length > 1) {
+			throw new Error("Multiple users found for the same session");
 		}
 
-		return new User(results[0]!);
+		return result.length === 1 ? this.convertToUser(result[0]!.users) : null;
 	}
 
-	public async update(
-		id: User["id"],
-		user: Partial<Omit<ConstructorParameters<typeof User>[0], "id" | "updatedAt" | "createdAt">>,
-	): Promise<User> {
-		const updatedUsers = await this.drizzleService.db
-			.update(this.drizzleService.schema.users)
-			.set(user)
-			.where(eq(this.drizzleService.schema.users.id, id))
-			.returning();
+	public async findPasswordHashById(id: UserId): Promise<string | null> {
+		const passwordHashes = await this.drizzleService.db
+			.select({
+				passwordHash: this.drizzleService.schema.users.passwordHash,
+			})
+			.from(this.drizzleService.schema.users)
+			.where(eq(this.drizzleService.schema.users.id, id));
 
-		const updatedUser = updatedUsers[0];
-
-		if (!updatedUser) {
-			throw new Error("Failed to update user");
+		if (passwordHashes.length > 1) {
+			throw new Error("Multiple password hashes found for the same user");
 		}
-		return new User(updatedUser);
+
+		return passwordHashes.length === 1 ? passwordHashes[0]!.passwordHash : null;
 	}
 
-	public async delete(id: User["id"]): Promise<void> {
+	public async save(
+		user: User,
+		options?: {
+			passwordHash?: string | null;
+		},
+	): Promise<void> {
+		const updateUserDto: UpdateUserDto = {
+			email: user.email,
+			emailVerified: user.emailVerified,
+			name: user.name,
+			iconUrl: user.iconUrl,
+			gender: user.gender,
+			updatedAt: user.updatedAt,
+		};
+
+		const { passwordHash } = options ?? {};
+
+		if (passwordHash !== undefined) {
+			updateUserDto.passwordHash = passwordHash;
+		}
+
+		await this.drizzleService.db
+			.insert(this.drizzleService.schema.users)
+			.values({
+				...user,
+				passwordHash: passwordHash ?? null,
+			})
+			.onConflictDoUpdate({
+				target: this.drizzleService.schema.users.id,
+				set: updateUserDto,
+			});
+	}
+
+	public async delete(id: UserId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.users)
 			.where(eq(this.drizzleService.schema.users.id, id));
+	}
+
+	private convertToUser(dto: FoundUserDto): User {
+		return new User({
+			id: newUserId(dto.id),
+			email: dto.email,
+			name: dto.name,
+			emailVerified: dto.emailVerified,
+			iconUrl: dto.iconUrl,
+			gender: newGender(dto.gender),
+			createdAt: new Date(dto.createdAt),
+			updatedAt: new Date(dto.updatedAt),
+		});
 	}
 }

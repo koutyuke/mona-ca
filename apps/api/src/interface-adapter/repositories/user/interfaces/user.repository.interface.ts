@@ -1,13 +1,27 @@
-import type { Session, User } from "../../../../domain/entities";
+import type { User } from "../../../../domain/entities";
+import type { SessionId, UserId } from "../../../../domain/value-object";
 
 export interface IUserRepository {
-	find(id: User["id"]): Promise<User | null>;
-	findByEmail(email: User["email"]): Promise<User | null>;
-	findBySessionId(sessionId: Session["id"]): Promise<User | null>;
-	create(user: Omit<ConstructorParameters<typeof User>[0], "createdAt" | "updatedAt">): Promise<User>;
-	update(
-		id: User["id"],
-		user: Partial<Omit<ConstructorParameters<typeof User>[0], "id" | "updatedAt" | "createdAt">>,
-	): Promise<User>;
-	delete(id: User["id"]): Promise<void>;
+	// search for a user by id
+	findById(id: UserId): Promise<User | null>;
+
+	// search for a user by email
+	findByEmail(email: string): Promise<User | null>;
+
+	// search for a user by session id
+	findBySessionId(sessionId: SessionId): Promise<User | null>;
+
+	// search for a user hashed password by user id
+	findPasswordHashById(userId: UserId): Promise<string | null>;
+
+	// create or update a user
+	save(
+		user: User,
+		options?: {
+			passwordHash?: string | null;
+		},
+	): Promise<void>;
+
+	// delete a user
+	delete(id: UserId): Promise<void>;
 }
