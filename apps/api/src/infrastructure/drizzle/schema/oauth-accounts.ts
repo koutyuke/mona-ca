@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
-export const oAuthAccounts = sqliteTable(
+export const oauthAccounts = sqliteTable(
 	"oauth_accounts",
 	{
 		provider: text("provider", { enum: ["discord"] }).notNull(),
