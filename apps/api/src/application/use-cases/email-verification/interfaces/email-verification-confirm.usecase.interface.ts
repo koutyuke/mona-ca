@@ -1,5 +1,5 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { User } from "../../../../domain/entities/user";
+import type { User } from "../../../../domain/entities";
 
 export type EmailVerificationConfirmUseCaseErrorResult = Err<"INVALID_CODE">;
 

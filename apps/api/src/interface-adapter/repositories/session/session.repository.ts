@@ -1,69 +1,78 @@
 import { eq, lte } from "drizzle-orm";
-import { Session } from "../../../domain/entities/session";
+import { Session } from "../../../domain/entities";
+import { type SessionId, type UserId, newSessionId, newUserId } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { ISessionRepository, SessionConstructor } from "./interfaces/session.repository.interface";
+import type { ISessionRepository } from "./interfaces/session.repository.interface";
+
+interface FoundSessionDto {
+	id: string;
+	userId: string;
+	expiresAt: Date;
+}
 
 export class SessionRepository implements ISessionRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
-	public async find(sessionId: string): Promise<Session | null> {
-		const session = await this.drizzleService.db.query.sessions.findFirst({
-			where: (session, { eq }) => eq(session.id, sessionId),
-		});
-		return session ? new Session(session) : null;
+	public async findById(sessionId: SessionId): Promise<Session | null> {
+		const sessions = await this.drizzleService.db
+			.select()
+			.from(this.drizzleService.schema.sessions)
+			.where(eq(this.drizzleService.schema.sessions.id, sessionId));
+
+		if (sessions.length > 1) {
+			throw new Error("Multiple sessions found for the same session id");
+		}
+
+		return sessions.length === 1 ? this.convertToSession(sessions[0]!) : null;
 	}
 
-	public async findManyByUserId(userId: string): Promise<Session[]> {
-		const sessions = await this.drizzleService.db.query.sessions.findMany({
-			where: (session, { eq }) => eq(session.userId, userId),
-		});
-		return sessions.map(session => new Session(session));
+	public async findManyByUserId(userId: UserId): Promise<Session[]> {
+		const sessions = await this.drizzleService.db
+			.select()
+			.from(this.drizzleService.schema.sessions)
+			.where(eq(this.drizzleService.schema.sessions.userId, userId));
+
+		return sessions.map(session => this.convertToSession(session));
 	}
 
-	public async create(session: Omit<SessionConstructor, "fresh">): Promise<Session> {
-		const results = await this.drizzleService.db
+	public async save(session: Session): Promise<void> {
+		await this.drizzleService.db
 			.insert(this.drizzleService.schema.sessions)
 			.values(session)
-			.returning();
-		if (results.length !== 1) {
-			throw new Error("Failed to create session.");
-		}
-		return new Session(results[0]!);
+			.onConflictDoUpdate({
+				target: this.drizzleService.schema.sessions.id,
+				set: {
+					expiresAt: session.expiresAt,
+				},
+			});
 	}
 
-	public async updateExpiration(sessionId: string, expiresAt: Date): Promise<Session> {
-		const results = await this.drizzleService.db
-			.update(this.drizzleService.schema.sessions)
-			.set({
-				expiresAt,
-			})
-			.where(eq(this.drizzleService.schema.sessions.id, sessionId))
-			.returning();
-
-		if (results.length !== 1) {
-			throw new Error("Failed to update session expiration.");
-		}
-		return new Session(results[0]!);
-	}
-
-	public async delete(sessionId: string): Promise<void> {
+	public async delete(sessionId: SessionId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.sessions)
 			.where(eq(this.drizzleService.schema.sessions.id, sessionId))
 			.execute();
 	}
 
-	public async deleteManyByExpired(): Promise<void> {
+	public async deleteExpiredSessions(): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.sessions)
 			.where(lte(this.drizzleService.schema.sessions.expiresAt, new Date()))
 			.execute();
 	}
 
-	public async deleteManyByUserId(userId: string): Promise<void> {
+	public async deleteByUserId(userId: UserId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.sessions)
 			.where(eq(this.drizzleService.schema.sessions.userId, userId))
 			.execute();
+	}
+
+	private convertToSession(dto: FoundSessionDto): Session {
+		return new Session({
+			id: newSessionId(dto.id),
+			userId: newUserId(dto.userId),
+			expiresAt: dto.expiresAt,
+		});
 	}
 }

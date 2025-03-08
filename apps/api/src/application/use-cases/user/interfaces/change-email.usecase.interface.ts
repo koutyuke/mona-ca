@@ -1,4 +1,4 @@
-import type { User } from "../../../../domain/entities/user";
+import type { User } from "../../../../domain/entities";
 
 export interface IChangeEmailUseCaseResult {
 	success: boolean;

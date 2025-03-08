@@ -7,9 +7,10 @@ import {
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../../../common/constants";
-import { clientSchema, genderSchema } from "../../../../../common/schema";
+import { clientSchema } from "../../../../../common/schema";
 import { isErr } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
+import { newOAuthProvider, oauthProviderSchema } from "../../../../../domain/value-object";
+import { genderSchema } from "../../../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
@@ -51,26 +52,27 @@ export const Provider = new ElysiaWithEnv({
 		"/",
 		async ({
 			env: { APP_ENV, ...otherEnv },
-			params: { provider, client },
+			params: { provider: _provider, client },
 			cookie,
 			query: { "redirect-url": queryRedirectUrl = "/", gender = "man" },
 			redirect,
 		}) => {
+			const provider = newOAuthProvider(_provider);
 			const apiBaseUrl = getAPIBaseUrl(APP_ENV === "production");
 			const clientBaseUrl = client === "web" ? getWebBaseUrl(APP_ENV === "production") : getMobileScheme();
 
 			const providerRedirectUrl = new URL(`auth/${client}/signup/${provider}/callback`, apiBaseUrl);
 
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
-			const oAuthProviderGateway = OAuthProviderGateway({
+			const oauthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),
 			});
 
-			const oAuthRequestUseCase = new OAuthRequestUseCase(oAuthProviderGateway);
+			const oauthRequestUseCase = new OAuthRequestUseCase(oauthProviderGateway);
 
-			const result = oAuthRequestUseCase.execute(clientBaseUrl, queryRedirectUrl);
+			const result = oauthRequestUseCase.execute(clientBaseUrl, queryRedirectUrl);
 
 			if (isErr(result)) {
 				const { code } = result;
@@ -123,7 +125,7 @@ export const Provider = new ElysiaWithEnv({
 			}),
 			params: t.Object({
 				client: clientSchema,
-				provider: oAuthProviderSchema,
+				provider: oauthProviderSchema,
 			}),
 			cookie: t.Cookie(cookieSchemaObject),
 		},

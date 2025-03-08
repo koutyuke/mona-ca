@@ -1,11 +1,18 @@
 import { sessionExpiresSpan } from "../../../common/constants";
 import { err, ulid } from "../../../common/utils";
-import type { OAuthProvider } from "../../../domain/entities/oauth-account";
+import { OAuthAccount, Session, User } from "../../../domain/entities";
+import {
+	type Gender,
+	type OAuthProvider,
+	newGender,
+	newOAuthProviderId,
+	newSessionId,
+	newUserId,
+} from "../../../domain/value-object";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IUserCredentialRepository } from "../../../interface-adapter/repositories/user-credential";
 import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	IOAuthSignupCallbackUseCase,
@@ -15,11 +22,10 @@ import type {
 export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 	constructor(
 		private readonly sessionTokenService: ISessionTokenService,
-		private readonly oAuthProviderGateway: IOAuthProviderGateway,
+		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly oAuthAccountRepository: IOAuthAccountRepository,
+		private readonly oauthAccountRepository: IOAuthAccountRepository,
 		private readonly userRepository: IUserRepository,
-		private readonly userCredentialRepository: IUserCredentialRepository,
 	) {}
 
 	/**
@@ -38,29 +44,28 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		code: string,
 		codeVerifier: string,
 		provider: OAuthProvider,
-		userOption?: { gender?: "man" | "woman" },
+		userOption?: { gender?: Gender },
 	): Promise<OAuthSignupCallbackUseCaseResult> {
-		const { gender = "man" } = userOption ?? {};
+		const { gender = newGender("man") } = userOption ?? {};
 
-		const tokens = await this.oAuthProviderGateway.getTokens(code, codeVerifier);
+		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
 		const accessToken = tokens.accessToken();
 
-		const providerAccount = await this.oAuthProviderGateway.getAccountInfo(accessToken);
+		const providerAccount = await this.oauthProviderGateway.getAccountInfo(accessToken);
 
-		await this.oAuthProviderGateway.revokeToken(accessToken);
+		await this.oauthProviderGateway.revokeToken(accessToken);
 
 		if (!providerAccount) {
 			return err("FAILED_TO_GET_ACCOUNT_INFO");
 		}
 
-		const existingOAuthAccount = await this.oAuthAccountRepository.findByProviderAndProviderId(
-			provider,
-			providerAccount.id,
-		);
+		const providerId = newOAuthProviderId(providerAccount.id);
+
+		const existingOAuthAccount = await this.oauthAccountRepository.findByProviderAndProviderId(provider, providerId);
 
 		// check pre-register user
 		const existingUser = existingOAuthAccount
-			? await this.userRepository.find(existingOAuthAccount.userId)
+			? await this.userRepository.findById(existingOAuthAccount.userId)
 			: await this.userRepository.findByEmail(providerAccount.email);
 
 		if (existingUser) {
@@ -75,37 +80,41 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			}
 			await this.userRepository.delete(existingUser.id);
 		} else if (existingOAuthAccount) {
-			await this.oAuthAccountRepository.deleteByProviderAndProviderId(provider, providerAccount.id);
+			await this.oauthAccountRepository.deleteByProviderAndProviderId(provider, providerId);
 		}
 
-		const user = await this.userRepository.create({
-			id: ulid(),
+		const now = new Date();
+
+		const user = new User({
+			id: newUserId(ulid()),
 			name: providerAccount.name,
 			email: providerAccount.email,
 			emailVerified: providerAccount.emailVerified, // if emailVerified is false, this user is pre-register user
 			iconUrl: providerAccount.iconUrl,
 			gender,
+			createdAt: now,
+			updatedAt: now,
 		});
 
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
+		await this.userRepository.save(user, { passwordHash: null });
 
-		const [session] = await Promise.all([
-			this.sessionRepository.create({
-				id: sessionId,
-				userId: user.id,
-				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
-			}),
-			this.userCredentialRepository.create({
-				userId: user.id,
-				passwordHash: null,
-			}),
-			this.oAuthAccountRepository.create({
-				provider,
-				providerId: providerAccount.id,
-				userId: user.id,
-			}),
-		]);
+		const sessionToken = this.sessionTokenService.generateSessionToken();
+		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const session = new Session({
+			id: sessionId,
+			userId: user.id,
+			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
+		});
+
+		const oauthAccount = new OAuthAccount({
+			provider,
+			providerId,
+			userId: user.id,
+			createdAt: now,
+			updatedAt: now,
+		});
+
+		await Promise.all([this.sessionRepository.save(session), this.oauthAccountRepository.save(oauthAccount)]);
 
 		return {
 			session,

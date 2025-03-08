@@ -1,6 +1,6 @@
 import { err } from "../../../common/utils";
-import type { User } from "../../../domain/entities/user";
-import type { IEmailVerificationCodeRepository } from "../../../interface-adapter/repositories/email-verification-code";
+import { User } from "../../../domain/entities";
+import type { IEmailVerificationRepository } from "../../../interface-adapter/repositories/email-verification";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type {
 	EmailVerificationConfirmUseCaseResult,
@@ -9,26 +9,30 @@ import type {
 
 export class EmailVerificationConfirmUseCase implements IEmailVerificationConfirmUseCase {
 	constructor(
-		private emailVerificationCodeRepository: IEmailVerificationCodeRepository,
+		private emailVerificationRepository: IEmailVerificationRepository,
 		private userRepository: IUserRepository,
 	) {}
 
 	public async execute(code: string, user: User): Promise<EmailVerificationConfirmUseCaseResult> {
-		const databaseCode = await this.emailVerificationCodeRepository.findByUserId(user.id);
+		const databaseCode = await this.emailVerificationRepository.findByUserId(user.id);
 
 		if (!databaseCode || databaseCode.code !== code) {
 			return err("INVALID_CODE");
 		}
 
-		await this.emailVerificationCodeRepository.delete({ userId: user.id });
+		await this.emailVerificationRepository.deleteByUserId(user.id);
 
 		if (databaseCode.isExpired || databaseCode.email !== user.email) {
 			return err("INVALID_CODE");
 		}
 
-		await this.userRepository.update(user.id, {
+		const updatedUser = new User({
+			...user,
 			emailVerified: true,
+			updatedAt: new Date(),
 		});
+
+		await this.userRepository.save(updatedUser);
 
 		return;
 	}

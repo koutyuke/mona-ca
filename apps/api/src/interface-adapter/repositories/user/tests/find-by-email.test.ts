@@ -1,6 +1,5 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { User } from "../../../../domain/entities/user";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
@@ -20,13 +19,7 @@ describe("UserRepository.findByEmail", async () => {
 	test("should return User instance if user exists", async () => {
 		const foundUser = await userRepository.findByEmail(userTableHelper.baseUser.email);
 
-		const expectedUser = new User({
-			...userTableHelper.baseUser,
-			createdAt: foundUser!.createdAt,
-			updatedAt: foundUser!.updatedAt,
-		});
-
-		expect(foundUser).toStrictEqual(expectedUser);
+		expect(foundUser).toStrictEqual(userTableHelper.baseUser);
 	});
 
 	test("should return null if user not found", async () => {

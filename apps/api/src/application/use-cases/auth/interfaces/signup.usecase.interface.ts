@@ -1,6 +1,6 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session } from "../../../../domain/entities/session";
-import type { User } from "../../../../domain/entities/user";
+import type { Session, User } from "../../../../domain/entities";
+import type { Gender } from "../../../../domain/value-object";
 
 export type SignupUseCaseSuccessResult = {
 	user: User;
@@ -13,5 +13,5 @@ export type SignupUseCaseErrorResult = Err<"EMAIL_IS_ALREADY_USED">;
 export type SignupUseCaseResult = Result<SignupUseCaseSuccessResult, SignupUseCaseErrorResult>;
 
 export interface ISignupUseCase {
-	execute(name: string, email: string, password: string, gender: "man" | "woman"): Promise<SignupUseCaseResult>;
+	execute(name: string, email: string, password: string, gender: Gender): Promise<SignupUseCaseResult>;
 }

@@ -1,1 +1,1 @@
-export { clientSchema, genderSchema } from "./schema";
+export { clientSchema } from "./schema";

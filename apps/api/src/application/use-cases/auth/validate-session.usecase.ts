@@ -1,6 +1,7 @@
-import { sessionExpiresSpan, sessionRefreshSpan } from "../../../common/constants";
+import { sessionExpiresSpan } from "../../../common/constants";
 import { err } from "../../../common/utils";
-import { Session } from "../../../domain/entities/session";
+import { Session } from "../../../domain/entities";
+import { newSessionId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ISessionTokenService } from "../../services/session-token";
@@ -14,11 +15,11 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	) {}
 
 	public async execute(sessionToken: string): Promise<ValidateSessionUseCaseResult> {
-		const sessionId = this.sessionTokenService.hashSessionToken(sessionToken);
+		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
 
 		let [user, session] = await Promise.all([
 			this.userRepository.findBySessionId(sessionId),
-			this.sessionRepository.find(sessionId),
+			this.sessionRepository.findById(sessionId),
 		]);
 
 		if (!session || !user) {
@@ -30,14 +31,13 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 			return err("SESSION_EXPIRED");
 		}
 
-		if (Date.now() >= session.expiresAt.getTime() - sessionRefreshSpan.milliseconds()) {
+		if (session.shouldRefreshExpiration) {
 			session = new Session({
 				...session,
 				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
-				fresh: true,
 			});
 
-			await this.sessionRepository.updateExpiration(sessionId, session.expiresAt);
+			await this.sessionRepository.save(session);
 		}
 
 		return { session, user };

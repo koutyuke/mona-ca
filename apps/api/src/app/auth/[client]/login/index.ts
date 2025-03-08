@@ -8,7 +8,6 @@ import { isErr } from "../../../../common/utils";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../../interface-adapter/repositories/user";
-import { UserCredentialRepository } from "../../../../interface-adapter/repositories/user-credential";
 import { captcha } from "../../../../modules/captcha";
 import { CookieService } from "../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../modules/elysia-with-env";
@@ -56,15 +55,8 @@ export const Login = new ElysiaWithEnv({
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
-			const userCredentialRepository = new UserCredentialRepository(drizzleService);
 
-			const loginUseCase = new LoginUseCase(
-				sessionRepository,
-				userRepository,
-				userCredentialRepository,
-				passwordService,
-				sessionTokenService,
-			);
+			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, passwordService, sessionTokenService);
 
 			const result = await loginUseCase.execute(email, password);
 

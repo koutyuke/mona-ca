@@ -8,7 +8,7 @@ import {
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { isErr } from "../../../../../common/utils";
-import { oAuthProviderSchema } from "../../../../../domain/entities/oauth-account";
+import { newOAuthProvider, oauthProviderSchema } from "../../../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
@@ -44,27 +44,28 @@ export const Provider = new ElysiaWithEnv({
 	.get(
 		"/",
 		async ({
-			params: { provider, client },
+			params: { provider: _provider, client },
 			cookie,
 			env: { APP_ENV, ...otherEnv },
 			query: { "redirect-url": queryRedirectUrl = "/" },
 			redirect,
 		}) => {
+			const provider = newOAuthProvider(_provider);
 			const apiBaseUrl = getAPIBaseUrl(APP_ENV === "production");
 			const clientBaseUrl = client === "web" ? getWebBaseUrl(APP_ENV === "production") : getMobileScheme();
 
 			const providerRedirectUrl = new URL(`auth/${client}/login/${provider}/callback`, apiBaseUrl);
 
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
-			const oAuthProviderGateway = OAuthProviderGateway({
+			const oauthProviderGateway = OAuthProviderGateway({
 				provider,
 				env: otherEnv,
 				redirectUrl: providerRedirectUrl.toString(),
 			});
 
-			const oAuthRequestUseCase = new OAuthRequestUseCase(oAuthProviderGateway);
+			const oauthRequestUseCase = new OAuthRequestUseCase(oauthProviderGateway);
 
-			const result = oAuthRequestUseCase.execute(clientBaseUrl, queryRedirectUrl);
+			const result = oauthRequestUseCase.execute(clientBaseUrl, queryRedirectUrl);
 
 			if (isErr(result)) {
 				const { code } = result;
@@ -105,7 +106,7 @@ export const Provider = new ElysiaWithEnv({
 				"redirect-url": t.Optional(t.String()),
 			}),
 			params: t.Object({
-				provider: oAuthProviderSchema,
+				provider: oauthProviderSchema,
 				client: clientSchema,
 			}),
 			cookie: t.Cookie(cookieSchemaObject),

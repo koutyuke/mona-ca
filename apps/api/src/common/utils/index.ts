@@ -8,3 +8,4 @@ export { err, isErr } from "./result";
 
 export type { TimeSpanUnit } from "./time-span";
 export type { Result, Err } from "./result";
+export type { NewType } from "./new-type";

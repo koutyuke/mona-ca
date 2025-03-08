@@ -1,6 +1,9 @@
 import { env } from "cloudflare:test";
 import { SessionTokenService } from "../../application/services/session-token";
 import { sessionExpiresSpan } from "../../common/constants";
+import { Session } from "../../domain/entities";
+import { newSessionId, newUserId } from "../../domain/value-object";
+import { toDatabaseDate } from "../utils";
 
 export type DatabaseSession = {
 	id: string;
@@ -15,42 +18,36 @@ const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 export class SessionTableHelper {
 	private readonly expiresAt: Date;
 
-	public baseSessionToken = "sessionToken" as const;
-	public baseSession;
-	public baseDatabaseSession;
+	public baseSession: Session;
+	public baseSessionToken: string = "sessionToken" as const;
+	public baseDatabaseSession: DatabaseSession;
 
 	constructor(
 		private readonly db: D1Database,
 		options?: {
-			expiresAt: Date;
+			expiresAt?: Date;
 		},
 	) {
 		const { expiresAt = new Date(Date.now() + sessionExpiresSpan.milliseconds()) } = options ?? {};
+		const rawSessionId = sessionTokenService.hashSessionToken(this.baseSessionToken);
 
-		this.expiresAt = new Date(((expiresAt.getTime() / 1000) | 0) * 1000);
+		this.expiresAt = new Date(toDatabaseDate(expiresAt) * 1000);
 
-		this.baseSession = {
-			id: sessionTokenService.hashSessionToken(this.baseSessionToken),
-			userId: "userId",
+		this.baseSession = new Session({
+			id: newSessionId(rawSessionId),
+			userId: newUserId("userId"),
 			expiresAt: this.expiresAt,
-		} as const;
+		});
 
 		this.baseDatabaseSession = {
-			id: sessionTokenService.hashSessionToken(this.baseSessionToken),
+			id: rawSessionId,
 			user_id: "userId",
 			expires_at: this.expiresAt.getTime() / 1000,
-		} as const satisfies DatabaseSession;
+		} as const;
 	}
 
-	public async create(option?: {
-		sessionToken?: string;
-		session?: Partial<Omit<DatabaseSession, "id">>;
-	}): Promise<void> {
-		const { sessionToken, session } = option ?? {};
-		const { user_id = this.baseDatabaseSession.user_id, expires_at = this.baseDatabaseSession.expires_at } =
-			session ?? this.baseDatabaseSession;
-
-		const id = sessionToken ? sessionTokenService.hashSessionToken(sessionToken) : this.baseSession.id;
+	public async create(session?: DatabaseSession): Promise<void> {
+		const { id, user_id, expires_at } = session ?? this.baseDatabaseSession;
 
 		await this.db
 			.prepare("INSERT INTO sessions (id, user_id, expires_at) VALUES (?1, ?2, ?3)")

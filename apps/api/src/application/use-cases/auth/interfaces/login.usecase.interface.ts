@@ -1,5 +1,5 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session } from "../../../../domain/entities/session";
+import type { Session } from "../../../../domain/entities";
 
 export type LoginUseCaseSuccessResult = {
 	session: Session;

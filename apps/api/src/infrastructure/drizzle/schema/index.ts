@@ -1,6 +1,4 @@
-export { oAuthAccounts } from "./oauth-accounts";
-export { passwordResetTokens } from "./password-reset-tokens";
+export { oauthAccounts } from "./oauth-accounts";
 export { sessions } from "./sessions";
 export { users } from "./users";
-export { emailVerificationCodes } from "./email-verification-codes";
-export { userCredentials } from "./user-credentials";
+export { emailVerifications } from "./email-verifications";

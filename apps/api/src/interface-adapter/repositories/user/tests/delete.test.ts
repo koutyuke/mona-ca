@@ -17,9 +17,9 @@ describe("UserRepository.delete", async () => {
 	});
 
 	test("should deleted user from the database", async () => {
-		await userRepository.delete("userId");
+		await userRepository.delete(userTableHelper.baseUser.id);
 
-		const results = await userTableHelper.find("userId");
+		const results = await userTableHelper.find(userTableHelper.baseUser.id);
 
 		expect(results).toHaveLength(0);
 	});
