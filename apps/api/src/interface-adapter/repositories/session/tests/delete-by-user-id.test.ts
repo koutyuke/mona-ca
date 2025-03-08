@@ -12,17 +12,17 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-describe("SessionRepository.create", () => {
+describe("SessionRepository.deleteByUserId", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
+		await sessionTableHelper.create();
 	});
 
-	test("should create session in the database", async () => {
-		await sessionRepository.create(sessionTableHelper.baseSession);
+	test("should delete session from user if exists", async () => {
+		await sessionRepository.deleteByUserId(userTableHelper.baseUser.id);
 
 		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
 
-		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(sessionTableHelper.baseDatabaseSession);
+		expect(results).toHaveLength(0);
 	});
 });

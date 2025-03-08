@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
 import { Session } from "../../../../domain/entities";
+import { newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
@@ -20,7 +21,7 @@ describe("SessionRepository.findManyByUserId", () => {
 	});
 
 	test("should return sessions", async () => {
-		const sessions = await sessionRepository.findManyByUserId(userTableHelper.baseDatabaseUser.id);
+		const sessions = await sessionRepository.findManyByUserId(userTableHelper.baseUser.id);
 
 		const expectedSession = new Session(sessionTableHelper.baseSession);
 
@@ -29,7 +30,7 @@ describe("SessionRepository.findManyByUserId", () => {
 	});
 
 	test("should return empty array if session not found", async () => {
-		const sessions = await sessionRepository.findManyByUserId("wrongUserId");
+		const sessions = await sessionRepository.findManyByUserId(newUserId("wrongUserId"));
 		expect(sessions).toHaveLength(0);
 	});
 });

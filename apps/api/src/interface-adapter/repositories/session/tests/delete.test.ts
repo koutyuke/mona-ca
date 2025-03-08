@@ -19,7 +19,7 @@ describe("SessionRepository.delete", () => {
 	});
 
 	test("should delete session if exists", async () => {
-		await sessionRepository.delete(sessionTableHelper.baseDatabaseSession.id);
+		await sessionRepository.delete(sessionTableHelper.baseSession.id);
 
 		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
 
