@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { newOAuthProvider, newOAuthProviderId } from "../../../../domain/value-object";
+import { newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { OAuthAccountRepository } from "../oauth-account.repository";
@@ -13,25 +13,26 @@ const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
 
-describe("OAuthAccountRepository.findByProviderAndProviderId", () => {
+describe("OAuthAccountRepository.findByUserIdAndProvider", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
+
 		await oauthAccountTableHelper.create();
 	});
 
 	test("should return OAuthAccount instance", async () => {
-		const foundOAuthAccount = await oauthAccountRepository.findByProviderAndProviderId(
+		const foundOAuthAccount = await oauthAccountRepository.findByUserIdAndProvider(
+			oauthAccountTableHelper.baseOAuthAccount.userId,
 			oauthAccountTableHelper.baseOAuthAccount.provider,
-			oauthAccountTableHelper.baseOAuthAccount.providerId,
 		);
 
 		expect(foundOAuthAccount).toStrictEqual(oauthAccountTableHelper.baseOAuthAccount);
 	});
 
 	test("should return null if OAuthAccount not found", async () => {
-		const invalidOAuthAccount = await oauthAccountRepository.findByProviderAndProviderId(
-			newOAuthProvider("invalidProvider" as "discord"),
-			newOAuthProviderId("invalidProviderId"),
+		const invalidOAuthAccount = await oauthAccountRepository.findByUserIdAndProvider(
+			newUserId("invalidId"),
+			oauthAccountTableHelper.baseOAuthAccount.provider,
 		);
 		expect(invalidOAuthAccount).toBeNull();
 	});

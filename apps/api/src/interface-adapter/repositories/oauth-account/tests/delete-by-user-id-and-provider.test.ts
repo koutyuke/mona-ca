@@ -7,23 +7,26 @@ import { OAuthAccountRepository } from "../oauth-account.repository";
 const { DB } = env;
 
 const drizzleService = new DrizzleService(DB);
-const oAuthAccountRepository = new OAuthAccountRepository(drizzleService);
+const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
-const oAuthAccountTableHelper = new OAuthAccountTableHelper(DB);
+const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
 
-describe("OAuthAccountRepository.deleteByProviderId", () => {
+describe("OAuthAccountRepository.deleteByUserIdAndProvider", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
-		await oAuthAccountTableHelper.create();
+		await oauthAccountTableHelper.create();
 	});
 
 	test("should delete date in database", async () => {
-		await oAuthAccountRepository.deleteByProviderAndProviderId(
-			oAuthAccountTableHelper.baseOAuthAccount.provider,
-			oAuthAccountTableHelper.baseOAuthAccount.providerId,
+		await oauthAccountRepository.deleteByUserIdAndProvider(
+			oauthAccountTableHelper.baseOAuthAccount.userId,
+			oauthAccountTableHelper.baseOAuthAccount.provider,
 		);
-		const results = await oAuthAccountTableHelper.find(oAuthAccountTableHelper.baseOAuthAccount.providerId);
+		const results = await oauthAccountTableHelper.findByUserIdAndProvider(
+			oauthAccountTableHelper.baseOAuthAccount.userId,
+			oauthAccountTableHelper.baseOAuthAccount.provider,
+		);
 		expect(results).toHaveLength(0);
 	});
 });

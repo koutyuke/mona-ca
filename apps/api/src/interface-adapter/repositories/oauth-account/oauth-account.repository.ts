@@ -1,90 +1,108 @@
 import { and, eq } from "drizzle-orm";
 import { OAuthAccount } from "../../../domain/entities";
+import {
+	type OAuthProvider,
+	type OAuthProviderId,
+	type UserId,
+	newOAuthProvider,
+	newOAuthProviderId,
+	newUserId,
+} from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IOAuthAccountRepository } from "./interfaces/oauth-account.repository.interface";
+
+interface FoundOAuthAccountDto {
+	provider: "discord";
+	providerId: string;
+	createdAt: Date;
+	updatedAt: Date;
+	userId: string;
+}
 
 export class OAuthAccountRepository implements IOAuthAccountRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
-	public async findByUserId(userId: OAuthAccount["userId"]): Promise<OAuthAccount | null> {
-		const oAuthAccount = await this.drizzleService.db
+	public async findByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<OAuthAccount | null> {
+		const oauthAccounts = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.oAuthAccounts)
-			.where(eq(this.drizzleService.schema.oAuthAccounts.userId, userId));
+			.from(this.drizzleService.schema.oauthAccounts)
+			.where(
+				and(
+					eq(this.drizzleService.schema.oauthAccounts.userId, userId),
+					eq(this.drizzleService.schema.oauthAccounts.provider, provider),
+				),
+			);
 
-		return oAuthAccount.length === 1 ? new OAuthAccount(oAuthAccount[0]!) : null;
+		if (oauthAccounts.length > 1) {
+			throw new Error("Multiple OAuth accounts found for the same user and provider");
+		}
+
+		return oauthAccounts.length === 1 ? this.convertToOAuthAccount(oauthAccounts[0]!) : null;
 	}
 
 	public async findByProviderAndProviderId(
-		provider: OAuthAccount["provider"],
-		providerId: OAuthAccount["providerId"],
+		provider: OAuthProvider,
+		providerId: OAuthProviderId,
 	): Promise<OAuthAccount | null> {
-		const oAuthAccount = await this.drizzleService.db
+		const oauthAccounts = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.oAuthAccounts)
+			.from(this.drizzleService.schema.oauthAccounts)
 			.where(
 				and(
-					eq(this.drizzleService.schema.oAuthAccounts.providerId, providerId),
-					eq(this.drizzleService.schema.oAuthAccounts.provider, provider),
+					eq(this.drizzleService.schema.oauthAccounts.providerId, providerId),
+					eq(this.drizzleService.schema.oauthAccounts.provider, provider),
 				),
 			);
-		return oAuthAccount.length === 1 ? new OAuthAccount(oAuthAccount[0]!) : null;
-	}
 
-	public async create(
-		oAuthAccount: Omit<ConstructorParameters<typeof OAuthAccount>[0], "createdAt" | "updatedAt">,
-	): Promise<OAuthAccount> {
-		const createdOAuthAccount = await this.drizzleService.db
-			.insert(this.drizzleService.schema.oAuthAccounts)
-			.values(oAuthAccount)
-			.returning();
-
-		if (createdOAuthAccount.length !== 1) {
-			throw new Error("Failed to create OAuthAccount");
+		if (oauthAccounts.length > 1) {
+			throw new Error("Multiple OAuth accounts found for the same provider and providerId");
 		}
 
-		return new OAuthAccount(createdOAuthAccount[0]!);
+		return oauthAccounts.length === 1 ? this.convertToOAuthAccount(oauthAccounts[0]!) : null;
 	}
 
-	public async updateByUserId(
-		userId: OAuthAccount["userId"],
-		oAuthAccount: Partial<Omit<ConstructorParameters<typeof OAuthAccount>[0], "id" | "createdAt" | "updatedAt">>,
-	): Promise<OAuthAccount> {
-		const updatedOAuthAccount = await this.drizzleService.db
-			.update(this.drizzleService.schema.oAuthAccounts)
-			.set(oAuthAccount)
-			.where(eq(this.drizzleService.schema.oAuthAccounts.userId, userId))
-			.returning();
-
-		if (updatedOAuthAccount.length !== 1) {
-			throw new Error("Failed to update OAuthAccount");
-		}
-
-		return new OAuthAccount(updatedOAuthAccount[0]!);
-	}
-
-	public async deleteByUserId(userId: OAuthAccount["userId"], provider: OAuthAccount["provider"]): Promise<void> {
+	public async save(oauthAccount: OAuthAccount): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.oAuthAccounts)
+			.insert(this.drizzleService.schema.oauthAccounts)
+			.values(oauthAccount)
+			.onConflictDoUpdate({
+				target: [this.drizzleService.schema.oauthAccounts.userId, this.drizzleService.schema.oauthAccounts.provider],
+				set: {
+					providerId: oauthAccount.providerId,
+					updatedAt: oauthAccount.updatedAt,
+				},
+			});
+	}
+
+	public async deleteByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<void> {
+		await this.drizzleService.db
+			.delete(this.drizzleService.schema.oauthAccounts)
 			.where(
 				and(
-					eq(this.drizzleService.schema.oAuthAccounts.userId, userId),
-					eq(this.drizzleService.schema.oAuthAccounts.provider, provider),
+					eq(this.drizzleService.schema.oauthAccounts.userId, userId),
+					eq(this.drizzleService.schema.oauthAccounts.provider, provider),
 				),
 			);
 	}
 
-	public async deleteByProviderAndProviderId(
-		provider: OAuthAccount["provider"],
-		providerId: OAuthAccount["providerId"],
-	): Promise<void> {
+	public async deleteByProviderAndProviderId(provider: OAuthProvider, providerId: OAuthProviderId): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.oAuthAccounts)
+			.delete(this.drizzleService.schema.oauthAccounts)
 			.where(
 				and(
-					eq(this.drizzleService.schema.oAuthAccounts.providerId, providerId),
-					eq(this.drizzleService.schema.oAuthAccounts.provider, provider),
+					eq(this.drizzleService.schema.oauthAccounts.providerId, providerId),
+					eq(this.drizzleService.schema.oauthAccounts.provider, provider),
 				),
 			);
+	}
+
+	private convertToOAuthAccount(dto: FoundOAuthAccountDto): OAuthAccount {
+		return new OAuthAccount({
+			provider: newOAuthProvider(dto.provider),
+			providerId: newOAuthProviderId(dto.providerId),
+			userId: newUserId(dto.userId),
+			createdAt: dto.createdAt,
+			updatedAt: dto.updatedAt,
+		});
 	}
 }

@@ -1,21 +1,14 @@
 import type { OAuthAccount } from "../../../../domain/entities";
+import type { OAuthProvider, OAuthProviderId, UserId } from "../../../../domain/value-object";
 
 export interface IOAuthAccountRepository {
-	findByUserId(userId: OAuthAccount["userId"]): Promise<OAuthAccount | null>;
-	findByProviderAndProviderId(
-		provider: OAuthAccount["provider"],
-		providerId: OAuthAccount["providerId"],
-	): Promise<OAuthAccount | null>;
-	create(
-		oAuthAccount: Omit<ConstructorParameters<typeof OAuthAccount>[0], "createdAt" | "updatedAt">,
-	): Promise<OAuthAccount>;
-	updateByUserId(
-		userId: OAuthAccount["userId"],
-		oAuthAccount: Partial<Omit<ConstructorParameters<typeof OAuthAccount>[0], "id" | "createdAt" | "updatedAt">>,
-	): Promise<OAuthAccount>;
-	deleteByUserId(userId: OAuthAccount["userId"], provider: OAuthAccount["provider"]): Promise<void>;
-	deleteByProviderAndProviderId(
-		provider: OAuthAccount["provider"],
-		providerId: OAuthAccount["providerId"],
-	): Promise<void>;
+	findByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<OAuthAccount | null>;
+
+	findByProviderAndProviderId(provider: OAuthProvider, providerId: OAuthProviderId): Promise<OAuthAccount | null>;
+
+	save(oauthAccount: OAuthAccount): Promise<void>;
+
+	deleteByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<void>;
+
+	deleteByProviderAndProviderId(provider: OAuthProvider, providerId: OAuthProviderId): Promise<void>;
 }
