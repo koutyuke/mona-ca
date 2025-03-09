@@ -3,14 +3,12 @@ import { t } from "elysia";
 import { OAuthRequestUseCase } from "../../../../../application/use-cases/oauth";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME,
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../../../common/constants";
 import { clientSchema } from "../../../../../common/schema";
 import { isErr } from "../../../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../../../domain/value-object";
-import { genderSchema } from "../../../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { CookieService } from "../../../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
@@ -22,11 +20,6 @@ const cookieSchemaObject = {
 	[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
 	[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.Optional(t.String()),
 	[OAUTH_REDIRECT_URL_COOKIE_NAME]: t.Optional(t.String()),
-	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
-		t.Object({
-			gender: t.Optional(genderSchema),
-		}),
-	),
 };
 
 export const Provider = new ElysiaWithEnv({
@@ -54,7 +47,7 @@ export const Provider = new ElysiaWithEnv({
 			env: { APP_ENV, ...otherEnv },
 			params: { provider: _provider, client },
 			cookie,
-			query: { "redirect-url": queryRedirectUrl = "/", gender = "man" },
+			query: { "redirect-url": queryRedirectUrl = "/" },
 			redirect,
 		}) => {
 			const provider = newOAuthProvider(_provider);
@@ -103,16 +96,6 @@ export const Provider = new ElysiaWithEnv({
 				maxAge: 60 * 10,
 			});
 
-			cookieService.setCookie(
-				OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME,
-				{
-					gender,
-				},
-				{
-					maxAge: 60 * 10,
-				},
-			);
-
 			return redirect(redirectToProviderUrl.toString());
 		},
 		{
@@ -121,7 +104,6 @@ export const Provider = new ElysiaWithEnv({
 			},
 			query: t.Object({
 				"redirect-url": t.Optional(t.String()),
-				gender: t.Optional(genderSchema),
 			}),
 			params: t.Object({
 				client: clientSchema,
