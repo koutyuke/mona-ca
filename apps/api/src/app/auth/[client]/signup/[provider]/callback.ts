@@ -4,7 +4,6 @@ import { SessionTokenService } from "../../../../../application/services/session
 import { OAuthSignupCallbackUseCase } from "../../../../../application/use-cases/oauth";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME,
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
@@ -12,7 +11,6 @@ import {
 import { clientSchema } from "../../../../../common/schema";
 import { convertRedirectableMobileScheme, isErr } from "../../../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../../../domain/value-object";
-import { genderSchema } from "../../../../../domain/value-object";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../../../interface-adapter/repositories/oauth-account";
@@ -34,11 +32,6 @@ const cookieSchemaObject = {
 	[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
 		minLength: 1,
 	}),
-	[OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME]: t.Optional(
-		t.Object({
-			gender: t.Optional(genderSchema),
-		}),
-	),
 };
 
 export const ProviderCallback = new ElysiaWithEnv({
@@ -129,7 +122,6 @@ export const ProviderCallback = new ElysiaWithEnv({
 			cookieService.deleteCookie(OAUTH_STATE_COOKIE_NAME);
 			cookieService.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			cookieService.deleteCookie(OAUTH_REDIRECT_URL_COOKIE_NAME);
-			cookieService.deleteCookie(OAUTH_OPTIONAL_ACCOUNT_INFO_COOKIE_NAME);
 
 			set.headers["Referrer-Policy"] = "strict-origin";
 

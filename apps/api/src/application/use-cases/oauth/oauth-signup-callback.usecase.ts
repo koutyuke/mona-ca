@@ -2,7 +2,6 @@ import { sessionExpiresSpan } from "../../../common/constants";
 import { err, ulid } from "../../../common/utils";
 import { OAuthAccount, Session, User } from "../../../domain/entities";
 import {
-	type Gender,
 	type OAuthProvider,
 	newGender,
 	newOAuthProviderId,
@@ -44,10 +43,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		code: string,
 		codeVerifier: string,
 		provider: OAuthProvider,
-		userOption?: { gender?: Gender },
 	): Promise<OAuthSignupCallbackUseCaseResult> {
-		const { gender = newGender("man") } = userOption ?? {};
-
 		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
 		const accessToken = tokens.accessToken();
 
@@ -91,7 +87,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			email: providerAccount.email,
 			emailVerified: providerAccount.emailVerified, // if emailVerified is false, this user is pre-register user
 			iconUrl: providerAccount.iconUrl,
-			gender,
+			gender: newGender("man"),
 			createdAt: now,
 			updatedAt: now,
 		});
