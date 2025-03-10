@@ -1,8 +1,8 @@
 import { integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
-export const emailVerifications = sqliteTable(
-	"email_verifications",
+export const emailVerificationSessions = sqliteTable(
+	"email_verification_sessions",
 	{
 		id: text("id").primaryKey().notNull(),
 		email: text("email").notNull(),
@@ -15,7 +15,7 @@ export const emailVerifications = sqliteTable(
 	},
 	table => {
 		return {
-			uniqueUserIdAndEmail: unique("unq_email_verifications__user_id_email").on(table.userId, table.email),
+			uniqueUserIdAndEmail: unique("unq_email_verification_sessions__user_id_email").on(table.userId, table.email),
 		};
 	},
 );
