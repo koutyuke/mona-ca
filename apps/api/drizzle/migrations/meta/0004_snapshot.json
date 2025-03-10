@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3a856467-ebcd-46ca-87e7-cf9fc579deea",
+  "id": "648d4fc6-e146-4cd5-80b1-db5dc0361b63",
   "prevId": "8ad3deba-ab43-4ad2-8b8a-87a618c5bf6b",
   "tables": {
     "email_verification_sessions": {
@@ -330,9 +330,7 @@
   "enums": {},
   "_meta": {
     "schemas": {},
-    "tables": {
-      "\"email_verifications\"": "\"email_verification_sessions\""
-    },
+    "tables": {},
     "columns": {}
   }
 }
