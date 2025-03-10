@@ -32,14 +32,16 @@ export class EmailVerificationSessionTableHelper {
 		const { id, email, user_id, code, expires_at } =
 			emailVerificationSession ?? this.baseDatabaseEmailVerificationSession;
 		await this.db
-			.prepare("INSERT INTO email_verifications (id, email, user_id, code, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)")
+			.prepare(
+				"INSERT INTO email_verification_sessions (id, email, user_id, code, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+			)
 			.bind(id, email, user_id, code, expires_at)
 			.run();
 	}
 
 	public async findById(id: string): Promise<DatabaseEmailVerificationSession[]> {
 		const { results } = await this.db
-			.prepare("SELECT * FROM email_verifications WHERE id = ?1")
+			.prepare("SELECT * FROM email_verification_sessions WHERE id = ?1")
 			.bind(id)
 			.all<DatabaseEmailVerificationSession>();
 
@@ -48,7 +50,7 @@ export class EmailVerificationSessionTableHelper {
 
 	public async findByUserId(userId: string): Promise<DatabaseEmailVerificationSession[]> {
 		const { results } = await this.db
-			.prepare("SELECT * FROM email_verifications WHERE user_id = ?1")
+			.prepare("SELECT * FROM email_verification_sessions WHERE user_id = ?1")
 			.bind(userId)
 			.all<DatabaseEmailVerificationSession>();
 
