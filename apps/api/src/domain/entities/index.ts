@@ -1,4 +1,4 @@
 export { User } from "./user";
-export { EmailVerification } from "./email-verification";
+export { EmailVerificationSession } from "./email-verification-session";
 export { Session } from "./session";
 export { OAuthAccount } from "./oauth-account";
