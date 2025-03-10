@@ -1,14 +1,14 @@
-import type { EmailVerificationId, UserId } from "../value-object";
+import type { EmailVerificationSessionId, UserId } from "../value-object";
 
-export class EmailVerification {
-	readonly id: EmailVerificationId;
+export class EmailVerificationSession {
+	readonly id: EmailVerificationSessionId;
 	readonly email: string;
 	readonly userId: UserId;
 	readonly code: string;
 	readonly expiresAt: Date;
 
 	constructor(args: {
-		id: EmailVerificationId;
+		id: EmailVerificationSessionId;
 		email: string;
 		userId: UserId;
 		code: string;

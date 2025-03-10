@@ -1,7 +1,10 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { EmailVerification, User } from "../../../../domain/entities";
+import type { EmailVerificationSession, User } from "../../../../domain/entities";
 
-export type EmailVerificationRequestUseCaseSuccessResult = EmailVerification;
+export type EmailVerificationRequestUseCaseSuccessResult = {
+	emailVerificationSessionToken: string;
+	emailVerificationSession: EmailVerificationSession;
+};
 
 export type EmailVerificationRequestUseCaseErrorResult =
 	| Err<"EMAIL_IS_ALREADY_VERIFIED">

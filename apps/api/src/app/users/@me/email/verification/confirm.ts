@@ -1,8 +1,9 @@
 import { t } from "elysia";
+import { SessionTokenService } from "../../../../../application/services/session-token";
 import { EmailVerificationConfirmUseCase } from "../../../../../application/use-cases/email-verification";
 import { isErr } from "../../../../../common/utils";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
-import { EmailVerificationRepository } from "../../../../../interface-adapter/repositories/email-verification";
+import { EmailVerificationSessionRepository } from "../../../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
@@ -28,28 +29,40 @@ const VerificationConfirm = new ElysiaWithEnv({
 	// Route
 	.post(
 		"/",
-		async ({ cfModuleEnv: { DB }, body: { code }, user }) => {
+		async ({
+			cfModuleEnv: { DB },
+			env: { EMAIL_VERIFICATION_SESSION_PEPPER },
+			body: { code, emailVerificationSessionToken },
+			user,
+		}) => {
 			const drizzleService = new DrizzleService(DB);
 
-			const emailVerificationCodeRepository = new EmailVerificationRepository(drizzleService);
+			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const sessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
+
 			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
-				emailVerificationCodeRepository,
+				emailVerificationSessionRepository,
 				userRepository,
+				sessionTokenService,
 			);
 
-			const result = await emailVerificationConfirmUseCase.execute(code, user);
+			const result = await emailVerificationConfirmUseCase.execute(emailVerificationSessionToken, code, user);
 
 			if (isErr(result)) {
 				const { code } = result;
 
 				switch (code) {
 					case "INVALID_CODE":
+					case "INVALID_EMAIL":
+					case "NOT_REQUEST":
+					case "CODE_WAS_EXPIRED":
 						throw new BadRequestException({
 							name: code,
-							message: "Invalid verification code",
+							message: "Failed to confirm user email verification.",
 						});
+
 					default:
 						throw new InternalServerErrorException({
 							message: "Unknown EmailVerificationConfirmUseCase error result.",
@@ -65,6 +78,7 @@ const VerificationConfirm = new ElysiaWithEnv({
 			},
 			body: t.Object({
 				code: t.String(),
+				emailVerificationSessionToken: t.String(),
 			}),
 		},
 	);

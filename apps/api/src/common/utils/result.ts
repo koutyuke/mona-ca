@@ -12,6 +12,7 @@ const err = <E extends string, D = never>(code: E, value?: D): Err<E, D> => ({
 });
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const isErr = <T, E extends Err<string, any>>(result: Result<T, E>): result is E => (result as E)[IS_ERR] === true;
+const isErr = <T, E extends Err<string, any>>(result: Result<T, E>): result is E =>
+	typeof result === "object" && result !== null && (result as E)[IS_ERR] === true;
 
 export { type Result, type Err, err, isErr };

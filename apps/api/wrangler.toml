@@ -1,4 +1,4 @@
-name = "mona-ca"
+name = "mona-ca-api"
 compatibility_date = "2024-04-19"
 compatibility_flags = ["nodejs_compat"]
 main = "./src/app/index.ts"

@@ -4,30 +4,32 @@ import { newEmailVerificationSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ISessionTokenService } from "../../services/session-token";
-import type {
-	EmailVerificationConfirmUseCaseResult,
-	IEmailVerificationConfirmUseCase,
-} from "./interfaces/email-verification-confirm.usecase.interface";
+import type { ChangeEmailUseCaseResult, IChangeEmailUseCase } from "./interfaces/change-email.usecase.interface";
 
-export class EmailVerificationConfirmUseCase implements IEmailVerificationConfirmUseCase {
+export class ChangeEmailUseCase implements IChangeEmailUseCase {
 	constructor(
-		private emailVerificationSessionRepository: IEmailVerificationSessionRepository,
 		private userRepository: IUserRepository,
+		private emailVerificationSessionRepository: IEmailVerificationSessionRepository,
 		private sessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(
 		emailVerificationSessionToken: string,
+		email: string,
 		code: string,
 		user: User,
-	): Promise<EmailVerificationConfirmUseCaseResult> {
+	): Promise<ChangeEmailUseCaseResult> {
 		const emailVerificationSessionId = newEmailVerificationSessionId(
 			this.sessionTokenService.hashSessionToken(emailVerificationSessionToken),
 		);
-		const emailVerificationSession = await this.emailVerificationSessionRepository.findByIdAndUserId(
-			emailVerificationSessionId,
-			user.id,
-		);
+		const [sameEmailUser, emailVerificationSession] = await Promise.all([
+			this.userRepository.findByEmail(email),
+			this.emailVerificationSessionRepository.findByIdAndUserId(emailVerificationSessionId, user.id),
+		]);
+
+		if (sameEmailUser) {
+			return err("EMAIL_IS_ALREADY_USED");
+		}
 
 		if (!emailVerificationSession) {
 			return err("NOT_REQUEST");
@@ -50,6 +52,7 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		const updatedUser = new User({
 			...user,
 			emailVerified: true,
+			email,
 			updatedAt: new Date(),
 		});
 

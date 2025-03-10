@@ -1,10 +1,11 @@
-import { emailVerificationExpiresSpan } from "../../../common/constants";
-import { generateRandomString, ulid } from "../../../common/utils";
+import { emailVerificationSessionExpiresSpan } from "../../../common/constants";
+import { generateRandomString } from "../../../common/utils";
 import { err } from "../../../common/utils";
-import { EmailVerification, type User } from "../../../domain/entities";
-import { newEmailVerificationId } from "../../../domain/value-object";
-import type { IEmailVerificationRepository } from "../../../interface-adapter/repositories/email-verification";
+import { EmailVerificationSession, type User } from "../../../domain/entities";
+import { newEmailVerificationSessionId } from "../../../domain/value-object";
+import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
+import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	EmailVerificationRequestUseCaseResult,
 	IEmailVerificationRequestUseCase,
@@ -12,8 +13,9 @@ import type {
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
-		private emailVerificationRepository: IEmailVerificationRepository,
+		private emailVerificationSessionRepository: IEmailVerificationSessionRepository,
 		private userRepository: IUserRepository,
+		private sessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(email: string, user: User): Promise<EmailVerificationRequestUseCaseResult> {
@@ -31,17 +33,24 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 			number: true,
 		});
 
-		const newEmailVerification = new EmailVerification({
-			id: newEmailVerificationId(ulid()),
+		const emailVerificationSessionToken = this.sessionTokenService.generateSessionToken();
+		const emailVerificationSessionId = newEmailVerificationSessionId(
+			this.sessionTokenService.hashSessionToken(emailVerificationSessionToken),
+		);
+		const emailVerificationSession = new EmailVerificationSession({
+			id: emailVerificationSessionId,
 			email,
 			userId: user.id,
 			code,
-			expiresAt: new Date(Date.now() + emailVerificationExpiresSpan.milliseconds()),
+			expiresAt: new Date(Date.now() + emailVerificationSessionExpiresSpan.milliseconds()),
 		});
 
-		await this.emailVerificationRepository.deleteByUserId(user.id);
-		await this.emailVerificationRepository.save(newEmailVerification);
+		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
+		await this.emailVerificationSessionRepository.save(emailVerificationSession);
 
-		return newEmailVerification;
+		return {
+			emailVerificationSessionToken,
+			emailVerificationSession,
+		};
 	}
 }

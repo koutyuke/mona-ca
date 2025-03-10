@@ -5,12 +5,10 @@ export {
 	OAUTH_REDIRECT_URL_COOKIE_NAME,
 } from "./cookie";
 export {
-	SESSION_EXPIRES_SPAN_DAYS,
-	SESSION_REFRESH_SPAN_DAYS,
 	sessionExpiresSpan,
 	sessionRefreshSpan,
+	emailVerificationSessionExpiresSpan,
+	SESSION_EXPIRES_SPAN_DAYS,
+	SESSION_REFRESH_SPAN_DAYS,
+	EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES,
 } from "./session";
-export {
-	emailVerificationExpiresSpan,
-	EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES,
-} from "./email-verification";

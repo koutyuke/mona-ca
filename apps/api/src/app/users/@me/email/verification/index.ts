@@ -1,10 +1,11 @@
 import { t } from "elysia";
+import { SessionTokenService } from "../../../../../application/services/session-token";
 import { SendEmailUseCase } from "../../../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../../../application/use-cases/email/mail-context";
 import { isErr } from "../../../../../common/utils";
 import { DrizzleService } from "../../../../../infrastructure/drizzle";
-import { EmailVerificationRepository } from "../../../../../interface-adapter/repositories/email-verification";
+import { EmailVerificationSessionRepository } from "../../../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../../../modules/elysia-with-env";
@@ -34,16 +35,24 @@ const Verification = new ElysiaWithEnv({
 	// Route
 	.post(
 		"/",
-		async ({ cfModuleEnv: { DB }, env: { APP_ENV, RESEND_API_KEY }, body: { email: bodyEmail }, user }) => {
+		async ({
+			cfModuleEnv: { DB },
+			env: { APP_ENV, RESEND_API_KEY, EMAIL_VERIFICATION_SESSION_PEPPER },
+			body: { email: bodyEmail },
+			user,
+		}) => {
 			const drizzleService = new DrizzleService(DB);
 
-			const emailVerificationCodeRepository = new EmailVerificationRepository(drizzleService);
+			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
+
+			const sessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
 			const sendEmailUseCase = new SendEmailUseCase(RESEND_API_KEY, APP_ENV === "production");
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-				emailVerificationCodeRepository,
+				emailVerificationSessionRepository,
 				userRepository,
+				sessionTokenService,
 			);
 
 			const email = bodyEmail || user.email;
@@ -66,7 +75,9 @@ const Verification = new ElysiaWithEnv({
 				}
 			}
 
-			const mailContents = verificationEmailTemplate(result);
+			const { emailVerificationSession, emailVerificationSessionToken } = result;
+
+			const mailContents = verificationEmailTemplate(emailVerificationSessionToken, emailVerificationSession.code);
 
 			await sendEmailUseCase.execute({
 				from: mailContents.from,
@@ -75,7 +86,9 @@ const Verification = new ElysiaWithEnv({
 				text: mailContents.text,
 			});
 
-			return null;
+			return {
+				emailVerificationSessionToken,
+			};
 		},
 		{
 			beforeHandle: async ({ rateLimiter, user }) => {
@@ -88,6 +101,11 @@ const Verification = new ElysiaWithEnv({
 					}),
 				),
 			}),
+			response: {
+				200: t.Object({
+					emailVerificationSessionToken: t.String(),
+				}),
+			},
 		},
 	);
 
