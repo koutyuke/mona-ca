@@ -25,7 +25,7 @@ export class Argon2idService implements IArgon2idService {
 		return hashedStr;
 	}
 
-	public async verify(hashedPassword: string, password: string): Promise<boolean> {
+	public async verify(password: string, hashedPassword: string): Promise<boolean> {
 		return verify(password, hashedPassword);
 	}
 }
