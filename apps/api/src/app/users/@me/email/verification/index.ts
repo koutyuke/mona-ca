@@ -77,7 +77,7 @@ const Verification = new ElysiaWithEnv({
 
 			const { emailVerificationSession, emailVerificationSessionToken } = result;
 
-			const mailContents = verificationEmailTemplate(emailVerificationSessionToken, emailVerificationSession.code);
+			const mailContents = verificationEmailTemplate(emailVerificationSession.email, emailVerificationSession.code);
 
 			await sendEmailUseCase.execute({
 				from: mailContents.from,

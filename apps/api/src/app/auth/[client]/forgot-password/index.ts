@@ -65,7 +65,7 @@ const ForgotPassword = new ElysiaWithEnv({
 
 			const { passwordResetSessionToken, passwordResetSession } = result;
 
-			const mailContents = verificationEmailTemplate(passwordResetSessionToken, passwordResetSession.code);
+			const mailContents = verificationEmailTemplate(passwordResetSession.email, passwordResetSession.code);
 
 			await sendEmailUseCase.execute({
 				from: mailContents.from,
