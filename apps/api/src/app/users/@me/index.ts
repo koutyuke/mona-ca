@@ -7,12 +7,14 @@ import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { authGuard } from "../../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
 import { Email } from "./email";
+import { Password } from "./password";
 
 const Me = new ElysiaWithEnv({
 	prefix: "/@me",
 })
 	// Other Routes
 	.use(Email)
+	.use(Password)
 
 	// Local Middleware & Plugin
 	.use(
