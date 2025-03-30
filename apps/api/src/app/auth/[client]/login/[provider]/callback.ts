@@ -40,9 +40,9 @@ export const ProviderCallback = new ElysiaWithEnv({
 	// Local Middleware & Plugin
 	.use(
 		rateLimiter("oauth-provider-callback", {
-			refillRate: 10,
 			maxTokens: 100,
-			interval: {
+			refillRate: 10,
+			refillInterval: {
 				value: 1,
 				unit: "m",
 			},

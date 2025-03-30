@@ -23,9 +23,9 @@ const Verification = new ElysiaWithEnv({
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimiter("email-verification-request", {
-			refillRate: 5,
 			maxTokens: 5,
-			interval: {
+			refillRate: 5,
+			refillInterval: {
 				value: 30,
 				unit: "m",
 			},
@@ -48,7 +48,7 @@ const Verification = new ElysiaWithEnv({
 
 			const sessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
-			const sendEmailUseCase = new SendEmailUseCase(RESEND_API_KEY, APP_ENV === "production");
+			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 				emailVerificationSessionRepository,
 				userRepository,

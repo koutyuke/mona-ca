@@ -29,9 +29,9 @@ export const Signup = new ElysiaWithEnv({
 	// Local Middleware & Plugin
 	.use(
 		rateLimiter("signup", {
-			refillRate: 10,
 			maxTokens: 100,
-			interval: {
+			refillRate: 10,
+			refillInterval: {
 				value: 1,
 				unit: "m",
 			},

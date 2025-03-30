@@ -5,9 +5,9 @@ import { ElysiaWithEnv } from "../elysia-with-env";
 import { BadRequestException, TooManyRequestsException } from "../error";
 
 type LimiterConfig = {
-	refillRate: number;
 	maxTokens: number;
-	interval: {
+	refillRate: number;
+	refillInterval: {
 		value: number;
 		unit: "ms" | "s" | "m" | "h" | "d";
 	};
@@ -47,14 +47,14 @@ const cache = new Map();
  *    }))
  *  });
  */
-const rateLimiter = (prefix: string, { refillRate, maxTokens, interval }: LimiterConfig) => {
+const rateLimiter = (prefix: string, { refillRate, maxTokens, refillInterval }: LimiterConfig) => {
 	const plugin = new ElysiaWithEnv({
 		name: "@mona-ca/rate-limiter",
 		seed: {
 			prefix,
 			refillRate,
 			maxTokens,
-			interval,
+			interval: refillInterval,
 		},
 	}).derive({ as: "scoped" }, async ({ request, env }) => {
 		const ip = getIP(request.headers);
@@ -67,7 +67,7 @@ const rateLimiter = (prefix: string, { refillRate, maxTokens, interval }: Limite
 
 		const rateLimit = new Ratelimit({
 			redis: Redis.fromEnv(env),
-			limiter: Ratelimit.tokenBucket(refillRate, `${interval.value} ${interval.unit}`, maxTokens),
+			limiter: Ratelimit.tokenBucket(refillRate, `${refillInterval.value} ${refillInterval.unit}`, maxTokens),
 			analytics: true,
 			prefix,
 			ephemeralCache: cache,
