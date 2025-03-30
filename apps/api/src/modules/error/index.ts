@@ -1,5 +1,5 @@
 export { error } from "./error.plugin";
-export { errorResponseSchema } from "./response.schema";
+export { ErrorResponseSchema } from "./response.schema";
 export {
 	ResponseException,
 	BadRequestException,
