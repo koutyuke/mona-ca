@@ -31,9 +31,9 @@ export const Provider = new ElysiaWithEnv({
 	// Local Middleware & Plugin
 	.use(
 		rateLimiter("oauth-provider", {
-			refillRate: 10,
 			maxTokens: 100,
-			interval: {
+			refillRate: 10,
+			refillInterval: {
 				value: 1,
 				unit: "m",
 			},

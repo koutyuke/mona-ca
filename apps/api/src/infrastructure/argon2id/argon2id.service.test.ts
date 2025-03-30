@@ -11,21 +11,21 @@ describe("Argon2idService", async () => {
 
 	test("verify関数の返り値がboolean型である", async () => {
 		const hashedPassword = await argon2id.hash("password");
-		const isValid = await argon2id.verify(hashedPassword, "password");
+		const isValid = await argon2id.verify("password", hashedPassword);
 
 		expect(typeof isValid).toBe("boolean");
 	});
 
 	test("verify関数の返り値がtrueである", async () => {
 		const hashedPassword = await argon2id.hash("password");
-		const isValid = await argon2id.verify(hashedPassword, "password");
+		const isValid = await argon2id.verify("password", hashedPassword);
 
 		expect(isValid).toBe(true);
 	});
 
 	test("verify関数の返り値がfalseである", async () => {
 		const hashedPassword = await argon2id.hash("password");
-		const isValid = await argon2id.verify(hashedPassword, "password2");
+		const isValid = await argon2id.verify("password2", hashedPassword);
 
 		expect(isValid).toBe(false);
 	});

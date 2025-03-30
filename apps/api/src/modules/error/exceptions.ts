@@ -54,6 +54,20 @@ class ForbiddenException extends ResponseException {
 	}
 }
 
+class NotFoundException extends ResponseException {
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	constructor(option?: { name?: string; message?: string; code?: string; additional?: Record<string, any> }) {
+		const { name, message, code, additional } = option ?? {};
+		super(
+			name ?? "NOT_FOUND",
+			message ?? "The requested resource was not found.",
+			code ?? name ?? "NOT_FOUND",
+			404,
+			additional,
+		);
+	}
+}
+
 class MethodNotAllowedException extends ResponseException {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	constructor(option?: { name?: string; message?: string; code?: string; additional?: Record<string, any> }) {
@@ -160,6 +174,7 @@ export {
 	BadRequestException,
 	UnauthorizedException,
 	ForbiddenException,
+	NotFoundException,
 	MethodNotAllowedException,
 	ConflictException,
 	ImATeapotException,

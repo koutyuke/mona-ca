@@ -21,9 +21,9 @@ const Email = new ElysiaWithEnv({
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimiter("email-verification-request", {
-			refillRate: 10,
 			maxTokens: 10,
-			interval: {
+			refillRate: 10,
+			refillInterval: {
 				value: 30,
 				unit: "m",
 			},

@@ -1,8 +1,6 @@
 import type { Session } from "../../../../domain/entities";
 import type { SessionId, UserId } from "../../../../domain/value-object";
 
-export type SessionConstructor = ConstructorParameters<typeof Session>[0];
-
 export interface ISessionRepository {
 	findById(id: SessionId): Promise<Session | null>;
 

@@ -28,10 +28,10 @@ export const Login = new ElysiaWithEnv({
 	// Local Middleware & Plugin
 	.use(
 		rateLimiter("login", {
-			refillRate: 50,
 			maxTokens: 100,
-			interval: {
-				value: 10,
+			refillRate: 50,
+			refillInterval: {
+				value: 30,
 				unit: "m",
 			},
 		}),
