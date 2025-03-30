@@ -8,9 +8,9 @@ export class SendEmailUseCase implements ISendEmailUseCase {
 	private readonly resend: Resend;
 	private readonly production: boolean;
 
-	constructor(resendAPIKey: string, production: boolean) {
-		this.resend = new Resend(resendAPIKey);
+	constructor(production: boolean, resendAPIKey: string) {
 		this.production = production;
+		this.resend = new Resend(resendAPIKey);
 	}
 
 	public async execute(payload: CreateEmailOptions, options?: CreateEmailRequestOptions): Promise<CreateEmailResponse> {
