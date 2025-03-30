@@ -6,6 +6,7 @@ export {
 	newUserId,
 	newSessionId,
 	newEmailVerificationSessionId,
+	newPasswordResetSessionId,
 } from "./ids";
 export {
 	newOAuthProvider,
@@ -14,5 +15,5 @@ export {
 } from "./oauth-provider";
 
 export type { Gender } from "./gender";
-export type { UserId, SessionId, EmailVerificationSessionId } from "./ids";
+export type { UserId, SessionId, EmailVerificationSessionId, PasswordResetSessionId } from "./ids";
 export type { OAuthProvider, OAuthProviderId } from "./oauth-provider";
