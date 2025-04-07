@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { validateRedirectUrl } from "./validate-redirect-url";
+import { validateRedirectURL } from "../validate-redirect-url";
 
 describe("Validate Redirect URI", () => {
 	test("期待したRedirect URIが返される", () => {
@@ -52,7 +52,7 @@ describe("Validate Redirect URI", () => {
 
 		for (const { input, output } of successTestCases) {
 			expect(
-				validateRedirectUrl(input.baseURL, input.uri)
+				validateRedirectURL(input.baseURL, input.uri)
 					?.toString()
 					.replace(/\/\/\//g, "//"),
 			).toBe(output ? output.toString().replace(/\/\/\//g, "//") : output);
@@ -106,15 +106,15 @@ describe("Validate Redirect URI", () => {
 		] satisfies { input: { baseURL: URL; uri: string }; output: URL | null }[];
 
 		for (const { input, output } of failureTestCases) {
-			expect(validateRedirectUrl(input.baseURL, input.uri)).toBe(output);
+			expect(validateRedirectURL(input.baseURL, input.uri)).toBe(output);
 		}
 	});
 
 	test("URL Schemaの時にparamを追加できる", () => {
 		const baseURL = new URL("app://");
 		const uri = "/";
-		const validatedUrl = validateRedirectUrl(baseURL, uri);
-		validatedUrl?.searchParams.set("test", "test");
-		expect(validatedUrl?.toString().replace(/\/\/\//g, "//")).toEqual("app://?test=test");
+		const validatedURL = validateRedirectURL(baseURL, uri);
+		validatedURL?.searchParams.set("test", "test");
+		expect(validatedURL?.toString().replace(/\/\/\//g, "//")).toEqual("app://?test=test");
 	});
 });

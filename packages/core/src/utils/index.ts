@@ -1,2 +1,2 @@
-export { getAPIBaseUrl, getMobileScheme, getWebBaseUrl } from "./get-base-url";
-export { validateRedirectUrl } from "./validate-redirect-url";
+export { getAPIBaseURL, getMobileScheme, getWebBaseURL } from "./get-base-url";
+export { validateRedirectURL } from "./validate-redirect-url";

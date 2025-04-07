@@ -1,6 +1,6 @@
-export const validateRedirectUrl = (baseURL: URL, uri: string): URL | null => {
+export const validateRedirectURL = (baseURL: URL, targetURL: string): URL | null => {
 	try {
-		const url = new URL(uri, baseURL);
+		const url = new URL(targetURL, baseURL);
 
 		if (
 			(url.origin === "null" && baseURL.origin === "null" && url.protocol === baseURL.protocol) ||
