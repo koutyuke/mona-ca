@@ -1,6 +1,7 @@
 import type { Static } from "elysia";
 import type {
 	AppEnvWithoutCFModuleSchema,
+	HMACSecretSchema,
 	OAuthProviderSchema,
 	PepperSchema,
 	PublicSchema,
@@ -20,6 +21,8 @@ export type UpstashRedisEnv = Static<typeof UpstashRedisSchema>;
 export type TurnstileEnv = Static<typeof TurnstileSchema>;
 
 export type OAuthProviderEnv = Static<typeof OAuthProviderSchema>;
+
+export type HMACSecretEnv = Static<typeof HMACSecretSchema>;
 
 export type AppEnvWithoutCFModule = Static<typeof AppEnvWithoutCFModuleSchema>;
 

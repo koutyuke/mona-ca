@@ -6,7 +6,9 @@ export {
 	ResendSchema,
 	UpstashRedisSchema,
 	TurnstileSchema,
+	HMACSecretSchema,
 } from "./schema";
+
 export type {
 	PublicEnv,
 	PepperEnv,
@@ -17,4 +19,5 @@ export type {
 	AppEnvWithoutCFModule,
 	CFModuleEnv,
 	AppEnv,
+	HMACSecretEnv,
 } from "./type";
