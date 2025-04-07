@@ -1,1 +1,1 @@
-export const CLIENT_TYPE_HEADER_NAME = "MC-Client-Type" as const;
+export const CLIENT_TYPE_HEADER_NAME = "mc-client-type" as const;
