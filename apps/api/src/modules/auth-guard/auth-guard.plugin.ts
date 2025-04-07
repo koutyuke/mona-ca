@@ -8,7 +8,7 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "../elysia-with-env";
-import { InternalServerErrorException, UnauthorizedException } from "../error";
+import { ErrorResponseSchema, UnauthorizedException } from "../error";
 
 /**
  * Creates an authentication guard plugin for Elysia with environment configuration.
@@ -23,7 +23,7 @@ import { InternalServerErrorException, UnauthorizedException } from "../error";
  * @example
  * const plugin = authGuard({ requireEmailVerification: false, includeSessionToken: true });
  */
-const authGuard = <
+export const authGuard = <
 	T extends boolean,
 	U extends Record<string, unknown> = T extends true
 		? {
@@ -73,17 +73,10 @@ const authGuard = <
 
 			if (isErr(result)) {
 				const { code } = result;
-				switch (code) {
-					case "SESSION_EXPIRED":
-					case "SESSION_OR_USER_NOT_FOUND":
-						throw new UnauthorizedException({
-							name: code,
-						});
-					default:
-						throw new InternalServerErrorException({
-							message: "Unknown ValidateSessionUseCase error result.",
-						});
-				}
+
+				throw new UnauthorizedException({
+					name: code,
+				});
 			}
 
 			const { user, session } = result;
@@ -107,4 +100,12 @@ const authGuard = <
 	return plugin;
 };
 
-export { authGuard };
+export const AuthGuardSchema = {
+	response: {
+		401: [
+			ErrorResponseSchema("SESSION_EXPIRED"),
+			ErrorResponseSchema("SESSION_OR_USER_NOT_FOUND"),
+			ErrorResponseSchema("EMAIL_VERIFICATION_IS_REQUIRED"),
+		],
+	},
+};

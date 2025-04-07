@@ -1,1 +1,1 @@
-export { rateLimiter } from "./rate-limiter.plugin";
+export { RateLimiterSchema, rateLimiter } from "./rate-limiter.plugin";

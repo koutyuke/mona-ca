@@ -1,7 +1,8 @@
+import { t } from "elysia";
 import { getIP } from "../../common/utils";
 import { TurnstileGateway } from "../../interface-adapter/gateway/turnstile";
 import { ElysiaWithEnv } from "../elysia-with-env";
-import { BadRequestException } from "../error";
+import { BadRequestException, ErrorResponseSchema } from "../error";
 
 /**
  * Initializes a new instance of the ElysiaWithEnv class with the captcha plugin.
@@ -9,13 +10,14 @@ import { BadRequestException } from "../error";
  *
  * @throws {BadRequestException} If the IP address is not found or verification fails.
  */
-const captcha = new ElysiaWithEnv({
+export const captcha = new ElysiaWithEnv({
 	name: "@mona-ca/captcha",
 }).derive({ as: "scoped" }, async ({ request, env: { CF_TURNSTILE_SECRET } }) => {
 	const ip = getIP(request.headers);
 
 	if (!ip) {
 		throw new BadRequestException({
+			name: "IP_ADDRESS_NOT_FOUND",
 			message: "IP address not found",
 		});
 	}
@@ -27,6 +29,7 @@ const captcha = new ElysiaWithEnv({
 
 		if (!success) {
 			throw new BadRequestException({
+				name: "CAPTCHA_VERIFICATION_FAILED",
 				message: "Verification failed.",
 			});
 		}
@@ -39,4 +42,8 @@ const captcha = new ElysiaWithEnv({
 	};
 });
 
-export { captcha };
+export const CaptchaSchema = {
+	response: {
+		400: t.Union([ErrorResponseSchema("IP_ADDRESS_NOT_FOUND"), ErrorResponseSchema("CAPTCHA_VERIFICATION_FAILED")]),
+	},
+};
