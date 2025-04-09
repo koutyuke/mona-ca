@@ -18,12 +18,5 @@ export type OAuthSignupCallbackUseCaseResult = Result<
 >;
 
 export interface IOAuthSignupCallbackUseCase {
-	execute(
-		code: string,
-		codeVerifier: string,
-		provider: OAuthProvider,
-		userOption?: {
-			gender?: "man" | "woman";
-		},
-	): Promise<OAuthSignupCallbackUseCaseResult>;
+	execute(code: string, codeVerifier: string, provider: OAuthProvider): Promise<OAuthSignupCallbackUseCaseResult>;
 }

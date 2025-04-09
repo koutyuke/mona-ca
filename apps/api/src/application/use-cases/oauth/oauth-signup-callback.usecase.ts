@@ -86,7 +86,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			name: providerAccount.name,
 			email: providerAccount.email,
 			emailVerified: providerAccount.emailVerified, // if emailVerified is false, this user is pre-register user
-			iconUrl: providerAccount.iconUrl,
+			iconUrl: providerAccount.iconURL,
 			gender: newGender("man"),
 			createdAt: now,
 			updatedAt: now,
