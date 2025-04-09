@@ -1,3 +1,4 @@
+import { t } from "elysia";
 import { SessionTokenService } from "../../application/services/session-token";
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
@@ -102,10 +103,10 @@ export const authGuard = <
 
 export const AuthGuardSchema = {
 	response: {
-		401: [
+		401: t.Union([
 			ErrorResponseSchema("SESSION_EXPIRED"),
 			ErrorResponseSchema("SESSION_OR_USER_NOT_FOUND"),
 			ErrorResponseSchema("EMAIL_VERIFICATION_IS_REQUIRED"),
-		],
+		]),
 	},
 };
