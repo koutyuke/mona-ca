@@ -1,28 +1,32 @@
-import { validateRedirectUrl } from "@mona-ca/core/utils";
-import { generateCodeVerifier, generateState } from "arctic";
+import { validateRedirectURL } from "@mona-ca/core/utils";
+import { generateCodeVerifier } from "arctic";
 import { err } from "../../../common/utils";
-import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import type { ClientType } from "../../../domain/value-object";
+import { type IOAuthProviderGateway, generateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthRequestUseCase, OAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
 
 export class OAuthRequestUseCase implements IOAuthRequestUseCase {
-	constructor(private oauthProviderGateway: IOAuthProviderGateway) {}
+	constructor(
+		private oauthProviderGateway: IOAuthProviderGateway,
+		private oauthStateHMACSecret: string,
+	) {}
 
-	public execute(clientBaseUrl: URL, queryRedirectUrl: string): OAuthRequestUseCaseResult {
-		const validatedRedirectUrl = validateRedirectUrl(clientBaseUrl, queryRedirectUrl ?? "/");
+	public execute(clientType: ClientType, clientBaseURL: URL, queryRedirectURI: string): OAuthRequestUseCaseResult {
+		const redirectToClientURL = validateRedirectURL(clientBaseURL, queryRedirectURI ?? "/");
 
-		if (!validatedRedirectUrl) {
+		if (!redirectToClientURL) {
 			return err("INVALID_REDIRECT_URL");
 		}
 
-		const state = generateState();
+		const state = generateSignedState({ clientType }, this.oauthStateHMACSecret);
 		const codeVerifier = generateCodeVerifier();
-		const redirectToProvider = this.oauthProviderGateway.genAuthUrl(state, codeVerifier);
+		const redirectToProviderURL = this.oauthProviderGateway.genAuthURL(state, codeVerifier);
 
 		return {
 			state,
 			codeVerifier,
-			redirectToClientUrl: validatedRedirectUrl,
-			redirectToProviderUrl: redirectToProvider,
+			redirectToClientURL,
+			redirectToProviderURL,
 		};
 	}
 }
