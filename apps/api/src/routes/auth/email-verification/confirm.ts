@@ -92,6 +92,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			beforeHandle: async ({ rateLimiter, user }) => {
 				await rateLimiter.consume(user.id, 1);
 			},
+			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				code: t.String(),

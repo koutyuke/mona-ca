@@ -18,32 +18,29 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 
 	public async execute(
 		emailVerificationSessionToken: string,
-		email: string,
 		code: string,
 		user: User,
 	): Promise<ChangeEmailUseCaseResult> {
 		const emailVerificationSessionId = newEmailVerificationSessionId(
 			this.sessionTokenService.hashSessionToken(emailVerificationSessionToken),
 		);
-		const [sameEmailUser, emailVerificationSession] = await Promise.all([
-			this.userRepository.findByEmail(email),
-			this.emailVerificationSessionRepository.findByIdAndUserId(emailVerificationSessionId, user.id),
-		]);
-
-		if (sameEmailUser) {
-			return err("EMAIL_IS_ALREADY_USED");
-		}
+		const emailVerificationSession = await this.emailVerificationSessionRepository.findByIdAndUserId(
+			emailVerificationSessionId,
+			user.id,
+		);
 
 		if (!emailVerificationSession) {
 			return err("NOT_REQUEST");
 		}
 
-		if (emailVerificationSession.code !== code) {
-			return err("INVALID_CODE");
+		const sameEmailUser = await this.userRepository.findByEmail(emailVerificationSession.email);
+
+		if (sameEmailUser) {
+			return err("EMAIL_IS_ALREADY_USED");
 		}
 
-		if (emailVerificationSession.email !== user.email) {
-			return err("INVALID_EMAIL");
+		if (emailVerificationSession.code !== code) {
+			return err("INVALID_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
@@ -64,7 +61,7 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 		const updatedUser = new User({
 			...user,
 			emailVerified: true,
-			email,
+			email: emailVerificationSession.email,
 			updatedAt: new Date(),
 		});
 

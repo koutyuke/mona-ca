@@ -36,12 +36,12 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 			return err("NOT_REQUEST");
 		}
 
-		if (emailVerificationSession.code !== code) {
-			return err("INVALID_CODE");
-		}
-
 		if (emailVerificationSession.email !== user.email) {
 			return err("INVALID_EMAIL");
+		}
+
+		if (emailVerificationSession.code !== code) {
+			return err("INVALID_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);

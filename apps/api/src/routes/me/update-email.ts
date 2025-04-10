@@ -2,6 +2,7 @@ import { t } from "elysia";
 import { SessionTokenService } from "../../application/services/session-token";
 import { ChangeEmailUseCase } from "../../application/use-cases/email-verification/change-email.usecase";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
+import { FlattenUnion } from "../../common/schema";
 import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../interface-adapter/repositories/email-verification-session";
@@ -10,7 +11,7 @@ import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { CookieService } from "../../modules/cookie";
 import { ElysiaWithEnv } from "../../modules/elysia-with-env";
-import { BadRequestException, InternalServerErrorResponseSchema } from "../../modules/error";
+import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
 
@@ -30,7 +31,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 			env: { EMAIL_VERIFICATION_SESSION_PEPPER, APP_ENV },
 			cfModuleEnv: { DB },
 			cookie,
-			body: { code, email, emailVerificationSessionToken },
+			body: { code, emailVerificationSessionToken },
 			user,
 			clientType,
 			set,
@@ -52,7 +53,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const result = await changeEmailUseCase.execute(emailVerificationSessionToken, email, code, user);
+			const result = await changeEmailUseCase.execute(emailVerificationSessionToken, code, user);
 
 			if (isErr(result)) {
 				const { code } = result;
@@ -82,9 +83,6 @@ export const UpdateEmail = new ElysiaWithEnv()
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
-				email: t.String({
-					format: "email",
-				}),
 				code: t.String(),
 				emailVerificationSessionToken: t.String(),
 			}),
@@ -93,7 +91,13 @@ export const UpdateEmail = new ElysiaWithEnv()
 					sessionToken: t.String(),
 				}),
 				204: t.Void(),
-				400: WithClientTypeSchema.response[400],
+				400: FlattenUnion(
+					WithClientTypeSchema.response[400],
+					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),
+					ErrorResponseSchema("INVALID_CODE"),
+					ErrorResponseSchema("CODE_WAS_EXPIRED"),
+					ErrorResponseSchema("NOT_REQUEST"),
+				),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,
 			},
