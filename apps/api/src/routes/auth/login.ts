@@ -91,7 +91,7 @@ export const Login = new ElysiaWithEnv()
 					captcha.verify(cfTurnstileResponse),
 				]);
 			},
-			headers: WithClientTypeSchema.header,
+			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				cfTurnstileResponse: t.String(),

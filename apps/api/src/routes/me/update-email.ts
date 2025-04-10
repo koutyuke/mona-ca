@@ -79,6 +79,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 			return;
 		},
 		{
+			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				email: t.String({

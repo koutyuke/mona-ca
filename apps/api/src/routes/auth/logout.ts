@@ -48,7 +48,7 @@ export const Logout = new ElysiaWithEnv()
 			return;
 		},
 		{
-			headers: WithClientTypeSchema.header,
+			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			response: {
 				204: t.Void(),

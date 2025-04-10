@@ -79,6 +79,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 			return;
 		},
 		{
+			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				currentPassword: t.Optional(t.String()),

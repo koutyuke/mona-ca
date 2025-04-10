@@ -29,9 +29,14 @@ export const withClientType = new Elysia({
 });
 
 export const WithClientTypeSchema = {
-	header: t.Object({
-		[CLIENT_TYPE_HEADER_NAME]: clientTypeSchema,
-	}),
+	headers: t.Object(
+		{
+			[CLIENT_TYPE_HEADER_NAME]: clientTypeSchema,
+		},
+		{
+			additionalProperties: true,
+		},
+	),
 	response: {
 		400: t.Union([ErrorResponseSchema("CLIENT_TYPE_HEADER_NOT_FOUND"), ErrorResponseSchema("INVALID_CLIENT_TYPE")]),
 	},
