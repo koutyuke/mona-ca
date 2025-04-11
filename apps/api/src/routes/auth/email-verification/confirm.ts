@@ -9,7 +9,7 @@ import { SessionRepository } from "../../../interface-adapter/repositories/sessi
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieService } from "../../../modules/cookie";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
@@ -44,7 +44,6 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			body: { code, emailVerificationSessionToken },
 			user,
 			clientType,
-			set,
 		}) => {
 			const drizzleService = new DrizzleService(DB);
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
@@ -85,8 +84,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				expires: session.expiresAt,
 			});
 
-			set.status = 204;
-			return;
+			return NoContentResponse;
 		},
 		{
 			beforeHandle: async ({ rateLimiter, user }) => {
@@ -102,7 +100,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
-				204: t.Void(),
+				204: NoContentResponseSchema,
 				400: WithClientTypeSchema.response[400],
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],

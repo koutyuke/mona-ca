@@ -11,7 +11,7 @@ import { SessionRepository } from "../../interface-adapter/repositories/session"
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../modules/captcha";
 import { CookieService } from "../../modules/cookie";
-import { ElysiaWithEnv } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../modules/rate-limiter";
@@ -45,7 +45,6 @@ export const Signup = new ElysiaWithEnv()
 			cfModuleEnv: { DB },
 			cookie,
 			body: { name, email, password, gender },
-			set,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -73,7 +72,7 @@ export const Signup = new ElysiaWithEnv()
 
 			if (clientType === "mobile") {
 				return {
-					sessionToken: sessionToken,
+					sessionToken,
 				};
 			}
 
@@ -81,8 +80,7 @@ export const Signup = new ElysiaWithEnv()
 				expires: session.expiresAt,
 			});
 
-			set.status = 204;
-			return;
+			return NoContentResponse;
 		},
 		{
 			beforeHandle: async ({ rateLimiter, ip, captcha, body: { cfTurnstileResponse } }) => {
@@ -106,7 +104,10 @@ export const Signup = new ElysiaWithEnv()
 				gender: genderSchema,
 			}),
 			response: {
-				204: t.Void(),
+				200: t.Object({
+					sessionToken: t.String(),
+				}),
+				204: NoContentResponseSchema,
 				400: FlattenUnion(
 					WithClientTypeSchema.response[400],
 					CaptchaSchema.response[400],

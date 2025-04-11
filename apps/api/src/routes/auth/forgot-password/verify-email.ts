@@ -26,7 +26,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	// Route
 	.post(
 		"/verify-email",
-		async ({ env: { SESSION_PEPPER }, cfModuleEnv: { DB }, body: { passwordResetSessionToken, code }, set }) => {
+		async ({ env: { SESSION_PEPPER }, cfModuleEnv: { DB }, body: { passwordResetSessionToken, code } }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 
@@ -49,8 +49,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				});
 			}
 
-			set.status = 204;
-			return;
+			return new Response(null, { status: 204 });
 		},
 		{
 			beforeHandle: async ({

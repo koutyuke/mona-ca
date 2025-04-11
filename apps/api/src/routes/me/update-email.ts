@@ -10,7 +10,7 @@ import { SessionRepository } from "../../interface-adapter/repositories/session"
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { CookieService } from "../../modules/cookie";
-import { ElysiaWithEnv } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
@@ -34,7 +34,6 @@ export const UpdateEmail = new ElysiaWithEnv()
 			body: { code, emailVerificationSessionToken },
 			user,
 			clientType,
-			set,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -76,8 +75,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				expires: session.expiresAt,
 			});
 
-			set.status = 204;
-			return;
+			return NoContentResponse;
 		},
 		{
 			headers: WithClientTypeSchema.headers,
@@ -90,7 +88,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
-				204: t.Void(),
+				204: NoContentResponseSchema,
 				400: FlattenUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),

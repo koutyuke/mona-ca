@@ -6,7 +6,7 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { CookieService } from "../../modules/cookie";
-import { ElysiaWithEnv } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
@@ -21,13 +21,14 @@ export const Logout = new ElysiaWithEnv()
 	.use(
 		authGuard({
 			includeSessionToken: true,
+			requireEmailVerification: false,
 		}),
 	)
 
 	// Route
 	.post(
 		"/logout",
-		async ({ env: { SESSION_PEPPER, APP_ENV }, cfModuleEnv: { DB }, cookie, sessionToken, clientType, set }) => {
+		async ({ env: { SESSION_PEPPER, APP_ENV }, cfModuleEnv: { DB }, cookie, sessionToken, clientType }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
@@ -44,14 +45,13 @@ export const Logout = new ElysiaWithEnv()
 				cookieService.deleteCookie(SESSION_COOKIE_NAME);
 			}
 
-			set.status = 204;
-			return;
+			return NoContentResponse;
 		},
 		{
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			response: {
-				204: t.Void(),
+				204: NoContentResponseSchema,
 				400: WithClientTypeSchema.response[400],
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,

@@ -10,7 +10,7 @@ import { SessionRepository } from "../../interface-adapter/repositories/session"
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../modules/captcha";
 import { CookieService } from "../../modules/cookie";
-import { ElysiaWithEnv } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../modules/rate-limiter";
@@ -44,7 +44,6 @@ export const Login = new ElysiaWithEnv()
 			cfModuleEnv: { DB },
 			cookie,
 			body: { email, password },
-			set,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -80,8 +79,7 @@ export const Login = new ElysiaWithEnv()
 				expires: session.expiresAt,
 			});
 
-			set.status = 204;
-			return;
+			return NoContentResponse;
 		},
 		{
 			beforeHandle: async ({ rateLimiter, ip, captcha, body: { email, cfTurnstileResponse } }) => {
@@ -104,7 +102,7 @@ export const Login = new ElysiaWithEnv()
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
-				204: t.Void(),
+				204: NoContentResponseSchema,
 				400: FlattenUnion(
 					WithClientTypeSchema.response[400],
 					CaptchaSchema.response[400],

@@ -9,7 +9,7 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 
@@ -25,7 +25,6 @@ export const ResetPassword = new ElysiaWithEnv()
 			cfModuleEnv: { DB },
 			env: { PASSWORD_PEPPER, SESSION_PEPPER },
 			body: { passwordResetSessionToken, newPassword },
-			set,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -55,8 +54,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				});
 			}
 
-			set.status = 204;
-			return;
+			return NoContentResponse;
 			// This endpoint is not return. If return 200, redirect to login page.
 		},
 		{
@@ -66,7 +64,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				newPassword: t.String(),
 			}),
 			response: {
-				204: t.Void(),
+				204: NoContentResponseSchema,
 				400: FlattenUnion(
 					ErrorResponseSchema("INVALID_TOKEN"),
 					ErrorResponseSchema("TOKEN_EXPIRED"),
