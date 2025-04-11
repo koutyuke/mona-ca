@@ -5,11 +5,13 @@ import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { readBearerToken } from "../../common/utils";
 import { isErr } from "../../common/utils";
 import type { Session, User } from "../../domain/entities";
+import type { ClientType } from "../../domain/value-object";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { ErrorResponseSchema, UnauthorizedException } from "../error";
+import { WithClientTypeSchema, withClientType } from "../with-client-type/with-client-type.plugin";
 
 /**
  * Creates an authentication guard plugin for Elysia with environment configuration.
@@ -31,10 +33,12 @@ export const authGuard = <
 				user: User;
 				session: Session;
 				sessionToken: string;
+				clientType: ClientType;
 			}
 		: {
 				user: User;
 				session: Session;
+				clientType: ClientType;
 			},
 >(options?: {
 	requireEmailVerification?: boolean;
@@ -54,55 +58,73 @@ export const authGuard = <
 			enableSessionCookieRefresh,
 			includeSessionToken,
 		},
-	}).derive<U, "scoped">(
-		{ as: "scoped" },
-		async ({ env: { SESSION_PEPPER }, cfModuleEnv: { DB }, cookie, headers: { authorization } }): Promise<U> => {
-			const drizzleService = new DrizzleService(DB);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
-			const sessionRepository = new SessionRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+	})
+		.use(withClientType)
+		.derive<U, "scoped">(
+			{ as: "scoped" },
+			async ({
+				env: { SESSION_PEPPER },
+				cfModuleEnv: { DB },
+				cookie,
+				headers: { authorization },
+				clientType,
+			}): Promise<U> => {
+				// === Instances ===
+				const drizzleService = new DrizzleService(DB);
+				const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+				const sessionRepository = new SessionRepository(drizzleService);
+				const userRepository = new UserRepository(drizzleService);
 
-			const validateSessionUseCase = new ValidateSessionUseCase(sessionTokenService, sessionRepository, userRepository);
+				const validateSessionUseCase = new ValidateSessionUseCase(
+					sessionTokenService,
+					sessionRepository,
+					userRepository,
+				);
+				// === End of instances ===
 
-			const sessionToken = cookie[SESSION_COOKIE_NAME]?.value || readBearerToken(authorization ?? "");
+				const sessionToken =
+					clientType === "web" ? cookie[SESSION_COOKIE_NAME]?.value : readBearerToken(authorization ?? "");
 
-			if (!sessionToken) {
-				throw new UnauthorizedException();
-			}
+				if (!sessionToken) {
+					throw new UnauthorizedException();
+				}
 
-			const result = await validateSessionUseCase.execute(sessionToken);
+				const result = await validateSessionUseCase.execute(sessionToken);
 
-			if (isErr(result)) {
-				const { code } = result;
+				if (isErr(result)) {
+					const { code } = result;
 
-				throw new UnauthorizedException({
-					name: code,
-				});
-			}
+					throw new UnauthorizedException({
+						name: code,
+					});
+				}
 
-			const { user, session } = result;
+				const { user, session } = result;
 
-			if (requireEmailVerification && !user.emailVerified) {
-				throw new UnauthorizedException({
-					name: "EMAIL_VERIFICATION_IS_REQUIRED",
-					message: "Email verification is required.",
-				});
-			}
+				if (requireEmailVerification && !user.emailVerified) {
+					throw new UnauthorizedException({
+						name: "EMAIL_VERIFICATION_IS_REQUIRED",
+						message: "Email verification is required.",
+					});
+				}
 
-			if (enableSessionCookieRefresh && cookie[SESSION_COOKIE_NAME]) {
-				cookie[SESSION_COOKIE_NAME].expires = session.expiresAt;
-			}
+				if (enableSessionCookieRefresh && cookie[SESSION_COOKIE_NAME]) {
+					cookie[SESSION_COOKIE_NAME].expires = session.expiresAt;
+				}
 
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			return (includeSessionToken ? { user, session, sessionToken } : { user, session }) as any;
-		},
-	);
+				return (includeSessionToken
+					? { user, session, sessionToken, clientType }
+					: { user, session, clientType }) as unknown as U;
+			},
+		);
 
 	return plugin;
 };
 
 export const AuthGuardSchema = {
+	headers: WithClientTypeSchema.headers,
 	response: {
+		400: WithClientTypeSchema.response[400],
 		401: t.Union([
 			ErrorResponseSchema("SESSION_EXPIRED"),
 			ErrorResponseSchema("SESSION_OR_USER_NOT_FOUND"),
