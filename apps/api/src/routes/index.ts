@@ -21,7 +21,7 @@ export const app = root
 				}
 				return [/localhost:\d{4}$/];
 			},
-			allowedHeaders: ["content-type", "authorization"],
+			allowedHeaders: ["content-type", "authorization", "cf-connecting-ip", "mc-client-type"],
 		}),
 	)
 	.use(error)
