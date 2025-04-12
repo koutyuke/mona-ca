@@ -24,9 +24,9 @@ describe("HmacService", () => {
 			expect(hmac1).not.toBe(hmac2);
 		});
 
-		it("should generate HMAC in hexadecimal format", () => {
+		it("should generate HMAC in base64 format", () => {
 			const hmac = generateHMAC(testData, testSecret);
-			expect(hmac).toMatch(/^[0-9a-f]+$/);
+			expect(hmac).toMatch(/^[A-Za-z0-9+/]+=*$/);
 		});
 	});
 
