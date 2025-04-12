@@ -5,7 +5,7 @@ import { FlattenUnion } from "../../../common/schema";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
@@ -49,7 +49,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				});
 			}
 
-			return new Response(null, { status: 204 });
+			return NoContentResponse();
 		},
 		{
 			beforeHandle: async ({
@@ -68,7 +68,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				code: t.String(),
 			}),
 			response: {
-				204: t.Void(),
+				204: NoContentResponseSchema,
 				400: FlattenUnion(
 					ErrorResponseSchema("INVALID_TOKEN"),
 					ErrorResponseSchema("TOKEN_EXPIRED"),

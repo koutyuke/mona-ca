@@ -54,7 +54,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				});
 			}
 
-			return NoContentResponse;
+			return NoContentResponse();
 			// This endpoint is not return. If return 200, redirect to login page.
 		},
 		{
