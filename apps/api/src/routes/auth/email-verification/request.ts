@@ -54,7 +54,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const email = bodyEmail || user.email;
+			const email = bodyEmail ?? user.email;
 			const result = await emailVerificationRequestUseCase.execute(email, user);
 
 			if (isErr(result)) {
@@ -85,8 +85,9 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			beforeHandle: async ({ rateLimiter, user }) => {
 				await rateLimiter.consume(user.id, 1);
 			},
+			headers: AuthGuardSchema.headers,
 			body: t.Object({
-				email: t.Optional(
+				email: t.Nullable(
 					t.String({
 						format: "email",
 					}),
@@ -97,6 +98,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 					emailVerificationSessionToken: t.String(),
 				}),
 				400: FlattenUnion(
+					AuthGuardSchema.response[400],
 					ErrorResponseSchema("EMAIL_IS_ALREADY_VERIFIED"),
 					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),
 				),

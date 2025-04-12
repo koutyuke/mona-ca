@@ -13,7 +13,6 @@ import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../..
 import { BadRequestException, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -21,7 +20,6 @@ const cookieSchemaObject = {
 
 const EmailVerificationConfirm = new ElysiaWithEnv()
 	// Local Middleware & Plugin
-	.use(withClientType)
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimiter("email-verification-confirm", {
@@ -38,7 +36,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 	.post(
 		"/confirm",
 		async ({
-			env: { APP_ENV, EMAIL_VERIFICATION_SESSION_PEPPER },
+			env: { APP_ENV, EMAIL_VERIFICATION_SESSION_PEPPER, SESSION_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { code, emailVerificationSessionToken },
@@ -52,13 +50,15 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
-			const sessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
+			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const emailVerificationSessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
 			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
-				sessionTokenService,
 				emailVerificationSessionRepository,
 				userRepository,
 				sessionRepository,
+				sessionTokenService,
+				emailVerificationSessionTokenService,
 			);
 
 			const result = await emailVerificationConfirmUseCase.execute(emailVerificationSessionToken, code, user);
@@ -80,17 +80,19 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				};
 			}
 
+			cookieService.deleteCookie(SESSION_COOKIE_NAME);
+
 			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
-			return NoContentResponse;
+			return NoContentResponse();
 		},
 		{
 			beforeHandle: async ({ rateLimiter, user }) => {
 				await rateLimiter.consume(user.id, 1);
 			},
-			headers: WithClientTypeSchema.headers,
+			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				code: t.String(),
@@ -101,7 +103,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: WithClientTypeSchema.response[400],
+				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
