@@ -9,14 +9,7 @@ export const withClientType = new Elysia({
 }).derive({ as: "scoped" }, ({ headers }): { clientType: ClientType } => {
 	const clientType = headers[CLIENT_TYPE_HEADER_NAME];
 
-	if (!clientType) {
-		throw new BadRequestException({
-			name: "CLIENT_TYPE_HEADER_NOT_FOUND",
-			message: "Client type header not found.",
-		});
-	}
-
-	if (!Value.Check(clientTypeSchema, clientType)) {
+	if (!clientType || !Value.Check(clientTypeSchema, clientType)) {
 		throw new BadRequestException({
 			name: "INVALID_CLIENT_TYPE",
 			message: "Invalid client type.",
@@ -38,6 +31,6 @@ export const WithClientTypeSchema = {
 		},
 	),
 	response: {
-		400: t.Union([ErrorResponseSchema("CLIENT_TYPE_HEADER_NOT_FOUND"), ErrorResponseSchema("INVALID_CLIENT_TYPE")]),
+		400: ErrorResponseSchema("INVALID_CLIENT_TYPE"),
 	},
 };
