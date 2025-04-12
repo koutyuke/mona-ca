@@ -7,8 +7,8 @@ import type { IOAuthRequestUseCase, OAuthRequestUseCaseResult } from "./interfac
 
 export class OAuthRequestUseCase implements IOAuthRequestUseCase {
 	constructor(
-		private oauthProviderGateway: IOAuthProviderGateway,
-		private oauthStateHMACSecret: string,
+		private readonly oauthProviderGateway: IOAuthProviderGateway,
+		private readonly oauthStateHMACSecret: string,
 	) {}
 
 	public execute(clientType: ClientType, clientBaseURL: URL, queryRedirectURI: string): OAuthRequestUseCaseResult {
