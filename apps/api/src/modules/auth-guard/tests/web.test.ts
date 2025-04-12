@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
 import { SessionTokenService } from "../../../application/services/session-token";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { type DatabaseSession, SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
@@ -33,9 +34,9 @@ const databaseSession2: DatabaseSession = {
 	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
 };
 
-describe("AuthGuard Authorization Header Test", () => {
+describe("AuthGuard cookie test", () => {
 	beforeAll(async () => {
-		// Create Active User
+		// Create non-email-verified User
 		await userTableHelper.create({
 			...userTableHelper.baseDatabaseUser,
 			id: "user1Id",
@@ -43,7 +44,7 @@ describe("AuthGuard Authorization Header Test", () => {
 			email: "test1.email@example.com",
 		});
 
-		// Create non-Active User
+		// Create email-verified User
 		await userTableHelper.create({
 			...userTableHelper.baseDatabaseUser,
 			id: "user2Id",
@@ -56,7 +57,7 @@ describe("AuthGuard Authorization Header Test", () => {
 		await sessionTableHelper.create(databaseSession2);
 	});
 
-	test("Pass with valid authorization header that email verification is not required", async () => {
+	test("Pass with valid cookie that email verification is not required", async () => {
 		const app = new ElysiaWithEnv({ aot: false })
 			.setEnv(env)
 			.use(authGuard({ requireEmailVerification: false }))
@@ -65,17 +66,19 @@ describe("AuthGuard Authorization Header Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					authorization: `Bearer ${sessionToken1}`,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionToken1};`,
+					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
+
 		const text = await res.text();
 
 		expect(res.status).toBe(200);
 		expect(text).toBe("Test");
 	});
 
-	test("Pass with valid authorization header that email verification is required", async () => {
+	test("Pass with valid cookie that email verification is required", async () => {
 		const app = new ElysiaWithEnv({ aot: false })
 			.setEnv(env)
 			.use(authGuard({ requireEmailVerification: true }))
@@ -84,14 +87,16 @@ describe("AuthGuard Authorization Header Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					authorization: `Bearer ${sessionToken2}`,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionToken2};`,
+					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
+
 		const text = await res.text();
 
-		expect(res.status).toBe(200);
 		expect(text).toBe("Test");
+		expect(res.status).toBe(200);
 	});
 
 	test("Fail with not email verified yet", async () => {
@@ -103,7 +108,8 @@ describe("AuthGuard Authorization Header Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					authorization: `Bearer ${sessionToken1}`,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionToken1};`,
+					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
@@ -111,7 +117,7 @@ describe("AuthGuard Authorization Header Test", () => {
 		expect(res.status).toBe(401);
 	});
 
-	test("Fail with invalid authorization header that email verification is not required", async () => {
+	test("Fail with invalid cookie that email verification is not required", async () => {
 		const app = new ElysiaWithEnv({ aot: false })
 			.setEnv(env)
 			.use(authGuard({ requireEmailVerification: false }))
@@ -120,7 +126,8 @@ describe("AuthGuard Authorization Header Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					authorization: "Bearer invalidSessionId1",
+					cookie: `${SESSION_COOKIE_NAME}=invalidSessionId1;`,
+					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
@@ -128,7 +135,7 @@ describe("AuthGuard Authorization Header Test", () => {
 		expect(res.status).toBe(401);
 	});
 
-	test("Fail with invalid authorization header that email verification is not required", async () => {
+	test("Fail with invalid cookie that email verification is required", async () => {
 		const app = new ElysiaWithEnv({ aot: false })
 			.setEnv(env)
 			.use(authGuard({ requireEmailVerification: true }))
@@ -137,7 +144,8 @@ describe("AuthGuard Authorization Header Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					authorization: "Bearer invalidSessionId2",
+					cookie: `${SESSION_COOKIE_NAME}=invalidSessionId2;`,
+					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
