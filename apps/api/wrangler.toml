@@ -11,6 +11,7 @@ d1_databases = [
 ]
 
 [env.production]
+name = "mona-ca-api"
 vars = { APP_ENV = "production" }
 observability = { enabled = true, head_sampling_rate = 1 }
 d1_databases = [
