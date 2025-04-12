@@ -19,8 +19,10 @@ export const GetProfile = new ElysiaWithEnv()
 			return userPresenter(user);
 		},
 		{
+			headers: AuthGuardSchema.headers,
 			response: {
 				200: UserPresenterResultSchema,
+				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,
 			},
