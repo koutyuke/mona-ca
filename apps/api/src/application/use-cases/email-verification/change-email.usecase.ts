@@ -34,9 +34,9 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 			return err("NOT_REQUEST");
 		}
 
-		const sameEmailUser = await this.userRepository.findByEmail(emailVerificationSession.email);
+		const existingUserForNewEmail = await this.userRepository.findByEmail(emailVerificationSession.email);
 
-		if (sameEmailUser) {
+		if (existingUserForNewEmail) {
 			return err("EMAIL_IS_ALREADY_USED");
 		}
 

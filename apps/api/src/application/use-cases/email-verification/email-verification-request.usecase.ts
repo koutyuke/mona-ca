@@ -23,9 +23,9 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 			return err("EMAIL_IS_ALREADY_VERIFIED");
 		}
 
-		const sameEmailUser = await this.userRepository.findByEmail(email);
+		const existingUserForVerifiedEmail = await this.userRepository.findByEmail(email);
 
-		if (sameEmailUser && sameEmailUser.id !== user.id) {
+		if (existingUserForVerifiedEmail && existingUserForVerifiedEmail.id !== user.id) {
 			return err("EMAIL_IS_ALREADY_USED");
 		}
 
