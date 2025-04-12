@@ -12,9 +12,9 @@ import type {
 
 export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase {
 	constructor(
-		private passwordResetSessionRepository: IPasswordResetSessionRepository,
-		private userRepository: IUserRepository,
-		private sessionTokenService: ISessionTokenService,
+		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
+		private readonly userRepository: IUserRepository,
+		private readonly passwordResetSessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(email: string): Promise<PasswordResetRequestUseCaseResult> {
@@ -28,9 +28,9 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 			number: true,
 		});
 
-		const passwordResetSessionToken = this.sessionTokenService.generateSessionToken();
+		const passwordResetSessionToken = this.passwordResetSessionTokenService.generateSessionToken();
 		const passwordResetSessionId = newPasswordResetSessionId(
-			this.sessionTokenService.hashSessionToken(passwordResetSessionToken),
+			this.passwordResetSessionTokenService.hashSessionToken(passwordResetSessionToken),
 		);
 
 		const passwordResetSession = new PasswordResetSession({
