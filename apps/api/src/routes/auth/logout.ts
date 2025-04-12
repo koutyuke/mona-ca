@@ -9,7 +9,6 @@ import { CookieService } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
-import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -17,7 +16,6 @@ const cookieSchemaObject = {
 
 export const Logout = new ElysiaWithEnv()
 	// Local Middleware & Plugin
-	.use(withClientType)
 	.use(
 		authGuard({
 			includeSessionToken: true,
@@ -45,14 +43,14 @@ export const Logout = new ElysiaWithEnv()
 				cookieService.deleteCookie(SESSION_COOKIE_NAME);
 			}
 
-			return NoContentResponse;
+			return NoContentResponse();
 		},
 		{
-			headers: WithClientTypeSchema.headers,
+			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			response: {
 				204: NoContentResponseSchema,
-				400: WithClientTypeSchema.response[400],
+				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,
 			},

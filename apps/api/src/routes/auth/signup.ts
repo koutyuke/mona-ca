@@ -80,7 +80,7 @@ export const Signup = new ElysiaWithEnv()
 				expires: session.expiresAt,
 			});
 
-			return NoContentResponse;
+			return NoContentResponse();
 		},
 		{
 			beforeHandle: async ({ rateLimiter, ip, captcha, body: { cfTurnstileResponse } }) => {
