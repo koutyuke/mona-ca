@@ -11,7 +11,7 @@ import type {
 export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmailUseCase {
 	constructor(
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
-		private readonly sessionTokenService: ISessionTokenService,
+		private readonly passwordResetSessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(
@@ -19,7 +19,7 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 		code: string,
 	): Promise<PasswordResetVerifyEmailUseCaseResult> {
 		const passwordResetSessionId = newPasswordResetSessionId(
-			this.sessionTokenService.hashSessionToken(passwordResetSessionToken),
+			this.passwordResetSessionTokenService.hashSessionToken(passwordResetSessionToken),
 		);
 		const passwordResetSession = await this.passwordResetSessionRepository.findById(passwordResetSessionId);
 

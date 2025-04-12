@@ -1,1 +1,1 @@
-export { authGuard } from "./auth-guard.plugin";
+export { AuthGuardSchema, authGuard } from "./auth-guard.plugin";

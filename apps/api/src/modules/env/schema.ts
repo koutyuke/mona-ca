@@ -30,6 +30,10 @@ export const OAuthProviderSchema = t.Object({
 	GOOGLE_CLIENT_SECRET: t.String(),
 });
 
+export const HMACSecretSchema = t.Object({
+	OAUTH_STATE_HMAC_SECRET: t.String(),
+});
+
 export const AppEnvWithoutCFModuleSchema = t.Intersect([
 	PublicSchema,
 	PepperSchema,
@@ -37,4 +41,5 @@ export const AppEnvWithoutCFModuleSchema = t.Intersect([
 	TurnstileSchema,
 	UpstashRedisSchema,
 	OAuthProviderSchema,
+	HMACSecretSchema,
 ]);

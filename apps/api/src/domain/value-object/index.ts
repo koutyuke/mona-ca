@@ -13,7 +13,9 @@ export {
 	oauthProviderSchema,
 	newOAuthProviderId,
 } from "./oauth-provider";
+export { newClientType, clientTypeSchema } from "./client-type";
 
 export type { Gender } from "./gender";
 export type { UserId, SessionId, EmailVerificationSessionId, PasswordResetSessionId } from "./ids";
 export type { OAuthProvider, OAuthProviderId } from "./oauth-provider";
+export type { ClientType } from "./client-type";

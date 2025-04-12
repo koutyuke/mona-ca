@@ -7,7 +7,7 @@ import type {
 } from "./interfaces/update-user-profile.usecase.interface";
 
 export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
-	constructor(private userRepository: IUserRepository) {}
+	constructor(private readonly userRepository: IUserRepository) {}
 
 	public async execute(currentUser: User, dto: UpdateUserProfileDto): Promise<UpdateUserProfileUseCaseResult> {
 		const updatedUser = new User({

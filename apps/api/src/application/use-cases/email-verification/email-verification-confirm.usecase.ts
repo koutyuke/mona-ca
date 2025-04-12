@@ -1,7 +1,9 @@
+import { sessionExpiresSpan } from "../../../common/constants";
 import { err } from "../../../common/utils";
-import { User } from "../../../domain/entities";
-import { newEmailVerificationSessionId } from "../../../domain/value-object";
+import { Session, User } from "../../../domain/entities";
+import { newEmailVerificationSessionId, newSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
+import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ISessionTokenService } from "../../services/session-token";
 import type {
@@ -11,9 +13,11 @@ import type {
 
 export class EmailVerificationConfirmUseCase implements IEmailVerificationConfirmUseCase {
 	constructor(
-		private emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private userRepository: IUserRepository,
-		private sessionTokenService: ISessionTokenService,
+		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly userRepository: IUserRepository,
+		private readonly sessionRepository: ISessionRepository,
+		private readonly sessionTokenService: ISessionTokenService,
+		private readonly emailVerificationSessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(
@@ -22,7 +26,7 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		user: User,
 	): Promise<EmailVerificationConfirmUseCaseResult> {
 		const emailVerificationSessionId = newEmailVerificationSessionId(
-			this.sessionTokenService.hashSessionToken(emailVerificationSessionToken),
+			this.emailVerificationSessionTokenService.hashSessionToken(emailVerificationSessionToken),
 		);
 		const emailVerificationSession = await this.emailVerificationSessionRepository.findByIdAndUserId(
 			emailVerificationSessionId,
@@ -33,12 +37,12 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 			return err("NOT_REQUEST");
 		}
 
-		if (emailVerificationSession.code !== code) {
-			return err("INVALID_CODE");
-		}
-
 		if (emailVerificationSession.email !== user.email) {
 			return err("INVALID_EMAIL");
+		}
+
+		if (emailVerificationSession.code !== code) {
+			return err("INVALID_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
@@ -47,14 +51,28 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 			return err("CODE_WAS_EXPIRED");
 		}
 
+		// Delete all sessions for the user.
+		await this.sessionRepository.deleteByUserId(user.id);
+
+		const sessionToken = this.sessionTokenService.generateSessionToken();
+		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const session = new Session({
+			id: sessionId,
+			userId: user.id,
+			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
+		});
+
 		const updatedUser = new User({
 			...user,
 			emailVerified: true,
 			updatedAt: new Date(),
 		});
 
-		await this.userRepository.save(updatedUser);
+		await Promise.all([this.userRepository.save(updatedUser), this.sessionRepository.save(session)]);
 
-		return;
+		return {
+			session,
+			sessionToken,
+		};
 	}
 }

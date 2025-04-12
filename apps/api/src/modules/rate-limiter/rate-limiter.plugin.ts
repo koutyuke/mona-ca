@@ -2,7 +2,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import { getIP } from "../../common/utils";
 import { ElysiaWithEnv } from "../elysia-with-env";
-import { BadRequestException, TooManyRequestsException } from "../error";
+import { BadRequestException, ErrorResponseSchema, TooManyRequestsException } from "../error";
 
 type LimiterConfig = {
 	maxTokens: number;
@@ -47,7 +47,7 @@ const cache = new Map();
  *    }))
  *  });
  */
-const rateLimiter = (prefix: string, { refillRate, maxTokens, refillInterval }: LimiterConfig) => {
+export const rateLimiter = (prefix: string, { refillRate, maxTokens, refillInterval }: LimiterConfig) => {
 	const plugin = new ElysiaWithEnv({
 		name: "@mona-ca/rate-limiter",
 		seed: {
@@ -112,4 +112,8 @@ const rateLimiter = (prefix: string, { refillRate, maxTokens, refillInterval }: 
 	return plugin;
 };
 
-export { rateLimiter };
+export const RateLimiterSchema = {
+	response: {
+		429: ErrorResponseSchema("TOO_MANY_REQUESTS"),
+	},
+};

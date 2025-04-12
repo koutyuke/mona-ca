@@ -19,11 +19,11 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 	private readonly discord: DiscordProvider;
 	private readonly scope = ["identify", "email"];
 
-	constructor(clientId: string, clientSecret: string, redirectUrl: string) {
-		this.discord = new DiscordProvider(clientId, clientSecret, redirectUrl);
+	constructor(clientId: string, clientSecret: string, redirectURI: string) {
+		this.discord = new DiscordProvider(clientId, clientSecret, redirectURI);
 	}
 
-	public genAuthUrl(state: string, codeVerifier: string): URL {
+	public genAuthURL(state: string, codeVerifier: string): URL {
 		const url = this.discord.createAuthorizationURL(state, codeVerifier, this.scope);
 		return url;
 	}
@@ -49,7 +49,7 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 			id: user.id,
 			name: user.username,
 			email: user.email,
-			iconUrl: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
+			iconURL: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
 			emailVerified: !!user.verified,
 		};
 	}

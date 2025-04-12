@@ -1,5 +1,10 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { User } from "../../../../domain/entities";
+import type { Session, User } from "../../../../domain/entities";
+
+export type EmailVerificationConfirmUseCaseSuccessResult = {
+	sessionToken: string;
+	session: Session;
+};
 
 export type EmailVerificationConfirmUseCaseErrorResult =
 	| Err<"INVALID_CODE">
@@ -7,7 +12,10 @@ export type EmailVerificationConfirmUseCaseErrorResult =
 	| Err<"NOT_REQUEST">
 	| Err<"INVALID_EMAIL">;
 
-export type EmailVerificationConfirmUseCaseResult = Result<void, EmailVerificationConfirmUseCaseErrorResult>;
+export type EmailVerificationConfirmUseCaseResult = Result<
+	EmailVerificationConfirmUseCaseSuccessResult,
+	EmailVerificationConfirmUseCaseErrorResult
+>;
 export interface IEmailVerificationConfirmUseCase {
 	execute(
 		emailVerificationSessionToken: string,

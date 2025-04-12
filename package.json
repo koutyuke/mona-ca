@@ -43,9 +43,10 @@
     "workerd"
   ],
   "overrides": {
-    "nativewind": "^4.1.16"
+    "nativewind": "^4.1.16",
+    "@scalar/types": "0.1.5"
   },
   "patchedDependencies": {
-  "elysia@1.2.10": "patches/elysia@1.2.10.patch"
-}
+    "elysia@1.2.25": "patches/elysia@1.2.25.patch"
+  }
 }

@@ -13,12 +13,12 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly passwordService: IPasswordService,
-		private readonly sessionTokenService: ISessionTokenService,
+		private readonly passwordResetSessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(passwordResetSessionToken: string, newPassword: string): Promise<ResetPasswordUseCaseResult> {
 		const passwordResetSessionId = newPasswordResetSessionId(
-			this.sessionTokenService.hashSessionToken(passwordResetSessionToken),
+			this.passwordResetSessionTokenService.hashSessionToken(passwordResetSessionToken),
 		);
 		const passwordResetSession = await this.passwordResetSessionRepository.findById(passwordResetSessionId);
 

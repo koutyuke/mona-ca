@@ -75,7 +75,14 @@
   },
   "overrides": [
     {
-      "include": ["**/*.story.*", "**/*.config.*", "**/.storybook/**", "**/src/app/**", "apps/web/src/middleware.ts"],
+      "include": [
+        "**/*.story.*",
+        "**/*.config.*",
+        "**/.storybook/**",
+        "**/src/app/**",
+        "apps/web/src/middleware.ts",
+        "./apps/api/src/server.ts"
+      ],
       "linter": {
         "rules": {
           "style": {

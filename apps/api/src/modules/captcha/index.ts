@@ -1,1 +1,1 @@
-export { captcha } from "./captcha.plugin";
+export { CaptchaSchema, captcha } from "./captcha.plugin";
