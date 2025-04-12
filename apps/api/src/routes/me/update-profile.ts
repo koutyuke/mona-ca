@@ -44,6 +44,7 @@ export const UpdateProfile = new ElysiaWithEnv()
 			return userPresenter(updatedUser);
 		},
 		{
+			headers: AuthGuardSchema.headers,
 			body: t.Object({
 				name: t.Optional(
 					t.String({
@@ -56,6 +57,7 @@ export const UpdateProfile = new ElysiaWithEnv()
 			}),
 			response: {
 				200: UserPresenterResultSchema,
+				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,
 			},

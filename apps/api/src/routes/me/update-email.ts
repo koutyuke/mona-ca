@@ -13,7 +13,6 @@ import { CookieService } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
-import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -21,14 +20,13 @@ const cookieSchemaObject = {
 
 export const UpdateEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
-	.use(withClientType)
 	.use(authGuard({ requireEmailVerification: false }))
 
 	// Route
 	.patch(
 		"/email",
 		async ({
-			env: { EMAIL_VERIFICATION_SESSION_PEPPER, APP_ENV },
+			env: { EMAIL_VERIFICATION_SESSION_PEPPER, APP_ENV, SESSION_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { code, emailVerificationSessionToken },
@@ -38,7 +36,8 @@ export const UpdateEmail = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
-			const sessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
+			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const emailVerificationSessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
@@ -49,6 +48,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				sessionRepository,
 				emailVerificationSessionRepository,
 				sessionTokenService,
+				emailVerificationSessionTokenService,
 			);
 			// === End of instances ===
 
@@ -75,10 +75,10 @@ export const UpdateEmail = new ElysiaWithEnv()
 				expires: session.expiresAt,
 			});
 
-			return NoContentResponse;
+			return NoContentResponse();
 		},
 		{
-			headers: WithClientTypeSchema.headers,
+			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				code: t.String(),
@@ -90,7 +90,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				}),
 				204: NoContentResponseSchema,
 				400: FlattenUnion(
-					WithClientTypeSchema.response[400],
+					AuthGuardSchema.response[400],
 					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),
 					ErrorResponseSchema("INVALID_CODE"),
 					ErrorResponseSchema("CODE_WAS_EXPIRED"),

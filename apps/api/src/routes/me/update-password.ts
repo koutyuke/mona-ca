@@ -13,7 +13,6 @@ import { CookieService } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
-import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -21,7 +20,6 @@ const cookieSchemaObject = {
 
 export const UpdatePassword = new ElysiaWithEnv()
 	// Local Middleware & Plugin
-	.use(withClientType)
 	.use(authGuard())
 
 	// Route
@@ -74,10 +72,10 @@ export const UpdatePassword = new ElysiaWithEnv()
 				expires: session.expiresAt,
 			});
 
-			return NoContentResponse;
+			return NoContentResponse();
 		},
 		{
-			headers: WithClientTypeSchema.headers,
+			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				currentPassword: t.Optional(t.String()),
@@ -89,7 +87,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 				}),
 				204: NoContentResponseSchema,
 				400: FlattenUnion(
-					WithClientTypeSchema.response[400],
+					AuthGuardSchema.response[400],
 					ErrorResponseSchema("INVALID_CURRENT_PASSWORD"),
 					ErrorResponseSchema("CURRENT_PASSWORD_REQUIRED"),
 				),
