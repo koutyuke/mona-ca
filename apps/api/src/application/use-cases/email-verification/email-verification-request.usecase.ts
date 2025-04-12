@@ -13,9 +13,9 @@ import type {
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
-		private emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private userRepository: IUserRepository,
-		private sessionTokenService: ISessionTokenService,
+		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly userRepository: IUserRepository,
+		private readonly emailVerificationSessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(email: string, user: User): Promise<EmailVerificationRequestUseCaseResult> {
@@ -33,9 +33,9 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 			number: true,
 		});
 
-		const emailVerificationSessionToken = this.sessionTokenService.generateSessionToken();
+		const emailVerificationSessionToken = this.emailVerificationSessionTokenService.generateSessionToken();
 		const emailVerificationSessionId = newEmailVerificationSessionId(
-			this.sessionTokenService.hashSessionToken(emailVerificationSessionToken),
+			this.emailVerificationSessionTokenService.hashSessionToken(emailVerificationSessionToken),
 		);
 		const emailVerificationSession = new EmailVerificationSession({
 			id: emailVerificationSessionId,

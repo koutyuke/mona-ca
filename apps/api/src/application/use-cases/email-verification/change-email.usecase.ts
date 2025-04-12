@@ -10,10 +10,11 @@ import type { ChangeEmailUseCaseResult, IChangeEmailUseCase } from "./interfaces
 
 export class ChangeEmailUseCase implements IChangeEmailUseCase {
 	constructor(
-		private userRepository: IUserRepository,
+		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
-		private emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private sessionTokenService: ISessionTokenService,
+		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly sessionTokenService: ISessionTokenService,
+		private readonly emailVerificationSessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(
@@ -22,7 +23,7 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 		user: User,
 	): Promise<ChangeEmailUseCaseResult> {
 		const emailVerificationSessionId = newEmailVerificationSessionId(
-			this.sessionTokenService.hashSessionToken(emailVerificationSessionToken),
+			this.emailVerificationSessionTokenService.hashSessionToken(emailVerificationSessionToken),
 		);
 		const emailVerificationSession = await this.emailVerificationSessionRepository.findByIdAndUserId(
 			emailVerificationSessionId,

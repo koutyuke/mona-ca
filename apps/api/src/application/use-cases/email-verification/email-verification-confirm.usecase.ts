@@ -13,10 +13,11 @@ import type {
 
 export class EmailVerificationConfirmUseCase implements IEmailVerificationConfirmUseCase {
 	constructor(
-		private readonly sessionTokenService: ISessionTokenService,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
+		private readonly sessionTokenService: ISessionTokenService,
+		private readonly emailVerificationSessionTokenService: ISessionTokenService,
 	) {}
 
 	public async execute(
@@ -25,7 +26,7 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		user: User,
 	): Promise<EmailVerificationConfirmUseCaseResult> {
 		const emailVerificationSessionId = newEmailVerificationSessionId(
-			this.sessionTokenService.hashSessionToken(emailVerificationSessionToken),
+			this.emailVerificationSessionTokenService.hashSessionToken(emailVerificationSessionToken),
 		);
 		const emailVerificationSession = await this.emailVerificationSessionRepository.findByIdAndUserId(
 			emailVerificationSessionId,
