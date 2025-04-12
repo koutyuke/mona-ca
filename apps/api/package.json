@@ -10,7 +10,7 @@
     "build": "wrangler deploy --dry-run --outdir dist",
     "start": "wrangler dev dist/index.js",
     "test": "vitest --run",
-    "test:watch": "vitest --watch",
+    "test:w": "vitest --watch",
     "typecheck": "tsc --noEmit",
     "db:gen": "drizzle-kit generate",
     "db:mig": "bun db:gen && wrangler d1 migrations apply mona-ca_db",
