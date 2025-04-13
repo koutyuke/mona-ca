@@ -1,6 +1,6 @@
-import { sessionExpiresSpan } from "../../../common/constants";
 import { err } from "../../../common/utils";
-import { Session, User } from "../../../domain/entities";
+import { createSession, isExpiredEmailVerificationSession, updateUser } from "../../../domain/entities";
+import type { User } from "../../../domain/entities";
 import { newEmailVerificationSessionId, newSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
@@ -47,7 +47,7 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
 
-		if (emailVerificationSession.isExpired) {
+		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
 			return err("CODE_WAS_EXPIRED");
 		}
 
@@ -56,16 +56,13 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
 		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
-		const session = new Session({
+		const session = createSession({
 			id: sessionId,
 			userId: user.id,
-			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
 		});
 
-		const updatedUser = new User({
-			...user,
+		const updatedUser = updateUser(user, {
 			emailVerified: true,
-			updatedAt: new Date(),
 		});
 
 		await Promise.all([this.userRepository.save(updatedUser), this.sessionRepository.save(session)]);

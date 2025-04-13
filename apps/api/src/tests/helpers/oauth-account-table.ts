@@ -1,4 +1,4 @@
-import { OAuthAccount } from "../../domain/entities";
+import type { OAuthAccount } from "../../domain/entities";
 import { newOAuthProvider, newOAuthProviderId, newUserId } from "../../domain/value-object";
 
 export type DatabaseOAuthAccount = {
@@ -10,13 +10,13 @@ export type DatabaseOAuthAccount = {
 };
 
 export class OAuthAccountTableHelper {
-	public baseOAuthAccount = new OAuthAccount({
+	public baseOAuthAccount = {
 		provider: newOAuthProvider("discord"),
 		providerId: newOAuthProviderId("providerId"),
 		userId: newUserId("userId"),
 		createdAt: new Date(1704067200 * 1000),
 		updatedAt: new Date(1704067200 * 1000),
-	});
+	} satisfies OAuthAccount;
 
 	public baseDatabaseOAuthAccount = {
 		provider: "discord",

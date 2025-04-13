@@ -1,5 +1,5 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { PasswordResetSession } from "../../../../domain/entities/password-reset-session";
+import type { PasswordResetSession } from "../../../../domain/entities";
 
 export type PasswordResetRequestUseCaseSuccessResult = {
 	passwordResetSessionToken: string;

@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { User } from "../../../domain/entities";
+import type { User } from "../../../domain/entities";
 import { type Gender, type SessionId, type UserId, newGender, newUserId } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IUserRepository } from "./interfaces/user.repository.interface";
@@ -126,15 +126,15 @@ export class UserRepository implements IUserRepository {
 	}
 
 	private convertToUser(dto: FoundUserDto): User {
-		return new User({
+		return {
 			id: newUserId(dto.id),
 			email: dto.email,
 			name: dto.name,
 			emailVerified: dto.emailVerified,
 			iconUrl: dto.iconUrl,
 			gender: newGender(dto.gender),
-			createdAt: new Date(dto.createdAt),
-			updatedAt: new Date(dto.updatedAt),
-		});
+			createdAt: dto.createdAt,
+			updatedAt: dto.updatedAt,
+		} satisfies User;
 	}
 }

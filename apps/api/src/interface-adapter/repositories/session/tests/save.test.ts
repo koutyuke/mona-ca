@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
 import { sessionExpiresSpan } from "../../../../common/constants";
-import { Session } from "../../../../domain/entities";
+import type { Session } from "../../../../domain/entities";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { toDatabaseDate } from "../../../../tests/utils";
@@ -34,11 +34,11 @@ describe("SessionRepository.save", () => {
 
 		const newExpiresAt = new Date(Date.now() + sessionExpiresSpan.milliseconds());
 
-		const updatedSession = new Session({
+		const updatedSession = {
 			id: sessionTableHelper.baseSession.id,
 			userId: sessionTableHelper.baseSession.userId,
 			expiresAt: newExpiresAt,
-		});
+		} satisfies Session;
 
 		await sessionRepository.save(updatedSession);
 

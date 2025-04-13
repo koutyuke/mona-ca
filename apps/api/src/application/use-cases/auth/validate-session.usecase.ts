@@ -1,6 +1,5 @@
-import { sessionExpiresSpan } from "../../../common/constants";
 import { err } from "../../../common/utils";
-import { Session } from "../../../domain/entities";
+import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
@@ -26,15 +25,15 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 			return err("SESSION_OR_USER_NOT_FOUND");
 		}
 
-		if (session.isExpired) {
+		if (isExpiredSession(session)) {
 			await this.sessionRepository.delete(sessionId);
 			return err("SESSION_EXPIRED");
 		}
 
-		if (session.shouldRefreshExpiration) {
-			session = new Session({
-				...session,
-				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
+		if (isRefreshableSession(session)) {
+			session = createSession({
+				id: session.id,
+				userId: session.userId,
 			});
 
 			await this.sessionRepository.save(session);

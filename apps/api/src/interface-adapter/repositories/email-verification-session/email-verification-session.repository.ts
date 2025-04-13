@@ -1,5 +1,5 @@
 import { and, eq, lte } from "drizzle-orm";
-import { EmailVerificationSession } from "../../../domain/entities";
+import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import {
 	type EmailVerificationSessionId,
 	type UserId,
@@ -71,12 +71,12 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 	}
 
 	private convertToEmailVerificationSession(dto: FoundEmailVerificationSessionDto): EmailVerificationSession {
-		return new EmailVerificationSession({
+		return {
 			id: newEmailVerificationSessionId(dto.id),
 			email: dto.email,
 			userId: newUserId(dto.userId),
 			code: dto.code,
 			expiresAt: dto.expiresAt,
-		});
+		} satisfies EmailVerificationSession;
 	}
 }

@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { OAuthAccount } from "../../../domain/entities";
+import type { OAuthAccount } from "../../../domain/entities";
 import {
 	type OAuthProvider,
 	type OAuthProviderId,
@@ -97,12 +97,12 @@ export class OAuthAccountRepository implements IOAuthAccountRepository {
 	}
 
 	private convertToOAuthAccount(dto: FoundOAuthAccountDto): OAuthAccount {
-		return new OAuthAccount({
+		return {
 			provider: newOAuthProvider(dto.provider),
 			providerId: newOAuthProviderId(dto.providerId),
 			userId: newUserId(dto.userId),
 			createdAt: dto.createdAt,
 			updatedAt: dto.updatedAt,
-		});
+		} satisfies OAuthAccount;
 	}
 }

@@ -1,7 +1,6 @@
-import { emailVerificationSessionExpiresSpan } from "../../../common/constants";
-import { generateRandomString } from "../../../common/utils";
-import { err } from "../../../common/utils";
-import { EmailVerificationSession, type User } from "../../../domain/entities";
+import { err, generateRandomString } from "../../../common/utils";
+import { createEmailVerificationSession } from "../../../domain/entities";
+import type { User } from "../../../domain/entities";
 import { newEmailVerificationSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
@@ -37,12 +36,11 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 		const emailVerificationSessionId = newEmailVerificationSessionId(
 			this.emailVerificationSessionTokenService.hashSessionToken(emailVerificationSessionToken),
 		);
-		const emailVerificationSession = new EmailVerificationSession({
+		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			email,
 			userId: user.id,
 			code,
-			expiresAt: new Date(Date.now() + emailVerificationSessionExpiresSpan.milliseconds()),
 		});
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);

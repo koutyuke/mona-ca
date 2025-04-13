@@ -1,5 +1,5 @@
 import { eq, lte } from "drizzle-orm";
-import { Session } from "../../../domain/entities";
+import type { Session } from "../../../domain/entities";
 import { type SessionId, type UserId, newSessionId, newUserId } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { ISessionRepository } from "./interfaces/session.repository.interface";
@@ -69,10 +69,10 @@ export class SessionRepository implements ISessionRepository {
 	}
 
 	private convertToSession(dto: FoundSessionDto): Session {
-		return new Session({
+		return {
 			id: newSessionId(dto.id),
 			userId: newUserId(dto.userId),
 			expiresAt: dto.expiresAt,
-		});
+		} satisfies Session;
 	}
 }

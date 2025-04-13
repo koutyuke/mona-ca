@@ -1,16 +1,5 @@
-import { t } from "elysia";
+import { type Static, t } from "elysia";
 import type { User } from "../../domain/entities";
-
-export type UserPresenterResult = {
-	id: string;
-	email: string;
-	emailVerified: boolean;
-	name: string;
-	iconUrl: string | null;
-	gender: "man" | "woman";
-	createdAt: string;
-	updatedAt: string;
-};
 
 export const UserPresenterResultSchema = t.Object({
 	id: t.String(),
@@ -29,7 +18,9 @@ export const UserPresenterResultSchema = t.Object({
 	}),
 });
 
-export const userPresenter = (user: User): UserPresenterResult => {
+export type UserPresenterResult = Static<typeof UserPresenterResultSchema>;
+
+export const UserPresenter = (user: User): UserPresenterResult => {
 	return {
 		id: user.id,
 		email: user.email,
