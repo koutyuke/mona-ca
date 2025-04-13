@@ -1,4 +1,4 @@
-import { EmailVerificationSession } from "../../domain/entities";
+import type { EmailVerificationSession } from "../../domain/entities";
 import { newEmailVerificationSessionId, newUserId } from "../../domain/value-object";
 
 export type DatabaseEmailVerificationSession = {
@@ -10,13 +10,13 @@ export type DatabaseEmailVerificationSession = {
 };
 
 export class EmailVerificationSessionTableHelper {
-	public baseEmailVerificationSession = new EmailVerificationSession({
+	public baseEmailVerificationSession = {
 		id: newEmailVerificationSessionId("emailVerificationSessionId"),
 		email: "test.email@example.com",
 		userId: newUserId("userId"),
 		code: "testCode",
 		expiresAt: new Date(1704067200 * 1000),
-	});
+	} satisfies EmailVerificationSession;
 
 	public baseDatabaseEmailVerificationSession = {
 		id: "emailVerificationSessionId",

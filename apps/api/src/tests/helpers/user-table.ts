@@ -1,4 +1,4 @@
-import { User } from "../../domain/entities";
+import type { User } from "../../domain/entities";
 import { newGender, newUserId } from "../../domain/value-object";
 
 export type DatabaseUser = {
@@ -14,7 +14,7 @@ export type DatabaseUser = {
 };
 
 export class UserTableHelper {
-	public baseUser = new User({
+	public baseUser = {
 		id: newUserId("userId"),
 		name: "testUser",
 		email: "test.email@example.com",
@@ -23,7 +23,7 @@ export class UserTableHelper {
 		gender: newGender("man"),
 		createdAt: new Date(1704067200 * 1000),
 		updatedAt: new Date(1704067200 * 1000),
-	});
+	} satisfies User;
 
 	public basePasswordHash = "passwordHash";
 

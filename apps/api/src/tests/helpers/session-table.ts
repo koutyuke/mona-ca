@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { SessionTokenService } from "../../application/services/session-token";
 import { sessionExpiresSpan } from "../../common/constants";
-import { Session } from "../../domain/entities";
+import type { Session } from "../../domain/entities";
 import { newSessionId, newUserId } from "../../domain/value-object";
 import { toDatabaseDate } from "../utils";
 
@@ -33,11 +33,11 @@ export class SessionTableHelper {
 
 		this.expiresAt = new Date(toDatabaseDate(expiresAt) * 1000);
 
-		this.baseSession = new Session({
+		this.baseSession = {
 			id: newSessionId(rawSessionId),
 			userId: newUserId("userId"),
 			expiresAt: this.expiresAt,
-		});
+		} satisfies Session;
 
 		this.baseDatabaseSession = {
 			id: rawSessionId,
