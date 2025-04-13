@@ -1,6 +1,5 @@
-import { sessionExpiresSpan } from "../../../common/constants";
 import { err } from "../../../common/utils";
-import { Session } from "../../../domain/entities";
+import { createSession } from "../../../domain/entities";
 import { type OAuthProvider, newOAuthProviderId, newSessionId } from "../../../domain/value-object";
 import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
@@ -53,10 +52,9 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
 		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
-		const session = new Session({
+		const session = createSession({
 			id: sessionId,
 			userId: existingOAuthAccount.userId,
-			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
 		});
 
 		await this.sessionRepository.save(session);

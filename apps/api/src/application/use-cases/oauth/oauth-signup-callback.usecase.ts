@@ -1,6 +1,5 @@
-import { sessionExpiresSpan } from "../../../common/constants";
 import { err, ulid } from "../../../common/utils";
-import { OAuthAccount, Session, User } from "../../../domain/entities";
+import { createOAuthAccount, createSession, createUser } from "../../../domain/entities";
 import {
 	type OAuthProvider,
 	newGender,
@@ -79,35 +78,28 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			await this.oauthAccountRepository.deleteByProviderAndProviderId(provider, providerId);
 		}
 
-		const now = new Date();
-
-		const user = new User({
+		const user = createUser({
 			id: newUserId(ulid()),
 			name: providerAccount.name,
 			email: providerAccount.email,
 			emailVerified: providerAccount.emailVerified, // if emailVerified is false, this user is pre-register user
 			iconUrl: providerAccount.iconURL,
 			gender: newGender("man"),
-			createdAt: now,
-			updatedAt: now,
 		});
 
 		await this.userRepository.save(user, { passwordHash: null });
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
 		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
-		const session = new Session({
+		const session = createSession({
 			id: sessionId,
 			userId: user.id,
-			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
 		});
 
-		const oauthAccount = new OAuthAccount({
+		const oauthAccount = createOAuthAccount({
 			provider,
 			providerId,
 			userId: user.id,
-			createdAt: now,
-			updatedAt: now,
 		});
 
 		await Promise.all([this.sessionRepository.save(session), this.oauthAccountRepository.save(oauthAccount)]);
