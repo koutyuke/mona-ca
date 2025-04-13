@@ -13,3 +13,4 @@ export {
 	EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES,
 } from "./session";
 export { CLIENT_TYPE_HEADER_NAME } from "./header";
+export { DEFAULT_USER_GENDER } from "./default";

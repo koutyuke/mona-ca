@@ -1,3 +1,4 @@
+import { DEFAULT_USER_GENDER } from "../../../common/constants";
 import { err, ulid } from "../../../common/utils";
 import { createOAuthAccount, createSession, createUser } from "../../../domain/entities";
 import {
@@ -84,7 +85,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			email: providerAccount.email,
 			emailVerified: providerAccount.emailVerified, // if emailVerified is false, this user is pre-register user
 			iconUrl: providerAccount.iconURL,
-			gender: newGender("man"),
+			gender: newGender(DEFAULT_USER_GENDER),
 		});
 
 		await this.userRepository.save(user, { passwordHash: null });
