@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { describe, expect, test } from "vitest";
-import { User } from "../../../../domain/entities";
+import type { User } from "../../../../domain/entities";
 import { newGender } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { UserTableHelper } from "../../../../tests/helpers";
@@ -31,7 +31,7 @@ describe("UserRepository.save", async () => {
 	test("should update user in the database if user already exists", async () => {
 		await userTableHelper.create();
 
-		const updatedUser = new User({
+		const updatedUser = {
 			id: userTableHelper.baseUser.id,
 			name: "bar",
 			email: "updatedUser@mail.com",
@@ -40,7 +40,7 @@ describe("UserRepository.save", async () => {
 			gender: newGender("woman"),
 			createdAt: userTableHelper.baseUser.createdAt,
 			updatedAt: now,
-		});
+		} satisfies User;
 
 		await userRepository.save(updatedUser, {
 			passwordHash: "newPasswordHash",

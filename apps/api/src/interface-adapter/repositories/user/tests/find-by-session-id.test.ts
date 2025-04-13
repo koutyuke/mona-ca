@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { User } from "../../../../domain/entities";
+import type { User } from "../../../../domain/entities";
 import { newSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -23,11 +23,11 @@ describe("UserRepository.findBySessionId", async () => {
 	test("should return User instance if user exists.", async () => {
 		const foundUser = await userRepository.findBySessionId(sessionTableHelper.baseSession.id);
 
-		const expectedUser = new User({
+		const expectedUser = {
 			...userTableHelper.baseUser,
 			createdAt: foundUser!.createdAt,
 			updatedAt: foundUser!.updatedAt,
-		});
+		} satisfies User;
 
 		expect(foundUser).toStrictEqual(expectedUser);
 	});
