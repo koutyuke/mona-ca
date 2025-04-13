@@ -1,7 +1,6 @@
-import { sessionExpiresSpan } from "../../../common/constants";
 import { ulid } from "../../../common/utils";
 import { err } from "../../../common/utils";
-import { Session, User } from "../../../domain/entities";
+import { createSession, createUser } from "../../../domain/entities";
 import { type Gender, newSessionId, newUserId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
@@ -30,23 +29,20 @@ export class SignupUseCase implements ISignupUseCase {
 
 		const userId = newUserId(ulid());
 		const passwordHash = await this.passwordService.hashPassword(password);
-		const user = new User({
+		const user = createUser({
 			id: userId,
 			name,
 			email,
 			emailVerified: false,
 			iconUrl: null,
 			gender,
-			createdAt: new Date(),
-			updatedAt: new Date(),
 		});
 
 		const sessionToken = this.sessionTokenService.generateSessionToken();
 		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
-		const session = new Session({
+		const session = createSession({
 			id: sessionId,
 			userId: user.id,
-			expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
 		});
 
 		await this.userRepository.save(user, { passwordHash });
