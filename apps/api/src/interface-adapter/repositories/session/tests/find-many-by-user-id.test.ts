@@ -1,6 +1,5 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { Session } from "../../../../domain/entities";
 import { newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -23,7 +22,7 @@ describe("SessionRepository.findManyByUserId", () => {
 	test("should return sessions", async () => {
 		const sessions = await sessionRepository.findManyByUserId(userTableHelper.baseUser.id);
 
-		const expectedSession = new Session(sessionTableHelper.baseSession);
+		const expectedSession = sessionTableHelper.baseSession;
 
 		expect(sessions.length).toBe(1);
 		expect(sessions[0]).toStrictEqual(expectedSession);

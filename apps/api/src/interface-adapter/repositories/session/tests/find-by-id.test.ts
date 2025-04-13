@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { Session } from "../../../../domain/entities";
+import {} from "../../../../domain/entities";
 import { newSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -22,7 +22,7 @@ describe("SessionRepository.findById", () => {
 
 	test("should return session and user from sessionId", async () => {
 		const session = await sessionRepository.findById(sessionTableHelper.baseSession.id);
-		const expectedSession = new Session(sessionTableHelper.baseSession);
+		const expectedSession = sessionTableHelper.baseSession;
 
 		expect(session).toStrictEqual(expectedSession);
 	});
