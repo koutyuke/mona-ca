@@ -1,4 +1,4 @@
-import type { PasswordResetSession } from "../../../../domain/entities/password-reset-session";
+import type { PasswordResetSession } from "../../../../domain/entities";
 import type { PasswordResetSessionId } from "../../../../domain/value-object";
 
 export type IPasswordResetSessionRepository = {

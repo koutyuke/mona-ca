@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import type { PasswordResetSession } from "../../../domain/entities";
 import { type PasswordResetSessionId, newPasswordResetSessionId, newUserId } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IPasswordResetSessionRepository } from "./interfaces/password-reset-session.repository.interface";
@@ -59,13 +59,13 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 	}
 
 	private convertToPasswordResetSession(dto: FoundPasswordResetSessionDto): PasswordResetSession {
-		return new PasswordResetSession({
+		return {
 			id: newPasswordResetSessionId(dto.id),
 			userId: newUserId(dto.userId),
 			code: dto.code,
 			email: dto.email,
 			emailVerified: dto.emailVerified,
 			expiresAt: dto.expiresAt,
-		});
+		} satisfies PasswordResetSession;
 	}
 }
