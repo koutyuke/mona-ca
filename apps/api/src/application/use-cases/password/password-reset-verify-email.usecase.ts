@@ -1,5 +1,5 @@
 import { constantTimeCompare, err } from "../../../common/utils";
-import { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import { isExpiredPasswordResetSession, updatePasswordResetSession } from "../../../domain/entities";
 import { newPasswordResetSessionId } from "../../../domain/value-object";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { ISessionTokenService } from "../../services/session-token";
@@ -27,7 +27,7 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 			return err("INVALID_TOKEN");
 		}
 
-		if (passwordResetSession.isExpired) {
+		if (isExpiredPasswordResetSession(passwordResetSession)) {
 			return err("TOKEN_EXPIRED");
 		}
 
@@ -35,8 +35,7 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 			return err("INVALID_CODE");
 		}
 
-		const updatedSession = new PasswordResetSession({
-			...passwordResetSession,
+		const updatedSession = updatePasswordResetSession(passwordResetSession, {
 			emailVerified: true,
 		});
 

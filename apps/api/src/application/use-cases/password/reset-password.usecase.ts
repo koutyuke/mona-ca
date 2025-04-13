@@ -1,4 +1,5 @@
 import { err } from "../../../common/utils";
+import { isExpiredPasswordResetSession } from "../../../domain/entities";
 import { newPasswordResetSessionId } from "../../../domain/value-object";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
@@ -26,7 +27,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			return err("INVALID_TOKEN");
 		}
 
-		if (passwordResetSession.isExpired) {
+		if (isExpiredPasswordResetSession(passwordResetSession)) {
 			return err("TOKEN_EXPIRED");
 		}
 

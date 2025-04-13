@@ -1,6 +1,5 @@
-import { passwordResetSessionExpiresSpan } from "../../../common/constants/session";
 import { err, generateRandomString } from "../../../common/utils";
-import { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import { createPasswordResetSession } from "../../../domain/entities";
 import { newPasswordResetSessionId } from "../../../domain/value-object";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
@@ -33,13 +32,11 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 			this.passwordResetSessionTokenService.hashSessionToken(passwordResetSessionToken),
 		);
 
-		const passwordResetSession = new PasswordResetSession({
+		const passwordResetSession = createPasswordResetSession({
 			id: passwordResetSessionId,
 			userId: user.id,
 			code,
 			email: user.email,
-			emailVerified: false,
-			expiresAt: new Date(Date.now() + passwordResetSessionExpiresSpan.milliseconds()),
 		});
 
 		await this.passwordResetSessionRepository.deleteByUserId(user.id);
