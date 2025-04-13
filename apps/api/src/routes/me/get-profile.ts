@@ -1,4 +1,4 @@
-import { UserPresenterResultSchema, userPresenter } from "../../interface-adapter/presenter";
+import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenter";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../modules/elysia-with-env";
 import { InternalServerErrorResponseSchema } from "../../modules/error";
@@ -16,7 +16,7 @@ export const GetProfile = new ElysiaWithEnv()
 	.get(
 		"",
 		({ user }) => {
-			return userPresenter(user);
+			return UserPresenter(user);
 		},
 		{
 			headers: AuthGuardSchema.headers,

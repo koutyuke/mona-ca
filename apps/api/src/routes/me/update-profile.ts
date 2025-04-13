@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { type UpdateUserProfileDto, UpdateUserProfileUseCase } from "../../application/use-cases/user";
 import { genderSchema, newGender } from "../../domain/value-object";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { UserPresenterResultSchema, userPresenter } from "../../interface-adapter/presenter";
+import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenter";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { ElysiaWithEnv } from "../../modules/elysia-with-env";
@@ -41,7 +41,7 @@ export const UpdateProfile = new ElysiaWithEnv()
 
 			const updatedUser = await updateUserProfileUseCase.execute(user, updateProfile);
 
-			return userPresenter(updatedUser);
+			return UserPresenter(updatedUser);
 		},
 		{
 			headers: AuthGuardSchema.headers,
