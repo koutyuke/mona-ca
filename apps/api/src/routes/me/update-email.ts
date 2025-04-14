@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { SessionTokenService } from "../../application/services/session-token";
 import { ChangeEmailUseCase } from "../../application/use-cases/email-verification/change-email.usecase";
-import { SESSION_COOKIE_NAME } from "../../common/constants";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
 import { FlattenUnion } from "../../common/schema";
 import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
@@ -16,6 +16,7 @@ import { pathDetail } from "../../modules/open-api";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+	[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 };
 
 export const UpdateEmail = new ElysiaWithEnv()
@@ -29,7 +30,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 			env: { EMAIL_VERIFICATION_SESSION_PEPPER, APP_ENV, SESSION_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
-			body: { code, emailVerificationSessionToken },
+			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
 			user,
 			clientType,
 		}) => {
@@ -52,13 +53,24 @@ export const UpdateEmail = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
+			const emailVerificationSessionToken =
+				clientType === "web"
+					? cookieService.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
+					: bodyEmailVerificationSessionToken;
+
+			if (!emailVerificationSessionToken) {
+				throw new BadRequestException({
+					code: "INVALID_TOKEN",
+				});
+			}
+
 			const result = await changeEmailUseCase.execute(emailVerificationSessionToken, code, user);
 
 			if (isErr(result)) {
 				const { code } = result;
 
 				throw new BadRequestException({
-					name: code,
+					code,
 					message: "Failed to change email.",
 				});
 			}
@@ -71,6 +83,8 @@ export const UpdateEmail = new ElysiaWithEnv()
 				};
 			}
 
+			cookieService.deleteCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME);
+
 			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
@@ -82,7 +96,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				code: t.String(),
-				emailVerificationSessionToken: t.String(),
+				emailVerificationSessionToken: t.Optional(t.String()),
 			}),
 			response: {
 				200: t.Object({
@@ -95,6 +109,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 					ErrorResponseSchema("INVALID_CODE"),
 					ErrorResponseSchema("CODE_WAS_EXPIRED"),
 					ErrorResponseSchema("NOT_REQUEST"),
+					ErrorResponseSchema("INVALID_TOKEN"),
 				),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,

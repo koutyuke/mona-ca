@@ -1,7 +1,8 @@
 import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
 import { EmailVerificationConfirmUseCase } from "../../../application/use-cases/email-verification";
-import { SESSION_COOKIE_NAME } from "../../../common/constants";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
+import { FlattenUnion } from "../../../common/schema";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
@@ -10,12 +11,13 @@ import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieService } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
-import { BadRequestException, InternalServerErrorResponseSchema } from "../../../modules/error";
+import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
 
 const cookieSchemaObject = {
 	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+	[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 };
 
 const EmailVerificationConfirm = new ElysiaWithEnv()
@@ -39,10 +41,11 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			env: { APP_ENV, EMAIL_VERIFICATION_SESSION_PEPPER, SESSION_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
-			body: { code, emailVerificationSessionToken },
+			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
 			user,
 			clientType,
 		}) => {
+			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
 
@@ -60,6 +63,18 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				sessionTokenService,
 				emailVerificationSessionTokenService,
 			);
+			// === End of Instances ===
+
+			const emailVerificationSessionToken =
+				clientType === "web"
+					? cookieService.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
+					: bodyEmailVerificationSessionToken;
+
+			if (!emailVerificationSessionToken) {
+				throw new BadRequestException({
+					code: "INVALID_TOKEN",
+				});
+			}
 
 			const result = await emailVerificationConfirmUseCase.execute(emailVerificationSessionToken, code, user);
 
@@ -80,7 +95,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				};
 			}
 
-			cookieService.deleteCookie(SESSION_COOKIE_NAME);
+			cookieService.deleteCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME);
 
 			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
@@ -96,14 +111,21 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				code: t.String(),
-				emailVerificationSessionToken: t.String(),
+				emailVerificationSessionToken: t.Optional(t.String()),
 			}),
 			response: {
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: AuthGuardSchema.response[400],
+				400: FlattenUnion(
+					AuthGuardSchema.response[400],
+					ErrorResponseSchema("INVALID_TOKEN"),
+					ErrorResponseSchema("INVALID_CODE"),
+					ErrorResponseSchema("CODE_WAS_EXPIRED"),
+					ErrorResponseSchema("NOT_REQUEST"),
+					ErrorResponseSchema("INVALID_EMAIL"),
+				),
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
