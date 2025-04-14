@@ -3,19 +3,24 @@ import { SessionTokenService } from "../../../application/services/session-token
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schema";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { CookieService } from "../../../modules/cookie";
+import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
 
-const EmailVerificationRequest = new ElysiaWithEnv()
+const cookieSchemaObject = {
+	[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+};
 
+const EmailVerificationRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
@@ -35,11 +40,14 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 		async ({
 			cfModuleEnv: { DB },
 			env: { APP_ENV, RESEND_API_KEY, EMAIL_VERIFICATION_SESSION_PEPPER },
+			cookie,
 			body: { email: bodyEmail },
 			user,
+			clientType,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
+			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
 
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
@@ -77,15 +85,24 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 				text: mailContents.text,
 			});
 
-			return {
-				emailVerificationSessionToken,
-			};
+			if (clientType === "mobile") {
+				return {
+					emailVerificationSessionToken,
+				};
+			}
+
+			cookieService.setCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME, emailVerificationSessionToken, {
+				expires: emailVerificationSession.expiresAt,
+			});
+
+			return NoContentResponse();
 		},
 		{
 			beforeHandle: async ({ rateLimiter, user }) => {
 				await rateLimiter.consume(user.id, 1);
 			},
 			headers: AuthGuardSchema.headers,
+			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
 				email: t.Nullable(
 					t.String({
@@ -97,6 +114,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 				200: t.Object({
 					emailVerificationSessionToken: t.String(),
 				}),
+				204: NoContentResponseSchema,
 				400: FlattenUnion(
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("EMAIL_IS_ALREADY_VERIFIED"),
