@@ -1,6 +1,7 @@
 import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
 import { PasswordResetVerifyEmailUseCase } from "../../../application/use-cases/password";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schema";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -9,9 +10,15 @@ import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../..
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
+import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+
+const cookieSchemaObject = {
+	[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+};
 
 export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
+	.use(withClientType)
 	.use(
 		rateLimiter("forgot-password-verify-email", {
 			maxTokens: 100,
@@ -26,18 +33,33 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	// Route
 	.post(
 		"/verify-email",
-		async ({ env: { SESSION_PEPPER }, cfModuleEnv: { DB }, body: { passwordResetSessionToken, code } }) => {
+		async ({
+			env: { PASSWORD_RESET_SESSION_PEPPER },
+			cfModuleEnv: { DB },
+			cookie,
+			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, code },
+			clientType,
+		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
 
 			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(
 				passwordResetSessionRepository,
-				sessionTokenService,
+				passwordResetSessionTokenService,
 			);
 			// === End of instances ===
+
+			const passwordResetSessionToken =
+				clientType === "web" ? cookie[PASSWORD_RESET_SESSION_COOKIE_NAME].value : bodyPasswordResetSessionToken;
+
+			if (!passwordResetSessionToken) {
+				throw new BadRequestException({
+					code: "INVALID_TOKEN",
+				});
+			}
 
 			const result = await passwordResetVerifyEmailUseCase.execute(passwordResetSessionToken, code);
 
@@ -55,21 +77,35 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			beforeHandle: async ({
 				rateLimiter,
 				ip,
-				env: { SESSION_PEPPER },
+				env: { PASSWORD_RESET_SESSION_PEPPER },
+				cookie,
 				body: { passwordResetSessionToken: token },
+				clientType,
 			}) => {
-				const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
-				const sessionId = sessionTokenService.hashSessionToken(token);
+				const passwordResetSessionToken =
+					clientType === "web" ? cookie[PASSWORD_RESET_SESSION_COOKIE_NAME].value : token;
+
+				if (!passwordResetSessionToken) {
+					throw new BadRequestException({
+						code: "INVALID_TOKEN",
+					});
+				}
+
+				const sessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
+				const sessionId = sessionTokenService.hashSessionToken(passwordResetSessionToken);
 
 				await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(sessionId, 10)]);
 			},
+			headers: WithClientTypeSchema.headers,
+			cookie: t.Cookie(cookieSchemaObject),
 			body: t.Object({
-				passwordResetSessionToken: t.String(),
 				code: t.String(),
+				passwordResetSessionToken: t.Optional(t.String()),
 			}),
 			response: {
 				204: NoContentResponseSchema,
 				400: FlattenUnion(
+					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
 					ErrorResponseSchema("TOKEN_EXPIRED"),
 					ErrorResponseSchema("INVALID_CODE"),
