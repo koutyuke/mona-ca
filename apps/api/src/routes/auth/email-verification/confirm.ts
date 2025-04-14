@@ -72,8 +72,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 
 			if (!emailVerificationSessionToken) {
 				throw new BadRequestException({
-					name: "INVALID_TOKEN",
-					message: "Invalid token",
+					code: "INVALID_TOKEN",
 				});
 			}
 

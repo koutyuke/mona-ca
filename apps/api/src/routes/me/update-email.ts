@@ -60,8 +60,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 
 			if (!emailVerificationSessionToken) {
 				throw new BadRequestException({
-					name: "INVALID_TOKEN",
-					message: "Invalid token",
+					code: "INVALID_TOKEN",
 				});
 			}
 
@@ -71,7 +70,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				const { code } = result;
 
 				throw new BadRequestException({
-					name: code,
+					code,
 					message: "Failed to change email.",
 				});
 			}
