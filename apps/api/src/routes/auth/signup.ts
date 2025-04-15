@@ -10,22 +10,18 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../modules/captcha";
-import { CookieService } from "../../modules/cookie";
+import { CookieManager } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../modules/rate-limiter";
+import { RateLimiterSchema, rateLimit } from "../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 export const Signup = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(withClientType)
 	.use(
-		rateLimiter("signup", {
+		rateLimit("signup", {
 			maxTokens: 100,
 			refillRate: 10,
 			refillInterval: {
@@ -49,7 +45,7 @@ export const Signup = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
@@ -76,18 +72,20 @@ export const Signup = new ElysiaWithEnv()
 				};
 			}
 
-			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip, captcha, body: { cfTurnstileResponse } }) => {
-				await Promise.all([rateLimiter.consume(ip, 1), captcha.verify(cfTurnstileResponse)]);
+			beforeHandle: async ({ rateLimit, ip, captcha, body: { cfTurnstileResponse } }) => {
+				await Promise.all([rateLimit.consume(ip, 1), captcha.verify(cfTurnstileResponse)]);
 			},
 			headers: WithClientTypeSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				cfTurnstileResponse: t.String(),
 				email: t.String({

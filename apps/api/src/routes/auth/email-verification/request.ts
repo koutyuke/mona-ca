@@ -10,21 +10,17 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
-
-const cookieSchemaObject = {
-	[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 const EmailVerificationRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
-		rateLimiter("email-verification-request", {
+		rateLimit("email-verification-request", {
 			maxTokens: 5,
 			refillRate: 5,
 			refillInterval: {
@@ -47,7 +43,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
@@ -91,18 +87,20 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 				};
 			}
 
-			cookieService.setCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME, emailVerificationSessionToken, {
+			cookieManager.setCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME, emailVerificationSessionToken, {
 				expires: emailVerificationSession.expiresAt,
 			});
 
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({ rateLimiter, user }) => {
-				await rateLimiter.consume(user.id, 1);
+			beforeHandle: async ({ rateLimit, user }) => {
+				await rateLimit.consume(user.id, 1);
 			},
 			headers: AuthGuardSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				email: t.Nullable(
 					t.String({

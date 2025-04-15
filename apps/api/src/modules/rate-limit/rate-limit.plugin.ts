@@ -37,7 +37,7 @@ const cache = new Map();
  *
  * @example
  * new Elysia()
- *    .use(rateLimiter("foo", {
+ *    .use(rateLimit("foo", {
  *      refillRate: 1,
  *      maxTokens: 5,
  *      interval: {
@@ -47,7 +47,7 @@ const cache = new Map();
  *    }))
  *  });
  */
-export const rateLimiter = (prefix: string, { refillRate, maxTokens, refillInterval }: LimiterConfig) => {
+export const rateLimit = (prefix: string, { refillRate, maxTokens, refillInterval }: LimiterConfig) => {
 	const plugin = new ElysiaWithEnv({
 		name: "@mona-ca/rate-limiter",
 		seed: {
@@ -103,7 +103,7 @@ export const rateLimiter = (prefix: string, { refillRate, maxTokens, refillInter
 
 		return {
 			ip,
-			rateLimiter: {
+			rateLimit: {
 				consume,
 			},
 		};

@@ -9,22 +9,16 @@ import {
 import { isErr } from "../../../common/utils";
 import { clientTypeSchema, newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
-
-const cookieSchemaObject = {
-	[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
-	[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.Optional(t.String()),
-	[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.Optional(t.String()),
-};
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 export const OAuthLoginRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
-		rateLimiter("oauth-login-request", {
+		rateLimit("oauth-login-request", {
 			maxTokens: 100,
 			refillRate: 10,
 			refillInterval: {
@@ -59,7 +53,7 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 
 			const providerRedirectURL = new URL(`auth/${provider}/login/callback`, apiBaseURL);
 
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const oauthProviderGateway = OAuthProviderGateway(
 				{
 					DISCORD_CLIENT_ID,
@@ -88,23 +82,23 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;
 
-			cookieService.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
+			cookieManager.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
 				maxAge: 60 * 10,
 			});
 
-			cookieService.setCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME, codeVerifier, {
+			cookieManager.setCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME, codeVerifier, {
 				maxAge: 60 * 10,
 			});
 
-			cookieService.setCookie(OAUTH_REDIRECT_URI_COOKIE_NAME, redirectToClientURL.toString(), {
+			cookieManager.setCookie(OAUTH_REDIRECT_URI_COOKIE_NAME, redirectToClientURL.toString(), {
 				maxAge: 60 * 10,
 			});
 
 			return redirect(redirectToProviderURL.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip }) => {
-				await rateLimiter.consume(ip, 1);
+			beforeHandle: async ({ rateLimit, ip }) => {
+				await rateLimit.consume(ip, 1);
 			},
 			query: t.Object({
 				"client-type": clientTypeSchema,
@@ -119,7 +113,11 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
 			},
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			detail: pathDetail({
 				operationId: "auth-oauth-login-request",
 				summary: "OAuth Login Request",

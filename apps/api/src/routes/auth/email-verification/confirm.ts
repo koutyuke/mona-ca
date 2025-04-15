@@ -9,22 +9,17 @@ import { EmailVerificationSessionRepository } from "../../../interface-adapter/r
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-	[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 const EmailVerificationConfirm = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
-		rateLimiter("email-verification-confirm", {
+		rateLimit("email-verification-confirm", {
 			maxTokens: 10,
 			refillRate: 10,
 			refillInterval: {
@@ -47,7 +42,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
@@ -67,7 +62,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 
 			const emailVerificationSessionToken =
 				clientType === "web"
-					? cookieService.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
+					? cookieManager.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
 					: bodyEmailVerificationSessionToken;
 
 			if (!emailVerificationSessionToken) {
@@ -95,20 +90,23 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				};
 			}
 
-			cookieService.deleteCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME);
+			cookieManager.deleteCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME);
 
-			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({ rateLimiter, user }) => {
-				await rateLimiter.consume(user.id, 1);
+			beforeHandle: async ({ rateLimit, user }) => {
+				await rateLimit.consume(user.id, 1);
 			},
 			headers: AuthGuardSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				code: t.String(),
 				emailVerificationSessionToken: t.Optional(t.String()),

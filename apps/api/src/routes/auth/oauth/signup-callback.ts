@@ -16,29 +16,16 @@ import { OAuthProviderGateway, validateSignedState } from "../../../interface-ad
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-	[OAUTH_STATE_COOKIE_NAME]: t.String({
-		minLength: 1,
-	}),
-	[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String({
-		minLength: 1,
-	}),
-	[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
-		minLength: 1,
-	}),
-};
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 export const OAuthSignupCallback = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
-		rateLimiter("oauth-signup-callback", {
+		rateLimit("oauth-signup-callback", {
 			maxTokens: 100,
 			refillRate: 10,
 			refillInterval: {
@@ -76,7 +63,7 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			const providerRedirectURL = new URL(`auth/${provider}/signup/callback`, apiBaseURL);
 
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
@@ -103,9 +90,9 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const cookieState = cookieService.getCookie(OAUTH_STATE_COOKIE_NAME);
-			const codeVerifier = cookieService.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			const redirectURICookieValue = cookieService.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			const cookieState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
+			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
+			const redirectURICookieValue = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
 			if (!queryState || !constantTimeCompare(queryState, cookieState)) {
 				throw new BadRequestException({
@@ -153,9 +140,9 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 
 			const result = await oauthSignupCallbackUseCase.execute(code, codeVerifier, provider);
 
-			cookieService.deleteCookie(OAUTH_STATE_COOKIE_NAME);
-			cookieService.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			cookieService.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			cookieManager.deleteCookie(OAUTH_STATE_COOKIE_NAME);
+			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
+			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
 			if (isErr(result)) {
 				const { code } = result;
@@ -172,7 +159,7 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 				return redirect(convertRedirectableMobileScheme(redirectToClientURL));
 			}
 
-			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
@@ -188,8 +175,8 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			return redirect(redirectURICookieValue.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip }) => {
-				await rateLimiter.consume(ip, 1);
+			beforeHandle: async ({ rateLimit, ip }) => {
+				await rateLimit.consume(ip, 1);
 			},
 			query: t.Object(
 				{
@@ -210,7 +197,18 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			params: t.Object({
 				provider: oauthProviderSchema,
 			}),
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_STATE_COOKIE_NAME]: t.String({
+					minLength: 1,
+				}),
+				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String({
+					minLength: 1,
+				}),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
+					minLength: 1,
+				}),
+			}),
 			response: {
 				302: t.Void(),
 				400: FlattenUnion(

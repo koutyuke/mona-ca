@@ -9,16 +9,11 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-	[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 export const ResetPassword = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -38,7 +33,7 @@ export const ResetPassword = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
 			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
@@ -55,7 +50,7 @@ export const ResetPassword = new ElysiaWithEnv()
 
 			const passwordResetSessionToken =
 				clientType === "web"
-					? cookieService.getCookie(PASSWORD_RESET_SESSION_COOKIE_NAME)
+					? cookieManager.getCookie(PASSWORD_RESET_SESSION_COOKIE_NAME)
 					: bodyPasswordResetSessionToken;
 
 			if (!passwordResetSessionToken) {
@@ -75,7 +70,7 @@ export const ResetPassword = new ElysiaWithEnv()
 			}
 
 			if (clientType === "web") {
-				cookieService.deleteCookie(PASSWORD_RESET_SESSION_COOKIE_NAME);
+				cookieManager.deleteCookie(PASSWORD_RESET_SESSION_COOKIE_NAME);
 			}
 
 			return NoContentResponse();
@@ -83,7 +78,10 @@ export const ResetPassword = new ElysiaWithEnv()
 		},
 		{
 			headers: WithClientTypeSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				newPassword: t.String(),
 				passwordResetSessionToken: t.Optional(t.String()),

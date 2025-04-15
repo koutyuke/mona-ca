@@ -9,15 +9,10 @@ import { EmailVerificationSessionRepository } from "../../interface-adapter/repo
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { CookieService } from "../../modules/cookie";
+import { CookieManager } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-	[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 export const UpdateEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -36,7 +31,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 			const emailVerificationSessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
@@ -55,7 +50,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 
 			const emailVerificationSessionToken =
 				clientType === "web"
-					? cookieService.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
+					? cookieManager.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
 					: bodyEmailVerificationSessionToken;
 
 			if (!emailVerificationSessionToken) {
@@ -83,9 +78,9 @@ export const UpdateEmail = new ElysiaWithEnv()
 				};
 			}
 
-			cookieService.deleteCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME);
+			cookieManager.deleteCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME);
 
-			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
@@ -93,7 +88,10 @@ export const UpdateEmail = new ElysiaWithEnv()
 		},
 		{
 			headers: AuthGuardSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				code: t.String(),
 				emailVerificationSessionToken: t.Optional(t.String()),
