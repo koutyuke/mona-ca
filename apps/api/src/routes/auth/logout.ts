@@ -5,14 +5,10 @@ import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { CookieService } from "../../modules/cookie";
+import { CookieManager } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 export const Logout = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -29,7 +25,7 @@ export const Logout = new ElysiaWithEnv()
 		async ({ env: { SESSION_PEPPER, APP_ENV }, cfModuleEnv: { DB }, cookie, sessionToken, clientType }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
@@ -40,14 +36,16 @@ export const Logout = new ElysiaWithEnv()
 			await logoutUseCase.execute(sessionToken);
 
 			if (clientType === "web") {
-				cookieService.deleteCookie(SESSION_COOKIE_NAME);
+				cookieManager.deleteCookie(SESSION_COOKIE_NAME);
 			}
 
 			return NoContentResponse();
 		},
 		{
 			headers: AuthGuardSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			response: {
 				204: NoContentResponseSchema,
 				400: AuthGuardSchema.response[400],

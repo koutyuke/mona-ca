@@ -16,24 +16,11 @@ import { OAuthProviderGateway, validateSignedState } from "../../../interface-ad
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-	[OAUTH_STATE_COOKIE_NAME]: t.String({
-		minLength: 1,
-	}),
-	[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String({
-		minLength: 1,
-	}),
-	[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
-		minLength: 1,
-	}),
-};
 
 export const OAuthLoginCallback = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -76,7 +63,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 			const providerRedirectURL = new URL(`auth/${provider}/login/callback`, apiBaseURL);
 
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
@@ -103,9 +90,9 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const cookieState = cookieService.getCookie(OAUTH_STATE_COOKIE_NAME);
-			const codeVerifier = cookieService.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			const redirectURICookieValue = cookieService.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			const cookieState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
+			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
+			const redirectURICookieValue = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
 			if (!queryState || !constantTimeCompare(queryState, cookieState)) {
 				throw new BadRequestException({
@@ -153,9 +140,9 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 
 			const result = await oauthLoginCallbackUseCase.execute(code, codeVerifier, provider);
 
-			cookieService.deleteCookie(OAUTH_STATE_COOKIE_NAME);
-			cookieService.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			cookieService.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			cookieManager.deleteCookie(OAUTH_STATE_COOKIE_NAME);
+			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
+			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
 			if (isErr(result)) {
 				redirectToClientURL.searchParams.set("error", result.code);
@@ -170,7 +157,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				return redirect(convertRedirectableMobileScheme(redirectToClientURL));
 			}
 
-			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
@@ -208,7 +195,18 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 			params: t.Object({
 				provider: oauthProviderSchema,
 			}),
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_STATE_COOKIE_NAME]: t.String({
+					minLength: 1,
+				}),
+				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String({
+					minLength: 1,
+				}),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
+					minLength: 1,
+				}),
+			}),
 			response: {
 				302: t.Void(),
 				400: FlattenUnion(

@@ -6,15 +6,12 @@ import { FlattenUnion } from "../../../common/schema";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
-
-const cookieSchemaObject = {
-	[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -34,7 +31,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	.post(
 		"/verify-email",
 		async ({
-			env: { PASSWORD_RESET_SESSION_PEPPER },
+			env: { APP_ENV, PASSWORD_RESET_SESSION_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, code },
@@ -42,6 +39,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
@@ -53,7 +51,9 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			// === End of instances ===
 
 			const passwordResetSessionToken =
-				clientType === "web" ? cookie[PASSWORD_RESET_SESSION_COOKIE_NAME].value : bodyPasswordResetSessionToken;
+				clientType === "web"
+					? cookieManager.getCookie(PASSWORD_RESET_SESSION_COOKIE_NAME)
+					: bodyPasswordResetSessionToken;
 
 			if (!passwordResetSessionToken) {
 				throw new BadRequestException({
@@ -97,7 +97,9 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(sessionId, 10)]);
 			},
 			headers: WithClientTypeSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				code: t.String(),
 				passwordResetSessionToken: t.Optional(t.String()),

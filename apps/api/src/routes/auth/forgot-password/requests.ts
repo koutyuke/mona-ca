@@ -10,16 +10,12 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../../modules/captcha";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
-
-const cookieSchemaObject = {
-	[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 const PasswordResetRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -48,7 +44,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
 
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
@@ -89,7 +85,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 				};
 			}
 
-			cookieService.setCookie(PASSWORD_RESET_SESSION_COOKIE_NAME, passwordResetSessionToken, {
+			cookieManager.setCookie(PASSWORD_RESET_SESSION_COOKIE_NAME, passwordResetSessionToken, {
 				expires: passwordResetSession.expiresAt,
 			});
 
@@ -104,7 +100,9 @@ const PasswordResetRequest = new ElysiaWithEnv()
 				]);
 			},
 			headers: WithClientTypeSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				cfTurnstileResponse: t.String(),
 				email: t.String(),

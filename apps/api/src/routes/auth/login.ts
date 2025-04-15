@@ -9,16 +9,12 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../modules/captcha";
-import { CookieService } from "../../modules/cookie";
+import { CookieManager } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../modules/rate-limiter";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
-
-const cookieSchemaObject = {
-	[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 export const Login = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -47,7 +43,7 @@ export const Login = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
 
@@ -75,7 +71,7 @@ export const Login = new ElysiaWithEnv()
 				};
 			}
 
-			cookieService.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
@@ -90,7 +86,9 @@ export const Login = new ElysiaWithEnv()
 				]);
 			},
 			headers: WithClientTypeSchema.headers,
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			body: t.Object({
 				cfTurnstileResponse: t.String(),
 				email: t.String({

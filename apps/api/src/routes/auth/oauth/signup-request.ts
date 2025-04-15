@@ -9,17 +9,11 @@ import {
 import { isErr } from "../../../common/utils";
 import { clientTypeSchema, newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
-import { CookieService } from "../../../modules/cookie";
+import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
-
-const cookieSchemaObject = {
-	[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
-	[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.Optional(t.String()),
-	[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.Optional(t.String()),
-};
 
 export const OAuthSignupRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -59,7 +53,7 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 
 			const providerRedirectURL = new URL(`auth/${provider}/signup/callback`, apiBaseURL);
 
-			const cookieService = new CookieService(APP_ENV === "production", cookie, cookieSchemaObject);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const oauthProviderGateway = OAuthProviderGateway(
 				{
 					DISCORD_CLIENT_ID,
@@ -86,15 +80,15 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;
 
-			cookieService.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
+			cookieManager.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
 				maxAge: 60 * 10,
 			});
 
-			cookieService.setCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME, codeVerifier, {
+			cookieManager.setCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME, codeVerifier, {
 				maxAge: 60 * 10,
 			});
 
-			cookieService.setCookie(OAUTH_REDIRECT_URI_COOKIE_NAME, redirectToClientURL.toString(), {
+			cookieManager.setCookie(OAUTH_REDIRECT_URI_COOKIE_NAME, redirectToClientURL.toString(), {
 				maxAge: 60 * 10,
 			});
 
@@ -111,7 +105,11 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 			params: t.Object({
 				provider: oauthProviderSchema,
 			}),
-			cookie: t.Cookie(cookieSchemaObject),
+			cookie: t.Cookie({
+				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.Optional(t.String()),
+				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.Optional(t.String()),
+			}),
 			response: {
 				302: t.Void(),
 				400: ErrorResponseSchema("INVALID_REDIRECT_URL"),
