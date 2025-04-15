@@ -13,13 +13,13 @@ import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 const EmailVerificationConfirm = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
-		rateLimiter("email-verification-confirm", {
+		rateLimit("email-verification-confirm", {
 			maxTokens: 10,
 			refillRate: 10,
 			refillInterval: {
@@ -99,8 +99,8 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({ rateLimiter, user }) => {
-				await rateLimiter.consume(user.id, 1);
+			beforeHandle: async ({ rateLimit, user }) => {
+				await rateLimit.consume(user.id, 1);
 			},
 			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie({

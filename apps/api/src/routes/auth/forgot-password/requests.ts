@@ -14,14 +14,14 @@ import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
 const PasswordResetRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(withClientType)
 	.use(
-		rateLimiter("forgot-password-request", {
+		rateLimit("forgot-password-request", {
 			maxTokens: 100,
 			refillRate: 50,
 			refillInterval: {
@@ -92,10 +92,10 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip, captcha, body: { email, cfTurnstileResponse } }) => {
+			beforeHandle: async ({ rateLimit, ip, captcha, body: { email, cfTurnstileResponse } }) => {
 				await Promise.all([
-					rateLimiter.consume(ip, 1),
-					rateLimiter.consume(email, 10),
+					rateLimit.consume(ip, 1),
+					rateLimit.consume(email, 10),
 					captcha.verify(cfTurnstileResponse),
 				]);
 			},

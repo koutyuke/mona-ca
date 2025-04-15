@@ -20,12 +20,12 @@ import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 export const OAuthSignupCallback = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
-		rateLimiter("oauth-signup-callback", {
+		rateLimit("oauth-signup-callback", {
 			maxTokens: 100,
 			refillRate: 10,
 			refillInterval: {
@@ -175,8 +175,8 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			return redirect(redirectURICookieValue.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip }) => {
-				await rateLimiter.consume(ip, 1);
+			beforeHandle: async ({ rateLimit, ip }) => {
+				await rateLimit.consume(ip, 1);
 			},
 			query: t.Object(
 				{

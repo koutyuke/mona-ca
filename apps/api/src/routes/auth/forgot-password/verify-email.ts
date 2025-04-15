@@ -10,14 +10,14 @@ import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../../modules/rate-limiter";
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
 export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(withClientType)
 	.use(
-		rateLimiter("forgot-password-verify-email", {
+		rateLimit("forgot-password-verify-email", {
 			maxTokens: 100,
 			refillRate: 50,
 			refillInterval: {
@@ -75,7 +75,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 		},
 		{
 			beforeHandle: async ({
-				rateLimiter,
+				rateLimit,
 				ip,
 				env: { PASSWORD_RESET_SESSION_PEPPER },
 				cookie,
@@ -94,7 +94,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				const sessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
 				const sessionId = sessionTokenService.hashSessionToken(passwordResetSessionToken);
 
-				await Promise.all([rateLimiter.consume(ip, 1), rateLimiter.consume(sessionId, 10)]);
+				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(sessionId, 10)]);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({

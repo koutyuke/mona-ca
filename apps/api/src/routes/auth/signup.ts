@@ -14,14 +14,14 @@ import { CookieManager } from "../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
-import { RateLimiterSchema, rateLimiter } from "../../modules/rate-limiter";
+import { RateLimiterSchema, rateLimit } from "../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
 
 export const Signup = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(withClientType)
 	.use(
-		rateLimiter("signup", {
+		rateLimit("signup", {
 			maxTokens: 100,
 			refillRate: 10,
 			refillInterval: {
@@ -79,8 +79,8 @@ export const Signup = new ElysiaWithEnv()
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({ rateLimiter, ip, captcha, body: { cfTurnstileResponse } }) => {
-				await Promise.all([rateLimiter.consume(ip, 1), captcha.verify(cfTurnstileResponse)]);
+			beforeHandle: async ({ rateLimit, ip, captcha, body: { cfTurnstileResponse } }) => {
+				await Promise.all([rateLimit.consume(ip, 1), captcha.verify(cfTurnstileResponse)]);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({
