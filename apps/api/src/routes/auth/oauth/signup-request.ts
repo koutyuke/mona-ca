@@ -1,4 +1,4 @@
-import { getAPIBaseURL, getMobileScheme, getWebBaseURL } from "@mona-ca/core/utils";
+import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
 import { OAuthRequestUseCase } from "../../../application/use-cases/oauth";
 import {
@@ -64,11 +64,10 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 				provider,
 				providerRedirectURL.toString(),
 			);
-			const oauthRequestUseCase = new OAuthRequestUseCase(oauthProviderGateway, OAUTH_STATE_HMAC_SECRET);
+			const oauthRequestUseCase = new OAuthRequestUseCase({ APP_ENV, OAUTH_STATE_HMAC_SECRET }, oauthProviderGateway);
 			// === End of instances ===
-			const clientBaseURL = clientType === "web" ? getWebBaseURL(APP_ENV === "production") : getMobileScheme();
 
-			const result = oauthRequestUseCase.execute(clientType, clientBaseURL, queryRedirectURI);
+			const result = oauthRequestUseCase.execute(clientType, queryRedirectURI);
 
 			if (isErr(result)) {
 				const { code } = result;
