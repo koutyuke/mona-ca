@@ -1,16 +1,23 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session } from "../../../../domain/entities";
-import type { OAuthProvider } from "../../../../domain/value-object";
+import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
 
 export type OAuthSignupCallbackUseCaseSuccessResult = {
 	session: Session;
 	sessionToken: string;
+	redirectURL: URL;
+	clientType: ClientType;
 };
 
 export type OAuthSignupCallbackUseCaseErrorResult =
-	| Err<"FAILED_TO_GET_ACCOUNT_INFO">
-	| Err<"ACCOUNT_IS_ALREADY_USED">
-	| Err<"EMAIL_ALREADY_EXISTS_BUT_LINKABLE">;
+	| Err<"INVALID_STATE">
+	| Err<"INVALID_REDIRECT_URL">
+	| Err<"CODE_NOT_FOUND">
+	| Err<"FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: URL }>
+	| Err<"ACCESS_DENIED", { redirectURL: URL }>
+	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
+	| Err<"ACCOUNT_IS_ALREADY_USED", { redirectURL: URL }>
+	| Err<"EMAIL_ALREADY_EXISTS_BUT_LINKABLE", { redirectURL: URL }>;
 
 export type OAuthSignupCallbackUseCaseResult = Result<
 	OAuthSignupCallbackUseCaseSuccessResult,
@@ -18,5 +25,12 @@ export type OAuthSignupCallbackUseCaseResult = Result<
 >;
 
 export interface IOAuthSignupCallbackUseCase {
-	execute(code: string, codeVerifier: string, provider: OAuthProvider): Promise<OAuthSignupCallbackUseCaseResult>;
+	execute(
+		error: string | undefined,
+		redirectURI: string,
+		provider: OAuthProvider,
+		signedState: string,
+		code: string | undefined,
+		codeVerifier: string,
+	): Promise<OAuthSignupCallbackUseCaseResult>;
 }

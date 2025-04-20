@@ -1,4 +1,4 @@
-import { getAPIBaseURL, getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
+import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
 import { OAuthSignupCallbackUseCase } from "../../../application/use-cases/oauth";
@@ -12,7 +12,7 @@ import { FlattenUnion } from "../../../common/schema";
 import { constantTimeCompare, convertRedirectableMobileScheme, isErr } from "../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { OAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
+import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -82,6 +82,7 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			);
 
 			const oauthSignupCallbackUseCase = new OAuthSignupCallbackUseCase(
+				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
 				sessionTokenService,
 				oauthProviderGateway,
 				sessionRepository,
@@ -90,89 +91,61 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const cookieState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
+			const signedState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
 			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			const redirectURICookieValue = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			const redirectURI = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
-			if (!queryState || !constantTimeCompare(queryState, cookieState)) {
+			if (!queryState || !constantTimeCompare(queryState, signedState)) {
 				throw new BadRequestException({
 					name: "INVALID_STATE",
 					message: "Invalid state",
 				});
 			}
 
-			const validatedState = validateSignedState(cookieState, OAUTH_STATE_HMAC_SECRET);
-
-			if (isErr(validatedState)) {
-				throw new BadRequestException({
-					name: validatedState.code,
-					message: "Invalid state",
-				});
-			}
-
-			const { clientType } = validatedState;
-
-			const clientBaseURL = clientType === "web" ? getWebBaseURL(APP_ENV === "production") : getMobileScheme();
-
-			const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURICookieValue ?? "/");
-
-			if (!redirectToClientURL) {
-				throw new BadRequestException({
-					name: "INVALID_REDIRECT_URL",
-					message: "Invalid redirect URL.",
-				});
-			}
-
-			if (error) {
-				if (error === "access_denied") {
-					redirectToClientURL.searchParams.set("error", "ACCESS_DENIED");
-					return redirect(redirectToClientURL.toString());
-				}
-
-				redirectToClientURL.searchParams.set("error", "PROVIDER_ERROR");
-				return redirect(redirectToClientURL.toString());
-			}
-
-			if (!code || !queryState || queryState !== cookieState) {
-				redirectToClientURL.searchParams.set("error", "INVALID_STATE");
-				return redirect(redirectToClientURL.toString());
-			}
-
-			const result = await oauthSignupCallbackUseCase.execute(code, codeVerifier, provider);
+			const result = await oauthSignupCallbackUseCase.execute(
+				error,
+				redirectURI,
+				provider,
+				signedState,
+				code,
+				codeVerifier,
+			);
 
 			cookieManager.deleteCookie(OAUTH_STATE_COOKIE_NAME);
 			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
 			if (isErr(result)) {
-				const { code } = result;
-
-				redirectToClientURL.searchParams.set("error", code);
-				return redirect(redirectToClientURL.toString());
+				if (
+					result.code === "INVALID_STATE" ||
+					result.code === "INVALID_REDIRECT_URL" ||
+					result.code === "CODE_NOT_FOUND"
+				) {
+					throw new BadRequestException({
+						code: result.code,
+					});
+				}
+				const {
+					code,
+					value: { redirectURL },
+				} = result;
+				redirectURL.searchParams.set("error", code);
+				return redirect(redirectURL.toString());
 			}
 
-			const { session, sessionToken } = result;
+			const { session, sessionToken, redirectURL, clientType } = result;
 
 			if (clientType === "mobile") {
-				redirectToClientURL.searchParams.set("access-token", sessionToken);
+				redirectURL.searchParams.set("access-token", sessionToken);
 				set.headers["referrer-policy"] = "strict-origin";
-				return redirect(convertRedirectableMobileScheme(redirectToClientURL));
+				return redirect(convertRedirectableMobileScheme(redirectURL));
 			}
 
 			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
-			const continueURI = redirectToClientURL.searchParams.get("continue");
-
-			if (continueURI) {
-				const continueURL = validateRedirectURL(clientBaseURL, continueURI);
-				if (continueURL) {
-					return redirect(continueURL.toString());
-				}
-			}
-
-			return redirect(redirectURICookieValue.toString());
+			return redirect(redirectURI.toString());
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip }) => {
