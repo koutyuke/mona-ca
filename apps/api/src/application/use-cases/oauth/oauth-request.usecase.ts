@@ -1,11 +1,11 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
 import type { Static } from "elysia";
-import type { oauthStateSchema } from "../../../common/schema/oauth-state";
 import { err } from "../../../common/utils";
 import type { ClientType } from "../../../domain/value-object";
 import { type IOAuthProviderGateway, generateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
 import type { AppEnv } from "../../../modules/env";
+import type { oauthStateSchema } from "../../schemas";
 import type { IOAuthRequestUseCase, OAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
 
 export class OAuthRequestUseCase implements IOAuthRequestUseCase {

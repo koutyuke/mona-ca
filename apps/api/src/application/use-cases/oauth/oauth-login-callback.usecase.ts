@@ -1,5 +1,4 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
-import { oauthStateSchema } from "../../../common/schema";
 import { err, isErr } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import { type OAuthProvider, newClientType, newOAuthProviderId, newSessionId } from "../../../domain/value-object";
@@ -8,6 +7,7 @@ import type { IOAuthAccountRepository } from "../../../interface-adapter/reposit
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { AppEnv } from "../../../modules/env";
+import { oauthStateSchema } from "../../schemas";
 import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	IOAuthLoginCallbackUseCase,
