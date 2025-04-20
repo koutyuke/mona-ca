@@ -8,7 +8,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schema";
+import { FlattenUnion } from "../../../common/schemas";
 import { constantTimeCompare, convertRedirectableMobileScheme, isErr } from "../../../common/utils";
 import { newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
