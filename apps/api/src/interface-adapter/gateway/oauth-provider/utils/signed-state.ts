@@ -1,3 +1,4 @@
+import type { Static, TObject } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { generateState } from "arctic";
 import { t } from "elysia";
@@ -10,19 +11,8 @@ import {
 	err,
 	generateHMAC,
 } from "../../../../common/utils";
-import { type ClientType, clientTypeSchema, newClientType } from "../../../../domain/value-object";
 
-const OAuthStatePayloadSchema = t.Object({
-	_state: t.String(),
-	clientType: clientTypeSchema,
-});
-
-export const OAuthStateObjectSchema = t.Object({
-	d: t.String(),
-	s: t.String(),
-});
-
-export const generateSignedState = (payload: { clientType: ClientType }, hmacSecret: string): string => {
+export const generateSignedState = <P extends object>(payload: P, hmacSecret: string): string => {
 	const _state = generateState();
 
 	const statePayload = {
@@ -30,54 +20,42 @@ export const generateSignedState = (payload: { clientType: ClientType }, hmacSec
 		...payload,
 	};
 
-	const base64StatePayload = btoa(JSON.stringify(statePayload));
-	const signature = generateHMAC(base64StatePayload, hmacSecret);
+	const payloadBase64URL = encodeBase64URLSafe(JSON.stringify(statePayload));
+	const signature = generateHMAC(payloadBase64URL, hmacSecret, "base64url");
 
-	const stateObj = {
-		d: base64StatePayload,
-		s: signature,
-	};
-
-	return encodeBase64URLSafe(JSON.stringify(stateObj));
+	return `${payloadBase64URL}.${signature}`;
 };
 
-type SignedStatePayload = {
-	clientType: ClientType;
-};
-
-type ValidatedSignedStateResult = Result<
-	SignedStatePayload,
-	Err<"INVALID_SIGNED_STATE"> | Err<"FAILED_TO_DECODE_SIGNED_STATE">
->;
-
-export const validateSignedState = (mac: string, hmacSecret: string): ValidatedSignedStateResult => {
+export const validateSignedState = <P extends TObject>(
+	signedState: string,
+	hmacSecret: string,
+	payloadSchema: P,
+): Result<Static<P>, Err<"INVALID_SIGNED_STATE"> | Err<"FAILED_TO_DECODE_SIGNED_STATE">> => {
 	try {
-		const decoded = decodeBase64URLSafe(mac);
-		const parsedStateObj = JSON.parse(decoded);
+		const [payloadBase64URL, signature] = signedState.split(".");
 
-		if (!Value.Check(OAuthStateObjectSchema, parsedStateObj)) {
+		if (!payloadBase64URL || !signature) {
 			return err("INVALID_SIGNED_STATE");
 		}
 
-		const { d: base64StatePayload, s: signature } = parsedStateObj;
+		const expectedSignature = generateHMAC(payloadBase64URL, hmacSecret, "base64url");
 
-		const expectedSignature = generateHMAC(base64StatePayload, hmacSecret);
-
-		// 改竄検知
 		if (!constantTimeCompare(signature, expectedSignature)) {
 			return err("INVALID_SIGNED_STATE");
 		}
 
-		const statePayloadString = atob(base64StatePayload);
-		const statePayload = JSON.parse(statePayloadString);
+		const payloadString = decodeBase64URLSafe(payloadBase64URL);
+		const payload = JSON.parse(payloadString);
 
-		if (!Value.Check(OAuthStatePayloadSchema, statePayload)) {
+		const schema = t.Intersect([payloadSchema, t.Object({ _state: t.String() })]);
+
+		if (!Value.Check(schema, payload)) {
 			return err("INVALID_SIGNED_STATE");
 		}
 
-		return {
-			clientType: newClientType(statePayload.clientType),
-		};
+		const { _state, ...rest } = payload;
+
+		return rest as Static<P>;
 	} catch (e) {
 		console.error(e);
 		return err("FAILED_TO_DECODE_SIGNED_STATE");
