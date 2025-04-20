@@ -14,8 +14,7 @@ export class OAuthAccountTableHelper {
 		provider: newOAuthProvider("discord"),
 		providerId: newOAuthProviderId("providerId"),
 		userId: newUserId("userId"),
-		createdAt: new Date(1704067200 * 1000),
-		updatedAt: new Date(1704067200 * 1000),
+		linkedAt: new Date(1704067200 * 1000),
 	} satisfies OAuthAccount;
 
 	public baseDatabaseOAuthAccount = {

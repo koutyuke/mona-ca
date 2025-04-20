@@ -40,8 +40,7 @@ describe("OAuthAccountRepository.save", () => {
 			provider: oauthAccountTableHelper.baseOAuthAccount.provider,
 			providerId: oauthAccountTableHelper.baseOAuthAccount.providerId,
 			userId: oauthAccountTableHelper.baseOAuthAccount.userId,
-			createdAt: oauthAccountTableHelper.baseOAuthAccount.createdAt,
-			updatedAt: now,
+			linkedAt: oauthAccountTableHelper.baseOAuthAccount.linkedAt,
 		} satisfies OAuthAccount;
 
 		await oauthAccountRepository.save(updatedOAuthAccount);
