@@ -14,7 +14,7 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv, RedirectResponse, RedirectResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
@@ -47,7 +47,6 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			cfModuleEnv: { DB },
 			cookie,
 			params: { provider: _provider },
-			redirect,
 			query: { code, state: queryState, error },
 		}) => {
 			// === Instances ===
@@ -119,12 +118,12 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					value: { redirectURL },
 				} = result;
 				redirectURL.searchParams.set("error", code);
-				return redirect(redirectURL.toString());
+				return RedirectResponse(redirectURL.toString());
 			}
 
 			const { redirectURL } = result;
 
-			return redirect(redirectURL.toString());
+			return RedirectResponse(redirectURL.toString());
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip }) => {
@@ -162,7 +161,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 				}),
 			}),
 			response: {
-				302: t.Void(),
+				302: RedirectResponseSchema,
 				400: FlattenUnion(
 					ErrorResponseSchema("INVALID_STATE"),
 					ErrorResponseSchema("INVALID_SIGNED_STATE"),

@@ -10,7 +10,7 @@ import { isErr } from "../../../common/utils";
 import { clientTypeSchema, newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv, RedirectResponse, RedirectResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
@@ -43,7 +43,6 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 			params: { provider: _provider },
 			cookie,
 			query: { "redirect-uri": queryRedirectURI = "/", "client-type": _clientType },
-			redirect,
 		}) => {
 			// === Instances ===
 			const provider = newOAuthProvider(_provider);
@@ -91,7 +90,13 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 				maxAge: 60 * 10,
 			});
 
-			return redirect(redirectToProviderURL.toString());
+			if (clientType === "mobile") {
+				return {
+					url: redirectToProviderURL.toString(),
+				};
+			}
+
+			return RedirectResponse(redirectToProviderURL.toString());
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip }) => {
@@ -110,7 +115,10 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			response: {
-				302: t.Void(),
+				200: t.Object({
+					url: t.String(),
+				}),
+				302: RedirectResponseSchema,
 				400: ErrorResponseSchema("INVALID_REDIRECT_URL"),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
