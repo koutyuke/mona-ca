@@ -5,8 +5,8 @@ import { err } from "../../../common/utils";
 import type { ClientType } from "../../../domain/value-object";
 import { type IOAuthProviderGateway, generateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
 import type { AppEnv } from "../../../modules/env";
-import type { oauthStateSchema } from "../../schemas";
 import type { IOAuthRequestUseCase, OAuthRequestUseCaseResult } from "./interfaces/oauth-request.usecase.interface";
+import type { oauthStateSchema } from "./schema";
 
 export class OAuthRequestUseCase implements IOAuthRequestUseCase {
 	constructor(
@@ -27,7 +27,7 @@ export class OAuthRequestUseCase implements IOAuthRequestUseCase {
 		}
 
 		const state = generateSignedState<Static<typeof oauthStateSchema>>(
-			{ clientType },
+			{ client: clientType },
 			this.env.OAUTH_STATE_HMAC_SECRET,
 		);
 		const codeVerifier = generateCodeVerifier();

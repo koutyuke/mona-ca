@@ -15,12 +15,12 @@ import type { IOAuthAccountRepository } from "../../../interface-adapter/reposit
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { AppEnv } from "../../../modules/env";
-import { oauthStateSchema } from "../../schemas";
 import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	IOAuthSignupCallbackUseCase,
 	OAuthSignupCallbackUseCaseResult,
 } from "./interfaces/oauth-signup-callback.usecase.interface";
+import { oauthStateSchema } from "./schema";
 
 export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 	constructor(
@@ -49,9 +49,9 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			return err("INVALID_STATE");
 		}
 
-		const { clientType: _clientType } = validatedState;
+		const { client } = validatedState;
 
-		const clientType = newClientType(_clientType);
+		const clientType = newClientType(client);
 
 		const clientBaseURL = clientType === "web" ? getWebBaseURL(this.env.APP_ENV === "production") : getMobileScheme();
 
