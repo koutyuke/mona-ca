@@ -13,10 +13,10 @@ import {
 } from "../../../../common/utils";
 
 export const generateSignedState = <P extends object>(payload: P, hmacSecret: string): string => {
-	const _state = generateState();
+	const nonce = generateState();
 
 	const statePayload = {
-		_state,
+		nonce,
 		...payload,
 	};
 
@@ -47,13 +47,13 @@ export const validateSignedState = <P extends TObject>(
 		const payloadString = decodeBase64URLSafe(payloadBase64URL);
 		const payload = JSON.parse(payloadString);
 
-		const schema = t.Intersect([payloadSchema, t.Object({ _state: t.String() })]);
+		const schema = t.Intersect([payloadSchema, t.Object({ nonce: t.String() })]);
 
 		if (!Value.Check(schema, payload)) {
 			return err("INVALID_SIGNED_STATE");
 		}
 
-		const { _state, ...rest } = payload;
+		const { nonce, ...rest } = payload;
 
 		return rest as Static<P>;
 	} catch (e) {
