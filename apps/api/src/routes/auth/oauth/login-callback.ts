@@ -124,6 +124,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 						code: result.code,
 					});
 				}
+
 				const {
 					code,
 					value: { redirectURL },
@@ -200,11 +201,10 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					"##### **Error Query**",
 					"---",
 					"- `FAILED_TO_GET_ACCOUNT_INFO`",
-					"- `ACCOUNT_IS_ALREADY_USED`",
-					"- `EMAIL_ALREADY_EXISTS_BUT_LINKABLE`",
 					"- `ACCESS_DENIED`",
 					"- `PROVIDER_ERROR`",
-					"- `INVALID_STATE`",
+					"- `OAUTH_ACCOUNT_NOT_FOUND`",
+					"- `OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE`",
 				],
 				tag: "Auth - OAuth",
 			}),
