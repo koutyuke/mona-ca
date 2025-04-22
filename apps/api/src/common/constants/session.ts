@@ -13,3 +13,7 @@ export const passwordResetSessionExpiresSpan = new TimeSpan(PASSWORD_RESET_SESSI
 export const EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
 
 export const emailVerificationSessionExpiresSpan = new TimeSpan(EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES, "m");
+
+export const ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
+
+export const accountAssociationSessionExpiresSpan = new TimeSpan(ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES, "m");

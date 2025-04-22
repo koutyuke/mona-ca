@@ -81,11 +81,17 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 			newOAuthProviderId(providerAccount.id),
 		);
 
-		const sameEmailUser = await this.userRepository.findByEmail(providerAccount.email);
+		const existingUserForSameEmail = await this.userRepository.findByEmail(providerAccount.email);
 
 		if (!existingOAuthAccount) {
-			if (sameEmailUser?.emailVerified) {
-				return err("OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE", { redirectURL: redirectToClientURL });
+			if (existingUserForSameEmail?.emailVerified) {
+				return err("OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE", {
+					redirectURL: redirectToClientURL,
+					userId: existingUserForSameEmail.id,
+					provider,
+					providerId: newOAuthProviderId(providerAccount.id),
+					clientType,
+				});
 			}
 			return err("OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: redirectToClientURL });
 		}

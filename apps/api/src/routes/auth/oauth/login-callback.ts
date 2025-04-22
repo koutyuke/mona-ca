@@ -1,8 +1,10 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
+import { generateAccountAssociationState } from "../../../application/use-cases/account-link";
 import { OAuthLoginCallbackUseCase } from "../../../application/use-cases/oauth";
 import {
+	ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
@@ -47,6 +49,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				GOOGLE_CLIENT_ID,
 				GOOGLE_CLIENT_SECRET,
 				OAUTH_STATE_HMAC_SECRET,
+				ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET,
 			},
 			cfModuleEnv: { DB },
 			cookie,
@@ -124,6 +127,33 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					});
 				}
 
+				if (result.code === "OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE") {
+					const {
+						code,
+						value: { redirectURL, userId, provider, providerId, clientType },
+					} = result;
+
+					const { state, expiresAt } = generateAccountAssociationState(
+						userId,
+						provider,
+						providerId,
+						ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET,
+					);
+
+					cookieManager.setCookie(ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME, state, {
+						expires: expiresAt,
+					});
+
+					if (clientType === newClientType("mobile")) {
+						redirectURL.searchParams.set("association-state", state);
+						set.headers["referrer-policy"] = "strict-origin";
+						return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
+					}
+
+					redirectURL.searchParams.set("error", code);
+					return RedirectResponse(redirectURL.toString());
+				}
+
 				const {
 					code,
 					value: { redirectURL },
@@ -180,6 +210,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
 					minLength: 1,
 				}),
+				[ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			response: {
 				302: RedirectResponseSchema,

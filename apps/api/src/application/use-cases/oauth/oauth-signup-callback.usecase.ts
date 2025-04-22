@@ -101,7 +101,13 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 					return err("ACCOUNT_IS_ALREADY_USED", { redirectURL: redirectToClientURL });
 				}
 
-				return err("EMAIL_ALREADY_EXISTS_BUT_LINKABLE", { redirectURL: redirectToClientURL });
+				return err("EMAIL_ALREADY_EXISTS_BUT_LINKABLE", {
+					redirectURL: redirectToClientURL,
+					userId: existingUser.id,
+					provider,
+					providerId,
+					clientType,
+				});
 			}
 			await this.userRepository.delete(existingUser.id);
 		} else if (existingOAuthAccount) {

@@ -1,6 +1,6 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session } from "../../../../domain/entities";
-import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
+import type { ClientType, OAuthProvider, OAuthProviderId, UserId } from "../../../../domain/value-object";
 
 export type OAuthSignupCallbackUseCaseSuccessResult = {
 	session: Session;
@@ -17,7 +17,16 @@ export type OAuthSignupCallbackUseCaseErrorResult =
 	| Err<"ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"ACCOUNT_IS_ALREADY_USED", { redirectURL: URL }>
-	| Err<"EMAIL_ALREADY_EXISTS_BUT_LINKABLE", { redirectURL: URL }>;
+	| Err<
+			"EMAIL_ALREADY_EXISTS_BUT_LINKABLE",
+			{
+				redirectURL: URL;
+				userId: UserId;
+				provider: OAuthProvider;
+				providerId: OAuthProviderId;
+				clientType: ClientType;
+			}
+	  >;
 
 export type OAuthSignupCallbackUseCaseResult = Result<
 	OAuthSignupCallbackUseCaseSuccessResult,

@@ -33,6 +33,7 @@ export const OAuthProviderSchema = t.Object({
 
 export const HMACSecretSchema = t.Object({
 	OAUTH_STATE_HMAC_SECRET: t.String(),
+	ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET: t.String(),
 });
 
 export const AppEnvWithoutCFModuleSchema = t.Intersect([

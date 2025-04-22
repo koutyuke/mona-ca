@@ -1,6 +1,6 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session } from "../../../../domain/entities";
-import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
+import type { ClientType, OAuthProvider, OAuthProviderId, UserId } from "../../../../domain/value-object";
 
 export type OAuthLoginCallbackUseCaseSuccessResult = {
 	session: Session;
@@ -17,7 +17,16 @@ export type OAuthLoginCallbackUseCaseErrorResult =
 	| Err<"ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: URL }>
-	| Err<"OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE", { redirectURL: URL }>;
+	| Err<
+			"OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE",
+			{
+				redirectURL: URL;
+				userId: UserId;
+				provider: OAuthProvider;
+				providerId: OAuthProviderId;
+				clientType: ClientType;
+			}
+	  >;
 
 export type OAuthLoginCallbackUseCaseResult = Result<
 	OAuthLoginCallbackUseCaseSuccessResult,
