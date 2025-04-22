@@ -6,7 +6,7 @@ export const oauthAccounts = sqliteTable(
 	"oauth_accounts",
 	{
 		provider: text("provider", { enum: ["discord"] }).notNull(),
-		providerId: text("provider_id").notNull().unique(),
+		providerId: text("provider_id").notNull(),
 		userId: text("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
