@@ -1,4 +1,5 @@
 import { ElysiaWithEnv } from "../../modules/elysia-with-env";
+import { GetAccountConnections } from "./get-account-connections";
 import { GetProfile } from "./get-profile";
 import { UnlinkAccountConnection } from "./unlink-account-connection";
 import { UpdateEmail } from "./update-email";
@@ -12,4 +13,5 @@ export const Me = new ElysiaWithEnv({
 	.use(UpdateEmail)
 	.use(UpdateProfile)
 	.use(UpdatePassword)
-	.use(UnlinkAccountConnection);
+	.use(UnlinkAccountConnection)
+	.use(GetAccountConnections);
