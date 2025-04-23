@@ -12,6 +12,6 @@ export { err, isErr } from "./result";
 export { TimeSpan } from "./time-span";
 export { ulid } from "./ulid";
 
-export type { NewType } from "./new-type";
+export type { NewType, ToPrimitive } from "./new-type";
 export type { Err, Result } from "./result";
 export type { TimeSpanUnit } from "./time-span";
