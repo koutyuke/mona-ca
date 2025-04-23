@@ -16,7 +16,6 @@ interface FoundAccountAssociationSessionDto {
 	userId: string;
 	code: string;
 	email: string;
-	emailVerified: boolean;
 	provider: "discord";
 	providerId: string;
 	expiresAt: Date;
@@ -39,16 +38,7 @@ export class AccountAssociationSessionRepository implements IAccountAssociationS
 	}
 
 	public async save(session: AccountAssociationSession): Promise<void> {
-		await this.drizzleService.db
-			.insert(this.drizzleService.schema.accountAssociationSessions)
-			.values(session)
-			.onConflictDoUpdate({
-				target: this.drizzleService.schema.accountAssociationSessions.id,
-				set: {
-					emailVerified: session.emailVerified,
-					expiresAt: session.expiresAt,
-				},
-			});
+		await this.drizzleService.db.insert(this.drizzleService.schema.accountAssociationSessions).values(session);
 	}
 
 	public async delete(sessionId: AccountAssociationSessionId): Promise<void> {
@@ -78,7 +68,6 @@ export class AccountAssociationSessionRepository implements IAccountAssociationS
 			userId: newUserId(dto.userId),
 			code: dto.code,
 			email: dto.email,
-			emailVerified: dto.emailVerified,
 			provider: newOAuthProvider(dto.provider),
 			providerId: newOAuthProviderId(dto.providerId),
 			expiresAt: dto.expiresAt,

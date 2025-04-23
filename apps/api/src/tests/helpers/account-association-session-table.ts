@@ -12,7 +12,6 @@ export type DatabaseAccountAssociationSession = {
 	user_id: string;
 	code: string;
 	email: string;
-	email_verified: 0 | 1;
 	provider: "discord";
 	provider_id: string;
 	expires_at: number;
@@ -24,7 +23,6 @@ export class AccountAssociationSessionTableHelper {
 		userId: newUserId("userId"),
 		code: "testCode",
 		email: "test.email@example.com",
-		emailVerified: true,
 		provider: newOAuthProvider("discord"),
 		providerId: newOAuthProviderId("123456789"),
 		expiresAt: new Date(1704067200 * 1000),
@@ -35,7 +33,6 @@ export class AccountAssociationSessionTableHelper {
 		user_id: "userId",
 		code: "testCode",
 		email: "test.email@example.com",
-		email_verified: 1,
 		provider: "discord",
 		provider_id: "123456789",
 		expires_at: 1704067200,
@@ -44,13 +41,12 @@ export class AccountAssociationSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
 
 	public async create(session?: DatabaseAccountAssociationSession): Promise<void> {
-		const { id, user_id, code, email, email_verified, provider, provider_id, expires_at } =
-			session ?? this.baseDatabaseSession;
+		const { id, user_id, code, email, provider, provider_id, expires_at } = session ?? this.baseDatabaseSession;
 		await this.db
 			.prepare(
-				"INSERT INTO account_association_sessions (id, user_id, code, email, email_verified, provider, provider_id, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+				"INSERT INTO account_association_sessions (id, user_id, code, email, provider, provider_id, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
 			)
-			.bind(id, user_id, code, email, email_verified, provider, provider_id, expires_at)
+			.bind(id, user_id, code, email, provider, provider_id, expires_at)
 			.run();
 	}
 
@@ -78,7 +74,6 @@ export class AccountAssociationSessionTableHelper {
 			user_id: session.userId,
 			code: session.code,
 			email: session.email,
-			email_verified: session.emailVerified ? 1 : 0,
 			provider: session.provider,
 			provider_id: session.providerId,
 			expires_at: toDatabaseDate(session.expiresAt),
@@ -91,7 +86,6 @@ export class AccountAssociationSessionTableHelper {
 			userId: newUserId(session.user_id),
 			code: session.code,
 			email: session.email,
-			emailVerified: session.email_verified === 1,
 			provider: newOAuthProvider(session.provider),
 			providerId: newOAuthProviderId(session.provider_id),
 			expiresAt: new Date(session.expires_at * 1000),

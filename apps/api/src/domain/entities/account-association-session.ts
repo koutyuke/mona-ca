@@ -7,7 +7,6 @@ export interface AccountAssociationSession {
 	userId: UserId;
 	code: string;
 	email: string;
-	emailVerified: boolean;
 	provider: OAuthProvider;
 	providerId: OAuthProviderId;
 	expiresAt: Date;
@@ -26,7 +25,6 @@ export const createAccountAssociationSession = (args: {
 		userId: args.userId,
 		code: args.code,
 		email: args.email,
-		emailVerified: false,
 		provider: args.provider,
 		providerId: args.providerId,
 		expiresAt: new Date(Date.now() + accountAssociationSessionExpiresSpan.milliseconds()),

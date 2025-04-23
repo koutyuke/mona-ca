@@ -10,7 +10,6 @@ export const accountAssociationSessions = sqliteTable(
 			.references(() => users.id, { onDelete: "cascade" }),
 		code: text("code").notNull(),
 		email: text("email").notNull(),
-		emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
 		provider: text("provider", { enum: ["discord"] }).notNull(),
 		providerId: text("provider_id").notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
