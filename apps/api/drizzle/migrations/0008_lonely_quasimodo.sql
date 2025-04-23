@@ -1,0 +1,1 @@
+ALTER TABLE `account_association_sessions` DROP COLUMN `email_verified`;
