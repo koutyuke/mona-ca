@@ -1,7 +1,7 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
-import { generateAccountAssociationState } from "../../../application/use-cases/account-link";
+import { generateAccountAssociationState } from "../../../application/use-cases/account-association";
 import { OAuthLoginCallbackUseCase } from "../../../application/use-cases/oauth";
 import {
 	ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME,
@@ -127,6 +127,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					});
 				}
 
+				// Account Association Challenge Flow
 				if (result.code === "OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE") {
 					const {
 						code,
@@ -140,15 +141,15 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 						ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET,
 					);
 
-					cookieManager.setCookie(ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME, state, {
-						expires: expiresAt,
-					});
-
 					if (clientType === newClientType("mobile")) {
 						redirectURL.searchParams.set("association-state", state);
 						set.headers["referrer-policy"] = "strict-origin";
 						return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
 					}
+
+					cookieManager.setCookie(ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME, state, {
+						expires: expiresAt,
+					});
 
 					redirectURL.searchParams.set("error", code);
 					return RedirectResponse(redirectURL.toString());
