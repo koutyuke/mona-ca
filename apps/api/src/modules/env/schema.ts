@@ -9,6 +9,7 @@ export const PepperSchema = t.Object({
 	SESSION_PEPPER: t.String(),
 	PASSWORD_RESET_SESSION_PEPPER: t.String(),
 	EMAIL_VERIFICATION_SESSION_PEPPER: t.String(),
+	ACCOUNT_ASSOCIATION_SESSION_PEPPER: t.String(),
 });
 
 export const ResendSchema = t.Object({
