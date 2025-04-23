@@ -21,6 +21,15 @@ interface FoundOAuthAccountDto {
 export class OAuthAccountRepository implements IOAuthAccountRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
+	public async findByUserId(userId: UserId): Promise<OAuthAccount[]> {
+		const oauthAccounts = await this.drizzleService.db
+			.select()
+			.from(this.drizzleService.schema.oauthAccounts)
+			.where(eq(this.drizzleService.schema.oauthAccounts.userId, userId));
+
+		return oauthAccounts.map(this.convertToOAuthAccount);
+	}
+
 	public async findByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<OAuthAccount | null> {
 		const oauthAccounts = await this.drizzleService.db
 			.select()
