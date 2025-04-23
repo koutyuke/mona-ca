@@ -5,6 +5,7 @@ import { isErr } from "../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../domain/value-object";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { OAuthAccountRepository } from "../../interface-adapter/repositories/oauth-account";
+import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
@@ -24,8 +25,9 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 
 			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
 
-			const unlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(oauthAccountRepository);
+			const unlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(oauthAccountRepository, userRepository);
 			// === End of instances ===
 
 			const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
@@ -49,6 +51,7 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("ACCOUNT_NOT_LINKED"),
 					ErrorResponseSchema("FAILED_TO_UNLINK_ACCOUNT"),
+					ErrorResponseSchema("PASSWORD_DOES_NOT_SET"),
 				),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,

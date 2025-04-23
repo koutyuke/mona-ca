@@ -3,7 +3,10 @@ import type { OAuthProvider, UserId } from "../../../../domain/value-object";
 
 export type UnlinkAccountConnectionUseCaseSuccessResult = undefined;
 
-export type UnlinkAccountConnectionUseCaseErrorResult = Err<"ACCOUNT_NOT_LINKED"> | Err<"FAILED_TO_UNLINK_ACCOUNT">;
+export type UnlinkAccountConnectionUseCaseErrorResult =
+	| Err<"ACCOUNT_NOT_LINKED">
+	| Err<"FAILED_TO_UNLINK_ACCOUNT">
+	| Err<"PASSWORD_DOES_NOT_SET">;
 
 export type UnlinkAccountConnectionUseCaseResult = Result<
 	UnlinkAccountConnectionUseCaseSuccessResult,
