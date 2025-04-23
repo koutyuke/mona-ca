@@ -10,7 +10,7 @@ import type {
 	AccountLinkRequestUseCaseResult,
 	IAccountLinkRequestUseCase,
 } from "./interfaces/account-link-request.usecase.interface";
-import type { accountLinkStateSchema } from "./schema";
+import type { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkRequestUseCase implements IAccountLinkRequestUseCase {
 	constructor(

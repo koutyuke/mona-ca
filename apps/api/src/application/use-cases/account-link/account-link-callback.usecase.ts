@@ -9,7 +9,7 @@ import type {
 	AccountLinkCallbackUseCaseResult,
 	IAccountLinkCallbackUseCase,
 } from "./interfaces/account-link-callback.usecase.interface";
-import { accountLinkStateSchema } from "./schema";
+import { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	constructor(

@@ -9,7 +9,7 @@ import {
 	newUserId,
 } from "../../../domain/value-object";
 import { generateSignedState, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
-import { accountAssociationStateSchema } from "./schema";
+import { accountAssociationStateSchema } from "./schemas";
 
 const ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
 
