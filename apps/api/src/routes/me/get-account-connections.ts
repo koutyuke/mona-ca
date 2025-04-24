@@ -1,7 +1,10 @@
-import { t } from "elysia";
 import { GetConnectionsUseCase } from "../../application/use-cases/account-link";
 import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
+import {
+	AccountConnectionsPresenter,
+	AccountConnectionsPresenterResultSchema,
+} from "../../interface-adapter/presenter";
 import { OAuthAccountRepository } from "../../interface-adapter/repositories/oauth-account";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
@@ -31,20 +34,12 @@ export const GetAccountConnections = new ElysiaWithEnv()
 				throw new BadRequestException({ code: result.code });
 			}
 
-			return result;
+			return AccountConnectionsPresenter(result);
 		},
 		{
 			headers: AuthGuardSchema.headers,
 			response: {
-				200: t.Mapped(t.Union([t.Literal("discord")]), () =>
-					t.Nullable(
-						t.Object({
-							provider: t.String(),
-							providerId: t.String(),
-							linkedAt: t.Date(),
-						}),
-					),
-				),
+				200: AccountConnectionsPresenterResultSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,
