@@ -19,7 +19,7 @@ export const generateAccountAssociationState = (
 	userId: UserId,
 	provider: OAuthProvider,
 	providerId: OAuthProviderId,
-	HMACSecret: string,
+	hmacSecret: string,
 ): { state: string; expiresAt: Date } => {
 	const expiresAt = new Date(Date.now() + accountAssociationSessionExpiresSpan.milliseconds());
 
@@ -30,7 +30,7 @@ export const generateAccountAssociationState = (
 			provider_id: providerId,
 			expires_at: expiresAt.getTime(),
 		},
-		HMACSecret,
+		hmacSecret,
 	);
 	return { state, expiresAt };
 };
@@ -47,9 +47,9 @@ type ValidateAccountAssociationStateResult = Result<
 
 export const validateAccountAssociationState = (
 	state: string,
-	HMACSecret: string,
+	hmacSecret: string,
 ): ValidateAccountAssociationStateResult => {
-	const result = validateSignedState(state, HMACSecret, accountAssociationStateSchema);
+	const result = validateSignedState(state, hmacSecret, accountAssociationStateSchema);
 
 	if (isErr(result)) {
 		return result;
