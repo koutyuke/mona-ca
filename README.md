@@ -1,33 +1,59 @@
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/dd71116e-4799-47e5-a3de-73384f564ef2"  width="100%" height="auto"  />
+  <img src="https://github.com/user-attachments/assets/dd71116e-4799-47e5-a3de-73384f564ef2"  width="100%" height="auto"  />
 
-# mona-ca
+  # mona-ca
 
-**mona-ca is an Application that shares information about a girl's period with her partner.**
+  <p align="center">
+    <a href="https://skillicons.dev">
+      <img src="https://skillicons.dev/icons?i=ts,nextjs,react,tailwind,elysia,bun,cloudflare,github,docker,vscode,githubactions" />
+    </a>
+  </p>
+
+  <p>
+    <a href="./LICENSE">
+      <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License Badge" />
+    </a>
+    <img src="https://img.shields.io/badge/storybook-available-brightgreen" alt="Storybook Badge" />
+  </p>
+
+  [OpenAPI](https://api.mona-ca.com/docs)
 
 </div>
 
-## What's inside?
+## What is mona-ca?
+
+mona-ca is an Application that shares information about a girl's period with her partner.
+
+With customizable UI and messages, users can manage their menstrual cycles and share them with their partners.
+
+## Project Structure
 
 The project uses a mono-repo structure, with the main functions and modules organized in the following directories
 
-### `📱 apps` - application directory
+### `📱 apps`
 
-- `🌐 web`: It contains the source code associated with the web application.
-- `📱 mobile`: It contains the source code associated with the mobile application.
-- `🖥️ api`: It contains the source code associated with the API server.
+The directory that manages the source code of the application.
 
-### `📦 packages` - package directory
+- `🌐 web` - Web application
+  - Next.js and React are used for the frontend implementation.
+- `📱 mobile` - Mobile application
+  - React Native is used for the cross-platform app.
+- `🖥️ api` - API server
+  - Elysia and Bun are used for the backend implementation.
 
-It includes packages and libraries that will be reused throughout the project.
+### `📦 packages`
 
-- `⚙️ core`: It includes common packages related to business logic and data processing.
-- `🎨 ui`: It includes common packages related to UI components and styling.
+The directory that manages reusable packages for the project.
 
-### `🛠️ tools` - tool directory
+- `⚙️ core` - Core package
+  - Common functions related to business logic and data processing.
+- `🎨 ui` - UI package
+  - Common functions related to React components and styling.
 
-It includes tools and settings related to development and operation.
+### `🛠️ tools`
+
+The directory that manages tools and settings related to development and operation.
 
 ## Setup the Development Environment
 
