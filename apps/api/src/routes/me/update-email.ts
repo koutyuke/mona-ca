@@ -105,7 +105,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),
 					ErrorResponseSchema("INVALID_CODE"),
-					ErrorResponseSchema("CODE_WAS_EXPIRED"),
+					ErrorResponseSchema("EXPIRED_CODE"),
 					ErrorResponseSchema("NOT_REQUEST"),
 					ErrorResponseSchema("INVALID_TOKEN"),
 				),

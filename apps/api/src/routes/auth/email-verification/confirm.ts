@@ -120,7 +120,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
 					ErrorResponseSchema("INVALID_CODE"),
-					ErrorResponseSchema("CODE_WAS_EXPIRED"),
+					ErrorResponseSchema("EXPIRED_CODE"),
 					ErrorResponseSchema("NOT_REQUEST"),
 					ErrorResponseSchema("INVALID_EMAIL"),
 				),

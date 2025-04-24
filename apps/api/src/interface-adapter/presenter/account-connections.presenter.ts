@@ -1,5 +1,6 @@
 import { type Static, t } from "elysia";
-import type { GetConnectionsUseCaseSuccessResult } from "../../application/use-cases/account-link/interfaces/get-connections.usecase.interface";
+import type { ToPrimitive } from "../../common/utils";
+import type { OAuthProvider, OAuthProviderId } from "../../domain/value-object";
 
 export const AccountConnectionsPresenterResultSchema = t.Composite([
 	t.Object({
@@ -27,7 +28,15 @@ type ProviderConnection = {
 } | null;
 
 export const AccountConnectionsPresenter = (
-	connections: GetConnectionsUseCaseSuccessResult,
+	connections: {
+		password: boolean;
+	} & {
+		[key in ToPrimitive<OAuthProvider>]: {
+			provider: OAuthProvider;
+			providerId: OAuthProviderId;
+			linkedAt: Date;
+		} | null;
+	},
 ): AccountConnectionsPresenterResult => {
 	const { password, ...providers } = connections;
 

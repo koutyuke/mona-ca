@@ -48,7 +48,7 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
 
 		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
-			return err("CODE_WAS_EXPIRED");
+			return err("EXPIRED_CODE");
 		}
 
 		// Delete all sessions for the user.

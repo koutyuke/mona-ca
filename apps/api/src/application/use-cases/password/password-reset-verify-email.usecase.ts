@@ -28,7 +28,7 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 		}
 
 		if (isExpiredPasswordResetSession(passwordResetSession)) {
-			return err("TOKEN_EXPIRED");
+			return err("EXPIRED_TOKEN");
 		}
 
 		if (!constantTimeCompare(passwordResetSession.code, code)) {

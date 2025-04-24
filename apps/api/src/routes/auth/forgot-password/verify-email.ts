@@ -109,7 +109,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				400: FlattenUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
-					ErrorResponseSchema("TOKEN_EXPIRED"),
+					ErrorResponseSchema("EXPIRED_TOKEN"),
 					ErrorResponseSchema("INVALID_CODE"),
 				),
 				429: RateLimiterSchema.response[429],

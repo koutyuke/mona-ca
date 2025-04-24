@@ -28,7 +28,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		}
 
 		if (isExpiredPasswordResetSession(passwordResetSession)) {
-			return err("TOKEN_EXPIRED");
+			return err("EXPIRED_TOKEN");
 		}
 
 		if (!passwordResetSession.emailVerified) {

@@ -91,7 +91,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				400: FlattenUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
-					ErrorResponseSchema("TOKEN_EXPIRED"),
+					ErrorResponseSchema("EXPIRED_TOKEN"),
 					ErrorResponseSchema("EMAIL_NOT_VERIFIED"),
 				),
 				500: InternalServerErrorResponseSchema,

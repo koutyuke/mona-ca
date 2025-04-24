@@ -87,7 +87,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 				400: FlattenUnion(
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("INVALID_CURRENT_PASSWORD"),
-					ErrorResponseSchema("CURRENT_PASSWORD_REQUIRED"),
+					ErrorResponseSchema("CURRENT_PASSWORD_IS_REQUIRED"),
 				),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,

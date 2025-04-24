@@ -133,7 +133,7 @@ export const AuthGuardSchema = {
 	response: {
 		400: ErrorResponseSchema("INVALID_CLIENT_TYPE"),
 		401: t.Union([
-			ErrorResponseSchema("SESSION_EXPIRED"),
+			ErrorResponseSchema("EXPIRED_SESSION"),
 			ErrorResponseSchema("SESSION_OR_USER_NOT_FOUND"),
 			ErrorResponseSchema("EMAIL_VERIFICATION_IS_REQUIRED"),
 		]),

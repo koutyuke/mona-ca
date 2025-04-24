@@ -47,7 +47,7 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
 
 		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
-			return err("CODE_WAS_EXPIRED");
+			return err("EXPIRED_CODE");
 		}
 
 		// Generate a new session.
