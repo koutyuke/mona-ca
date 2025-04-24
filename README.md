@@ -5,15 +5,11 @@
   # mona-ca
 
   <p align="center">
-    <a href="https://skillicons.dev">
-      <img src="https://skillicons.dev/icons?i=ts,nextjs,react,tailwind,elysia,bun,cloudflare,github,docker,vscode,githubactions" />
-    </a>
+    <a href="https://skillicons.dev"><img src="https://skillicons.dev/icons?i=ts,nextjs,react,tailwind,elysia,bun,cloudflare,github,docker,vscode,githubactions" /></a>
   </p>
 
-  <p>
-    <a href="./LICENSE">
-      <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License Badge" />
-    </a>
+  <p align="center">
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License Badge" /></a>
     <img src="https://img.shields.io/badge/storybook-available-brightgreen" alt="Storybook Badge" />
   </p>
 
