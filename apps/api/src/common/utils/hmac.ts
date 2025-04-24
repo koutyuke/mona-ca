@@ -1,13 +1,22 @@
 import { createHmac } from "node:crypto";
 import { constantTimeCompare } from "./constant-time-compare";
 
-export const generateHMAC = (data: string, secret: string): string => {
+export const generateHMAC = (
+	data: string,
+	secret: string,
+	encoding: "base64" | "hex" | "base64url" = "hex",
+): string => {
 	const mac = createHmac("sha256", secret);
 	mac.update(data);
-	return mac.digest("base64");
+	return mac.digest(encoding);
 };
 
-export const verifyHMAC = (data: string, secret: string, mac: string): boolean => {
-	const generatedHmac = generateHMAC(data, secret);
+export const verifyHMAC = (
+	data: string,
+	secret: string,
+	mac: string,
+	encoding: "base64" | "hex" | "base64url" = "hex",
+): boolean => {
+	const generatedHmac = generateHMAC(data, secret, encoding);
 	return constantTimeCompare(generatedHmac, mac);
 };

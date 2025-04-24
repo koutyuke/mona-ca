@@ -8,7 +8,7 @@ type ChangeEmailUseCaseSuccessResult = {
 
 export type ChangeEmailUseCaseErrorResult =
 	| Err<"INVALID_CODE">
-	| Err<"CODE_WAS_EXPIRED">
+	| Err<"EXPIRED_CODE">
 	| Err<"NOT_REQUEST">
 	| Err<"EMAIL_IS_ALREADY_USED">;
 

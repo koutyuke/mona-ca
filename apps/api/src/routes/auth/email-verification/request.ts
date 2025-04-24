@@ -4,7 +4,7 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schema";
+import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";

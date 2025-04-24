@@ -12,6 +12,7 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 	constructor(
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly passwordResetSessionTokenService: ISessionTokenService,
+		private readonly passwordResetSessionRateLimit: (sessionId: string) => Promise<void>,
 	) {}
 
 	public async execute(
@@ -21,14 +22,18 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 		const passwordResetSessionId = newPasswordResetSessionId(
 			this.passwordResetSessionTokenService.hashSessionToken(passwordResetSessionToken),
 		);
-		const passwordResetSession = await this.passwordResetSessionRepository.findById(passwordResetSessionId);
+
+		const [passwordResetSession, _] = await Promise.all([
+			this.passwordResetSessionRepository.findById(passwordResetSessionId),
+			this.passwordResetSessionRateLimit(passwordResetSessionId),
+		]);
 
 		if (passwordResetSession === null) {
 			return err("INVALID_TOKEN");
 		}
 
 		if (isExpiredPasswordResetSession(passwordResetSession)) {
-			return err("TOKEN_EXPIRED");
+			return err("EXPIRED_TOKEN");
 		}
 
 		if (!constantTimeCompare(passwordResetSession.code, code)) {

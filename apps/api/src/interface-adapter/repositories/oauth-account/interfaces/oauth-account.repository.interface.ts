@@ -2,6 +2,8 @@ import type { OAuthAccount } from "../../../../domain/entities";
 import type { OAuthProvider, OAuthProviderId, UserId } from "../../../../domain/value-object";
 
 export interface IOAuthAccountRepository {
+	findByUserId(userId: UserId): Promise<OAuthAccount[]>;
+
 	findByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<OAuthAccount | null>;
 
 	findByProviderAndProviderId(provider: OAuthProvider, providerId: OAuthProviderId): Promise<OAuthAccount | null>;

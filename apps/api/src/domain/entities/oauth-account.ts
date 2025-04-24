@@ -4,8 +4,7 @@ export interface OAuthAccount {
 	provider: OAuthProvider;
 	providerId: OAuthProviderId;
 	userId: UserId;
-	createdAt: Date;
-	updatedAt: Date;
+	linkedAt: Date;
 }
 
 export const createOAuthAccount = (args: {
@@ -19,7 +18,6 @@ export const createOAuthAccount = (args: {
 		provider: args.provider,
 		providerId: args.providerId,
 		userId: args.userId,
-		createdAt: now,
-		updatedAt: now,
+		linkedAt: now,
 	};
 };

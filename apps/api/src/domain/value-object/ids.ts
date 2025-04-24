@@ -23,3 +23,9 @@ export type PasswordResetSessionId = NewType<"PasswordResetSessionId", string>;
 export const newPasswordResetSessionId = (rawPasswordResetSessionId: string) => {
 	return rawPasswordResetSessionId as PasswordResetSessionId;
 };
+
+export type AccountAssociationSessionId = NewType<"AccountAssociationSessionId", string>;
+
+export const newAccountAssociationSessionId = (rawAccountAssociationSessionId: string) => {
+	return rawAccountAssociationSessionId as AccountAssociationSessionId;
+};

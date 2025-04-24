@@ -1,23 +1,25 @@
-import { getAPIBaseURL, getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
+import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
+import { generateAccountAssociationState } from "../../../application/use-cases/account-association";
 import { OAuthLoginCallbackUseCase } from "../../../application/use-cases/oauth";
 import {
+	ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schema";
+import { FlattenUnion } from "../../../common/schemas";
 import { constantTimeCompare, convertRedirectableMobileScheme, isErr } from "../../../common/utils";
 import { newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { OAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
+import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv, RedirectResponse, RedirectResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
@@ -47,11 +49,11 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				GOOGLE_CLIENT_ID,
 				GOOGLE_CLIENT_SECRET,
 				OAUTH_STATE_HMAC_SECRET,
+				ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET,
 			},
 			cfModuleEnv: { DB },
 			cookie,
 			params: { provider: _provider },
-			redirect,
 			query: { code, state: queryState, error },
 			set,
 		}) => {
@@ -82,6 +84,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 			);
 
 			const oauthLoginCallbackUseCase = new OAuthLoginCallbackUseCase(
+				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
 				sessionTokenService,
 				oauthProviderGateway,
 				sessionRepository,
@@ -90,87 +93,89 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const cookieState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
+			const signedState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
 			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			const redirectURICookieValue = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			const redirectURI = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
-			if (!queryState || !constantTimeCompare(queryState, cookieState)) {
+			if (!queryState || !constantTimeCompare(queryState, signedState)) {
 				throw new BadRequestException({
-					name: "INVALID_STATE",
-					message: "Invalid state",
+					code: "INVALID_STATE",
 				});
 			}
 
-			const validatedState = validateSignedState(cookieState, OAUTH_STATE_HMAC_SECRET);
-
-			if (isErr(validatedState)) {
-				throw new BadRequestException({
-					name: validatedState.code,
-					message: "Invalid state",
-				});
-			}
-
-			const { clientType } = validatedState;
-
-			const clientBaseURL = clientType === "web" ? getWebBaseURL(APP_ENV === "production") : getMobileScheme();
-
-			const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURICookieValue ?? "/");
-
-			if (!redirectToClientURL) {
-				throw new BadRequestException({
-					name: "INVALID_REDIRECT_URL",
-					message: "Invalid redirect URL",
-				});
-			}
-
-			if (error) {
-				if (error === "access_denied") {
-					redirectToClientURL.searchParams.set("error", "ACCESS_DENIED");
-					return redirect(redirectToClientURL.toString());
-				}
-
-				redirectToClientURL.searchParams.set("error", "PROVIDER_ERROR");
-				return redirect(redirectToClientURL.toString());
-			}
-
-			if (!code) {
-				redirectToClientURL.searchParams.set("error", "INVALID_STATE");
-				return redirect(redirectToClientURL.toString());
-			}
-
-			const result = await oauthLoginCallbackUseCase.execute(code, codeVerifier, provider);
+			const result = await oauthLoginCallbackUseCase.execute(
+				error,
+				redirectURI,
+				provider,
+				signedState,
+				code,
+				codeVerifier,
+			);
 
 			cookieManager.deleteCookie(OAUTH_STATE_COOKIE_NAME);
 			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
 			if (isErr(result)) {
-				redirectToClientURL.searchParams.set("error", result.code);
-				return redirect(redirectToClientURL.toString());
+				if (
+					result.code === "INVALID_STATE" ||
+					result.code === "INVALID_REDIRECT_URL" ||
+					result.code === "CODE_NOT_FOUND"
+				) {
+					throw new BadRequestException({
+						code: result.code,
+					});
+				}
+
+				// Account Association Challenge Flow
+				if (result.code === "OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE") {
+					const {
+						code,
+						value: { redirectURL, userId, provider, providerId, clientType },
+					} = result;
+
+					const { state, expiresAt } = generateAccountAssociationState(
+						userId,
+						provider,
+						providerId,
+						ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET,
+					);
+
+					if (clientType === newClientType("mobile")) {
+						redirectURL.searchParams.set("association-state", state);
+						set.headers["referrer-policy"] = "strict-origin";
+						return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
+					}
+
+					cookieManager.setCookie(ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME, state, {
+						expires: expiresAt,
+					});
+
+					redirectURL.searchParams.set("error", code);
+					return RedirectResponse(redirectURL.toString());
+				}
+
+				const {
+					code,
+					value: { redirectURL },
+				} = result;
+				redirectURL.searchParams.set("error", code);
+				return RedirectResponse(redirectURL.toString());
 			}
 
-			const { session, sessionToken } = result;
+			const { session, sessionToken, redirectURL, clientType } = result;
 
 			if (clientType === newClientType("mobile")) {
-				redirectToClientURL.searchParams.set("access-token", sessionToken);
+				redirectURL.searchParams.set("access-token", sessionToken);
 				set.headers["referrer-policy"] = "strict-origin";
-				return redirect(convertRedirectableMobileScheme(redirectToClientURL));
+				return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
 			}
 
 			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
 				expires: session.expiresAt,
 			});
 
-			const continueURI = redirectToClientURL.searchParams.get("continue");
-
-			if (continueURI) {
-				const continueURL = validateRedirectURL(clientBaseURL, continueURI);
-				if (continueURL) {
-					return redirect(continueURL.toString());
-				}
-			}
-
-			return redirect(redirectURICookieValue.toString());
+			return RedirectResponse(redirectURI.toString());
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip }) => {
@@ -206,9 +211,10 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
 					minLength: 1,
 				}),
+				[ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			response: {
-				302: t.Void(),
+				302: RedirectResponseSchema,
 				400: FlattenUnion(
 					ErrorResponseSchema("INVALID_STATE"),
 					ErrorResponseSchema("INVALID_SIGNED_STATE"),
@@ -226,11 +232,10 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					"##### **Error Query**",
 					"---",
 					"- `FAILED_TO_GET_ACCOUNT_INFO`",
-					"- `ACCOUNT_IS_ALREADY_USED`",
-					"- `EMAIL_ALREADY_EXISTS_BUT_LINKABLE`",
 					"- `ACCESS_DENIED`",
 					"- `PROVIDER_ERROR`",
-					"- `INVALID_STATE`",
+					"- `OAUTH_ACCOUNT_NOT_FOUND`",
+					"- `OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE`",
 				],
 				tag: "Auth - OAuth",
 			}),

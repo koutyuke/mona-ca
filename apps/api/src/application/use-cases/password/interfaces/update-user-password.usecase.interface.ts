@@ -6,7 +6,7 @@ type UpdateUserPasswordUseCaseSuccessResult = {
 	sessionToken: string;
 };
 
-type UpdateUserPasswordUseCaseErrorResult = Err<"INVALID_CURRENT_PASSWORD" | "CURRENT_PASSWORD_REQUIRED">;
+type UpdateUserPasswordUseCaseErrorResult = Err<"INVALID_CURRENT_PASSWORD"> | Err<"CURRENT_PASSWORD_IS_REQUIRED">;
 
 export type UpdateUserPasswordUseCaseResult = Result<
 	UpdateUserPasswordUseCaseSuccessResult,

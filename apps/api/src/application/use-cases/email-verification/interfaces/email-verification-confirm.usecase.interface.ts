@@ -8,7 +8,7 @@ export type EmailVerificationConfirmUseCaseSuccessResult = {
 
 export type EmailVerificationConfirmUseCaseErrorResult =
 	| Err<"INVALID_CODE">
-	| Err<"CODE_WAS_EXPIRED">
+	| Err<"EXPIRED_CODE">
 	| Err<"NOT_REQUEST">
 	| Err<"INVALID_EMAIL">;
 

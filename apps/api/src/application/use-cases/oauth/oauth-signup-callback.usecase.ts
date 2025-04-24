@@ -1,25 +1,33 @@
+import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { DEFAULT_USER_GENDER } from "../../../common/constants";
-import { err, ulid } from "../../../common/utils";
+import { err, isErr, ulid } from "../../../common/utils";
 import { createOAuthAccount, createSession, createUser } from "../../../domain/entities";
 import {
 	type OAuthProvider,
+	newClientType,
 	newGender,
 	newOAuthProviderId,
 	newSessionId,
 	newUserId,
 } from "../../../domain/value-object";
-import type { IOAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
+import type { AppEnv } from "../../../modules/env";
 import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	IOAuthSignupCallbackUseCase,
 	OAuthSignupCallbackUseCaseResult,
 } from "./interfaces/oauth-signup-callback.usecase.interface";
+import { oauthStateSchema } from "./schema";
 
 export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 	constructor(
+		private readonly env: {
+			APP_ENV: AppEnv["APP_ENV"];
+			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
+		},
 		private readonly sessionTokenService: ISessionTokenService,
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
@@ -27,23 +35,44 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		private readonly userRepository: IUserRepository,
 	) {}
 
-	/**
-	 * Executes the OAuth signup callback use case.
-	 *
-	 * @param code - The authorization code received from the OAuth provider.
-	 * @param codeVerifier - The code verifier used for PKCE (Proof Key for Code Exchange).
-	 * @param provider - The OAuth provider (e.g., Google, Facebook).
-	 * @param userOption - Optional user options, such as gender.
-	 * @return The result of the OAuth signup callback use case.
-	 * @return `Err<FAILED_TO_GET_ACCOUNT_INFO>` - If the account information could not be retrieved.
-	 * @return `Err<SAME_EMAIL_USER_ALREADY_EXISTS>` - If the user is already registered. It can link the OAuth account to the existing user.
-	 * @return `Err<ACCOUNT_IS_ALREADY_USED>` - If the account is already used.
-	 */
 	public async execute(
-		code: string,
-		codeVerifier: string,
+		error: string | undefined,
+		redirectURI: string,
 		provider: OAuthProvider,
+		signedState: string,
+		code: string | undefined,
+		codeVerifier: string,
 	): Promise<OAuthSignupCallbackUseCaseResult> {
+		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
+
+		if (isErr(validatedState)) {
+			return err("INVALID_STATE");
+		}
+
+		const { client } = validatedState;
+
+		const clientType = newClientType(client);
+
+		const clientBaseURL = clientType === "web" ? getWebBaseURL(this.env.APP_ENV === "production") : getMobileScheme();
+
+		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
+
+		if (!redirectToClientURL) {
+			return err("INVALID_REDIRECT_URL");
+		}
+
+		if (error) {
+			if (error === "access_denied") {
+				return err("ACCESS_DENIED", { redirectURL: redirectToClientURL });
+			}
+
+			return err("PROVIDER_ERROR", { redirectURL: redirectToClientURL });
+		}
+
+		if (!code) {
+			return err("CODE_NOT_FOUND");
+		}
+
 		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
 		const accessToken = tokens.accessToken();
 
@@ -52,7 +81,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		await this.oauthProviderGateway.revokeToken(accessToken);
 
 		if (!providerAccount) {
-			return err("FAILED_TO_GET_ACCOUNT_INFO");
+			return err("FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: redirectToClientURL });
 		}
 
 		const providerId = newOAuthProviderId(providerAccount.id);
@@ -69,10 +98,16 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 				// if emailVerified is true, this user is already registered user
 
 				if (existingOAuthAccount) {
-					return err("ACCOUNT_IS_ALREADY_USED");
+					return err("ACCOUNT_IS_ALREADY_USED", { redirectURL: redirectToClientURL });
 				}
 
-				return err("EMAIL_ALREADY_EXISTS_BUT_LINKABLE");
+				return err("EMAIL_ALREADY_EXISTS_BUT_LINKABLE", {
+					redirectURL: redirectToClientURL,
+					userId: existingUser.id,
+					provider,
+					providerId,
+					clientType,
+				});
 			}
 			await this.userRepository.delete(existingUser.id);
 		} else if (existingOAuthAccount) {
@@ -108,6 +143,8 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		return {
 			session,
 			sessionToken,
+			redirectURL: redirectToClientURL,
+			clientType,
 		};
 	}
 }

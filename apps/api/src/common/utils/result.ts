@@ -3,12 +3,14 @@ const IS_ERR = Symbol("isErr");
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 type Result<T, E extends Err<string, any>> = T | E;
 
-type Err<E extends string, D = never> = { [IS_ERR]: true; code: E; value: D };
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
+type Err<E extends string, D = {}> = { [IS_ERR]: true; code: E; value: D };
 
-const err = <E extends string, D = never>(code: E, value?: D): Err<E, D> => ({
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
+const err = <E extends string, D = {}>(code: E, value: D = {} as D): Err<E, D> => ({
 	[IS_ERR]: true,
 	code,
-	value: value as D,
+	value,
 });
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>

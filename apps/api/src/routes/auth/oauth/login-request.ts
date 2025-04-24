@@ -1,4 +1,4 @@
-import { getAPIBaseURL, getMobileScheme, getWebBaseURL } from "@mona-ca/core/utils";
+import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
 import { OAuthRequestUseCase } from "../../../application/use-cases/oauth";
 import {
@@ -10,7 +10,7 @@ import { isErr } from "../../../common/utils";
 import { clientTypeSchema, newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv, RedirectResponse, RedirectResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
@@ -20,9 +20,9 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 	.use(
 		rateLimit("oauth-login-request", {
 			maxTokens: 100,
-			refillRate: 10,
+			refillRate: 50,
 			refillInterval: {
-				value: 1,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -42,8 +42,7 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				GOOGLE_CLIENT_SECRET,
 				OAUTH_STATE_HMAC_SECRET,
 			},
-			query: { "redirect-uri": queryRedirectUri = "/", "client-type": _clientType },
-			redirect,
+			query: { "redirect-uri": queryRedirectURI = "/", "client-type": _clientType },
 		}) => {
 			// === Instances ===
 			const provider = newOAuthProvider(_provider);
@@ -64,12 +63,10 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				provider,
 				providerRedirectURL.toString(),
 			);
-			const oauthRequestUseCase = new OAuthRequestUseCase(oauthProviderGateway, OAUTH_STATE_HMAC_SECRET);
+			const oauthRequestUseCase = new OAuthRequestUseCase({ APP_ENV, OAUTH_STATE_HMAC_SECRET }, oauthProviderGateway);
 			// === End of instances ===
 
-			const clientBaseURL = clientType === "web" ? getWebBaseURL(APP_ENV === "production") : getMobileScheme();
-
-			const result = oauthRequestUseCase.execute(clientType, clientBaseURL, queryRedirectUri);
+			const result = oauthRequestUseCase.execute(clientType, queryRedirectURI);
 
 			if (isErr(result)) {
 				const { code } = result;
@@ -94,7 +91,13 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				maxAge: 60 * 10,
 			});
 
-			return redirect(redirectToProviderURL.toString());
+			if (clientType === "mobile") {
+				return {
+					url: redirectToProviderURL.toString(),
+				};
+			}
+
+			return RedirectResponse(redirectToProviderURL.toString());
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip }) => {
@@ -108,7 +111,10 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				provider: oauthProviderSchema,
 			}),
 			response: {
-				302: t.Void(),
+				200: t.Object({
+					url: t.String(),
+				}),
+				302: RedirectResponseSchema,
 				400: ErrorResponseSchema("INVALID_REDIRECT_URL"),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,

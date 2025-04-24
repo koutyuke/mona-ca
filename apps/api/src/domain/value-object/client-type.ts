@@ -1,4 +1,4 @@
-import { StringEnum } from "../../common/schema";
+import { StringEnum } from "../../common/schemas";
 import type { NewType } from "../../common/utils";
 
 export type ClientType = NewType<"clientType", "web" | "mobile">;

@@ -30,14 +30,6 @@ export const StringEnum = <T extends string[]>(values: [...T], options: SchemaOp
 	});
 };
 
-// export const StringEnum = <T extends string[]>(values: [...T]) => {
-// 	return Type.Union(values.map(str => Type.Literal(str)));
-// };
-
-// export const Nullable = <T extends TSchema>(T: T) => {
-// 	return Type.Union([T, Type.Null()]);
-// };
-
 // This function flattens a union of unions into a single union.
 // Warning: This function is not type-safe.
 //          It is recommended to be used only for the response schema.

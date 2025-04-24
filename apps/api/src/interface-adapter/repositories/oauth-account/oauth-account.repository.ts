@@ -14,13 +14,21 @@ import type { IOAuthAccountRepository } from "./interfaces/oauth-account.reposit
 interface FoundOAuthAccountDto {
 	provider: "discord";
 	providerId: string;
-	createdAt: Date;
-	updatedAt: Date;
 	userId: string;
+	linkedAt: Date;
 }
 
 export class OAuthAccountRepository implements IOAuthAccountRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
+
+	public async findByUserId(userId: UserId): Promise<OAuthAccount[]> {
+		const oauthAccounts = await this.drizzleService.db
+			.select()
+			.from(this.drizzleService.schema.oauthAccounts)
+			.where(eq(this.drizzleService.schema.oauthAccounts.userId, userId));
+
+		return oauthAccounts.map(this.convertToOAuthAccount);
+	}
 
 	public async findByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<OAuthAccount | null> {
 		const oauthAccounts = await this.drizzleService.db
@@ -65,13 +73,13 @@ export class OAuthAccountRepository implements IOAuthAccountRepository {
 		await this.drizzleService.db
 			.insert(this.drizzleService.schema.oauthAccounts)
 			.values(oauthAccount)
-			.onConflictDoUpdate({
-				target: [this.drizzleService.schema.oauthAccounts.userId, this.drizzleService.schema.oauthAccounts.provider],
-				set: {
-					providerId: oauthAccount.providerId,
-					updatedAt: oauthAccount.updatedAt,
-				},
-			});
+			.onConflictDoNothing({
+				target: [
+					this.drizzleService.schema.oauthAccounts.provider,
+					this.drizzleService.schema.oauthAccounts.providerId,
+				],
+			})
+			.onConflictDoNothing();
 	}
 
 	public async deleteByUserIdAndProvider(userId: UserId, provider: OAuthProvider): Promise<void> {
@@ -101,8 +109,7 @@ export class OAuthAccountRepository implements IOAuthAccountRepository {
 			provider: newOAuthProvider(dto.provider),
 			providerId: newOAuthProviderId(dto.providerId),
 			userId: newUserId(dto.userId),
-			createdAt: dto.createdAt,
-			updatedAt: dto.updatedAt,
+			linkedAt: dto.linkedAt,
 		} satisfies OAuthAccount;
 	}
 }

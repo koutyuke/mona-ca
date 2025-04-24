@@ -3,7 +3,6 @@ import { beforeAll, describe, expect, test } from "vitest";
 import type { OAuthAccount } from "../../../../domain/entities";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
-import { toDatabaseDate } from "../../../../tests/utils";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
 const { DB } = env;
@@ -13,8 +12,6 @@ const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
 const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
-
-const now = new Date();
 
 describe("OAuthAccountRepository.save", () => {
 	beforeAll(async () => {
@@ -40,8 +37,7 @@ describe("OAuthAccountRepository.save", () => {
 			provider: oauthAccountTableHelper.baseOAuthAccount.provider,
 			providerId: oauthAccountTableHelper.baseOAuthAccount.providerId,
 			userId: oauthAccountTableHelper.baseOAuthAccount.userId,
-			createdAt: oauthAccountTableHelper.baseOAuthAccount.createdAt,
-			updatedAt: now,
+			linkedAt: oauthAccountTableHelper.baseOAuthAccount.linkedAt,
 		} satisfies OAuthAccount;
 
 		await oauthAccountRepository.save(updatedOAuthAccount);
@@ -56,8 +52,7 @@ describe("OAuthAccountRepository.save", () => {
 			provider: oauthAccountTableHelper.baseDatabaseOAuthAccount.provider,
 			provider_id: oauthAccountTableHelper.baseDatabaseOAuthAccount.provider_id,
 			user_id: oauthAccountTableHelper.baseDatabaseOAuthAccount.user_id,
-			created_at: oauthAccountTableHelper.baseDatabaseOAuthAccount.created_at,
-			updated_at: toDatabaseDate(now),
+			linked_at: oauthAccountTableHelper.baseDatabaseOAuthAccount.linked_at,
 		});
 	});
 });

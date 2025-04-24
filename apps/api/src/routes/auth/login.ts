@@ -3,7 +3,7 @@ import { PasswordService } from "../../application/services/password";
 import { SessionTokenService } from "../../application/services/session-token";
 import { LoginUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { FlattenUnion } from "../../common/schema";
+import { FlattenUnion } from "../../common/schemas";
 import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
@@ -79,11 +79,8 @@ export const Login = new ElysiaWithEnv()
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip, captcha, body: { email, cfTurnstileResponse } }) => {
-				await Promise.all([
-					rateLimit.consume(ip, 1),
-					rateLimit.consume(email, 10),
-					captcha.verify(cfTurnstileResponse),
-				]);
+				await captcha.verify(cfTurnstileResponse);
+				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 10)]);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({

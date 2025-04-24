@@ -3,7 +3,7 @@ import { PasswordService } from "../../../application/services/password";
 import { SessionTokenService } from "../../../application/services/session-token";
 import { ResetPasswordUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schema";
+import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
@@ -91,7 +91,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				400: FlattenUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
-					ErrorResponseSchema("TOKEN_EXPIRED"),
+					ErrorResponseSchema("EXPIRED_TOKEN"),
 					ErrorResponseSchema("EMAIL_NOT_VERIFIED"),
 				),
 				500: InternalServerErrorResponseSchema,

@@ -1,4 +1,6 @@
 import { ElysiaWithEnv } from "../../modules/elysia-with-env";
+import { AccountAssociation } from "./account-association";
+import { AccountLink } from "./account-link";
 import { EmailVerification } from "./email-verification";
 import { ForgotPassword } from "./forgot-password";
 import { Login } from "./login";
@@ -14,4 +16,6 @@ export const Auth = new ElysiaWithEnv({
 	.use(OAuth)
 	.use(Login)
 	.use(Logout)
-	.use(Signup);
+	.use(Signup)
+	.use(AccountLink)
+	.use(AccountAssociation);

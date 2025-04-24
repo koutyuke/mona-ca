@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
 import { PasswordResetVerifyEmailUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schema";
+import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
@@ -36,6 +36,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			cookie,
 			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, code },
 			clientType,
+			rateLimit,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -47,6 +48,9 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(
 				passwordResetSessionRepository,
 				passwordResetSessionTokenService,
+				async (sessionId: string) => {
+					await rateLimit.consume(sessionId, 10);
+				},
 			);
 			// === End of instances ===
 
@@ -74,27 +78,8 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({
-				rateLimit,
-				ip,
-				env: { PASSWORD_RESET_SESSION_PEPPER },
-				cookie,
-				body: { passwordResetSessionToken: token },
-				clientType,
-			}) => {
-				const passwordResetSessionToken =
-					clientType === "web" ? cookie[PASSWORD_RESET_SESSION_COOKIE_NAME].value : token;
-
-				if (!passwordResetSessionToken) {
-					throw new BadRequestException({
-						code: "INVALID_TOKEN",
-					});
-				}
-
-				const sessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
-				const sessionId = sessionTokenService.hashSessionToken(passwordResetSessionToken);
-
-				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(sessionId, 10)]);
+			beforeHandle: async ({ rateLimit, ip }) => {
+				await rateLimit.consume(ip, 1);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({
@@ -109,7 +94,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				400: FlattenUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
-					ErrorResponseSchema("TOKEN_EXPIRED"),
+					ErrorResponseSchema("EXPIRED_TOKEN"),
 					ErrorResponseSchema("INVALID_CODE"),
 				),
 				429: RateLimiterSchema.response[429],

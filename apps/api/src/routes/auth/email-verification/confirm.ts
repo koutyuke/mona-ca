@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { SessionTokenService } from "../../../application/services/session-token";
 import { EmailVerificationConfirmUseCase } from "../../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schema";
+import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
@@ -120,7 +120,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
 					ErrorResponseSchema("INVALID_CODE"),
-					ErrorResponseSchema("CODE_WAS_EXPIRED"),
+					ErrorResponseSchema("EXPIRED_CODE"),
 					ErrorResponseSchema("NOT_REQUEST"),
 					ErrorResponseSchema("INVALID_EMAIL"),
 				),
