@@ -1,6 +1,5 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { AccountAssociationSession } from "../../../../domain/entities";
-import type { UserId } from "../../../../domain/value-object";
 
 export type AccountAssociationChallengeUseCaseSuccessResult = {
 	accountAssociationSessionToken: string;
@@ -18,8 +17,5 @@ export type AccountAssociationChallengeUseCaseResult = Result<
 >;
 
 export interface IAccountAssociationChallengeUseCase {
-	execute(
-		stateOrSessionToken: string,
-		userRateLimit: (userId: UserId) => Promise<void>,
-	): Promise<AccountAssociationChallengeUseCaseResult>;
+	execute(stateOrSessionToken: string): Promise<AccountAssociationChallengeUseCaseResult>;
 }

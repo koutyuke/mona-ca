@@ -21,12 +21,14 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 		private readonly sessionRepository: ISessionRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly accountAssociationSessionRateLimit: (
+			accountAssociationSessionId: AccountAssociationSessionId,
+		) => Promise<void>,
 	) {}
 
 	public async execute(
 		accountAssociationSessionToken: string,
 		code: string,
-		accountAssociationSessionRateLimit: (accountAssociationSessionId: AccountAssociationSessionId) => Promise<void>,
 	): Promise<AccountAssociationConfirmUseCaseResult> {
 		const accountAssociationSessionId = newAccountAssociationSessionId(
 			this.accountAssociationSessionTokenService.hashSessionToken(accountAssociationSessionToken),
@@ -38,7 +40,7 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			return err("INVALID_TOKEN");
 		}
 
-		await accountAssociationSessionRateLimit(accountAssociationSessionId);
+		await this.accountAssociationSessionRateLimit(accountAssociationSessionId);
 
 		if (!constantTimeCompare(accountAssociationSession.code, code)) {
 			return err("INVALID_CODE");

@@ -1,6 +1,5 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session } from "../../../../domain/entities";
-import type { AccountAssociationSessionId } from "../../../../domain/value-object";
 
 export type AccountAssociationConfirmUseCaseSuccessResult = {
 	sessionToken: string;
@@ -20,9 +19,5 @@ export type AccountAssociationConfirmUseCaseResult = Result<
 >;
 
 export interface IAccountAssociationConfirmUseCase {
-	execute(
-		accountAssociationSessionToken: string,
-		code: string,
-		accountAssociationSessionRateLimit: (accountAssociationSessionId: AccountAssociationSessionId) => Promise<void>,
-	): Promise<AccountAssociationConfirmUseCaseResult>;
+	execute(accountAssociationSessionToken: string, code: string): Promise<AccountAssociationConfirmUseCaseResult>;
 }

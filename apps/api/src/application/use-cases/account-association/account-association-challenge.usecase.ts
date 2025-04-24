@@ -24,12 +24,10 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 		private readonly accountAssociationSessionTokenService: ISessionTokenService,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly userRepository: IUserRepository,
+		private readonly userRateLimit: (userId: UserId) => Promise<void>,
 	) {}
 
-	public async execute(
-		stateOrSessionToken: string,
-		userRateLimit: (userId: UserId) => Promise<void>,
-	): Promise<AccountAssociationChallengeUseCaseResult> {
+	public async execute(stateOrSessionToken: string): Promise<AccountAssociationChallengeUseCaseResult> {
 		const isState = stateOrSessionToken.includes(".");
 
 		let associationInfo: {
@@ -56,7 +54,7 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 
 			const { userId, provider, providerId } = result;
 
-			await userRateLimit(userId);
+			await this.userRateLimit(userId);
 
 			associationInfo = { userId, provider, providerId };
 		} else {
@@ -73,7 +71,7 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 				return err("EXPIRED_STATE_OR_SESSION_TOKEN");
 			}
 
-			await userRateLimit(accountAssociationSession.userId);
+			await this.userRateLimit(accountAssociationSession.userId);
 
 			await this.accountAssociationSessionRepository.deleteByUserId(accountAssociationSession.userId);
 
