@@ -79,11 +79,8 @@ export const Login = new ElysiaWithEnv()
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip, captcha, body: { email, cfTurnstileResponse } }) => {
-				await Promise.all([
-					rateLimit.consume(ip, 1),
-					rateLimit.consume(email, 10),
-					captcha.verify(cfTurnstileResponse),
-				]);
+				await captcha.verify(cfTurnstileResponse);
+				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 10)]);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({

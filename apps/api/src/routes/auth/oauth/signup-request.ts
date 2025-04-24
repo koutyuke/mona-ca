@@ -20,9 +20,9 @@ export const OAuthSignupRequest = new ElysiaWithEnv()
 	.use(
 		rateLimit("oauth-signup-request", {
 			maxTokens: 100,
-			refillRate: 10,
+			refillRate: 50,
 			refillInterval: {
-				value: 1,
+				value: 10,
 				unit: "m",
 			},
 		}),

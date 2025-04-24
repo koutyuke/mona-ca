@@ -59,6 +59,9 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				accountAssociationSessionTokenService,
 				accountAssociationSessionRepository,
 				userRepository,
+				async userId => {
+					await rateLimit.consume(userId, 10);
+				},
 			);
 			// === End of instances ===
 
@@ -78,9 +81,7 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				});
 			}
 
-			const result = await accountAssociationChallengeUseCase.execute(stateOrSessionToken, async userId => {
-				await rateLimit.consume(userId, 10);
-			});
+			const result = await accountAssociationChallengeUseCase.execute(stateOrSessionToken);
 
 			if (isErr(result)) {
 				throw new BadRequestException({

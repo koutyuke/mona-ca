@@ -80,7 +80,8 @@ export const Signup = new ElysiaWithEnv()
 		},
 		{
 			beforeHandle: async ({ rateLimit, ip, captcha, body: { cfTurnstileResponse } }) => {
-				await Promise.all([rateLimit.consume(ip, 1), captcha.verify(cfTurnstileResponse)]);
+				await captcha.verify(cfTurnstileResponse);
+				await rateLimit.consume(ip, 1);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({

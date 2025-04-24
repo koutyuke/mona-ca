@@ -57,6 +57,9 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				sessionRepository,
 				accountAssociationSessionRepository,
 				oauthAccountRepository,
+				async accountAssociationSessionId => {
+					await rateLimit.consume(accountAssociationSessionId, 10);
+				},
 			);
 			// === End of instances ===
 
@@ -71,13 +74,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				});
 			}
 
-			const result = await accountAssociationConfirmUseCase.execute(
-				accountAssociationSessionToken,
-				code,
-				async accountAssociationSessionId => {
-					await rateLimit.consume(accountAssociationSessionId, 10);
-				},
-			);
+			const result = await accountAssociationConfirmUseCase.execute(accountAssociationSessionToken, code);
 
 			if (isErr(result)) {
 				throw new BadRequestException({

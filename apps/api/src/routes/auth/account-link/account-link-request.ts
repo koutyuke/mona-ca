@@ -22,9 +22,9 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 	.use(
 		rateLimit("account-link-request", {
 			maxTokens: 100,
-			refillRate: 10,
+			refillRate: 50,
 			refillInterval: {
-				value: 1,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -101,6 +101,9 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			};
 		},
 		{
+			beforeHandle: async ({ rateLimit, user }) => {
+				await rateLimit.consume(user.id, 1);
+			},
 			headers: AuthGuardSchema.headers,
 			query: t.Object({
 				"redirect-uri": t.Optional(t.String()),
