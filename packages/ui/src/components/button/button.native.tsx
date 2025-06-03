@@ -1,122 +1,133 @@
-import { twMerge } from "@mona-ca/tailwind-helpers";
-import { type ElementRef, type FC, type ReactElement, type ReactNode, type Ref, forwardRef } from "react";
-import { Pressable, Text } from "react-native";
+import { cn } from "@mona-ca/tailwind-helpers";
+import { type ElementRef, type FC, type ReactNode, type Ref, forwardRef } from "react";
+import { Pressable, type PressableProps, View } from "react-native";
+import type { IconProps } from "../../icons/index.native";
 import { LoadingSpinner } from "../loading-spinner/index.native";
-import type { SupportColor, SupportSize, SupportVariant } from "./type";
-import { filledColorVariants } from "./variants/filled-color.variant";
-import { ghostColorVariants } from "./variants/ghost-color.variant";
-import { lightColorVariants } from "./variants/light-color.variant";
-import { outlineColorVariants } from "./variants/outline-color.variant";
-import { styleVariants } from "./variants/style.native.variant";
+import { Text } from "../text/index.native";
+import { colorVariants, styleVariants } from "./style.native";
 
-type Variants = {
-	size?: SupportSize;
-	variant?: SupportVariant;
-	color: SupportColor;
-	elevated?: boolean;
+type Props = Omit<PressableProps, "children"> & {
+	size?: "sm" | "md";
+	variant?: "outline" | "light" | "filled";
+	color: "red" | "blue" | "green" | "yellow" | "salmon" | "gray";
 	loading?: boolean;
 	disabled?: boolean;
-	fullWidth?: boolean;
-	bold?: boolean;
 	circle?: boolean;
-};
-
-type Props<LP extends {}, RP extends {}> = Variants & {
-	bodyClassName?: string;
 	textClassName?: string;
-	iconClassName?:
-		| string
-		| {
-				left?: string;
-				right?: string;
-		  };
+	icon?: FC<IconProps>;
+	iconPosition?: "left" | "right";
+	iconSize?: number;
 	children: string;
-	rightIcon?: FC<RP & { className?: string }>;
-	leftIcon?: FC<LP & { className?: string }>;
-	rightIconProps?: Omit<RP, "className">;
-	leftIconProps?: Omit<LP, "className">;
 };
 
-const Btn = <LP extends {}, RP extends {}>(
+const Btn = (
 	{
 		size = "md",
 		variant = "outline",
 		color,
-		elevated = false,
 		loading = false,
 		disabled = false,
-		fullWidth = false,
-		bold = false,
 		circle = false,
-		leftIcon,
-		rightIcon,
-		bodyClassName,
+		className,
 		textClassName,
-		iconClassName,
+		icon: IconComp,
+		iconPosition = "left",
+		iconSize,
 		children,
-		rightIconProps,
-		leftIconProps,
 		...props
-	}: Props<LP, RP>,
+	}: Props,
 	ref: Ref<ElementRef<typeof Pressable>>,
 ): ReactNode => {
-	const LeftIcon = leftIcon as unknown as FC<{ className?: string }>;
-	const RightIcon = rightIcon as unknown as FC<{ className?: string }>;
+	const colorVariant = colorVariants[variant];
 
-	const leftIconStyleOverride = typeof iconClassName === "object" ? iconClassName.left : iconClassName;
-
-	const rightIconStyleOverride = typeof iconClassName === "object" ? iconClassName.right : iconClassName;
-
-	const colorVariant =
-		variant === "outline"
-			? outlineColorVariants
-			: variant === "light"
-				? lightColorVariants
-				: variant === "filled"
-					? filledColorVariants
-					: variant === "ghost"
-						? ghostColorVariants
-						: (() => {
-								throw new Error("Invalid variant");
-							})();
-
-	const { body, text, spinner, icon } = styleVariants({
+	const { body, text, icon } = styleVariants({
 		variant,
 		size,
-		loading: !disabled && loading,
+		loading,
 		disabled,
-		fullWidth,
-		bold,
 		circle,
+		rightIcon: IconComp && iconPosition === "right",
+		leftIcon: IconComp && iconPosition === "left",
 	});
 
 	const {
 		body: bodyColor,
 		text: textColor,
-		spinner: spinnerColor,
 		icon: iconColor,
 	} = colorVariant({
 		color,
-		disabled,
+		disabled: disabled || loading,
 	});
 
-	return (
-		<Pressable
-			className={twMerge(body(), bodyColor(), bodyClassName)}
-			disabled={loading || disabled}
-			ref={ref}
-			{...props}
+	const Icon = IconComp ? (
+		<View
+			className={cn(
+				"flex items-center justify-center overflow-hidden",
+				size === "sm" && "size-4",
+				size === "md" && "size-6",
+			)}
 		>
-			{LeftIcon && <LeftIcon className={twMerge(icon(), iconColor(), leftIconStyleOverride)} {...leftIconProps} />}
-			<Text className={twMerge(text(), textColor(), textClassName)}>{children}</Text>
-			{RightIcon && <RightIcon className={twMerge(icon(), iconColor(), rightIconStyleOverride)} {...rightIconProps} />}
-			{!disabled && loading && <LoadingSpinner className={twMerge(spinner(), spinnerColor())} />}
+			<IconComp className={cn(icon(), iconColor())} size={iconSize ?? (size === "sm" ? 20 : 24)} />
+		</View>
+	) : null;
+
+	return (
+		<Pressable className={cn(body(), bodyColor(), className)} disabled={loading || disabled} ref={ref} {...props}>
+			{iconPosition === "left" && Icon}
+			<Text
+				size={size}
+				className={cn(text(), textColor(), textClassName)}
+				weight={size === "sm" ? "regular" : "medium"}
+				truncated
+			>
+				{children}
+			</Text>
+			{iconPosition === "right" && Icon}
+			{loading && (
+				<View className="absolute">
+					<LoadingSpinner size={size === "sm" ? 20 : 24} color="gray" />
+				</View>
+			)}
 		</Pressable>
 	);
 };
 
-const Button = forwardRef(Btn) as <LP extends {}, RP extends {}>(
-	props: Props<LP, RP> & { ref?: Ref<ElementRef<typeof Pressable>> },
-) => ReactElement | null;
+/**
+ * The `Button` component is a versatile and customizable button element designed for use in React Native applications.
+ * It can display text, icons, and loading indicators, and supports various configurations such as size, color, and icon position.
+ * The button can also be disabled or set to a loading state, providing visual feedback to users.
+ *
+ * @param {"sm" | "md"} [props.size] - Determines the size of the button, affecting the text and icon dimensions.
+ *
+ * @param {"outline" | "light" | "filled"} [props.variant] - Specifies the variant of the button, affecting its appearance and behavior.
+ * - `filled` - A primary button with a background color.
+ * - `outline` - A secondary button with a border and a background color.
+ * - `light` - A tertiary button with a background color and no border.
+ *
+ * @param {"red" | "blue" | "green" | "yellow" | "salmon" | "gray"} [props.color] - Specifies the color variant of the button, affecting its background and text color.
+ *
+ * @param {boolean} [props.loading] - Indicates whether the button is in a loading state, displaying a spinner if true.
+ *
+ * @param {boolean} [props.disabled] - Disables the button, preventing user interaction and applying a disabled style.
+ *
+ * @param {boolean} [props.circle] - If true, renders the button with a circular shape.
+ *
+ * @param {string} [props.textClassName] - Additional class names for custom styling of the button text.
+ *
+ * @param {FC<IconProps>} [props.icon] - An optional icon component to display on the button.
+ *
+ * @param {"left" | "right"} [props.iconPosition] - Determines the position of the icon, either "left" or "right".
+ *
+ * @param {number} [props.iconSize] - Specifies the size of the icon.
+ *
+ * @param {ReactNode} [props.children] - Specifies the content of the button.
+ *
+ * @param {string} [props.className] - Additional class names for custom styling of the button.
+ *
+ * @returns {JSX.Element} A button element with customizable features, suitable for various user interactions.
+ */
+const Button = forwardRef<ElementRef<typeof Pressable>, Props>(Btn);
+
+Button.displayName = "Button";
 
 export { Button };
