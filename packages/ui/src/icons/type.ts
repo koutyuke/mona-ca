@@ -1,7 +1,5 @@
-export type IconProps<S = never> = {
+import type { LucideProps } from "lucide-react-native";
+
+export type IconProps = Pick<LucideProps, "size" | "color" | "strokeWidth"> & {
 	className?: string;
-	size?: number;
-	color?: string;
-	strokeWidth?: number;
-	state?: S;
 };
