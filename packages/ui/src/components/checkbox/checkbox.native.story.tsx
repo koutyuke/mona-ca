@@ -3,19 +3,8 @@ import { View } from "react-native";
 import { CheckBox } from "./checkbox.native";
 
 const meta: Meta<typeof CheckBox> = {
+	title: "components/CheckBox",
 	component: CheckBox,
-};
-
-export default meta;
-
-type Story = StoryObj<typeof CheckBox>;
-
-const Template: Story = {
-	render: args => (
-		<View className="w-full px-2">
-			<CheckBox {...args} />
-		</View>
-	),
 	argTypes: {
 		size: {
 			options: ["sm", "md"],
@@ -33,24 +22,23 @@ const Template: Story = {
 				type: "boolean",
 			},
 		},
-		label: {
-			control: {
-				type: "text",
-			},
-		},
-		labelPosition: {
-			options: ["left", "right"],
-			control: {
-				type: "radio",
-			},
-		},
 	},
 };
 
+export default meta;
+
+type Story = StoryObj<typeof CheckBox>;
+
 export const Default: Story = {
 	args: {
-		label: "Label",
-		labelColorClassName: "text-slate-12",
+		size: "md",
 	},
-	...Template,
+	render: args => (
+		<View className="flex h-full w-full items-center justify-center gap-2">
+			<CheckBox {...args} />
+			<CheckBox {...args} checked={true} />
+			<CheckBox {...args} disabled />
+			<CheckBox {...args} disabled checked />
+		</View>
+	),
 };
