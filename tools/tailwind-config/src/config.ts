@@ -22,7 +22,9 @@ const baseConfig = {
 		},
 		extend: {
 			fontFamily: {
-				sans: ["Inter", "sans-serif"],
+				"kiwi-maru-light": ["KiwiMaru_300Light", "sans-serif"],
+				"kiwi-maru-regular": ["KiwiMaru_400Regular", "sans-serif"],
+				"kiwi-maru-medium": ["KiwiMaru_500Medium", "sans-serif"],
 			},
 		},
 	},
