@@ -43,7 +43,6 @@
     "workerd"
   ],
   "overrides": {
-    "nativewind": "^4.1.16",
     "@scalar/types": "0.1.5"
   },
   "patchedDependencies": {
