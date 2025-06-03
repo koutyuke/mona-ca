@@ -1,33 +1,28 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { View } from "react-native";
 import { LoadingSpinner } from "./loading-spinner.native";
 
 const meta: Meta<typeof LoadingSpinner> = {
+	title: "components/LoadingSpinner",
 	component: LoadingSpinner,
+	argTypes: {
+		size: {
+			control: "number",
+		},
+	},
 };
 
 export default meta;
 
 type Story = StoryObj<typeof LoadingSpinner>;
 
-const Template: Story = {
-	render: args => <LoadingSpinner {...args} />,
-	argTypes: {
-		className: {
-			control: "text",
-		},
-	},
-};
-
-export const Black: Story = {
+export const Default: Story = {
 	args: {
-		className: "fill-black size-8",
+		size: 32,
 	},
-	...Template,
-};
-
-export const White: Story = {
-	args: {
-		className: "fill-white size-8",
-	},
-	...Template,
+	render: args => (
+		<View className="flex h-full w-full flex-col items-center justify-center">
+			<LoadingSpinner {...args} />
+		</View>
+	),
 };
