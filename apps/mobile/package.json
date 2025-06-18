@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.26.7",
+    "@babel/plugin-transform-class-static-block": "^7.27.1",
     "@mona-ca/tailwind-config": "workspace:*",
     "@mona-ca/tsconfig": "workspace:*",
     "@types/react": "~18.3.12",
