@@ -3,6 +3,8 @@ export {
 	ArrowLeftIcon,
 	ArrowRightIcon,
 	ArrowUpIcon,
+	CalendarHeartIcon,
+	CalendarXIcon,
 	CheckIcon,
 	ChevronDownIcon,
 	ChevronLeftIcon,

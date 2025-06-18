@@ -6,6 +6,8 @@ import {
 	ArrowLeftIcon,
 	ArrowRightIcon,
 	ArrowUpIcon,
+	CalendarHeartIcon,
+	CalendarXIcon,
 	CheckIcon,
 	ChevronDownIcon,
 	ChevronLeftIcon,
@@ -124,5 +126,16 @@ export const Pen: Story = {
 export const User: Story = {
 	render: args => {
 		return <UserIcon {...args} />;
+	},
+};
+
+export const Calendar: Story = {
+	render: args => {
+		return (
+			<View className="flex flex-col gap-2">
+				<CalendarHeartIcon {...args} />
+				<CalendarXIcon {...args} />
+			</View>
+		);
 	},
 };

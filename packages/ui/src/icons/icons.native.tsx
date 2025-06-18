@@ -3,6 +3,8 @@ import {
 	ArrowLeft,
 	ArrowRight,
 	ArrowUp,
+	CalendarHeart,
+	CalendarX2,
 	Check,
 	ChevronDown,
 	ChevronLeft,
@@ -198,4 +200,25 @@ cssInterop(UserRound, {
 
 export const UserIcon: FC<IconProps> = ({ size, ...otherProps }) => {
 	return <UserRound size={size ?? 0} {...otherProps} />;
+};
+
+// == Calender ===
+cssInterop(CalendarHeart, {
+	className: {
+		target: "style",
+	},
+});
+
+cssInterop(CalendarX2, {
+	className: {
+		target: "style",
+	},
+});
+
+export const CalendarHeartIcon: FC<IconProps> = ({ size, ...otherProps }) => {
+	return <CalendarHeart size={size ?? 0} {...otherProps} />;
+};
+
+export const CalendarXIcon: FC<IconProps> = ({ size, ...otherProps }) => {
+	return <CalendarX2 size={size ?? 0} {...otherProps} />;
 };
