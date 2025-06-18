@@ -79,8 +79,8 @@ export const filledColorVariants = tv({
 		},
 		disabled: {
 			true: {
-				body: "bg-slate-9 hover:bg-slate-9 active:bg-slate-9 active:brightness-100",
-				icon: "text-slate-2",
+				body: "bg-slate-4 active:bg-slate-4",
+				icon: "text-slate-8",
 			},
 		},
 	},
@@ -120,8 +120,8 @@ export const outlineColorVariants = tv({
 		},
 		disabled: {
 			true: {
-				body: "border-slate-7 bg-slate-3 active:border-slate-7 active:bg-slate-3",
-				icon: "text-slate-11",
+				body: "border-slate-6 bg-slate-3 active:border-slate-6 active:bg-slate-3",
+				icon: "text-slate-8",
 			},
 		},
 	},
@@ -162,7 +162,7 @@ export const lightColorVariants = tv({
 		disabled: {
 			true: {
 				body: "bg-slate-4 active:bg-slate-4",
-				icon: "text-slate-11",
+				icon: "text-slate-8",
 			},
 		},
 	},
