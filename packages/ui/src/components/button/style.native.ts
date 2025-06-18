@@ -33,9 +33,7 @@ export const styleVariants = tv({
 			},
 		},
 		disabled: {
-			true: {
-				body: "opacity-75",
-			},
+			true: null,
 		},
 		circle: {
 			true: {
@@ -50,6 +48,55 @@ export const styleVariants = tv({
 		leftIcon: {
 			true: {
 				body: "pl-3",
+			},
+		},
+	},
+});
+
+export const filledColorVariants = tv({
+	slots: {
+		body: "",
+		text: "",
+		icon: "",
+	},
+	variants: {
+		color: {
+			red: {
+				body: "bg-red-9 active:bg-red-10",
+				text: "text-white",
+				icon: "color-white",
+			},
+			blue: {
+				body: "bg-blue-9 active:bg-blue-10",
+				text: "text-white",
+				icon: "color-white",
+			},
+			green: {
+				body: "bg-green-9 active:bg-green-10",
+				text: "text-white",
+				icon: "color-white",
+			},
+			yellow: {
+				body: "bg-yellow-9 active:bg-yellow-10",
+				text: "text-black",
+				icon: "color-black",
+			},
+			salmon: {
+				body: "bg-salmon-9 active:bg-salmon-10",
+				text: "text-white",
+				icon: "color-white",
+			},
+			gray: {
+				body: "bg-slate-9 active:bg-slate-10",
+				text: "text-white",
+				icon: "color-white",
+			},
+		},
+		disabled: {
+			true: {
+				body: "bg-slate-4 active:bg-slate-4",
+				text: "text-slate-8",
+				icon: "color-slate-8",
 			},
 		},
 	},
@@ -96,9 +143,9 @@ export const outlineColorVariants = tv({
 		},
 		disabled: {
 			true: {
-				body: "border-slate-7 bg-slate-3 active:border-slate-7 active:bg-slate-3",
-				text: "text-slate-11",
-				icon: "color-slate-11",
+				body: "border-slate-6 bg-slate-3 active:border-slate-6 active:bg-slate-3",
+				text: "text-slate-8",
+				icon: "color-slate-8",
 			},
 		},
 	},
@@ -146,57 +193,8 @@ export const lightColorVariants = tv({
 		disabled: {
 			true: {
 				body: "bg-slate-4 active:bg-slate-4",
-				text: "text-slate-11",
-				icon: "color-slate-11",
-			},
-		},
-	},
-});
-
-export const filledColorVariants = tv({
-	slots: {
-		body: "",
-		text: "",
-		icon: "",
-	},
-	variants: {
-		color: {
-			red: {
-				body: "bg-red-9 active:bg-red-10",
-				text: "text-white",
-				icon: "color-white",
-			},
-			blue: {
-				body: "bg-blue-9 active:bg-blue-10",
-				text: "text-white",
-				icon: "color-white",
-			},
-			green: {
-				body: "bg-green-9 active:bg-green-10",
-				text: "text-white",
-				icon: "color-white",
-			},
-			yellow: {
-				body: "bg-yellow-9 active:bg-yellow-10",
-				text: "text-black",
-				icon: "color-black",
-			},
-			salmon: {
-				body: "bg-salmon-9 active:bg-salmon-10",
-				text: "text-white",
-				icon: "color-white",
-			},
-			gray: {
-				body: "bg-slate-9 active:bg-slate-10",
-				text: "text-white",
-				icon: "color-white",
-			},
-		},
-		disabled: {
-			true: {
-				body: "bg-slate-9 hover:bg-slate-9 active:bg-slate-9 active:brightness-100",
-				text: "text-slate-2",
-				icon: "color-slate-2",
+				text: "text-slate-8",
+				icon: "color-slate-8",
 			},
 		},
 	},

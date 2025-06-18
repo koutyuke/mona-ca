@@ -178,3 +178,26 @@ export const Loading: Story = {
 		</ScrollView>
 	),
 };
+
+export const VariantsAndDisabled: Story = {
+	render: () => (
+		<View className="flex flex-row gap-2 p-2">
+			{["filled", "light", "outline"].map(variant => (
+				<View className="flex flex-col gap-4" key={variant}>
+					<Button size="md" variant={variant as "filled"} color="red">
+						Button
+					</Button>
+					<Button size="md" variant={variant as "filled"} color="gray">
+						Button
+					</Button>
+					<Button size="md" variant={variant as "filled"} color="red" disabled>
+						Button
+					</Button>
+					<Button size="md" variant={variant as "filled"} color="red" loading>
+						Button
+					</Button>
+				</View>
+			))}
+		</View>
+	),
+};
