@@ -56,7 +56,7 @@ const _LoadingSpinner: FC<LoadingSpinnerProps> = ({ size = 24, color = "gray" })
 		<Svg
 			viewBox="0 0 120 120"
 			className={cn(
-				color === "gray" && "fill-slate-12",
+				color === "gray" && "fill-slate-11",
 				color === "white" && "fill-white",
 				color === "black" && "fill-black",
 			)}
