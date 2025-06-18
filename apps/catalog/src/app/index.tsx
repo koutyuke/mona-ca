@@ -17,14 +17,15 @@ const Home: FC = () => {
 	if (isStoryBookEnabled) {
 		return <StoryBookRoot />;
 	}
+
 	return (
 		<View
 			style={{
 				height: "100%",
+				width: "100%",
 				justifyContent: "center",
 				alignItems: "center",
 				display: "flex",
-				width: "100%",
 			}}
 		>
 			<Text>Home</Text>
