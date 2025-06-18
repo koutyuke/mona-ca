@@ -2,10 +2,7 @@ import Icon from "@mona-ca/core/assets/social/google/icon.svg";
 import { twMerge } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
 import type { FC } from "react";
-
-type Props = {
-	className?: string;
-};
+import type { IconProps } from "../../icons/type";
 
 cssInterop(Icon, {
 	className: {
@@ -13,8 +10,8 @@ cssInterop(Icon, {
 	},
 });
 
-const GoogleIcon: FC<Props> = ({ className }) => {
-	return <Icon className={twMerge("aspect-square", className)} />;
+const GoogleIcon: FC<IconProps> = ({ className, ...props }) => {
+	return <Icon className={twMerge("aspect-square", className)} {...props} />;
 };
 
 export { GoogleIcon };
