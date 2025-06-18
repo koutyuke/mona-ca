@@ -7,7 +7,7 @@ const useLayoutInsets = () => {
 	return {
 		top,
 		topWithHeader: top + 56,
-		bottom,
+		bottom: bottom < 16 ? 16 : bottom,
 		left: left < 16 ? 16 : left,
 		right: right < 16 ? 16 : right,
 	};
