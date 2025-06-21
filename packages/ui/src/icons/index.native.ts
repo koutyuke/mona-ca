@@ -1,22 +1,2 @@
-export {
-	ArrowDownIcon,
-	ArrowLeftIcon,
-	ArrowRightIcon,
-	ArrowUpIcon,
-	CalendarHeartIcon,
-	CalendarXIcon,
-	CheckIcon,
-	ChevronDownIcon,
-	ChevronLeftIcon,
-	ChevronRightIcon,
-	ChevronUpIcon,
-	CodeIcon,
-	EmailIcon,
-	EyeCloseIcon,
-	EyeIcon,
-	PasswordIcon,
-	PenIcon,
-	PenOffIcon,
-	UserIcon,
-} from "./icons.native";
+export * from "./icons.native";
 export type { IconProps } from "./type";

@@ -1,10 +1,10 @@
 import { tv } from "@mona-ca/tailwind-helpers";
+import { LoadingSpinner } from "@mona-ca/ui/native/components";
+import { EmailIcon } from "@mona-ca/ui/native/icons";
 import { type ComponentPropsWithoutRef, type ElementRef, type Ref, forwardRef } from "react";
 import { Pressable, Text, View } from "react-native";
-import { LoadingSpinner } from "../../components/index.native";
-import { GoogleIcon } from "./icon.native";
 
-type GoogleButtonProps = {
+type Props = {
 	fullWidth?: boolean;
 	loading?: boolean;
 	disabled?: boolean;
@@ -12,9 +12,9 @@ type GoogleButtonProps = {
 
 const styleVariants = tv({
 	slots: {
-		body: "flex h-[3.125rem] flex-row items-center justify-center gap-2.5 self-start rounded-xl border-[1.5px] border-slate-7 bg-google px-3 transition active:border-slate-8 active:bg-[#E8E8EC]",
-		text: "text-center font-bold text-[#1F1F1F] text-[18px] leading-[25px]",
-		icon: "size-6 self-auto",
+		body: "flex h-[3.125rem] flex-row items-center justify-center gap-2.5 self-start rounded-xl border border-slate-7 bg-slate-1 px-3 transition active:border-slate-8 active:bg-slate-3/50",
+		text: "text-center font-bold text-[18px] text-slate-12 leading-[25px]",
+		icon: "size-6 self-auto text-slate-9",
 	},
 	variants: {
 		fullWidth: {
@@ -30,7 +30,6 @@ const styleVariants = tv({
 		},
 		loading: {
 			true: {
-				body: "bg-google",
 				text: "opacity-0",
 				icon: "opacity-0",
 			},
@@ -38,15 +37,15 @@ const styleVariants = tv({
 	},
 });
 
-const ContinueWithGoogleBtn = (
-	{ fullWidth = false, loading = false, disabled = false, ...props }: GoogleButtonProps,
+const ContinueWithEmailBtn = (
+	{ fullWidth = false, loading = false, disabled = false, ...props }: Props,
 	ref: Ref<ElementRef<typeof Pressable>>,
 ) => {
 	const { body, text, icon } = styleVariants({ fullWidth, disabled, loading });
 	return (
 		<Pressable ref={ref} className={body()} disabled={loading || disabled} {...props}>
-			<GoogleIcon className={icon()} />
-			<Text className={text()}>Googleで続ける</Text>
+			<EmailIcon className={icon()} />
+			<Text className={text()}>メールアドレスで続ける</Text>
 			{loading && (
 				<View className="absolute">
 					<LoadingSpinner size={24} color="black" />
@@ -56,6 +55,6 @@ const ContinueWithGoogleBtn = (
 	);
 };
 
-const ContinueWithGoogleButton = forwardRef<ElementRef<typeof Pressable>, GoogleButtonProps>(ContinueWithGoogleBtn);
+const ContinueWithEmailButton = forwardRef<ElementRef<typeof Pressable>, Props>(ContinueWithEmailBtn);
 
-export { ContinueWithGoogleButton };
+export { ContinueWithEmailButton };

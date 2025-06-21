@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { View } from "react-native";
-import { ContinueWithGoogleButton } from "./continue-button.native";
+import { ContinueWithEmailButton } from "./email";
 
-const meta: Meta<typeof ContinueWithGoogleButton> = {
-	title: "social/Google/ContinueWithGoogleButton",
-	component: ContinueWithGoogleButton,
+const meta: Meta<typeof ContinueWithEmailButton> = {
+	title: "Shared/ContinueWithMethodButton/Email",
+	component: ContinueWithEmailButton,
 	argTypes: {
 		fullWidth: {
 			control: {
@@ -26,7 +26,7 @@ const meta: Meta<typeof ContinueWithGoogleButton> = {
 
 export default meta;
 
-type Story = StoryObj<typeof ContinueWithGoogleButton>;
+export type Story = StoryObj<typeof ContinueWithEmailButton>;
 
 export const Default: Story = {
 	args: {
@@ -34,9 +34,9 @@ export const Default: Story = {
 	},
 	render: args => (
 		<View className="flex flex-col gap-2 px-4">
-			<ContinueWithGoogleButton {...args} />
-			<ContinueWithGoogleButton {...args} disabled />
-			<ContinueWithGoogleButton {...args} loading />
+			<ContinueWithEmailButton {...args} />
+			<ContinueWithEmailButton {...args} disabled />
+			<ContinueWithEmailButton {...args} loading />
 		</View>
 	),
 };

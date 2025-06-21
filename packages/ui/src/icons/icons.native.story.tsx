@@ -6,6 +6,7 @@ import {
 	ArrowLeftIcon,
 	ArrowRightIcon,
 	ArrowUpIcon,
+	BlueVioletDiscordIcon,
 	CalendarHeartIcon,
 	CalendarXIcon,
 	CheckIcon,
@@ -17,15 +18,17 @@ import {
 	EmailIcon,
 	EyeCloseIcon,
 	EyeIcon,
+	GoogleIcon,
 	PasswordIcon,
 	PenIcon,
 	PenOffIcon,
 	UserIcon,
+	WhiteDiscordIcon,
 } from "./icons.native";
 import type { IconProps } from "./type";
 
 const meta: Meta = {
-	title: "icons/Icons",
+	title: "Icons/Icons",
 	args: {
 		size: 48,
 		strokeWidth: 2,
@@ -137,5 +140,28 @@ export const Calendar: Story = {
 				<CalendarXIcon {...args} />
 			</View>
 		);
+	},
+};
+
+export const Discord: Story = {
+	args: {
+		className: "size-16",
+	},
+	render: args => {
+		return (
+			<View className="flex flex-col gap-2">
+				<BlueVioletDiscordIcon {...args} />
+				<WhiteDiscordIcon {...args} />
+			</View>
+		);
+	},
+};
+
+export const Google: Story = {
+	args: {
+		className: "size-16",
+	},
+	render: args => {
+		return <GoogleIcon {...args} />;
 	},
 };

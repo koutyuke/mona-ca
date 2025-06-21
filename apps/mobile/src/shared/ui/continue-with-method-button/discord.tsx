@@ -1,8 +1,8 @@
 import { tv } from "@mona-ca/tailwind-helpers";
+import { LoadingSpinner } from "@mona-ca/ui/native/components";
+import { WhiteDiscordIcon } from "@mona-ca/ui/native/icons";
 import { type ComponentPropsWithoutRef, type ElementRef, type Ref, forwardRef } from "react";
 import { Pressable, Text, View } from "react-native";
-import { LoadingSpinner } from "../../components/index.native";
-import { WhiteDiscordIcon } from "./icon.native";
 
 type DiscordButtonProps = {
 	fullWidth?: boolean;

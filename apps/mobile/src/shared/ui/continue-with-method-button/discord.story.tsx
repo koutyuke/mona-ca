@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { View } from "react-native";
-import { ContinueWithDiscordButton } from "./continue-button.native";
+import { ContinueWithDiscordButton } from "./discord";
 
 const meta: Meta<typeof ContinueWithDiscordButton> = {
-	title: "social/Discord/ContinueWithDiscordButton",
+	title: "Shared/ContinueWithMethodButton/Discord",
 	component: ContinueWithDiscordButton,
 	argTypes: {
 		fullWidth: {
