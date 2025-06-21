@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { CheckBox } from "./checkbox.native";
 
 const meta: Meta<typeof CheckBox> = {
-	title: "components/CheckBox",
+	title: "Components/CheckBox",
 	component: CheckBox,
 	argTypes: {
 		size: {

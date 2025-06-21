@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Switch } from "./switch.native";
 
 const meta: Meta<typeof Switch> = {
-	title: "components/Switch",
+	title: "Components/Switch",
 	component: Switch,
 };
 

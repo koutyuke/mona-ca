@@ -5,7 +5,7 @@ import { ChevronLeftIcon } from "../../icons/index.native";
 import { Button } from "./button.native";
 
 const meta: Meta<typeof Button> = {
-	title: "components/Button",
+	title: "Components/Button",
 	component: Button,
 	argTypes: {
 		color: {

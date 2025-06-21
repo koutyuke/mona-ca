@@ -112,7 +112,7 @@ const TextInput = ({
 					onFocus={() => setFocused(true)}
 					onBlur={() => setFocused(false)}
 					secureTextEntry={credentials && isShowSecureText}
-					placeholderClassName="text-slate-8"
+					placeholderClassName="text-slate-9"
 					editable={!disabled}
 					{...props}
 				/>

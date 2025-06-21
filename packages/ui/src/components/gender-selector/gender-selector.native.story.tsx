@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { GenderSelector } from "./gender-selector.native";
 
 const meta: Meta<typeof GenderSelector> = {
-	title: "components/GenderSelector",
+	title: "Components/GenderSelector",
 	component: GenderSelector,
 	argTypes: {
 		value: {

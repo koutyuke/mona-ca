@@ -4,7 +4,7 @@ import { EmailIcon } from "../../icons/index.native";
 import { IconButton } from "./icon-button.native";
 
 const meta: Meta<typeof IconButton> = {
-	title: "components/IconButton",
+	title: "Components/IconButton",
 	component: IconButton,
 	argTypes: {
 		color: {

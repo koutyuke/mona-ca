@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Text } from "./text.native";
 
 const meta: Meta<typeof Text> = {
-	title: "components/Text",
+	title: "Components/Text",
 	component: Text,
 	argTypes: {
 		size: {
@@ -110,7 +110,7 @@ export const Multiline: Story = {
 			</Text>
 			<Text {...args}>
 				Our platform provides a seamless and intuitive experience for managing your daily tasks and schedules. With
-				real-time syncing and customizable views, you can stay organized whether you’re working from home or on the go.
+				real-time syncing and customizable views, you can stay organized whether you're working from home or on the go.
 				Designed for all users in mind, it adapts to your workflow and supports your productivity every step of the way.
 			</Text>
 		</View>

@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { LoadingSpinner } from "./loading-spinner.native";
 
 const meta: Meta<typeof LoadingSpinner> = {
-	title: "components/LoadingSpinner",
+	title: "Components/LoadingSpinner",
 	component: LoadingSpinner,
 	argTypes: {
 		size: {

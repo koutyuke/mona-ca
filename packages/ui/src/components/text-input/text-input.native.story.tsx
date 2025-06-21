@@ -4,7 +4,7 @@ import { EmailIcon } from "../../icons/index.native";
 import { TextInput } from "./text-input.native";
 
 const meta: Meta<typeof TextInput> = {
-	title: "components/TextInput",
+	title: "Components/TextInput",
 	component: TextInput,
 	argTypes: {
 		size: {

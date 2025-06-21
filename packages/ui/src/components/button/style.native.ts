@@ -160,32 +160,32 @@ export const lightColorVariants = tv({
 	variants: {
 		color: {
 			red: {
-				body: "bg-red-4 active:bg-red-5",
+				body: "bg-red-3 active:bg-red-4",
 				text: "text-red-11",
 				icon: "color-red-11",
 			},
 			blue: {
-				body: "bg-blue-4 active:bg-blue-5",
+				body: "bg-blue-3 active:bg-blue-4",
 				text: "text-blue-11",
 				icon: "color-blue-11",
 			},
 			green: {
-				body: "bg-green-4 active:bg-green-5",
+				body: "bg-green-3 active:bg-green-4",
 				text: "text-green-11",
 				icon: "color-green-11",
 			},
 			yellow: {
-				body: "bg-yellow-4 active:bg-yellow-5",
+				body: "bg-yellow-3 active:bg-yellow-4",
 				text: "text-yellow-11",
 				icon: "color-yellow-11",
 			},
 			salmon: {
-				body: "bg-salmon-4 active:bg-salmon-5",
+				body: "bg-salmon-3 active:bg-salmon-4",
 				text: "text-salmon-11",
 				icon: "color-salmon-11",
 			},
 			gray: {
-				body: "bg-slate-4 active:bg-slate-5",
+				body: "bg-slate-3 active:bg-slate-4",
 				text: "text-slate-11",
 				icon: "color-slate-11",
 			},

@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Radio } from "./radio.native";
 
 const meta: Meta<typeof Radio> = {
-	title: "components/Radio",
+	title: "Components/Radio",
 	component: Radio,
 };
 
