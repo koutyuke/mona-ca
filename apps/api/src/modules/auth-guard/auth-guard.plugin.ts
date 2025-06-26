@@ -113,6 +113,7 @@ export const AuthGuardSchema = {
 	headers: t.Object(
 		{
 			[CLIENT_TYPE_HEADER_NAME]: clientTypeSchema,
+			authorization: t.Optional(t.String()),
 		},
 		{
 			additionalProperties: true,
