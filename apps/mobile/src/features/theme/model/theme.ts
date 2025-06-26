@@ -8,8 +8,8 @@ export type Theme = "light" | "dark" | "system";
 export const themeAtom = atomWithStorage<Theme>(storageKeys.theme, "light", storeStorage);
 
 export const useTheme = () => {
-	const systemSTheme = useColorScheme();
-	const [theme, setScheme] = useAtom(themeAtom);
+	const systemTheme = useColorScheme();
+	const [theme, setTheme] = useAtom(themeAtom);
 
-	return { theme, systemTheme: systemSTheme ?? "light", setScheme } as const;
+	return { theme, systemTheme: systemTheme ?? "light", setTheme } as const;
 };
