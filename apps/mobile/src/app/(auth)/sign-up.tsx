@@ -8,7 +8,7 @@ import { ContinueWithDiscordButton, ContinueWithEmailButton, ContinueWithGoogleB
 
 const SignUpPage = () => {
 	const { top, left, right, bottom } = useLayoutInsets();
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [errorMessage, _setErrorMessage] = useState<string | null>(null);
 	return (
 		<ScrollView className="bg-slate-1" alwaysBounceVertical={false} showsVerticalScrollIndicator={false}>
 			<View
