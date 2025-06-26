@@ -1,6 +1,6 @@
 import { cn, tv } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
-import { type FC, useRef, useState } from "react";
+import { type FC, type Ref, forwardRef, useImperativeHandle, useRef, useState } from "react";
 import {
 	Pressable,
 	TextInput as RNTextInput,
@@ -68,19 +68,15 @@ type Props = Omit<RNTextInputProps, "placeholder" | "readOnly" | "className"> & 
 	iconSize?: number;
 };
 
-const TextInput = ({
-	icon: Icon,
-	placeholder,
-	credentials,
-	size = "md",
-	disabled,
-	error,
-	iconSize,
-	...props
-}: Props): JSX.Element => {
+const TxtIpt = (
+	{ icon: Icon, placeholder, credentials, size = "md", disabled, error, iconSize, ...props }: Props,
+	ref: Ref<RNTextInput>,
+): JSX.Element => {
 	const inputRef = useRef<RNTextInput>(null);
 	const [isFocus, setFocused] = useState(false);
 	const [isShowSecureText, setShowSecureText] = useState(true);
+
+	const resolvedIconSize = iconSize !== undefined ? iconSize : size === "sm" ? 20 : 24;
 
 	const {
 		inputWrapper: inputWrapperStyle,
@@ -88,17 +84,17 @@ const TextInput = ({
 		iconWrapper: iconWrapperStyle,
 	} = variants({ size, focused: isFocus, disabled, error });
 
-	const handleFocus = () => {
-		inputRef.current?.focus();
-		setFocused(true);
-	};
-
-	const handleShowSecureText = () => {
-		setShowSecureText(!isShowSecureText);
-	};
+	useImperativeHandle(ref, () => inputRef.current!, []);
 
 	return (
-		<TouchableWithoutFeedback onPress={handleFocus} disabled={disabled}>
+		<TouchableWithoutFeedback
+			onPress={() => inputRef.current?.focus()}
+			disabled={disabled}
+			onBlur={() => {
+				setFocused(false);
+				inputRef.current?.blur();
+			}}
+		>
 			<View className={inputWrapperStyle()}>
 				{Icon && (
 					<View className={iconWrapperStyle()}>
@@ -117,17 +113,16 @@ const TextInput = ({
 					{...props}
 				/>
 				{credentials && (
-					<Pressable onPress={handleShowSecureText} className={iconWrapperStyle({ class: "h-full" })}>
+					<Pressable
+						onPress={() => {
+							setShowSecureText(!isShowSecureText);
+						}}
+						className={iconWrapperStyle({ class: "h-full" })}
+					>
 						{isShowSecureText ? (
-							<EyeCloseIcon
-								className={cn("text-slate-9", error && "text-red-9")}
-								size={(iconSize ?? size === "sm") ? 20 : 24}
-							/>
+							<EyeCloseIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />
 						) : (
-							<EyeIcon
-								className={cn("text-slate-9", error && "text-red-9")}
-								size={(iconSize ?? size === "sm") ? 20 : 24}
-							/>
+							<EyeIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />
 						)}
 					</Pressable>
 				)}
@@ -135,5 +130,7 @@ const TextInput = ({
 		</TouchableWithoutFeedback>
 	);
 };
+
+const TextInput = forwardRef<RNTextInput, Props>(TxtIpt);
 
 export { TextInput };
