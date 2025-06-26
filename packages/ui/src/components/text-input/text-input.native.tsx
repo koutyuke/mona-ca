@@ -1,6 +1,6 @@
 import { cn, tv } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
-import { type FC, type Ref, forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { type FC, type ReactNode, type Ref, forwardRef, useImperativeHandle, useRef, useState } from "react";
 import {
 	Pressable,
 	TextInput as RNTextInput,
@@ -71,7 +71,7 @@ type Props = Omit<RNTextInputProps, "placeholder" | "readOnly" | "className"> & 
 const TxtIpt = (
 	{ icon: Icon, placeholder, credentials, size = "md", disabled, error, iconSize, ...props }: Props,
 	ref: Ref<RNTextInput>,
-): JSX.Element => {
+): ReactNode => {
 	const inputRef = useRef<RNTextInput>(null);
 	const [isFocus, setFocused] = useState(false);
 	const [isShowSecureText, setShowSecureText] = useState(true);

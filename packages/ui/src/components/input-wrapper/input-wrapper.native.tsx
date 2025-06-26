@@ -40,7 +40,7 @@ const InputWrapper = ({
 	required = false,
 	disabled = false,
 	className,
-}: Props): JSX.Element => {
+}: Props): ReactNode => {
 	const {
 		wrapper: wrapperStyle,
 		labelContainer: labelContainerStyle,

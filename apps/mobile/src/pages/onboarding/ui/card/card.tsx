@@ -1,5 +1,6 @@
 import { cn } from "@mona-ca/tailwind-helpers";
 import { Text } from "@mona-ca/ui/native/components";
+import type { ReactNode } from "react";
 import { View } from "react-native";
 import { CardIcon } from "../card-icon/card-icon";
 
@@ -23,7 +24,7 @@ const textVariants = {
 	},
 };
 
-const OnboardingCard = ({ variant, className }: Props): JSX.Element => {
+const OnboardingCard = ({ variant, className }: Props): ReactNode => {
 	return (
 		<View
 			className={cn("flex aspect-[3_/_4] flex-col gap-3 rounded-2xl border border-slate-7 bg-slate-2 p-6", className)}

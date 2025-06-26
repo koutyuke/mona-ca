@@ -4,7 +4,7 @@ import { Button, InputWrapper, Text, TextInput } from "@mona-ca/ui/native/compon
 import { EmailIcon, PasswordIcon } from "@mona-ca/ui/native/icons";
 import { Link } from "expo-router";
 import { useAtom } from "jotai";
-import { useRef, useState } from "react";
+import { type JSX, useRef, useState } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { Pressable, View } from "react-native";
 import { ReactNativeModal as Modal } from "react-native-modal";

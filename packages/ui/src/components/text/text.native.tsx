@@ -32,7 +32,7 @@ const variants = tv({
 const Txt = (
 	{ size = "md", weight = "regular", children, truncated = false, className, ...props }: Props,
 	ref: Ref<RNText>,
-): JSX.Element => {
+): ReactNode => {
 	const style = variants({
 		size,
 		weight,
