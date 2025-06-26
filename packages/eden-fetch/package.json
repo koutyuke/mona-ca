@@ -1,5 +1,5 @@
 {
-  "name": "@mona-ca/eden-fetcher",
+  "name": "@mona-ca/eden-fetch",
   "version": "1.0.0",
   "private": true,
   "main": "./src/index.ts",
