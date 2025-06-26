@@ -1,39 +1,26 @@
 import { StatusBar } from "expo-status-bar";
 import type { FC, ReactNode } from "react";
 import { View } from "react-native";
-import { useTheme } from "../models/theme";
+import { useTheme } from "../model/theme";
 
 type ThemeProviderProps = {
 	children: ReactNode;
-};
-
-const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
-	const [colorTheme] = useTheme();
-	return (
-		<View className={`${colorTheme !== "dark" ? "light" : "dark"} h-full w-full`}>
-			{children}
-			<StatusBar style={colorTheme === "dark" ? "light" : "dark"} />
-		</View>
-	);
-};
-
-type CustomThemeProviderProps = {
-	children: ReactNode;
-	styleTheme?: "light" | "dark";
+	theme?: "light" | "dark" | "system";
 	statusBarStyle?: "light" | "dark";
 };
 
-const CustomThemeProvider: FC<CustomThemeProviderProps> = ({
-	children,
-	styleTheme = "light",
-	statusBarStyle = "light",
-}) => {
+const ThemeProvider: FC<ThemeProviderProps> = ({ children, theme: customTheme, statusBarStyle }) => {
+	const { theme: _theme, systemTheme } = useTheme();
+
+	const theme = customTheme ?? _theme;
+	const lightOrDark = theme === "system" ? systemTheme : theme;
+
 	return (
-		<View className={`${styleTheme} h-full w-full`}>
+		<View className={`${lightOrDark} h-full w-full`}>
 			{children}
-			<StatusBar style={statusBarStyle} />
+			<StatusBar style={(statusBarStyle ?? lightOrDark) === "dark" ? "light" : "dark"} />
 		</View>
 	);
 };
 
-export { ThemeProvider, CustomThemeProvider };
+export { ThemeProvider };

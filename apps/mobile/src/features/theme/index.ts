@@ -1,3 +1,4 @@
-export { CustomThemeProvider, ThemeProvider } from "./config/provider";
-export { useTheme, themeAtom } from "./models/theme";
-export type { ColorTheme, ThemeStorage } from "./types/theme";
+export { ThemeProvider } from "./config/provider";
+export { useTheme, themeAtom } from "./model/theme";
+
+export type { Theme } from "./model/theme";
