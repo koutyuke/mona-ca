@@ -4,7 +4,7 @@ import { ChevronLeftIcon } from "@mona-ca/ui/native/icons";
 import { useNavigation } from "expo-router";
 import type { FC, ReactNode } from "react";
 import { Pressable, View } from "react-native";
-import { useLayoutInsets } from "../../../../shared/lib";
+import { useLayoutInsets, vh } from "../../../../shared/lib";
 import { Wave } from "../../../../shared/ui";
 
 type Props = {
@@ -17,6 +17,8 @@ type Props = {
 
 	rightContents?: ReactNode;
 };
+
+export const WAVE_HEADER_HEIGHT = 44 + vh(8.5);
 
 export const WaveHeader: FC<Props> = ({
 	title,
@@ -35,7 +37,7 @@ export const WaveHeader: FC<Props> = ({
 				<View className="pl-2">
 					{enableBackButton && (
 						<Pressable className="flex flex-row items-center transition active:opacity-50" onPress={navigation.goBack}>
-							<ChevronLeftIcon className="text-white" size={24} />
+							<ChevronLeftIcon className="text-white" size={28} />
 							<Text size="md" weight="medium" className="text-white">
 								{backButtonLabel}
 							</Text>
