@@ -1,5 +1,5 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type ElementRef, type ReactNode, type Ref, forwardRef } from "react";
+import { type ReactNode, type Ref, forwardRef } from "react";
 import { Text as RNText, type TextProps } from "react-native";
 
 type Props = Omit<TextProps, "children"> & {
@@ -31,7 +31,7 @@ const variants = tv({
 
 const Txt = (
 	{ size = "md", weight = "regular", children, truncated = false, className, ...props }: Props,
-	ref: Ref<ElementRef<typeof RNText>>,
+	ref: Ref<RNText>,
 ): JSX.Element => {
 	const style = variants({
 		size,
@@ -71,7 +71,7 @@ const Txt = (
  *
  * @returns {JSX.Element} - Returns the `Text` component.
  */
-const Text = forwardRef<ElementRef<typeof RNText>, Props>(Txt);
+const Text = forwardRef<RNText, Props>(Txt);
 
 Text.displayName = "Text";
 
