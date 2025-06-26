@@ -2,6 +2,7 @@ export { Button } from "./button/index.native";
 export { CheckBox } from "./checkbox/index.native";
 export { GenderSelector } from "./gender-selector/index.native";
 export { IconButton } from "./icon-button/index.native";
+export { InputWrapper } from "./input-wrapper/index.native";
 export { LoadingSpinner } from "./loading-spinner/index.native";
 export { Radio } from "./radio/index.native";
 export { Switch } from "./switch/index.native";
