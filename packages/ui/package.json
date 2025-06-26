@@ -24,17 +24,17 @@
     "lucide-react": "^0.429.0",
     "lucide-react-native": "^0.429.0",
     "nativewind": "^4.1.4",
-    "react-native": "0.76.9",
-    "react-native-reanimated": "~3.16.1",
-    "react-native-svg": "15.8.0"
+    "react-native": "^0.79.4",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-svg": "15.11.2"
   },
   "devDependencies": {
     "@mona-ca/tailwind-config": "workspace:*",
     "@mona-ca/tsconfig": "workspace:*",
     "@turbo/gen": "^1.12.4",
-    "@types/react": "~18.3.12",
-    "@types/react-dom": "~18.2.19",
-    "react": "18.3.1",
+    "@types/react": "~19.0.10",
+    "@types/react-dom": "~19.0.0",
+    "react": "^19.0.0",
     "typescript": "^5.3.3"
   }
 }
