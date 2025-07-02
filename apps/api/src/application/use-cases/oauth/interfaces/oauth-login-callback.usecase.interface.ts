@@ -1,6 +1,6 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session } from "../../../../domain/entities";
-import type { ClientType, OAuthProvider, OAuthProviderId, UserId } from "../../../../domain/value-object";
+import type { AccountAssociationSession, Session } from "../../../../domain/entities";
+import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
 
 export type OAuthLoginCallbackUseCaseSuccessResult = {
 	session: Session;
@@ -21,10 +21,9 @@ export type OAuthLoginCallbackUseCaseErrorResult =
 			"OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE",
 			{
 				redirectURL: URL;
-				userId: UserId;
-				provider: OAuthProvider;
-				providerId: OAuthProviderId;
 				clientType: ClientType;
+				accountAssociationSessionToken: string;
+				accountAssociationSession: AccountAssociationSession;
 			}
 	  >;
 
