@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
+import { blob, index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
 export const accountAssociationSessions = sqliteTable(
@@ -8,7 +8,8 @@ export const accountAssociationSessions = sqliteTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
-		code: text("code").notNull(),
+		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
+		code: text("code"),
 		email: text("email").notNull(),
 		provider: text("provider", { enum: ["discord"] }).notNull(),
 		providerId: text("provider_id").notNull(),
