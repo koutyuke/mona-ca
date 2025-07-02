@@ -1,6 +1,5 @@
 import { err } from "../../../common/utils";
 import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities";
-import { newSessionId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ISessionTokenService } from "../../services/session-token";
@@ -14,11 +13,16 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	) {}
 
 	public async execute(sessionToken: string): Promise<ValidateSessionUseCaseResult> {
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const idAndSecret = this.sessionTokenService.separateTokenToIdAndSecret(sessionToken);
+		if (!idAndSecret) {
+			return err("INVALID_SESSION_TOKEN");
+		}
+
+		const { id } = idAndSecret;
 
 		let [user, session] = await Promise.all([
-			this.userRepository.findBySessionId(sessionId),
-			this.sessionRepository.findById(sessionId),
+			this.userRepository.findBySessionId(id),
+			this.sessionRepository.findById(id),
 		]);
 
 		if (!session || !user) {
@@ -26,15 +30,12 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 		}
 
 		if (isExpiredSession(session)) {
-			await this.sessionRepository.delete(sessionId);
+			await this.sessionRepository.delete(id);
 			return err("EXPIRED_SESSION");
 		}
 
 		if (isRefreshableSession(session)) {
-			session = createSession({
-				id: session.id,
-				userId: session.userId,
-			});
+			session = createSession(session);
 
 			await this.sessionRepository.save(session);
 		}

@@ -6,7 +6,10 @@ export type ValidateSessionUseCaseSuccessResult = {
 	user: User;
 };
 
-export type ValidateSessionUseCaseErrorResult = Err<"SESSION_OR_USER_NOT_FOUND"> | Err<"EXPIRED_SESSION">;
+export type ValidateSessionUseCaseErrorResult =
+	| Err<"SESSION_OR_USER_NOT_FOUND">
+	| Err<"EXPIRED_SESSION">
+	| Err<"INVALID_SESSION_TOKEN">;
 
 export type ValidateSessionUseCaseResult = Result<
 	ValidateSessionUseCaseSuccessResult,

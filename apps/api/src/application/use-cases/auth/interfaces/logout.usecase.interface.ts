@@ -1,3 +1,5 @@
+import type { SessionId } from "../../../../domain/value-object";
+
 export interface ILogoutUseCase {
-	execute(sessionToken: string): Promise<void>;
+	execute(sessionId: SessionId): Promise<void>;
 }

@@ -38,11 +38,14 @@ export class SignupUseCase implements ISignupUseCase {
 			gender,
 		});
 
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const sessionSecret = this.sessionTokenService.generateSessionSecret();
+		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = this.sessionTokenService.createToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,
+			secretHash: sessionSecretHash,
 		});
 
 		await this.userRepository.save(user, { passwordHash });

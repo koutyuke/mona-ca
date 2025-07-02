@@ -1,4 +1,4 @@
-import { err } from "../../../common/utils";
+import { err, ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
@@ -24,11 +24,14 @@ export class LoginUseCase implements ILoginUseCase {
 			return err("INVALID_EMAIL_OR_PASSWORD");
 		}
 
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const sessionSecret = this.sessionTokenService.generateSessionSecret();
+		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = this.sessionTokenService.createToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,
+			secretHash: sessionSecretHash,
 		});
 
 		await this.sessionRepository.save(session);
