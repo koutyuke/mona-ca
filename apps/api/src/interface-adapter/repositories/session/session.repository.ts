@@ -7,8 +7,11 @@ import type { ISessionRepository } from "./interfaces/session.repository.interfa
 interface FoundSessionDto {
 	id: string;
 	userId: string;
+	secretHash: Buffer;
 	expiresAt: Date;
 }
+
+type InsertSession = Omit<Session, "secretHash"> & { secretHash: Buffer };
 
 export class SessionRepository implements ISessionRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
@@ -38,7 +41,7 @@ export class SessionRepository implements ISessionRepository {
 	public async save(session: Session): Promise<void> {
 		await this.drizzleService.db
 			.insert(this.drizzleService.schema.sessions)
-			.values(session)
+			.values(this.convertToInsertSession(session))
 			.onConflictDoUpdate({
 				target: this.drizzleService.schema.sessions.id,
 				set: {
@@ -72,7 +75,17 @@ export class SessionRepository implements ISessionRepository {
 		return {
 			id: newSessionId(dto.id),
 			userId: newUserId(dto.userId),
+			secretHash: new Uint8Array(dto.secretHash),
 			expiresAt: dto.expiresAt,
 		} satisfies Session;
+	}
+
+	private convertToInsertSession(session: Session): InsertSession {
+		return {
+			id: session.id,
+			userId: session.userId,
+			secretHash: Buffer.from(session.secretHash),
+			expiresAt: session.expiresAt,
+		};
 	}
 }

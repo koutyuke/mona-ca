@@ -37,6 +37,7 @@ describe("SessionRepository.save", () => {
 		const updatedSession = {
 			id: sessionTableHelper.baseSession.id,
 			userId: sessionTableHelper.baseSession.userId,
+			secretHash: sessionTableHelper.baseSessionSecretHash,
 			expiresAt: newExpiresAt,
 		} satisfies Session;
 
@@ -46,8 +47,7 @@ describe("SessionRepository.save", () => {
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			id: sessionTableHelper.baseDatabaseSession.id,
-			user_id: sessionTableHelper.baseDatabaseSession.user_id,
+			...sessionTableHelper.baseDatabaseSession,
 			expires_at: toDatabaseDate(newExpiresAt),
 		});
 	});
