@@ -1,42 +1,35 @@
 import { err } from "../../../common/utils";
-import { isExpiredPasswordResetSession } from "../../../domain/entities";
-import { newPasswordResetSessionId } from "../../../domain/value-object";
+import { type PasswordResetSession, isExpiredPasswordResetSession } from "../../../domain/entities";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IPasswordService } from "../../services/password";
-import type { ISessionTokenService } from "../../services/session-token";
 import type { IResetPasswordUseCase, ResetPasswordUseCaseResult } from "./interfaces/reset-password.usecase.interface";
 
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
 	constructor(
-		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
+		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly passwordService: IPasswordService,
-		private readonly passwordResetSessionTokenService: ISessionTokenService,
 	) {}
 
-	public async execute(passwordResetSessionToken: string, newPassword: string): Promise<ResetPasswordUseCaseResult> {
-		const passwordResetSessionId = newPasswordResetSessionId(
-			this.passwordResetSessionTokenService.hashSessionToken(passwordResetSessionToken),
-		);
-		const passwordResetSession = await this.passwordResetSessionRepository.findById(passwordResetSessionId);
-
-		if (passwordResetSession === null) {
-			return err("INVALID_TOKEN");
-		}
-
-		if (isExpiredPasswordResetSession(passwordResetSession)) {
-			return err("EXPIRED_TOKEN");
-		}
-
+	public async execute(
+		newPassword: string,
+		passwordResetSession: PasswordResetSession,
+	): Promise<ResetPasswordUseCaseResult> {
 		if (!passwordResetSession.emailVerified) {
 			return err("EMAIL_NOT_VERIFIED");
 		}
 
+		if (isExpiredPasswordResetSession(passwordResetSession)) {
+			await this.passwordResetSessionRepository.deleteById(passwordResetSession.id);
+			return err("EXPIRED_TOKEN");
+		}
+
 		const user = await this.userRepository.findById(passwordResetSession.userId);
 		if (user === null) {
+			await this.passwordResetSessionRepository.deleteById(passwordResetSession.id);
 			return err("INVALID_TOKEN");
 		}
 

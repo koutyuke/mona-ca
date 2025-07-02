@@ -1,11 +1,11 @@
-import { err } from "../../../common/utils";
+import { err, ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IPasswordService } from "../../services/password";
-import type { ISessionTokenService } from "../../services/session-token";
+import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	IUpdateUserPasswordUseCase,
 	UpdateUserPasswordUseCaseResult,
@@ -16,7 +16,7 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly passwordService: IPasswordService,
-		private readonly sessionTokenService: ISessionTokenService,
+		private readonly sessionTokenService: ISessionSecretService,
 	) {}
 
 	public async execute(
@@ -49,11 +49,14 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 		]);
 
 		// Generate a new session.
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const sessionSecret = this.sessionTokenService.generateSessionSecret();
+		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = createSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: currentUser.id,
+			secretHash: sessionSecretHash,
 		});
 
 		await Promise.all([

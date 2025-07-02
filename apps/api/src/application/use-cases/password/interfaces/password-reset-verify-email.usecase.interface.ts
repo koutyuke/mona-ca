@@ -1,17 +1,12 @@
 import type { Err, Result } from "../../../../common/utils";
+import type { PasswordResetSession } from "../../../../domain/entities";
 
-export type PasswordResetVerifyEmailUseCaseSuccessResult = undefined;
+type Success = undefined;
 
-export type PasswordResetVerifyEmailUseCaseErrorResult =
-	| Err<"INVALID_TOKEN">
-	| Err<"EXPIRED_TOKEN">
-	| Err<"INVALID_CODE">;
+type Error = Err<"INVALID_CODE"> | Err<"EXPIRED_CODE">;
 
-export type PasswordResetVerifyEmailUseCaseResult = Result<
-	PasswordResetVerifyEmailUseCaseSuccessResult,
-	PasswordResetVerifyEmailUseCaseErrorResult
->;
+export type PasswordResetVerifyEmailUseCaseResult = Result<Success, Error>;
 
 export interface IPasswordResetVerifyEmailUseCase {
-	execute(passwordResetSessionToken: string, code: string): Promise<PasswordResetVerifyEmailUseCaseResult>;
+	execute(code: string, passwordResetSession: PasswordResetSession): Promise<PasswordResetVerifyEmailUseCaseResult>;
 }
