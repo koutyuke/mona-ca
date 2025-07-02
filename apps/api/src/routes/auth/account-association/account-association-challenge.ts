@@ -1,12 +1,10 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
+import { SessionSecretService } from "../../../application/services/session";
 import { AccountAssociationChallengeUseCase } from "../../../application/use-cases/account-association";
+import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
-import {
-	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
-	ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME,
-} from "../../../common/constants";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -37,7 +35,7 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 	.post(
 		"/association/challenge",
 		async ({
-			env: { ACCOUNT_ASSOCIATION_SESSION_PEPPER, ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET, APP_ENV, RESEND_API_KEY },
+			env: { ACCOUNT_ASSOCIATION_SESSION_PEPPER, APP_ENV, RESEND_API_KEY },
 			cfModuleEnv: { DB },
 			cookie,
 			body,
@@ -48,48 +46,61 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const accountAssociationSessionTokenService = new SessionTokenService(ACCOUNT_ASSOCIATION_SESSION_PEPPER);
+			const accountAssociationSessionSecretService = new SessionSecretService(ACCOUNT_ASSOCIATION_SESSION_PEPPER);
 
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
-				{ ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET },
-				accountAssociationSessionTokenService,
+				accountAssociationSessionSecretService,
 				accountAssociationSessionRepository,
 				userRepository,
-				async userId => {
-					await rateLimit.consume(userId, 10);
-				},
+			);
+			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
+				userRepository,
+				accountAssociationSessionRepository,
+				accountAssociationSessionSecretService,
 			);
 			// === End of instances ===
 
-			let stateOrSessionToken: string | undefined = undefined;
+			const accountAssociationSessionToken =
+				clientType === "web"
+					? cookieManager.getCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME)
+					: body?.accountAssociationSessionToken;
 
-			if (clientType === "web") {
-				stateOrSessionToken =
-					cookieManager.getCookie(ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME) ??
-					cookieManager.getCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME);
-			} else {
-				stateOrSessionToken = body?.accountAssociationState ?? body?.accountAssociationSessionToken;
-			}
-
-			if (!stateOrSessionToken) {
+			if (!accountAssociationSessionToken) {
 				throw new BadRequestException({
 					code: "INVALID_STATE",
 				});
 			}
 
-			const result = await accountAssociationChallengeUseCase.execute(stateOrSessionToken);
+			const validateResult = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
-			if (isErr(result)) {
+			if (isErr(validateResult)) {
 				throw new BadRequestException({
-					code: result.code,
+					code: validateResult.code,
 				});
 			}
 
-			const { accountAssociationSessionToken, accountAssociationSession } = result;
+			await rateLimit.consume(validateResult.user.id, 10);
+
+			const challengeResult = await accountAssociationChallengeUseCase.execute(
+				validateResult.accountAssociationSession,
+			);
+
+			if (isErr(challengeResult)) {
+				throw new BadRequestException({
+					code: challengeResult.code,
+				});
+			}
+
+			const { accountAssociationSessionToken: newAccountAssociationSessionToken, accountAssociationSession } =
+				challengeResult;
+
+			if (!accountAssociationSession.code) {
+				throw new Error("Dev: Code is not set");
+			}
 
 			const mailContents = verificationEmailTemplate(accountAssociationSession.email, accountAssociationSession.code);
 
@@ -102,12 +113,11 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 
 			if (clientType === "mobile") {
 				return {
-					accountAssociationSessionToken: accountAssociationSessionToken,
+					accountAssociationSessionToken: newAccountAssociationSessionToken,
 				};
 			}
 
-			cookieManager.deleteCookie(ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME);
-			cookieManager.setCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, accountAssociationSessionToken, {
+			cookieManager.setCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, newAccountAssociationSessionToken, {
 				expires: accountAssociationSession.expiresAt,
 			});
 
@@ -119,12 +129,10 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({
-				[ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME]: t.Optional(t.String()),
 				[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Optional(
 				t.Object({
-					accountAssociationState: t.Optional(t.String()),
 					accountAssociationSessionToken: t.Optional(t.String()),
 				}),
 			),

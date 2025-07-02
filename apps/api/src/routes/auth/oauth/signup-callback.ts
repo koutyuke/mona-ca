@@ -1,10 +1,9 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
-import { generateAccountAssociationState } from "../../../application/use-cases/account-association";
+import { SessionSecretService } from "../../../application/services/session";
 import { OAuthSignupCallbackUseCase } from "../../../application/use-cases/oauth";
 import {
-	ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME,
+	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
@@ -15,6 +14,7 @@ import { constantTimeCompare, convertRedirectableMobileScheme, isErr } from "../
 import { newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -49,7 +49,6 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 				GOOGLE_CLIENT_ID,
 				GOOGLE_CLIENT_SECRET,
 				OAUTH_STATE_HMAC_SECRET,
-				ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET,
 			},
 			cfModuleEnv: { DB },
 			cookie,
@@ -66,11 +65,12 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
+			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 
 			const oauthProviderGateway = OAuthProviderGateway(
 				{
@@ -85,11 +85,12 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 
 			const oauthSignupCallbackUseCase = new OAuthSignupCallbackUseCase(
 				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
-				sessionTokenService,
+				sessionSecretService,
 				oauthProviderGateway,
 				sessionRepository,
 				oauthAccountRepository,
 				userRepository,
+				accountAssociationSessionRepository,
 			);
 			// === End of instances ===
 
@@ -132,24 +133,17 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 				if (result.code === "EMAIL_ALREADY_EXISTS_BUT_LINKABLE") {
 					const {
 						code,
-						value: { redirectURL, userId, provider, providerId, clientType },
+						value: { redirectURL, clientType, accountAssociationSessionToken, accountAssociationSession },
 					} = result;
 
-					const { state, expiresAt } = generateAccountAssociationState(
-						userId,
-						provider,
-						providerId,
-						ACCOUNT_ASSOCIATION_STATE_HMAC_SECRET,
-					);
-
 					if (clientType === newClientType("mobile")) {
-						redirectURL.searchParams.set("account-association-session-token", state);
+						redirectURL.searchParams.set("account-association-session-token", accountAssociationSessionToken);
 						set.headers["referrer-policy"] = "strict-origin";
 						return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
 					}
 
-					cookieManager.setCookie(ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME, state, {
-						expires: expiresAt,
+					cookieManager.setCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, accountAssociationSessionToken, {
+						expires: accountAssociationSession.expiresAt,
 					});
 
 					redirectURL.searchParams.set("error", code);
@@ -212,7 +206,7 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
 					minLength: 1,
 				}),
-				[ACCOUNT_ASSOCIATION_STATE_COOKIE_NAME]: t.Optional(t.String()),
+				[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			response: {
 				302: RedirectResponseSchema,

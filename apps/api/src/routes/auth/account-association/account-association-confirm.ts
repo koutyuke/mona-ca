@@ -1,6 +1,7 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
+import { SessionSecretService } from "../../../application/services/session";
 import { AccountAssociationConfirmUseCase } from "../../../application/use-cases/account-association";
+import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
@@ -8,6 +9,7 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
+import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
 import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
@@ -44,22 +46,24 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
-			const accountAssociationSessionTokenService = new SessionTokenService(ACCOUNT_ASSOCIATION_SESSION_PEPPER);
+			const sessionTokenService = new SessionSecretService(SESSION_PEPPER);
+			const accountAssociationSessionSecretService = new SessionSecretService(ACCOUNT_ASSOCIATION_SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
 
-			const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
-				sessionTokenService,
-				accountAssociationSessionTokenService,
-				sessionRepository,
+			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
+				userRepository,
 				accountAssociationSessionRepository,
+				accountAssociationSessionSecretService,
+			);
+			const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
+				sessionRepository,
 				oauthAccountRepository,
-				async accountAssociationSessionId => {
-					await rateLimit.consume(accountAssociationSessionId, 10);
-				},
+				accountAssociationSessionRepository,
+				sessionTokenService,
 			);
 			// === End of instances ===
 
@@ -74,15 +78,28 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				});
 			}
 
-			const result = await accountAssociationConfirmUseCase.execute(accountAssociationSessionToken, code);
+			const validateResult = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
-			if (isErr(result)) {
+			if (isErr(validateResult)) {
 				throw new BadRequestException({
-					code: result.code,
+					code: validateResult.code,
 				});
 			}
 
-			const { sessionToken, session } = result;
+			await rateLimit.consume(validateResult.user.id, 10);
+
+			const confirmResult = await accountAssociationConfirmUseCase.execute(
+				code,
+				validateResult.accountAssociationSession,
+			);
+
+			if (isErr(confirmResult)) {
+				throw new BadRequestException({
+					code: confirmResult.code,
+				});
+			}
+
+			const { sessionToken, session } = confirmResult;
 
 			if (clientType === "mobile") {
 				return {
@@ -107,7 +124,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				accountAssociationSessionToken: t.String(),
+				accountAssociationSessionToken: t.Optional(t.String()),
 				code: t.String(),
 			}),
 			response: {
