@@ -1,23 +1,23 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session } from "../../../../domain/entities";
+import type { AccountAssociationSession, Session } from "../../../../domain/entities";
 
-export type AccountAssociationConfirmUseCaseSuccessResult = {
+type Success = {
 	sessionToken: string;
 	session: Session;
 };
 
-export type AccountAssociationConfirmUseCaseErrorResult =
+type Error =
 	| Err<"INVALID_TOKEN">
-	| Err<"EXPIRED_TOKEN">
+	| Err<"EXPIRED_SESSION">
 	| Err<"INVALID_CODE">
 	| Err<"PROVIDER_ALREADY_LINKED">
 	| Err<"ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER">;
 
-export type AccountAssociationConfirmUseCaseResult = Result<
-	AccountAssociationConfirmUseCaseSuccessResult,
-	AccountAssociationConfirmUseCaseErrorResult
->;
+export type AccountAssociationConfirmUseCaseResult = Result<Success, Error>;
 
 export interface IAccountAssociationConfirmUseCase {
-	execute(accountAssociationSessionToken: string, code: string): Promise<AccountAssociationConfirmUseCaseResult>;
+	execute(
+		code: string,
+		accountAssociationSession: AccountAssociationSession,
+	): Promise<AccountAssociationConfirmUseCaseResult>;
 }

@@ -1,21 +1,15 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { AccountAssociationSession } from "../../../../domain/entities";
 
-export type AccountAssociationChallengeUseCaseSuccessResult = {
+type Success = {
 	accountAssociationSessionToken: string;
 	accountAssociationSession: AccountAssociationSession;
 };
 
-export type AccountAssociationChallengeUseCaseErrorResult =
-	| Err<"INVALID_STATE_OR_SESSION_TOKEN">
-	| Err<"EXPIRED_STATE_OR_SESSION_TOKEN">
-	| Err<"USER_NOT_FOUND">;
+type Error = Err<"EXPIRED_SESSION_TOKEN"> | Err<"USER_NOT_FOUND"> | Err<"EMAIL_NOT_VERIFIED"> | Err<"INVALID_EMAIL">;
 
-export type AccountAssociationChallengeUseCaseResult = Result<
-	AccountAssociationChallengeUseCaseSuccessResult,
-	AccountAssociationChallengeUseCaseErrorResult
->;
+export type AccountAssociationChallengeUseCaseResult = Result<Success, Error>;
 
 export interface IAccountAssociationChallengeUseCase {
-	execute(stateOrSessionToken: string): Promise<AccountAssociationChallengeUseCaseResult>;
+	execute(accountAssociationSession: AccountAssociationSession): Promise<AccountAssociationChallengeUseCaseResult>;
 }

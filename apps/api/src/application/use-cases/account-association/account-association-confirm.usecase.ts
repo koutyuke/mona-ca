@@ -1,14 +1,15 @@
-import { constantTimeCompare, err } from "../../../common/utils";
-import { createOAuthAccount, createSession, isExpiredAccountAssociationSession } from "../../../domain/entities";
+import { constantTimeCompare, err, ulid } from "../../../common/utils";
 import {
-	type AccountAssociationSessionId,
-	newAccountAssociationSessionId,
-	newSessionId,
-} from "../../../domain/value-object";
+	type AccountAssociationSession,
+	createOAuthAccount,
+	createSession,
+	isExpiredAccountAssociationSession,
+} from "../../../domain/entities";
+import { newSessionId } from "../../../domain/value-object";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { ISessionTokenService } from "../../services/session-token";
+import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	AccountAssociationConfirmUseCaseResult,
 	IAccountAssociationConfirmUseCase,
@@ -16,40 +17,28 @@ import type {
 
 export class AccountAssociationConfirmUseCase implements IAccountAssociationConfirmUseCase {
 	constructor(
-		private readonly sessionTokenService: ISessionTokenService,
-		private readonly accountAssociationSessionTokenService: ISessionTokenService,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
-		private readonly accountAssociationSessionRateLimit: (
-			accountAssociationSessionId: AccountAssociationSessionId,
-		) => Promise<void>,
+		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
+		private readonly sessionTokenService: ISessionSecretService,
 	) {}
 
 	public async execute(
-		accountAssociationSessionToken: string,
 		code: string,
+		accountAssociationSession: AccountAssociationSession,
 	): Promise<AccountAssociationConfirmUseCaseResult> {
-		const accountAssociationSessionId = newAccountAssociationSessionId(
-			this.accountAssociationSessionTokenService.hashSessionToken(accountAssociationSessionToken),
-		);
-		const accountAssociationSession =
-			await this.accountAssociationSessionRepository.findById(accountAssociationSessionId);
-
-		if (accountAssociationSession === null) {
-			return err("INVALID_TOKEN");
+		if (accountAssociationSession.code === null) {
+			return err("INVALID_CODE");
 		}
-
-		await this.accountAssociationSessionRateLimit(accountAssociationSessionId);
 
 		if (!constantTimeCompare(accountAssociationSession.code, code)) {
 			return err("INVALID_CODE");
 		}
 
-		await this.accountAssociationSessionRepository.delete(accountAssociationSessionId);
+		await this.accountAssociationSessionRepository.delete(accountAssociationSession.id);
 
 		if (isExpiredAccountAssociationSession(accountAssociationSession)) {
-			return err("EXPIRED_TOKEN");
+			return err("EXPIRED_SESSION");
 		}
 
 		const [existingOAuthAccount, existingUserLinkedAccount] = await Promise.all([
@@ -71,11 +60,14 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			return err("ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
 		}
 
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const sessionSecret = this.sessionTokenService.generateSessionSecret();
+		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = createSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: accountAssociationSession.userId,
+			secretHash: sessionSecretHash,
 		});
 
 		const oauthAccount = createOAuthAccount({
