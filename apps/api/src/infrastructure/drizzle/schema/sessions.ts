@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { blob, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
 export const sessions = sqliteTable(
@@ -8,6 +8,7 @@ export const sessions = sqliteTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
+		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
 	table => [index("idx_sessions__expires_at").on(table.expiresAt)],
