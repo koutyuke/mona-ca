@@ -3,7 +3,7 @@ import { SessionSecretService, createSessionToken } from "../../application/serv
 import { sessionExpiresSpan } from "../../common/constants";
 import type { Session } from "../../domain/entities";
 import { newSessionId, newUserId } from "../../domain/value-object";
-import { toDatabaseDate } from "../utils";
+import { toDatabaseDate, toDatabaseSessionSecretHash } from "../utils";
 
 export type DatabaseSession = {
 	id: string;
@@ -47,7 +47,7 @@ export class SessionTableHelper {
 		this.baseDatabaseSession = {
 			id: this.baseSessionId,
 			user_id: "userId",
-			secret_hash: Array.from(this.baseSessionSecretHash),
+			secret_hash: toDatabaseSessionSecretHash(this.baseSessionSecretHash),
 			expires_at: this.expiresAt.getTime() / 1000,
 		} as const;
 	}
