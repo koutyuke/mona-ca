@@ -1,6 +1,9 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../application/services/session-token";
-import { ChangeEmailUseCase } from "../../application/use-cases/email-verification";
+import { SessionSecretService } from "../../application/services/session";
+import {
+	ChangeEmailUseCase,
+	ValidateEmailVerificationSessionUseCase,
+} from "../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
 import { FlattenUnion } from "../../common/schemas";
 import { isErr } from "../../common/utils";
@@ -32,19 +35,22 @@ export const UpdateEmail = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
-			const emailVerificationSessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
+			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
+			const emailVerificationSessionSecretService = new SessionSecretService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
+			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
+				emailVerificationSessionRepository,
+				emailVerificationSessionSecretService,
+			);
 			const changeEmailUseCase = new ChangeEmailUseCase(
 				userRepository,
 				sessionRepository,
 				emailVerificationSessionRepository,
-				sessionTokenService,
-				emailVerificationSessionTokenService,
+				sessionSecretService,
 			);
 			// === End of instances ===
 
@@ -59,10 +65,30 @@ export const UpdateEmail = new ElysiaWithEnv()
 				});
 			}
 
-			const result = await changeEmailUseCase.execute(emailVerificationSessionToken, code, user);
+			const validationResult = await validateEmailVerificationSessionUseCase.execute(emailVerificationSessionToken);
 
-			if (isErr(result)) {
-				const { code } = result;
+			if (isErr(validationResult)) {
+				const { code } = validationResult;
+
+				if (code === "EXPIRED_CODE") {
+					throw new BadRequestException({
+						code: "EXPIRED_CODE",
+						message: "Email verification session has expired.",
+					});
+				}
+
+				throw new BadRequestException({
+					name: code,
+					message: "Failed to confirm user email verification.",
+				});
+			}
+
+			const { emailVerificationSession } = validationResult;
+
+			const changeResult = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+
+			if (isErr(changeResult)) {
+				const { code } = changeResult;
 
 				throw new BadRequestException({
 					code,
@@ -70,7 +96,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				});
 			}
 
-			const { session, sessionToken } = result;
+			const { session, sessionToken } = changeResult;
 
 			if (clientType === "mobile") {
 				return {
@@ -106,7 +132,6 @@ export const UpdateEmail = new ElysiaWithEnv()
 					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),
 					ErrorResponseSchema("INVALID_CODE"),
 					ErrorResponseSchema("EXPIRED_CODE"),
-					ErrorResponseSchema("NOT_REQUEST"),
 					ErrorResponseSchema("INVALID_TOKEN"),
 				),
 				401: AuthGuardSchema.response[401],

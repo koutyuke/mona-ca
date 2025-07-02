@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
+import { SessionSecretService } from "../../../application/services/session";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
@@ -48,13 +48,12 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const sessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
-
+			const emailVerificationSessionSecretService = new SessionSecretService(EMAIL_VERIFICATION_SESSION_PEPPER);
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-				emailVerificationSessionRepository,
 				userRepository,
-				sessionTokenService,
+				emailVerificationSessionRepository,
+				emailVerificationSessionSecretService,
 			);
 			// === End of instances ===
 

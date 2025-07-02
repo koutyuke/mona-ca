@@ -1,6 +1,9 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
-import { EmailVerificationConfirmUseCase } from "../../../application/use-cases/email-verification";
+import { SessionSecretService } from "../../../application/services/session";
+import {
+	EmailVerificationConfirmUseCase,
+	ValidateEmailVerificationSessionUseCase,
+} from "../../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
@@ -48,15 +51,18 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
-			const emailVerificationSessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
+			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
+			const emailVerificationSessionSecretService = new SessionSecretService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
-			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
+			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
 				emailVerificationSessionRepository,
+				emailVerificationSessionSecretService,
+			);
+			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
 				userRepository,
 				sessionRepository,
-				sessionTokenService,
-				emailVerificationSessionTokenService,
+				emailVerificationSessionRepository,
+				sessionSecretService,
 			);
 			// === End of Instances ===
 
@@ -71,10 +77,17 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				});
 			}
 
-			const result = await emailVerificationConfirmUseCase.execute(emailVerificationSessionToken, code, user);
+			const validationResult = await validateEmailVerificationSessionUseCase.execute(emailVerificationSessionToken);
 
-			if (isErr(result)) {
-				const { code } = result;
+			if (isErr(validationResult)) {
+				const { code } = validationResult;
+
+				if (code === "EXPIRED_CODE") {
+					throw new BadRequestException({
+						code: "EXPIRED_CODE",
+						message: "Email verification session has expired.",
+					});
+				}
 
 				throw new BadRequestException({
 					name: code,
@@ -82,7 +95,20 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				});
 			}
 
-			const { sessionToken, session } = result;
+			const { emailVerificationSession } = validationResult;
+
+			const confirmResult = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
+
+			if (isErr(confirmResult)) {
+				const { code } = confirmResult;
+
+				throw new BadRequestException({
+					name: code,
+					message: "Failed to confirm user email verification.",
+				});
+			}
+
+			const { sessionToken, session } = confirmResult;
 
 			if (clientType === "mobile") {
 				return {
@@ -119,9 +145,8 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				400: FlattenUnion(
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("INVALID_TOKEN"),
-					ErrorResponseSchema("INVALID_CODE"),
 					ErrorResponseSchema("EXPIRED_CODE"),
-					ErrorResponseSchema("NOT_REQUEST"),
+					ErrorResponseSchema("INVALID_CODE"),
 					ErrorResponseSchema("INVALID_EMAIL"),
 				),
 				401: AuthGuardSchema.response[401],
