@@ -6,6 +6,7 @@ export interface EmailVerificationSession {
 	email: string;
 	userId: UserId;
 	code: string;
+	secretHash: Uint8Array;
 	expiresAt: Date;
 }
 
@@ -14,12 +15,14 @@ export const createEmailVerificationSession = (args: {
 	email: string;
 	userId: UserId;
 	code: string;
+	secretHash: Uint8Array;
 }): EmailVerificationSession => {
 	return {
 		id: args.id,
 		email: args.email,
 		userId: args.userId,
 		code: args.code,
+		secretHash: args.secretHash,
 		expiresAt: new Date(Date.now() + emailVerificationSessionExpiresSpan.milliseconds()),
 	};
 };
