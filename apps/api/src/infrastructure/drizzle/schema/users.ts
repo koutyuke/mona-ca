@@ -19,10 +19,5 @@ export const users = sqliteTable(
 			.default(sql`(strftime('%s', 'now'))`)
 			.$onUpdateFn(() => new Date()),
 	},
-	table => {
-		return {
-			emailIdx: index("idx_users__email").on(table.email),
-			updatedAtIdx: index("idx_users__updated_at").on(table.updatedAt),
-		};
-	},
+	table => [index("idx_users__email").on(table.email), index("idx_users__updated_at").on(table.updatedAt)],
 );

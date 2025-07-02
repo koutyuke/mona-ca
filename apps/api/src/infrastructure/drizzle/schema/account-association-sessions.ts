@@ -14,10 +14,8 @@ export const accountAssociationSessions = sqliteTable(
 		providerId: text("provider_id").notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
-	table => {
-		return {
-			expiresAtIdx: index("idx_account_association_sessions__expires_at").on(table.expiresAt),
-			uniqueProviderUser: unique("unq_account_association_sessions__provider_user").on(table.provider, table.userId),
-		};
-	},
+	table => [
+		index("idx_account_association_sessions__expires_at").on(table.expiresAt),
+		unique("unq_account_association_sessions__provider_user").on(table.provider, table.userId),
+	],
 );

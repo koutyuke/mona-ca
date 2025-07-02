@@ -13,9 +13,5 @@ export const passwordResetSessions = sqliteTable(
 		emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
-	table => {
-		return {
-			expiresAtIdx: index("idx_password_reset_sessions__expires_at").on(table.expiresAt),
-		};
-	},
+	table => [index("idx_password_reset_sessions__expires_at").on(table.expiresAt)],
 );

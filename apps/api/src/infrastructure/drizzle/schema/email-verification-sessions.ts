@@ -13,9 +13,5 @@ export const emailVerificationSessions = sqliteTable(
 		code: text("code").notNull().unique(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
-	table => {
-		return {
-			uniqueUserIdAndEmail: unique("unq_email_verification_sessions__user_id_email").on(table.userId, table.email),
-		};
-	},
+	table => [unique("unq_email_verification_sessions__user_id_email").on(table.userId, table.email)],
 );

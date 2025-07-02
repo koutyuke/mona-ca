@@ -10,9 +10,5 @@ export const sessions = sqliteTable(
 			.references(() => users.id, { onDelete: "cascade" }),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
-	table => {
-		return {
-			expiresAtIdx: index("idx_sessions__expires_at").on(table.expiresAt),
-		};
-	},
+	table => [index("idx_sessions__expires_at").on(table.expiresAt)],
 );
