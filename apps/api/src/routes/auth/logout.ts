@@ -1,5 +1,4 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../application/services/session-token";
 import { LogoutUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { DrizzleService } from "../../infrastructure/drizzle";
@@ -14,7 +13,6 @@ export const Logout = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
 		authGuard({
-			includeSessionToken: true,
 			requireEmailVerification: false,
 		}),
 	)
@@ -22,18 +20,17 @@ export const Logout = new ElysiaWithEnv()
 	// Route
 	.post(
 		"/logout",
-		async ({ env: { SESSION_PEPPER, APP_ENV }, cfModuleEnv: { DB }, cookie, sessionToken, clientType }) => {
+		async ({ env: { APP_ENV }, cfModuleEnv: { DB }, cookie, session, clientType }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 
-			const logoutUseCase = new LogoutUseCase(sessionRepository, sessionTokenService);
+			const logoutUseCase = new LogoutUseCase(sessionRepository);
 			// === End of instances ===
 
-			await logoutUseCase.execute(sessionToken);
+			await logoutUseCase.execute(session.id);
 
 			if (clientType === "web") {
 				cookieManager.deleteCookie(SESSION_COOKIE_NAME);

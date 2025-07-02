@@ -142,7 +142,8 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					);
 
 					if (clientType === newClientType("mobile")) {
-						redirectURL.searchParams.set("association-state", state);
+						redirectURL.searchParams.set("account-association-session-token", state);
+						redirectURL.searchParams.set("error", code);
 						set.headers["referrer-policy"] = "strict-origin";
 						return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
 					}
