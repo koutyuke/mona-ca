@@ -75,8 +75,4 @@ export class SessionTableHelper {
 
 		return results;
 	}
-
-	public convertSessionSecretHashToDatabaseSessionSecretHash(sessionSecretHash: Uint8Array): Array<number> {
-		return Array.from(sessionSecretHash);
-	}
 }

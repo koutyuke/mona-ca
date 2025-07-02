@@ -1,4 +1,4 @@
-import { and, eq, lte } from "drizzle-orm";
+import { eq, lte } from "drizzle-orm";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import {
 	type EmailVerificationSessionId,
@@ -14,25 +14,20 @@ interface FoundEmailVerificationSessionDto {
 	email: string;
 	userId: string;
 	code: string;
+	secretHash: Buffer;
 	expiresAt: Date;
 }
+
+type InsertEmailVerificationSession = Omit<EmailVerificationSession, "secretHash"> & { secretHash: Buffer };
 
 export class EmailVerificationSessionRepository implements IEmailVerificationSessionRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
-	public async findByIdAndUserId(
-		id: EmailVerificationSessionId,
-		userId: UserId,
-	): Promise<EmailVerificationSession | null> {
+	public async findById(id: EmailVerificationSessionId): Promise<EmailVerificationSession | null> {
 		const emailVerificationSessions = await this.drizzleService.db
 			.select()
 			.from(this.drizzleService.schema.emailVerificationSessions)
-			.where(
-				and(
-					eq(this.drizzleService.schema.emailVerificationSessions.id, id),
-					eq(this.drizzleService.schema.emailVerificationSessions.userId, userId),
-				),
-			);
+			.where(eq(this.drizzleService.schema.emailVerificationSessions.id, id));
 
 		if (emailVerificationSessions.length > 1) {
 			throw new Error("Multiple email verifications found for the same user id");
@@ -46,13 +41,14 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 	public async save(emailVerificationSession: EmailVerificationSession): Promise<void> {
 		await this.drizzleService.db
 			.insert(this.drizzleService.schema.emailVerificationSessions)
-			.values(emailVerificationSession)
+			.values(this.convertToInsertEmailVerificationSession(emailVerificationSession))
 			.onConflictDoUpdate({
 				target: this.drizzleService.schema.emailVerificationSessions.id,
 				set: {
 					email: emailVerificationSession.email,
 					userId: emailVerificationSession.userId,
 					code: emailVerificationSession.code,
+					secretHash: Buffer.from(emailVerificationSession.secretHash),
 					expiresAt: emailVerificationSession.expiresAt,
 				},
 			});
@@ -76,7 +72,19 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 			email: dto.email,
 			userId: newUserId(dto.userId),
 			code: dto.code,
+			secretHash: new Uint8Array(dto.secretHash),
 			expiresAt: dto.expiresAt,
 		} satisfies EmailVerificationSession;
+	}
+
+	private convertToInsertEmailVerificationSession(session: EmailVerificationSession): InsertEmailVerificationSession {
+		return {
+			id: session.id,
+			email: session.email,
+			userId: session.userId,
+			code: session.code,
+			secretHash: Buffer.from(session.secretHash),
+			expiresAt: session.expiresAt,
+		};
 	}
 }
