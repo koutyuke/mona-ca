@@ -21,22 +21,19 @@ describe("PasswordResetSessionRepository.save", () => {
 	});
 
 	test("should set password reset session in the database", async () => {
-		await passwordResetSessionRepository.save(passwordResetSessionTableHelper.basePasswordResetSession);
+		await passwordResetSessionRepository.save(passwordResetSessionTableHelper.baseData);
 
-		const results = await passwordResetSessionTableHelper.findById(
-			passwordResetSessionTableHelper.basePasswordResetSession.id,
-		);
+		const results = await passwordResetSessionTableHelper.findById(passwordResetSessionTableHelper.baseData.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(passwordResetSessionTableHelper.baseDatabasePasswordResetSession);
+		expect(results[0]).toStrictEqual(passwordResetSessionTableHelper.baseDatabaseData);
 	});
 
 	test("should update password reset session in the database if it already exists", async () => {
 		await passwordResetSessionTableHelper.create();
 
 		const updatedPasswordResetSession = {
-			id: passwordResetSessionTableHelper.basePasswordResetSession.id,
-			userId: passwordResetSessionTableHelper.basePasswordResetSession.userId,
+			...passwordResetSessionTableHelper.baseData,
 			code: "newCode",
 			email: "new.email@example.com",
 			emailVerified: false,
@@ -45,14 +42,11 @@ describe("PasswordResetSessionRepository.save", () => {
 
 		await passwordResetSessionRepository.save(updatedPasswordResetSession);
 
-		const results = await passwordResetSessionTableHelper.findById(
-			passwordResetSessionTableHelper.basePasswordResetSession.id,
-		);
+		const results = await passwordResetSessionTableHelper.findById(passwordResetSessionTableHelper.baseData.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			id: passwordResetSessionTableHelper.baseDatabasePasswordResetSession.id,
-			user_id: passwordResetSessionTableHelper.baseDatabasePasswordResetSession.user_id,
+			...passwordResetSessionTableHelper.baseDatabaseData,
 			code: "newCode",
 			email: "new.email@example.com",
 			email_verified: 0,

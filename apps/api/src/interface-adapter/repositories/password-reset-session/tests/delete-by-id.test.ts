@@ -12,16 +12,16 @@ const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzl
 const userTableHelper = new UserTableHelper(DB);
 const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
-describe("PasswordResetSessionRepository.deleteByUserId", () => {
+describe("PasswordResetSessionRepository.deleteById", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
 		await passwordResetSessionTableHelper.create();
 	});
 
-	test("should delete password reset session from user if exists", async () => {
-		await passwordResetSessionRepository.deleteByUserId(passwordResetSessionTableHelper.baseData.userId);
+	test("should delete password reset session from database if exists", async () => {
+		await passwordResetSessionRepository.deleteById(passwordResetSessionTableHelper.baseData.id);
 
-		const results = await passwordResetSessionTableHelper.findByUserId(passwordResetSessionTableHelper.baseData.userId);
+		const results = await passwordResetSessionTableHelper.findById(passwordResetSessionTableHelper.baseData.id);
 
 		expect(results).toHaveLength(0);
 	});
