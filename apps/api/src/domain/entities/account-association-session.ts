@@ -5,7 +5,7 @@ import type { AccountAssociationSessionId } from "../value-object";
 export interface AccountAssociationSession {
 	id: AccountAssociationSessionId;
 	userId: UserId;
-	code: string;
+	code: string | null;
 	email: string;
 	provider: OAuthProvider;
 	providerId: OAuthProviderId;
@@ -15,7 +15,7 @@ export interface AccountAssociationSession {
 export const createAccountAssociationSession = (args: {
 	id: AccountAssociationSessionId;
 	userId: UserId;
-	code: string;
+	code: string | null;
 	email: string;
 	provider: OAuthProvider;
 	providerId: OAuthProviderId;

@@ -5,6 +5,7 @@ export interface PasswordResetSession {
 	id: PasswordResetSessionId;
 	userId: UserId;
 	code: string;
+	secretHash: Uint8Array;
 	email: string;
 	emailVerified: boolean;
 	expiresAt: Date;
@@ -14,12 +15,14 @@ export const createPasswordResetSession = (args: {
 	id: PasswordResetSessionId;
 	userId: UserId;
 	code: string;
+	secretHash: Uint8Array;
 	email: string;
 }): PasswordResetSession => {
 	return {
 		id: args.id,
 		userId: args.userId,
 		code: args.code,
+		secretHash: args.secretHash,
 		email: args.email,
 		emailVerified: false,
 		expiresAt: new Date(Date.now() + passwordResetSessionExpiresSpan.milliseconds()),
