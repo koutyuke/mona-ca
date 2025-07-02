@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { blob, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
 export const passwordResetSessions = sqliteTable(
@@ -9,6 +9,7 @@ export const passwordResetSessions = sqliteTable(
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
 		code: text("code").notNull(),
+		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		email: text("email").notNull(),
 		emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
