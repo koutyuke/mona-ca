@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import { PasswordService } from "../../../application/services/password";
-import { SessionTokenService } from "../../../application/services/session-token";
-import { ResetPasswordUseCase } from "../../../application/use-cases/password";
+import { SessionSecretService } from "../../../application/services/session";
+import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
@@ -32,19 +32,22 @@ export const ResetPassword = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
-			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
+			const passwordResetSessionSecretService = new SessionSecretService(PASSWORD_RESET_SESSION_PEPPER);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 
-			const resetPasswordUseCase = new ResetPasswordUseCase(
+			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
+				passwordResetSessionSecretService,
+			);
+			const resetPasswordUseCase = new ResetPasswordUseCase(
 				userRepository,
 				sessionRepository,
+				passwordResetSessionRepository,
 				passwordService,
-				passwordResetSessionTokenService,
 			);
 			// === End of instances ===
 
@@ -59,10 +62,30 @@ export const ResetPassword = new ElysiaWithEnv()
 				});
 			}
 
-			const result = await resetPasswordUseCase.execute(passwordResetSessionToken, newPassword);
+			const validationResult = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
 
-			if (isErr(result)) {
-				const { code } = result;
+			if (isErr(validationResult)) {
+				const { code } = validationResult;
+
+				if (code === "EXPIRED_CODE") {
+					throw new BadRequestException({
+						code: "EXPIRED_CODE",
+						message: "Password reset session has expired.",
+					});
+				}
+
+				throw new BadRequestException({
+					code: code,
+					message: "Invalid token.",
+				});
+			}
+
+			const { passwordResetSession } = validationResult;
+
+			const resetResult = await resetPasswordUseCase.execute(newPassword, passwordResetSession);
+
+			if (isErr(resetResult)) {
+				const { code } = resetResult;
 
 				throw new BadRequestException({
 					code,

@@ -1,6 +1,6 @@
 import { t } from "elysia";
 import { PasswordService } from "../../application/services/password";
-import { SessionTokenService } from "../../application/services/session-token";
+import { SessionSecretService } from "../../application/services/session";
 import { UpdateUserPasswordUseCase } from "../../application/use-cases/password";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { FlattenUnion } from "../../common/schemas";
@@ -36,7 +36,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const sessionTokenService = new SessionSecretService(SESSION_PEPPER);
 
 			const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
 				userRepository,

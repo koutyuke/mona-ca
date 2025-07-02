@@ -1,6 +1,9 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
-import { PasswordResetVerifyEmailUseCase } from "../../../application/use-cases/password";
+import { SessionSecretService } from "../../../application/services/session";
+import {
+	PasswordResetVerifyEmailUseCase,
+	ValidatePasswordResetSessionUseCase,
+} from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
@@ -43,15 +46,13 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
-			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
+			const passwordResetSessionSecretService = new SessionSecretService(PASSWORD_RESET_SESSION_PEPPER);
 
-			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(
+			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
-				passwordResetSessionTokenService,
-				async (sessionId: string) => {
-					await rateLimit.consume(sessionId, 10);
-				},
+				passwordResetSessionSecretService,
 			);
+			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
 			// === End of instances ===
 
 			const passwordResetSessionToken =
@@ -65,13 +66,43 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				});
 			}
 
-			const result = await passwordResetVerifyEmailUseCase.execute(passwordResetSessionToken, code);
+			const validationResult = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
 
-			if (isErr(result)) {
-				const { code } = result;
+			if (isErr(validationResult)) {
+				const { code } = validationResult;
+
+				if (code === "EXPIRED_CODE") {
+					throw new BadRequestException({
+						code: "EXPIRED_CODE",
+						message: "Password reset session has expired.",
+					});
+				}
+
+				throw new BadRequestException({
+					code: code,
+					message: "Invalid token.",
+				});
+			}
+
+			const { passwordResetSession } = validationResult;
+
+			await rateLimit.consume(passwordResetSession.id, 10);
+
+			const verifyEmailResult = await passwordResetVerifyEmailUseCase.execute(code, passwordResetSession);
+
+			if (isErr(verifyEmailResult)) {
+				const { code } = verifyEmailResult;
+
+				if (code === "INVALID_CODE") {
+					throw new BadRequestException({
+						code: "INVALID_CODE",
+						message: "Invalid code.",
+					});
+				}
 
 				throw new BadRequestException({
 					code,
+					message: "Failed to verify email.",
 				});
 			}
 

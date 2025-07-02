@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
+import { SessionSecretService } from "../../../application/services/session";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { PasswordResetRequestUseCase } from "../../../application/use-cases/password";
@@ -45,7 +45,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
+			const passwordResetSessionSecretService = new SessionSecretService(PASSWORD_RESET_SESSION_PEPPER);
 
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
@@ -54,7 +54,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			const passwordResetRequestUseCase = new PasswordResetRequestUseCase(
 				passwordResetSessionRepository,
 				userRepository,
-				passwordResetSessionTokenService,
+				passwordResetSessionSecretService,
 			);
 			// === End of instances ===
 
