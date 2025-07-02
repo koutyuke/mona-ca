@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
+import { blob, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
 export const emailVerificationSessions = sqliteTable(
@@ -11,6 +11,7 @@ export const emailVerificationSessions = sqliteTable(
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
 		code: text("code").notNull().unique(),
+		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
 	table => [unique("unq_email_verification_sessions__user_id_email").on(table.userId, table.email)],
