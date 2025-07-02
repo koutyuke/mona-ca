@@ -14,6 +14,7 @@ type Props = {
 
 	enableBackButton?: boolean;
 	backButtonLabel?: string;
+	onBackButtonPress?: (goBack?: () => void) => void;
 
 	rightContents?: ReactNode;
 };
@@ -27,6 +28,7 @@ export const WaveHeader: FC<Props> = ({
 	enableBackButton,
 	backButtonLabel,
 	rightContents,
+	onBackButtonPress,
 }) => {
 	const { top } = useLayoutInsets();
 	const navigation = useNavigation();
@@ -36,7 +38,10 @@ export const WaveHeader: FC<Props> = ({
 			<View className="flex h-11 w-full flex-row items-center justify-between">
 				<View className="pl-2">
 					{enableBackButton && (
-						<Pressable className="flex flex-row items-center transition active:opacity-50" onPress={navigation.goBack}>
+						<Pressable
+							className="flex flex-row items-center transition active:opacity-50"
+							onPress={onBackButtonPress ? () => onBackButtonPress(navigation.goBack) : navigation.goBack}
+						>
 							<ChevronLeftIcon className="text-white" size={28} />
 							<Text size="md" weight="medium" className="text-white">
 								{backButtonLabel}
