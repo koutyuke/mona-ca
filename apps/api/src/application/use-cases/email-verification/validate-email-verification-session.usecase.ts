@@ -27,18 +27,21 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 
 		const emailVerificationSession = await this.emailVerificationSessionRepository.findById(emailVerificationSessionId);
 
+		if (!emailVerificationSession) {
+			return err("INVALID_TOKEN");
+		}
+
+		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
+			return err("EXPIRED_CODE");
+		}
+
 		if (
-			!emailVerificationSession ||
 			!this.emailVerificationSessionSecretService.verifySessionSecret(
 				emailVerificationSessionSecret,
 				emailVerificationSession.secretHash,
 			)
 		) {
 			return err("INVALID_TOKEN");
-		}
-
-		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
-			return err("EXPIRED_CODE");
 		}
 
 		return { emailVerificationSession };
