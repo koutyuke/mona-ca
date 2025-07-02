@@ -7,11 +7,18 @@ import { readBearerToken } from "../../common/utils";
 import { isErr } from "../../common/utils";
 import type { Session, User } from "../../domain/entities";
 import { type ClientType, clientTypeSchema } from "../../domain/value-object";
+import { newClientType } from "../../domain/value-object/client-type";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { ElysiaWithEnv } from "../elysia-with-env";
 import { BadRequestException, ErrorResponseSchema, UnauthorizedException } from "../error";
+
+type Response = {
+	user: User;
+	session: Session;
+	clientType: ClientType;
+};
 
 /**
  * Creates an authentication guard plugin for Elysia with environment configuration.
@@ -26,46 +33,26 @@ import { BadRequestException, ErrorResponseSchema, UnauthorizedException } from 
  * @example
  * const plugin = authGuard({ requireEmailVerification: false, includeSessionToken: true });
  */
-export const authGuard = <
-	T extends boolean,
-	U extends Record<string, unknown> = T extends true
-		? {
-				user: User;
-				session: Session;
-				sessionToken: string;
-				clientType: ClientType;
-			}
-		: {
-				user: User;
-				session: Session;
-				clientType: ClientType;
-			},
->(options?: {
+export const authGuard = (options?: {
 	requireEmailVerification?: boolean;
 	enableSessionCookieRefresh?: boolean;
-	includeSessionToken?: T;
 }) => {
-	const {
-		requireEmailVerification = true,
-		enableSessionCookieRefresh = true,
-		includeSessionToken = false,
-	} = options ?? {};
+	const { requireEmailVerification = true, enableSessionCookieRefresh = true } = options ?? {};
 
 	const plugin = new ElysiaWithEnv({
 		name: "@mona-ca/auth",
 		seed: {
 			requireEmailVerification,
 			enableSessionCookieRefresh,
-			includeSessionToken,
 		},
-	}).derive<U, "scoped">(
+	}).derive<Response, "scoped">(
 		{ as: "scoped" },
 		async ({
 			env: { SESSION_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
 			headers: { authorization, [CLIENT_TYPE_HEADER_NAME]: clientType },
-		}): Promise<U> => {
+		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
@@ -112,9 +99,7 @@ export const authGuard = <
 				cookie[SESSION_COOKIE_NAME].expires = session.expiresAt;
 			}
 
-			return (includeSessionToken
-				? { user, session, sessionToken, clientType }
-				: { user, session, clientType }) as unknown as U;
+			return { user, session, clientType: newClientType(clientType) };
 		},
 	);
 
@@ -135,6 +120,7 @@ export const AuthGuardSchema = {
 		401: t.Union([
 			ErrorResponseSchema("EXPIRED_SESSION"),
 			ErrorResponseSchema("SESSION_OR_USER_NOT_FOUND"),
+			ErrorResponseSchema("INVALID_SESSION_TOKEN"),
 			ErrorResponseSchema("EMAIL_VERIFICATION_IS_REQUIRED"),
 		]),
 	},

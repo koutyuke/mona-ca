@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
 import { SessionTokenService } from "../../../application/services/session-token";
 import { CLIENT_TYPE_HEADER_NAME } from "../../../common/constants";
+import { newSessionId } from "../../../domain/value-object";
 import { type DatabaseSession, SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
@@ -16,21 +17,29 @@ const sessionTableHelper = new SessionTableHelper(DB);
 const user1Id = "user1Id" as const;
 const user2Id = "user2Id" as const;
 
-const sessionToken1 = "sessionId1" as const;
-const sessionToken2 = "sessionId2" as const;
+const session1Id = newSessionId("session1Id");
+const session2Id = newSessionId("session2Id");
 
-const session1Id = sessionTokenService.hashSessionToken(sessionToken1);
-const session2Id = sessionTokenService.hashSessionToken(sessionToken2);
+const sessionSecret1 = "session1Secret" as const;
+const sessionSecret2 = "session2Secret" as const;
+
+const sessionSecretHash1 = sessionTokenService.hashSessionSecret(sessionSecret1);
+const sessionSecretHash2 = sessionTokenService.hashSessionSecret(sessionSecret2);
+
+const sessionToken1 = sessionTokenService.createToken(session1Id, sessionSecret1);
+const sessionToken2 = sessionTokenService.createToken(session2Id, sessionSecret2);
 
 const databaseSession1: DatabaseSession = {
 	id: session1Id,
 	user_id: user1Id,
+	secret_hash: sessionTableHelper.convertSessionSecretHashToDatabaseSessionSecretHash(sessionSecretHash1),
 	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
 };
 
 const databaseSession2: DatabaseSession = {
 	id: session2Id,
 	user_id: user2Id,
+	secret_hash: sessionTableHelper.convertSessionSecretHashToDatabaseSessionSecretHash(sessionSecretHash2),
 	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
 };
 
