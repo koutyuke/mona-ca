@@ -4,6 +4,7 @@ import { SessionSecretService, createSessionToken } from "../../../application/s
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { newSessionId } from "../../../domain/value-object";
 import { type DatabaseSession, SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
+import { toDatabaseSessionSecretHash } from "../../../tests/utils";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
@@ -32,14 +33,14 @@ const sessionToken2 = createSessionToken(session2Id, sessionSecret2);
 const databaseSession1: DatabaseSession = {
 	id: session1Id,
 	user_id: user1Id,
-	secret_hash: sessionTableHelper.convertSessionSecretHashToDatabaseSessionSecretHash(sessionSecretHash1),
+	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash1),
 	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
 };
 
 const databaseSession2: DatabaseSession = {
 	id: session2Id,
 	user_id: user2Id,
-	secret_hash: sessionTableHelper.convertSessionSecretHashToDatabaseSessionSecretHash(sessionSecretHash2),
+	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash2),
 	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
 };
 
