@@ -23,12 +23,12 @@ describe("AccountAssociationSessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete a sessions for a user", async () => {
-		await accountAssociationSessionTableHelper.create(accountAssociationSessionTableHelper.baseDatabaseSession);
+		await accountAssociationSessionTableHelper.create(accountAssociationSessionTableHelper.baseDatabaseData);
 
-		await accountAssociationSessionRepository.deleteByUserId(accountAssociationSessionTableHelper.baseSession.userId);
+		await accountAssociationSessionRepository.deleteByUserId(accountAssociationSessionTableHelper.baseData.userId);
 
 		const sessions = await accountAssociationSessionTableHelper.findByUserId(
-			accountAssociationSessionTableHelper.baseSession.userId,
+			accountAssociationSessionTableHelper.baseData.userId,
 		);
 		expect(sessions).toHaveLength(0);
 	});

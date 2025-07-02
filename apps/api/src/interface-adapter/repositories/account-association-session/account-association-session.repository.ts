@@ -14,7 +14,8 @@ import type { IAccountAssociationSessionRepository } from "./interfaces/account-
 interface FoundAccountAssociationSessionDto {
 	id: string;
 	userId: string;
-	code: string;
+	code: string | null;
+	secretHash: Buffer;
 	email: string;
 	provider: "discord";
 	providerId: string;
@@ -38,7 +39,10 @@ export class AccountAssociationSessionRepository implements IAccountAssociationS
 	}
 
 	public async save(session: AccountAssociationSession): Promise<void> {
-		await this.drizzleService.db.insert(this.drizzleService.schema.accountAssociationSessions).values(session);
+		await this.drizzleService.db.insert(this.drizzleService.schema.accountAssociationSessions).values({
+			...session,
+			secretHash: Buffer.from(session.secretHash),
+		});
 	}
 
 	public async delete(sessionId: AccountAssociationSessionId): Promise<void> {
@@ -67,10 +71,11 @@ export class AccountAssociationSessionRepository implements IAccountAssociationS
 			id: newAccountAssociationSessionId(dto.id),
 			userId: newUserId(dto.userId),
 			code: dto.code,
+			secretHash: new Uint8Array(dto.secretHash),
 			email: dto.email,
 			provider: newOAuthProvider(dto.provider),
 			providerId: newOAuthProviderId(dto.providerId),
 			expiresAt: dto.expiresAt,
-		} satisfies AccountAssociationSession;
+		};
 	}
 }

@@ -25,10 +25,10 @@ describe("AccountAssociationSessionRepository.delete", () => {
 	test("should delete session by id", async () => {
 		await accountAssociationSessionTableHelper.create();
 
-		await accountAssociationSessionRepository.delete(accountAssociationSessionTableHelper.baseSession.id);
+		await accountAssociationSessionRepository.delete(accountAssociationSessionTableHelper.baseData.id);
 
 		const databaseSessions = await accountAssociationSessionTableHelper.findById(
-			accountAssociationSessionTableHelper.baseSession.id,
+			accountAssociationSessionTableHelper.baseData.id,
 		);
 		expect(databaseSessions).toHaveLength(0);
 	});

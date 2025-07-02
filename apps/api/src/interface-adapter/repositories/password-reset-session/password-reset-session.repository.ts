@@ -50,10 +50,6 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 			.onConflictDoUpdate({
 				target: this.drizzleService.schema.passwordResetSessions.id,
 				set: {
-					userId: passwordResetSession.userId,
-					code: passwordResetSession.code,
-					secretHash: Buffer.from(passwordResetSession.secretHash),
-					email: passwordResetSession.email,
 					emailVerified: passwordResetSession.emailVerified,
 					expiresAt: passwordResetSession.expiresAt,
 				},

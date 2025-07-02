@@ -21,9 +21,9 @@ describe("AccountAssociationSessionRepository.findById", () => {
 
 	test("should return session from sessionId", async () => {
 		const session = await accountAssociationSessionRepository.findById(
-			accountAssociationSessionTableHelper.baseSession.id,
+			accountAssociationSessionTableHelper.baseData.id,
 		);
-		const expectedSession = accountAssociationSessionTableHelper.baseSession;
+		const expectedSession = accountAssociationSessionTableHelper.baseData;
 
 		expect(session).toStrictEqual(expectedSession);
 	});
