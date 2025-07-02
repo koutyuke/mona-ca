@@ -1,6 +1,6 @@
 import { t } from "elysia";
 import { PasswordService } from "../../application/services/password";
-import { SessionTokenService } from "../../application/services/session-token";
+import { SessionSecretService } from "../../application/services/session";
 import { LoginUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { FlattenUnion } from "../../common/schemas";
@@ -44,13 +44,13 @@ export const Login = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, passwordService, sessionTokenService);
+			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, passwordService, sessionSecretService);
 			// === End of instances ===
 
 			const result = await loginUseCase.execute(email, password);

@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { SessionTokenService } from "../../../application/services/session-token";
+import { SessionSecretService, createSessionToken } from "../../../application/services/session";
 import { CLIENT_TYPE_HEADER_NAME } from "../../../common/constants";
 import { newSessionId } from "../../../domain/value-object";
 import { type DatabaseSession, SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
@@ -9,7 +9,7 @@ import { authGuard } from "../auth-guard.plugin";
 
 const { DB, SESSION_PEPPER } = env;
 
-const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
@@ -23,11 +23,11 @@ const session2Id = newSessionId("session2Id");
 const sessionSecret1 = "session1Secret" as const;
 const sessionSecret2 = "session2Secret" as const;
 
-const sessionSecretHash1 = sessionTokenService.hashSessionSecret(sessionSecret1);
-const sessionSecretHash2 = sessionTokenService.hashSessionSecret(sessionSecret2);
+const sessionSecretHash1 = sessionSecretService.hashSessionSecret(sessionSecret1);
+const sessionSecretHash2 = sessionSecretService.hashSessionSecret(sessionSecret2);
 
-const sessionToken1 = sessionTokenService.createToken(session1Id, sessionSecret1);
-const sessionToken2 = sessionTokenService.createToken(session2Id, sessionSecret2);
+const sessionToken1 = createSessionToken(session1Id, sessionSecret1);
+const sessionToken2 = createSessionToken(session2Id, sessionSecret2);
 
 const databaseSession1: DatabaseSession = {
 	id: session1Id,

@@ -1,6 +1,6 @@
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
-import { SessionTokenService } from "../../application/services/session-token";
+import { SessionSecretService } from "../../application/services/session";
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
 import { readBearerToken } from "../../common/utils";
@@ -55,11 +55,15 @@ export const authGuard = (options?: {
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const validateSessionUseCase = new ValidateSessionUseCase(sessionTokenService, sessionRepository, userRepository);
+			const validateSessionUseCase = new ValidateSessionUseCase(
+				sessionSecretService,
+				sessionRepository,
+				userRepository,
+			);
 			// === End of instances ===
 
 			if (!clientType || !Value.Check(clientTypeSchema, clientType)) {
@@ -119,7 +123,6 @@ export const AuthGuardSchema = {
 		400: ErrorResponseSchema("INVALID_CLIENT_TYPE"),
 		401: t.Union([
 			ErrorResponseSchema("EXPIRED_SESSION"),
-			ErrorResponseSchema("SESSION_OR_USER_NOT_FOUND"),
 			ErrorResponseSchema("INVALID_SESSION_TOKEN"),
 			ErrorResponseSchema("EMAIL_VERIFICATION_IS_REQUIRED"),
 		]),

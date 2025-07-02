@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { SessionTokenService } from "../../application/services/session-token";
+import { SessionSecretService, createSessionToken } from "../../application/services/session";
 import { sessionExpiresSpan } from "../../common/constants";
 import type { Session } from "../../domain/entities";
 import { newSessionId, newUserId } from "../../domain/value-object";
@@ -14,7 +14,7 @@ export type DatabaseSession = {
 
 const { SESSION_PEPPER } = env;
 
-const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 
 export class SessionTableHelper {
 	private readonly expiresAt: Date;
@@ -24,8 +24,8 @@ export class SessionTableHelper {
 
 	public baseSessionId = "sessionId" as const;
 	public baseSessionSecret = "sessionSecret" as const;
-	public baseSessionSecretHash = sessionTokenService.hashSessionSecret(this.baseSessionSecret);
-	public baseSessionToken = sessionTokenService.createToken(newSessionId(this.baseSessionId), this.baseSessionSecret);
+	public baseSessionSecretHash = sessionSecretService.hashSessionSecret(this.baseSessionSecret);
+	public baseSessionToken = createSessionToken(newSessionId(this.baseSessionId), this.baseSessionSecret);
 
 	constructor(
 		private readonly db: D1Database,
