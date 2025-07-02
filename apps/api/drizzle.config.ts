@@ -1,12 +1,16 @@
-import type { Config } from "drizzle-kit";
+import dotenv from "dotenv";
+import { defineConfig } from "drizzle-kit";
 
-export default {
-	dialect: "sqlite",
-	schema: "./src/infrastructure/drizzle/schema/!(index).ts",
+dotenv.config({ path: ".env.drizzle.local" });
+
+export default defineConfig({
 	out: "./drizzle/migrations",
-	driver: "d1",
+	schema: "./src/infrastructure/drizzle/schema/!(index).ts",
+	dialect: "sqlite",
+	driver: "d1-http",
 	dbCredentials: {
-		wranglerConfigPath: "./wrangler.toml",
-		dbName: "mona-ca_db",
+		accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
+		databaseId: "b7773705-8f1f-49e2-9a42-564971632cf4",
+		token: process.env.CLOUDFLARE_API_TOKEN!,
 	},
-} as const satisfies Config;
+});
