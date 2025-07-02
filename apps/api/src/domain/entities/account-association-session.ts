@@ -6,6 +6,7 @@ export interface AccountAssociationSession {
 	id: AccountAssociationSessionId;
 	userId: UserId;
 	code: string | null;
+	secretHash: Uint8Array;
 	email: string;
 	provider: OAuthProvider;
 	providerId: OAuthProviderId;
@@ -16,6 +17,7 @@ export const createAccountAssociationSession = (args: {
 	id: AccountAssociationSessionId;
 	userId: UserId;
 	code: string | null;
+	secretHash: Uint8Array;
 	email: string;
 	provider: OAuthProvider;
 	providerId: OAuthProviderId;
@@ -24,6 +26,7 @@ export const createAccountAssociationSession = (args: {
 		id: args.id,
 		userId: args.userId,
 		code: args.code,
+		secretHash: args.secretHash,
 		email: args.email,
 		provider: args.provider,
 		providerId: args.providerId,
