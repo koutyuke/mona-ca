@@ -34,21 +34,21 @@ const databaseSession1: DatabaseSession = {
 	id: session1Id,
 	user_id: user1Id,
 	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash1),
-	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
+	expires_at: sessionTableHelper.baseDatabaseData.expires_at,
 };
 
 const databaseSession2: DatabaseSession = {
 	id: session2Id,
 	user_id: user2Id,
 	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash2),
-	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
+	expires_at: sessionTableHelper.baseDatabaseData.expires_at,
 };
 
 describe("AuthGuard cookie test", () => {
 	beforeAll(async () => {
 		// Create non-email-verified User
 		await userTableHelper.create({
-			...userTableHelper.baseDatabaseUser,
+			...userTableHelper.baseDatabaseData,
 			id: "user1Id",
 			email_verified: 0,
 			email: "test1.email@example.com",
@@ -56,7 +56,7 @@ describe("AuthGuard cookie test", () => {
 
 		// Create email-verified User
 		await userTableHelper.create({
-			...userTableHelper.baseDatabaseUser,
+			...userTableHelper.baseDatabaseData,
 			id: "user2Id",
 			email_verified: 1,
 			email: "test2.email@example.com",

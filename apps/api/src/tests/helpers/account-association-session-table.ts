@@ -28,7 +28,7 @@ export class AccountAssociationSessionTableHelper {
 	public baseId = "accountAssociationSessionId" as const;
 	public baseSecret = "accountAssociationSessionSecret" as const;
 	public baseSecretHash = sessionSecretService.hashSessionSecret(this.baseSecret);
-	public baseSessionToken = createSessionToken(newAccountAssociationSessionId(this.baseId), this.baseSecret);
+	public baseToken = createSessionToken(newAccountAssociationSessionId(this.baseId), this.baseSecret);
 
 	public baseData = {
 		id: newAccountAssociationSessionId(this.baseId),

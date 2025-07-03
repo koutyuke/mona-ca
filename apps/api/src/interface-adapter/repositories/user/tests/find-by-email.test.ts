@@ -17,9 +17,9 @@ describe("UserRepository.findByEmail", async () => {
 	});
 
 	test("should return User instance if user exists", async () => {
-		const foundUser = await userRepository.findByEmail(userTableHelper.baseUser.email);
+		const foundUser = await userRepository.findByEmail(userTableHelper.baseData.email);
 
-		expect(foundUser).toStrictEqual(userTableHelper.baseUser);
+		expect(foundUser).toStrictEqual(userTableHelper.baseData);
 	});
 
 	test("should return null if user not found", async () => {

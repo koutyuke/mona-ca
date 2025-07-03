@@ -22,7 +22,7 @@ describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
 		await userTableHelper.create({
-			...userTableHelper.baseDatabaseUser,
+			...userTableHelper.baseDatabaseData,
 			id: newUserId("validUser"),
 			name: "validUser",
 			email: "valid.email@example.com",

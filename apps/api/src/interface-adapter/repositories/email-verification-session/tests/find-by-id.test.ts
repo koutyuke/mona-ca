@@ -21,12 +21,10 @@ describe("EmailVerificationSessionRepository.findId", () => {
 
 	test("should return EmailVerificationSession instance", async () => {
 		const foundEmailVerificationSession = await emailVerificationSessionRepository.findById(
-			emailVerificationSessionTableHelper.baseEmailVerificationSession.id,
+			emailVerificationSessionTableHelper.baseData.id,
 		);
 
-		expect(foundEmailVerificationSession).toStrictEqual(
-			emailVerificationSessionTableHelper.baseEmailVerificationSession,
-		);
+		expect(foundEmailVerificationSession).toStrictEqual(emailVerificationSessionTableHelper.baseData);
 	});
 
 	test("should return null if EmailVerificationSession is not found", async () => {

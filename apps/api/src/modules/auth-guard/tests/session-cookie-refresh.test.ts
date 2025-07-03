@@ -31,7 +31,7 @@ describe("AuthGuard enableSessionCookieRefresh option", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					cookie: `${SESSION_COOKIE_NAME}=${sessionTableHelper.baseSessionToken};`,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionTableHelper.baseToken};`,
 					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),

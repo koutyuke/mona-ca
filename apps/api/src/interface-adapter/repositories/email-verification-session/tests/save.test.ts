@@ -18,13 +18,11 @@ describe("EmailVerificationSessionRepository.create", () => {
 	});
 
 	test("should create data in database", async () => {
-		await emailVerificationSessionRepository.save(emailVerificationSessionTableHelper.baseEmailVerificationSession);
+		await emailVerificationSessionRepository.save(emailVerificationSessionTableHelper.baseData);
 
-		const results = await emailVerificationSessionTableHelper.findById(
-			emailVerificationSessionTableHelper.baseEmailVerificationSession.id,
-		);
+		const results = await emailVerificationSessionTableHelper.findById(emailVerificationSessionTableHelper.baseData.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(emailVerificationSessionTableHelper.baseDatabaseEmailVerificationSession);
+		expect(results[0]).toStrictEqual(emailVerificationSessionTableHelper.baseDatabaseData);
 	});
 });

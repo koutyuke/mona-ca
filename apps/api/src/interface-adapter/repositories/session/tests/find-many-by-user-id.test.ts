@@ -20,9 +20,9 @@ describe("SessionRepository.findManyByUserId", () => {
 	});
 
 	test("should return sessions", async () => {
-		const sessions = await sessionRepository.findManyByUserId(userTableHelper.baseUser.id);
+		const sessions = await sessionRepository.findManyByUserId(userTableHelper.baseData.id);
 
-		const expectedSession = sessionTableHelper.baseSession;
+		const expectedSession = sessionTableHelper.baseData;
 
 		expect(sessions.length).toBe(1);
 		expect(sessions[0]).toStrictEqual(expectedSession);

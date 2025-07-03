@@ -21,10 +21,10 @@ describe("UserRepository.findBySessionId", async () => {
 	});
 
 	test("should return User instance if user exists.", async () => {
-		const foundUser = await userRepository.findBySessionId(sessionTableHelper.baseSession.id);
+		const foundUser = await userRepository.findBySessionId(sessionTableHelper.baseData.id);
 
 		const expectedUser = {
-			...userTableHelper.baseUser,
+			...userTableHelper.baseData,
 			createdAt: foundUser!.createdAt,
 			updatedAt: foundUser!.updatedAt,
 		} satisfies User;

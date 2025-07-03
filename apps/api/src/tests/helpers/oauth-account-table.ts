@@ -9,14 +9,14 @@ export type DatabaseOAuthAccount = {
 };
 
 export class OAuthAccountTableHelper {
-	public baseOAuthAccount = {
+	public baseData = {
 		provider: newOAuthProvider("discord"),
 		providerId: newOAuthProviderId("providerId"),
 		userId: newUserId("userId"),
 		linkedAt: new Date(1704067200 * 1000),
 	} satisfies OAuthAccount;
 
-	public baseDatabaseOAuthAccount = {
+	public baseDatabaseData = {
 		provider: "discord",
 		provider_id: "providerId",
 		user_id: "userId",
@@ -26,7 +26,7 @@ export class OAuthAccountTableHelper {
 	constructor(private readonly db: D1Database) {}
 
 	public async create(oauthAccount?: DatabaseOAuthAccount): Promise<void> {
-		const { provider, provider_id, user_id, linked_at } = oauthAccount ?? this.baseDatabaseOAuthAccount;
+		const { provider, provider_id, user_id, linked_at } = oauthAccount ?? this.baseDatabaseData;
 		await this.db
 			.prepare("INSERT INTO oauth_accounts (provider, provider_id, user_id, linked_at) VALUES (?1, ?2, ?3, ?4)")
 			.bind(provider, provider_id, user_id, linked_at)

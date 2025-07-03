@@ -19,12 +19,10 @@ describe("EmailVerificationSessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete data in database", async () => {
-		await emailVerificationSessionRepository.deleteByUserId(
-			emailVerificationSessionTableHelper.baseEmailVerificationSession.userId,
-		);
+		await emailVerificationSessionRepository.deleteByUserId(emailVerificationSessionTableHelper.baseData.userId);
 
 		const results = await emailVerificationSessionTableHelper.findByUserId(
-			emailVerificationSessionTableHelper.baseEmailVerificationSession.userId,
+			emailVerificationSessionTableHelper.baseData.userId,
 		);
 
 		expect(results.length).toBe(0);

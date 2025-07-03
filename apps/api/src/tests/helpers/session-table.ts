@@ -19,13 +19,13 @@ const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 export class SessionTableHelper {
 	private readonly expiresAt: Date;
 
-	public baseSession: Session;
-	public baseDatabaseSession: DatabaseSession;
+	public baseData: Session;
+	public baseDatabaseData: DatabaseSession;
 
-	public baseSessionId = "sessionId" as const;
-	public baseSessionSecret = "sessionSecret" as const;
-	public baseSessionSecretHash = sessionSecretService.hashSessionSecret(this.baseSessionSecret);
-	public baseSessionToken = createSessionToken(newSessionId(this.baseSessionId), this.baseSessionSecret);
+	public baseId = "sessionId" as const;
+	public baseSecret = "sessionSecret" as const;
+	public baseSecretHash = sessionSecretService.hashSessionSecret(this.baseSecret);
+	public baseToken = createSessionToken(newSessionId(this.baseId), this.baseSecret);
 
 	constructor(
 		private readonly db: D1Database,
@@ -37,23 +37,23 @@ export class SessionTableHelper {
 
 		this.expiresAt = new Date(toDatabaseDate(expiresAt) * 1000);
 
-		this.baseSession = {
-			id: newSessionId(this.baseSessionId),
+		this.baseData = {
+			id: newSessionId(this.baseId),
 			userId: newUserId("userId"),
-			secretHash: this.baseSessionSecretHash,
+			secretHash: this.baseSecretHash,
 			expiresAt: this.expiresAt,
 		} satisfies Session;
 
-		this.baseDatabaseSession = {
-			id: this.baseSessionId,
+		this.baseDatabaseData = {
+			id: this.baseId,
 			user_id: "userId",
-			secret_hash: toDatabaseSessionSecretHash(this.baseSessionSecretHash),
+			secret_hash: toDatabaseSessionSecretHash(this.baseSecretHash),
 			expires_at: this.expiresAt.getTime() / 1000,
 		} as const;
 	}
 
 	public async create(session?: DatabaseSession): Promise<void> {
-		const { id, user_id, secret_hash, expires_at } = session ?? this.baseDatabaseSession;
+		const { id, user_id, secret_hash, expires_at } = session ?? this.baseDatabaseData;
 
 		await this.db
 			.prepare("INSERT INTO sessions (id, user_id, secret_hash, expires_at) VALUES (?1, ?2, ?3, ?4)")

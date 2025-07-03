@@ -34,8 +34,6 @@ describe("PasswordResetSessionRepository.save", () => {
 
 		const updatedPasswordResetSession = {
 			...passwordResetSessionTableHelper.baseData,
-			code: "newCode",
-			email: "new.email@example.com",
 			emailVerified: false,
 			expiresAt: now,
 		};
@@ -47,8 +45,6 @@ describe("PasswordResetSessionRepository.save", () => {
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
 			...passwordResetSessionTableHelper.baseDatabaseData,
-			code: "newCode",
-			email: "new.email@example.com",
 			email_verified: 0,
 			expires_at: toDatabaseDate(now),
 		});

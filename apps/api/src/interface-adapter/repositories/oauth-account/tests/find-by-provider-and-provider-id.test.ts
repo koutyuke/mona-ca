@@ -21,11 +21,11 @@ describe("OAuthAccountRepository.findByProviderAndProviderId", () => {
 
 	test("should return OAuthAccount instance", async () => {
 		const foundOAuthAccount = await oauthAccountRepository.findByProviderAndProviderId(
-			oauthAccountTableHelper.baseOAuthAccount.provider,
-			oauthAccountTableHelper.baseOAuthAccount.providerId,
+			oauthAccountTableHelper.baseData.provider,
+			oauthAccountTableHelper.baseData.providerId,
 		);
 
-		expect(foundOAuthAccount).toStrictEqual(oauthAccountTableHelper.baseOAuthAccount);
+		expect(foundOAuthAccount).toStrictEqual(oauthAccountTableHelper.baseData);
 	});
 
 	test("should return null if OAuthAccount not found", async () => {
