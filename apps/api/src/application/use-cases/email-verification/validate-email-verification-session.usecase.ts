@@ -1,5 +1,5 @@
 import { err } from "../../../common/utils";
-import { isExpiredEmailVerificationSession } from "../../../domain/entities";
+import { type User, isExpiredEmailVerificationSession } from "../../../domain/entities";
 import type { EmailVerificationSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { type ISessionSecretService, separateSessionTokenToIdAndSecret } from "../../services/session";
@@ -14,12 +14,15 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 		private readonly emailVerificationSessionSecretService: ISessionSecretService,
 	) {}
 
-	public async execute(emailVerificationSessionToken: string): Promise<ValidateEmailVerificationSessionUseCaseResult> {
+	public async execute(
+		emailVerificationSessionToken: string,
+		user: User,
+	): Promise<ValidateEmailVerificationSessionUseCaseResult> {
 		const emailVerificationSessionIdAndSecret =
 			separateSessionTokenToIdAndSecret<EmailVerificationSessionId>(emailVerificationSessionToken);
 
 		if (!emailVerificationSessionIdAndSecret) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_EMAIL_VERIFICATION_SESSION");
 		}
 
 		const { id: emailVerificationSessionId, secret: emailVerificationSessionSecret } =
@@ -28,11 +31,16 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 		const emailVerificationSession = await this.emailVerificationSessionRepository.findById(emailVerificationSessionId);
 
 		if (!emailVerificationSession) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_EMAIL_VERIFICATION_SESSION");
+		}
+
+		if (emailVerificationSession.userId !== user.id) {
+			return err("INVALID_EMAIL_VERIFICATION_SESSION");
 		}
 
 		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
-			return err("EXPIRED_CODE");
+			await this.emailVerificationSessionRepository.deleteByUserId(emailVerificationSession.userId);
+			return err("EXPIRED_EMAIL_VERIFICATION_SESSION");
 		}
 
 		if (
@@ -41,7 +49,7 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 				emailVerificationSession.secretHash,
 			)
 		) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_EMAIL_VERIFICATION_SESSION");
 		}
 
 		return { emailVerificationSession };
