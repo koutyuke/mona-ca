@@ -24,7 +24,7 @@ export class SignupUseCase implements ISignupUseCase {
 				return err("EMAIL_IS_ALREADY_USED");
 			}
 
-			await this.userRepository.delete(existingSameEmailUser.id);
+			await this.userRepository.deleteById(existingSameEmailUser.id);
 		}
 
 		const userId = newUserId(ulid());

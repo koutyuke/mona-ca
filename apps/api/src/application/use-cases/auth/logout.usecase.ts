@@ -6,6 +6,6 @@ export class LogoutUseCase implements ILogoutUseCase {
 	constructor(private readonly sessionRepository: ISessionRepository) {}
 
 	public async execute(sessionId: SessionId): Promise<void> {
-		await this.sessionRepository.delete(sessionId);
+		await this.sessionRepository.deleteById(sessionId);
 	}
 }
