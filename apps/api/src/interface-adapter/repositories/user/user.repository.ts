@@ -119,7 +119,7 @@ export class UserRepository implements IUserRepository {
 			});
 	}
 
-	public async delete(id: UserId): Promise<void> {
+	public async deleteById(id: UserId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.users)
 			.where(eq(this.drizzleService.schema.users.id, id));

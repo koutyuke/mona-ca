@@ -50,7 +50,7 @@ export class SessionRepository implements ISessionRepository {
 			});
 	}
 
-	public async delete(sessionId: SessionId): Promise<void> {
+	public async deleteById(sessionId: SessionId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.sessions)
 			.where(eq(this.drizzleService.schema.sessions.id, sessionId))

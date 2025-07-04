@@ -17,7 +17,7 @@ describe("UserRepository.delete", async () => {
 	});
 
 	test("should deleted user from the database", async () => {
-		await userRepository.delete(userTableHelper.baseData.id);
+		await userRepository.deleteById(userTableHelper.baseData.id);
 
 		const results = await userTableHelper.find(userTableHelper.baseData.id);
 
