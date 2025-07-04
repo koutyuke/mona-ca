@@ -1,47 +1,26 @@
-import { err, generateRandomString, ulid } from "../../../common/utils";
-import {
-	type AccountAssociationSession,
-	createAccountAssociationSession,
-	isExpiredAccountAssociationSession,
-} from "../../../domain/entities";
+import { generateRandomString, ulid } from "../../../common/utils";
+import { type AccountAssociationSession, type User, createAccountAssociationSession } from "../../../domain/entities";
 import { newAccountAssociationSessionId } from "../../../domain/value-object";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	AccountAssociationChallengeUseCaseResult,
 	IAccountAssociationChallengeUseCase,
 } from "./interfaces/account-association-challenge.interface.usecase";
 
+// this use case will be called after the validate account association session use case.
+// so we don't need to check the expired account association session.
 export class AccountAssociationChallengeUseCase implements IAccountAssociationChallengeUseCase {
 	constructor(
 		private readonly accountAssociationSessionSecretService: ISessionSecretService,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
-		private readonly userRepository: IUserRepository,
 	) {}
 
 	public async execute(
+		user: User,
 		accountAssociationSession: AccountAssociationSession,
 	): Promise<AccountAssociationChallengeUseCaseResult> {
-		if (isExpiredAccountAssociationSession(accountAssociationSession)) {
-			return err("EXPIRED_SESSION_TOKEN");
-		}
-
 		await this.accountAssociationSessionRepository.deleteByUserId(accountAssociationSession.userId);
-
-		const user = await this.userRepository.findById(accountAssociationSession.userId);
-
-		if (!user) {
-			return err("USER_NOT_FOUND");
-		}
-
-		if (!user.emailVerified) {
-			return err("EMAIL_NOT_VERIFIED");
-		}
-
-		if (user.email !== accountAssociationSession.email) {
-			return err("INVALID_EMAIL");
-		}
 
 		const accountAssociationSessionSecret = this.accountAssociationSessionSecretService.generateSessionSecret();
 		const accountAssociationSessionSecretHash = this.accountAssociationSessionSecretService.hashSessionSecret(

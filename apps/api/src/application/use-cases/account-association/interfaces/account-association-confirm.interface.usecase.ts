@@ -6,12 +6,7 @@ type Success = {
 	session: Session;
 };
 
-type Error =
-	| Err<"INVALID_TOKEN">
-	| Err<"EXPIRED_SESSION">
-	| Err<"INVALID_CODE">
-	| Err<"PROVIDER_ALREADY_LINKED">
-	| Err<"ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER">;
+type Error = Err<"INVALID_CODE"> | Err<"PROVIDER_ALREADY_LINKED"> | Err<"ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER">;
 
 export type AccountAssociationConfirmUseCaseResult = Result<Success, Error>;
 

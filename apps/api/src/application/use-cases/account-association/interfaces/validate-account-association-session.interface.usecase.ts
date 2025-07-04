@@ -6,12 +6,7 @@ type Success = {
 	user: User;
 };
 
-type Error =
-	| Err<"INVALID_TOKEN">
-	| Err<"EXPIRED_CODE">
-	| Err<"USER_NOT_FOUND">
-	| Err<"INVALID_EMAIL">
-	| Err<"EMAIL_NOT_VERIFIED">;
+type Error = Err<"INVALID_ACCOUNT_ASSOCIATION_SESSION"> | Err<"EXPIRED_ACCOUNT_ASSOCIATION_SESSION">;
 
 export type ValidateAccountAssociationSessionUseCaseResult = Result<Success, Error>;
 

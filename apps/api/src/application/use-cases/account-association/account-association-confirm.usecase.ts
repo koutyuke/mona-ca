@@ -1,10 +1,5 @@
-import { constantTimeCompare, err, ulid } from "../../../common/utils";
-import {
-	type AccountAssociationSession,
-	createOAuthAccount,
-	createSession,
-	isExpiredAccountAssociationSession,
-} from "../../../domain/entities";
+import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
+import { type AccountAssociationSession, createOAuthAccount, createSession } from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
@@ -15,6 +10,8 @@ import type {
 	IAccountAssociationConfirmUseCase,
 } from "./interfaces/account-association-confirm.interface.usecase";
 
+// this use case will be called after the validate account association session use case.
+// so we don't need to check the expired account association session.
 export class AccountAssociationConfirmUseCase implements IAccountAssociationConfirmUseCase {
 	constructor(
 		private readonly sessionRepository: ISessionRepository,
@@ -31,15 +28,11 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			return err("INVALID_CODE");
 		}
 
-		if (!constantTimeCompare(accountAssociationSession.code, code)) {
+		if (!timingSafeStringEqual(accountAssociationSession.code, code)) {
 			return err("INVALID_CODE");
 		}
 
-		await this.accountAssociationSessionRepository.delete(accountAssociationSession.id);
-
-		if (isExpiredAccountAssociationSession(accountAssociationSession)) {
-			return err("EXPIRED_SESSION");
-		}
+		await this.accountAssociationSessionRepository.deleteById(accountAssociationSession.id);
 
 		const [existingOAuthAccount, existingUserLinkedAccount] = await Promise.all([
 			this.oauthAccountRepository.findByProviderAndProviderId(

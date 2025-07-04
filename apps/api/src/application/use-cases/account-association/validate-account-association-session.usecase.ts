@@ -23,7 +23,7 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 			separateSessionTokenToIdAndSecret<AccountAssociationSessionId>(accountAssociationSessionToken);
 
 		if (!accountAssociationSessionIdAndSecret) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_ACCOUNT_ASSOCIATION_SESSION");
 		}
 
 		const { id: accountAssociationSessionId, secret: accountAssociationSessionSecret } =
@@ -33,11 +33,12 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 			await this.accountAssociationSessionRepository.findById(accountAssociationSessionId);
 
 		if (!accountAssociationSession) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_ACCOUNT_ASSOCIATION_SESSION");
 		}
 
 		if (isExpiredAccountAssociationSession(accountAssociationSession)) {
-			return err("EXPIRED_CODE");
+			await this.accountAssociationSessionRepository.deleteById(accountAssociationSessionId);
+			return err("EXPIRED_ACCOUNT_ASSOCIATION_SESSION");
 		}
 
 		if (
@@ -46,21 +47,15 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 				accountAssociationSession.secretHash,
 			)
 		) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_ACCOUNT_ASSOCIATION_SESSION");
 		}
 
 		const user = await this.userRepository.findById(accountAssociationSession.userId);
 
-		if (!user) {
-			return err("USER_NOT_FOUND");
-		}
-
-		if (user.email !== accountAssociationSession.email) {
-			return err("INVALID_EMAIL");
-		}
-
-		if (!user.emailVerified) {
-			return err("EMAIL_NOT_VERIFIED");
+		if (!user || user.email !== accountAssociationSession.email || !user.emailVerified) {
+			// if the user is not found or the email is not verified, delete the account association session
+			await this.accountAssociationSessionRepository.deleteById(accountAssociationSessionId);
+			return err("INVALID_ACCOUNT_ASSOCIATION_SESSION");
 		}
 
 		return { accountAssociationSession, user };
