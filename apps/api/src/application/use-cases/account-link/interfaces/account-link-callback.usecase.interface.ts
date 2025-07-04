@@ -1,12 +1,12 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
 
-export type AccountLinkCallbackUseCaseSuccessResult = {
+type Success = {
 	redirectURL: URL;
 	clientType: ClientType;
 };
 
-export type AccountLinkCallbackUseCaseErrorResult =
+type Error =
 	| Err<"INVALID_STATE">
 	| Err<"INVALID_REDIRECT_URL">
 	| Err<"CODE_NOT_FOUND">
@@ -16,10 +16,7 @@ export type AccountLinkCallbackUseCaseErrorResult =
 	| Err<"PROVIDER_ALREADY_LINKED", { redirectURL: URL }>
 	| Err<"ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: URL }>;
 
-export type AccountLinkCallbackUseCaseResult = Result<
-	AccountLinkCallbackUseCaseSuccessResult,
-	AccountLinkCallbackUseCaseErrorResult
->;
+export type AccountLinkCallbackUseCaseResult = Result<Success, Error>;
 
 export interface IAccountLinkCallbackUseCase {
 	execute(
