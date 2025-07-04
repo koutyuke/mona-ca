@@ -1,14 +1,14 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session } from "../../../../domain/entities";
 
-export type LoginUseCaseSuccessResult = {
+type Success = {
 	session: Session;
 	sessionToken: string;
 };
 
-export type LoginUseCaseErrorResult = Err<"INVALID_EMAIL_OR_PASSWORD">;
+type Error = Err<"INVALID_EMAIL_OR_PASSWORD">;
 
-export type LoginUseCaseResult = Result<LoginUseCaseSuccessResult, LoginUseCaseErrorResult>;
+export type LoginUseCaseResult = Result<Success, Error>;
 
 export interface ILoginUseCase {
 	execute(email: string, password: string): Promise<LoginUseCaseResult>;
