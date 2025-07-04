@@ -45,7 +45,7 @@ export class AccountAssociationSessionRepository implements IAccountAssociationS
 		});
 	}
 
-	public async delete(sessionId: AccountAssociationSessionId): Promise<void> {
+	public async deleteById(sessionId: AccountAssociationSessionId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.accountAssociationSessions)
 			.where(eq(this.drizzleService.schema.accountAssociationSessions.id, sessionId))

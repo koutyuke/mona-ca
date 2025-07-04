@@ -6,7 +6,7 @@ export interface IAccountAssociationSessionRepository {
 
 	save(session: AccountAssociationSession): Promise<void>;
 
-	delete(id: AccountAssociationSessionId): Promise<void>;
+	deleteById(id: AccountAssociationSessionId): Promise<void>;
 
 	deleteByUserId(userId: UserId): Promise<void>;
 

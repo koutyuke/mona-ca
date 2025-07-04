@@ -25,7 +25,7 @@ describe("AccountAssociationSessionRepository.delete", () => {
 	test("should delete session by id", async () => {
 		await accountAssociationSessionTableHelper.create();
 
-		await accountAssociationSessionRepository.delete(accountAssociationSessionTableHelper.baseData.id);
+		await accountAssociationSessionRepository.deleteById(accountAssociationSessionTableHelper.baseData.id);
 
 		const databaseSessions = await accountAssociationSessionTableHelper.findById(
 			accountAssociationSessionTableHelper.baseData.id,
@@ -36,8 +36,8 @@ describe("AccountAssociationSessionRepository.delete", () => {
 	test("should not throw error when deleting non-existent session", async () => {
 		const nonExistentSessionId = newAccountAssociationSessionId("nonExistentSessionId");
 
-		await expect(accountAssociationSessionRepository.delete(nonExistentSessionId)).resolves.not.toThrow();
+		await expect(accountAssociationSessionRepository.deleteById(nonExistentSessionId)).resolves.not.toThrow();
 
-		await expect(accountAssociationSessionRepository.delete(nonExistentSessionId)).resolves.not.toThrow();
+		await expect(accountAssociationSessionRepository.deleteById(nonExistentSessionId)).resolves.not.toThrow();
 	});
 });
