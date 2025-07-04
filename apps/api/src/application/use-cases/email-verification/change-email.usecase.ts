@@ -1,5 +1,5 @@
-import { err, ulid } from "../../../common/utils";
-import { createSession, isExpiredEmailVerificationSession, updateUser } from "../../../domain/entities";
+import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
+import { createSession, updateUser } from "../../../domain/entities";
 import type { EmailVerificationSession, User } from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
@@ -8,6 +8,8 @@ import type { IUserRepository } from "../../../interface-adapter/repositories/us
 import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type { ChangeEmailUseCaseResult, IChangeEmailUseCase } from "./interfaces/change-email.usecase.interface";
 
+// this use case will be called after the validate email verification session use case.
+// so we don't need to check the expired email verification session.
 export class ChangeEmailUseCase implements IChangeEmailUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
@@ -23,19 +25,15 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 	): Promise<ChangeEmailUseCaseResult> {
 		const existingUserForNewEmail = await this.userRepository.findByEmail(emailVerificationSession.email);
 
-		if (existingUserForNewEmail) {
+		if (existingUserForNewEmail && existingUserForNewEmail.id !== user.id) {
 			return err("EMAIL_IS_ALREADY_USED");
 		}
 
-		if (emailVerificationSession.code !== code) {
+		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
 			return err("INVALID_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
-
-		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
-			return err("EXPIRED_CODE");
-		}
 
 		// Generate a new session.
 		const sessionSecret = this.sessionSecretService.generateSessionSecret();

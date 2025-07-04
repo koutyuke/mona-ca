@@ -1,14 +1,14 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { EmailVerificationSession, Session, User } from "../../../../domain/entities";
 
-type ChangeEmailUseCaseSuccessResult = {
-	session: Session;
+type Success = {
 	sessionToken: string;
+	session: Session;
 };
 
-export type ChangeEmailUseCaseErrorResult = Err<"INVALID_CODE"> | Err<"EXPIRED_CODE"> | Err<"EMAIL_IS_ALREADY_USED">;
+type Error = Err<"INVALID_CODE"> | Err<"EMAIL_IS_ALREADY_USED">;
 
-export type ChangeEmailUseCaseResult = Result<ChangeEmailUseCaseSuccessResult, ChangeEmailUseCaseErrorResult>;
+export type ChangeEmailUseCaseResult = Result<Success, Error>;
 
 export interface IChangeEmailUseCase {
 	execute(
