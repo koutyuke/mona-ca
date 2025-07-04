@@ -20,11 +20,11 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 	) {}
 
 	public async execute(
-		currentUser: User,
+		user: User,
 		currentPassword: string | undefined,
 		newPassword: string,
 	): Promise<UpdateUserPasswordUseCaseResult> {
-		const passwordHash = await this.userRepository.findPasswordHashById(currentUser.id);
+		const passwordHash = await this.userRepository.findPasswordHashById(user.id);
 
 		if (passwordHash === null) {
 			if (currentPassword) {
@@ -45,7 +45,7 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 			this.passwordService.hashPassword(newPassword),
 
 			// Delete all sessions of the user.
-			this.sessionRepository.deleteByUserId(currentUser.id),
+			this.sessionRepository.deleteByUserId(user.id),
 		]);
 
 		// Generate a new session.
@@ -55,12 +55,12 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 		const sessionToken = createSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
-			userId: currentUser.id,
+			userId: user.id,
 			secretHash: sessionSecretHash,
 		});
 
 		await Promise.all([
-			this.userRepository.save(currentUser, { passwordHash: newPasswordHash }),
+			this.userRepository.save(user, { passwordHash: newPasswordHash }),
 			this.sessionRepository.save(session),
 		]);
 

@@ -20,7 +20,7 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 		const user = await this.userRepository.findByEmail(email);
 
 		if (user === null) {
-			return err("EMAIL_IS_NOT_VERIFIED");
+			return err("USER_NOT_FOUND");
 		}
 
 		const code = generateRandomString(8, {

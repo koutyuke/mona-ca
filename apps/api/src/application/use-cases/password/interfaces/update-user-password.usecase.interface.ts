@@ -1,21 +1,18 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session, User } from "../../../../domain/entities";
 
-type UpdateUserPasswordUseCaseSuccessResult = {
+type Success = {
 	session: Session;
 	sessionToken: string;
 };
 
-type UpdateUserPasswordUseCaseErrorResult = Err<"INVALID_CURRENT_PASSWORD"> | Err<"CURRENT_PASSWORD_IS_REQUIRED">;
+type Error = Err<"INVALID_CURRENT_PASSWORD"> | Err<"CURRENT_PASSWORD_IS_REQUIRED">;
 
-export type UpdateUserPasswordUseCaseResult = Result<
-	UpdateUserPasswordUseCaseSuccessResult,
-	UpdateUserPasswordUseCaseErrorResult
->;
+export type UpdateUserPasswordUseCaseResult = Result<Success, Error>;
 
 export interface IUpdateUserPasswordUseCase {
 	execute(
-		currentUser: User,
+		user: User,
 		currentPassword: string | undefined,
 		newPassword: string,
 	): Promise<UpdateUserPasswordUseCaseResult>;

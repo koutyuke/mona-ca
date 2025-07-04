@@ -1,5 +1,5 @@
 import { err } from "../../../common/utils";
-import { isExpiredPasswordResetSession } from "../../../domain/entities";
+import { type User, isExpiredPasswordResetSession } from "../../../domain/entities";
 import type { PasswordResetSessionId } from "../../../domain/value-object";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { type ISessionSecretService, separateSessionTokenToIdAndSecret } from "../../services/session";
@@ -14,12 +14,15 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 		private readonly passwordResetSessionSecretService: ISessionSecretService,
 	) {}
 
-	public async execute(passwordResetSessionToken: string): Promise<ValidatePasswordResetSessionUseCaseResult> {
+	public async execute(
+		passwordResetSessionToken: string,
+		user: User,
+	): Promise<ValidatePasswordResetSessionUseCaseResult> {
 		const passwordResetSessionIdAndSecret =
 			separateSessionTokenToIdAndSecret<PasswordResetSessionId>(passwordResetSessionToken);
 
 		if (!passwordResetSessionIdAndSecret) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_PASSWORD_RESET_SESSION");
 		}
 
 		const { id: passwordResetSessionId, secret: passwordResetSessionSecret } = passwordResetSessionIdAndSecret;
@@ -27,7 +30,11 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 		const passwordResetSession = await this.passwordResetSessionRepository.findById(passwordResetSessionId);
 
 		if (!passwordResetSession) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_PASSWORD_RESET_SESSION");
+		}
+
+		if (passwordResetSession.userId !== user.id) {
+			return err("INVALID_PASSWORD_RESET_SESSION");
 		}
 
 		if (
@@ -36,11 +43,12 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 				passwordResetSession.secretHash,
 			)
 		) {
-			return err("INVALID_TOKEN");
+			return err("INVALID_PASSWORD_RESET_SESSION");
 		}
 
 		if (isExpiredPasswordResetSession(passwordResetSession)) {
-			return err("EXPIRED_CODE");
+			await this.passwordResetSessionRepository.deleteById(passwordResetSessionId);
+			return err("EXPIRED_PASSWORD_RESET_SESSION");
 		}
 
 		return { passwordResetSession };

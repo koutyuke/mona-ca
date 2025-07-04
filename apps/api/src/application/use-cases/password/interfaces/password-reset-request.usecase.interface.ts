@@ -1,17 +1,14 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { PasswordResetSession } from "../../../../domain/entities";
 
-export type PasswordResetRequestUseCaseSuccessResult = {
+type Success = {
 	passwordResetSessionToken: string;
 	passwordResetSession: PasswordResetSession;
 };
 
-export type PasswordResetRequestUseCaseErrorResult = Err<"EMAIL_IS_NOT_VERIFIED">;
+type Error = Err<"USER_NOT_FOUND">;
 
-export type PasswordResetRequestUseCaseResult = Result<
-	PasswordResetRequestUseCaseSuccessResult,
-	PasswordResetRequestUseCaseErrorResult
->;
+export type PasswordResetRequestUseCaseResult = Result<Success, Error>;
 
 export interface IPasswordResetRequestUseCase {
 	execute: (email: string) => Promise<PasswordResetRequestUseCaseResult>;

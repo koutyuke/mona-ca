@@ -1,11 +1,13 @@
 import { err } from "../../../common/utils";
-import { type PasswordResetSession, isExpiredPasswordResetSession } from "../../../domain/entities";
+import type { PasswordResetSession, User } from "../../../domain/entities";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IPasswordService } from "../../services/password";
 import type { IResetPasswordUseCase, ResetPasswordUseCaseResult } from "./interfaces/reset-password.usecase.interface";
 
+// this use case will be called after the validate password reset session use case.
+// so we don't need to check the expired password reset session.
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
@@ -17,20 +19,10 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 	public async execute(
 		newPassword: string,
 		passwordResetSession: PasswordResetSession,
+		user: User,
 	): Promise<ResetPasswordUseCaseResult> {
 		if (!passwordResetSession.emailVerified) {
-			return err("EMAIL_NOT_VERIFIED");
-		}
-
-		if (isExpiredPasswordResetSession(passwordResetSession)) {
-			await this.passwordResetSessionRepository.deleteById(passwordResetSession.id);
-			return err("EXPIRED_TOKEN");
-		}
-
-		const user = await this.userRepository.findById(passwordResetSession.userId);
-		if (user === null) {
-			await this.passwordResetSessionRepository.deleteById(passwordResetSession.id);
-			return err("INVALID_TOKEN");
+			return err("EMAIL_VERIFICATION_REQUIRED");
 		}
 
 		const passwordHash = await this.passwordService.hashPassword(newPassword);
