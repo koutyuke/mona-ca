@@ -1,20 +1,14 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { EmailVerificationSession, Session, User } from "../../../../domain/entities";
 
-export type EmailVerificationConfirmUseCaseSuccessResult = {
+type Success = {
 	sessionToken: string;
 	session: Session;
 };
 
-export type EmailVerificationConfirmUseCaseErrorResult =
-	| Err<"INVALID_CODE">
-	| Err<"EXPIRED_CODE">
-	| Err<"INVALID_EMAIL">;
+type Error = Err<"INVALID_CODE"> | Err<"INVALID_EMAIL">;
 
-export type EmailVerificationConfirmUseCaseResult = Result<
-	EmailVerificationConfirmUseCaseSuccessResult,
-	EmailVerificationConfirmUseCaseErrorResult
->;
+export type EmailVerificationConfirmUseCaseResult = Result<Success, Error>;
 export interface IEmailVerificationConfirmUseCase {
 	execute(
 		code: string,

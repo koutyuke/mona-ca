@@ -1,5 +1,5 @@
-import { err, ulid } from "../../../common/utils";
-import { createSession, isExpiredEmailVerificationSession, updateUser } from "../../../domain/entities";
+import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
+import { createSession, updateUser } from "../../../domain/entities";
 import type { EmailVerificationSession, User } from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
@@ -11,6 +11,8 @@ import type {
 	IEmailVerificationConfirmUseCase,
 } from "./interfaces/email-verification-confirm.usecase.interface";
 
+// this use case will be called after the validate email verification session use case.
+// so we don't need to check the expired email verification session.
 export class EmailVerificationConfirmUseCase implements IEmailVerificationConfirmUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
@@ -28,15 +30,11 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 			return err("INVALID_EMAIL");
 		}
 
-		if (emailVerificationSession.code !== code) {
+		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
 			return err("INVALID_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
-
-		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
-			return err("EXPIRED_CODE");
-		}
 
 		// Delete all sessions for the user.
 		await this.sessionRepository.deleteByUserId(user.id);
