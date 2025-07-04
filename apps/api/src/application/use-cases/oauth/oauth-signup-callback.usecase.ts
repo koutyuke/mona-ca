@@ -138,7 +138,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 					accountAssociationSession,
 				});
 			}
-			await this.userRepository.delete(existingUser.id);
+			await this.userRepository.deleteById(existingUser.id);
 		} else if (existingOAuthAccount) {
 			await this.oauthAccountRepository.deleteByProviderAndProviderId(provider, providerId);
 		}
