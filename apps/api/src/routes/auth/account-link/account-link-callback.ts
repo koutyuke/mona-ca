@@ -8,7 +8,7 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
 import { FlattenUnion } from "../../../common/schemas";
-import { constantTimeCompare, isErr } from "../../../common/utils";
+import { isErr, timingSafeStringEqual } from "../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
@@ -83,7 +83,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			const redirectURI = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
-			if (!queryState || !constantTimeCompare(queryState, signedState)) {
+			if (!queryState || !timingSafeStringEqual(queryState, signedState)) {
 				throw new BadRequestException({
 					code: "INVALID_STATE",
 				});
