@@ -128,9 +128,10 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 					providerId,
 				});
 
+				await this.accountAssociationSessionRepository.deleteByUserId(existingUser.id);
 				await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
-				return err("EMAIL_ALREADY_EXISTS_BUT_LINKABLE", {
+				return err("EMAIL_ALREADY_USED_BUT_LINKABLE", {
 					redirectURL: redirectToClientURL,
 					clientType,
 					accountAssociationSessionToken,

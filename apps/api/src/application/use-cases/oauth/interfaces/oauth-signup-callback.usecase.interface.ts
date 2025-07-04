@@ -2,14 +2,14 @@ import type { Err, Result } from "../../../../common/utils";
 import type { AccountAssociationSession, Session } from "../../../../domain/entities";
 import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
 
-export type OAuthSignupCallbackUseCaseSuccessResult = {
+type Success = {
 	session: Session;
 	sessionToken: string;
 	redirectURL: URL;
 	clientType: ClientType;
 };
 
-export type OAuthSignupCallbackUseCaseErrorResult =
+type Error =
 	| Err<"INVALID_STATE">
 	| Err<"INVALID_REDIRECT_URL">
 	| Err<"CODE_NOT_FOUND">
@@ -18,7 +18,7 @@ export type OAuthSignupCallbackUseCaseErrorResult =
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"ACCOUNT_IS_ALREADY_USED", { redirectURL: URL }>
 	| Err<
-			"EMAIL_ALREADY_EXISTS_BUT_LINKABLE",
+			"EMAIL_ALREADY_USED_BUT_LINKABLE",
 			{
 				redirectURL: URL;
 				clientType: ClientType;
@@ -27,10 +27,7 @@ export type OAuthSignupCallbackUseCaseErrorResult =
 			}
 	  >;
 
-export type OAuthSignupCallbackUseCaseResult = Result<
-	OAuthSignupCallbackUseCaseSuccessResult,
-	OAuthSignupCallbackUseCaseErrorResult
->;
+export type OAuthSignupCallbackUseCaseResult = Result<Success, Error>;
 
 export interface IOAuthSignupCallbackUseCase {
 	execute(

@@ -112,6 +112,7 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 					providerId: newOAuthProviderId(providerAccount.id),
 				});
 
+				await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
 				await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
 				return err("OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE", {

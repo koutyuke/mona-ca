@@ -1,16 +1,16 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { ClientType } from "../../../../domain/value-object";
 
-export type OAuthRequestUseCaseSuccessResult = {
+type Success = {
 	state: string;
 	codeVerifier: string;
 	redirectToClientURL: URL;
 	redirectToProviderURL: URL;
 };
 
-export type OAuthRequestUseCaseErrorResult = Err<"INVALID_REDIRECT_URL">;
+type Error = Err<"INVALID_REDIRECT_URL">;
 
-export type OAuthRequestUseCaseResult = Result<OAuthRequestUseCaseSuccessResult, OAuthRequestUseCaseErrorResult>;
+export type OAuthRequestUseCaseResult = Result<Success, Error>;
 
 export interface IOAuthRequestUseCase {
 	execute(clientType: ClientType, queryRedirectURI: string): OAuthRequestUseCaseResult;

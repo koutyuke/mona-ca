@@ -2,14 +2,14 @@ import type { Err, Result } from "../../../../common/utils";
 import type { AccountAssociationSession, Session } from "../../../../domain/entities";
 import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
 
-export type OAuthLoginCallbackUseCaseSuccessResult = {
+type Success = {
 	session: Session;
 	sessionToken: string;
 	redirectURL: URL;
 	clientType: ClientType;
 };
 
-export type OAuthLoginCallbackUseCaseErrorResult =
+type Error =
 	| Err<"INVALID_STATE">
 	| Err<"INVALID_REDIRECT_URL">
 	| Err<"CODE_NOT_FOUND">
@@ -27,10 +27,7 @@ export type OAuthLoginCallbackUseCaseErrorResult =
 			}
 	  >;
 
-export type OAuthLoginCallbackUseCaseResult = Result<
-	OAuthLoginCallbackUseCaseSuccessResult,
-	OAuthLoginCallbackUseCaseErrorResult
->;
+export type OAuthLoginCallbackUseCaseResult = Result<Success, Error>;
 export interface IOAuthLoginCallbackUseCase {
 	execute(
 		error: string | undefined,
