@@ -6,14 +6,18 @@ import {
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	ResponseTUnion,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
@@ -77,9 +81,20 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			const result = accountLinkRequestUseCase.execute(clientType, queryRedirectURI, user.id);
 
 			if (isErr(result)) {
-				throw new BadRequestException({
-					code: result.code,
-				});
+				const { code } = result;
+
+				switch (code) {
+					case "INVALID_REDIRECT_URL":
+						throw new BadRequestException({
+							code: code,
+							message: "Invalid redirect URL. Please check the URL and try again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Account link request failed. Please try again.",
+						});
+				}
 			}
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;
@@ -115,7 +130,7 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 				200: t.Object({
 					url: t.String(),
 				}),
-				400: FlattenUnion(ErrorResponseSchema("INVALID_REDIRECT_URL"), AuthGuardSchema.response[400]),
+				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URL"), AuthGuardSchema.response[400]),
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
