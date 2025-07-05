@@ -5,14 +5,20 @@ import { ValidateAccountAssociationSessionUseCase } from "../../../application/u
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api/path-detail";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
@@ -55,7 +61,6 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 			const accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
 				accountAssociationSessionSecretService,
 				accountAssociationSessionRepository,
-				userRepository,
 			);
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
@@ -70,37 +75,40 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 					: body?.accountAssociationSessionToken;
 
 			if (!accountAssociationSessionToken) {
-				throw new BadRequestException({
-					code: "INVALID_STATE",
+				throw new UnauthorizedException({
+					code: "ACCOUNT_ASSOCIATION_SESSION_INVALID",
+					message: "Account association session not found. Please login again.",
 				});
 			}
 
 			const validateResult = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
 			if (isErr(validateResult)) {
-				throw new BadRequestException({
-					code: validateResult.code,
-				});
+				const { code } = validateResult;
+
+				switch (code) {
+					case "ACCOUNT_ASSOCIATION_SESSION_INVALID":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Invalid account association session. Please login again.",
+						});
+					case "ACCOUNT_ASSOCIATION_SESSION_EXPIRED":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Account association session has expired. Please login again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Account association session validation failed. Please try again.",
+						});
+				}
 			}
 
 			await rateLimit.consume(validateResult.user.id, 10);
 
-			const challengeResult = await accountAssociationChallengeUseCase.execute(
-				validateResult.accountAssociationSession,
-			);
-
-			if (isErr(challengeResult)) {
-				throw new BadRequestException({
-					code: challengeResult.code,
-				});
-			}
-
 			const { accountAssociationSessionToken: newAccountAssociationSessionToken, accountAssociationSession } =
-				challengeResult;
-
-			if (!accountAssociationSession.code) {
-				throw new Error("Dev: Code is not set");
-			}
+				await accountAssociationChallengeUseCase.execute(validateResult.user, validateResult.accountAssociationSession);
 
 			const mailContents = verificationEmailTemplate(accountAssociationSession.email, accountAssociationSession.code);
 
@@ -141,11 +149,10 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 					accountAssociationSessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
-					WithClientTypeSchema.response[400],
-					ErrorResponseSchema("USER_NOT_FOUND"),
-					ErrorResponseSchema("INVALID_STATE_OR_SESSION_TOKEN"),
-					ErrorResponseSchema("EXPIRED_STATE_OR_SESSION_TOKEN"),
+				400: WithClientTypeSchema.response[400],
+				401: ResponseTUnion(
+					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_INVALID"),
+					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_EXPIRED"),
 				),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,

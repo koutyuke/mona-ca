@@ -2,15 +2,19 @@ import { t } from "elysia";
 import { SessionSecretService } from "../../../application/services/session";
 import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenter";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	ResponseTUnion,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
@@ -43,17 +47,34 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 					: body?.accountAssociationSessionToken;
 
 			if (!accountAssociationSessionToken) {
-				throw new BadRequestException({
-					code: "INVALID_STATE",
+				throw new UnauthorizedException({
+					code: "ACCOUNT_ASSOCIATION_SESSION_INVALID",
+					message: "Account association session not found. Please login again.",
 				});
 			}
 
 			const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
 			if (isErr(result)) {
-				throw new BadRequestException({
-					code: result.code,
-				});
+				const { code } = result;
+
+				switch (code) {
+					case "ACCOUNT_ASSOCIATION_SESSION_INVALID":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Invalid account association session. Please login again.",
+						});
+					case "ACCOUNT_ASSOCIATION_SESSION_EXPIRED":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Account association session has expired. Please login again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Account association session validation failed. Please try again.",
+						});
+				}
 			}
 
 			return {
@@ -76,11 +97,10 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 					provider: t.String(),
 					providerId: t.String(),
 				}),
-				400: FlattenUnion(
-					WithClientTypeSchema.response[400],
-					ErrorResponseSchema("INVALID_STATE"),
-					ErrorResponseSchema("EXPIRED_STATE"),
-					ErrorResponseSchema("USER_NOT_FOUND"),
+				400: WithClientTypeSchema.response[400],
+				401: ResponseTUnion(
+					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_INVALID"),
+					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_EXPIRED"),
 				),
 				500: InternalServerErrorResponseSchema,
 			},
