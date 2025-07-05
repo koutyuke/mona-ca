@@ -10,5 +10,9 @@ export const timingSafeStringEqual = (a: string, b: string): boolean => {
 	const aBytes = new TextEncoder().encode(a);
 	const bBytes = new TextEncoder().encode(b);
 
+	if (aBytes.length !== bBytes.length) {
+		return false;
+	}
+
 	return timingSafeEqual(aBytes, bBytes);
 };
