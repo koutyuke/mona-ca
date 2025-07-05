@@ -36,6 +36,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
 		},
 		private readonly sessionSecretService: ISessionSecretService,
+		private readonly accountAssociationSessionSecretService: ISessionSecretService,
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
@@ -109,8 +110,8 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 					return err("OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
 				}
 
-				const accountAssociationSessionSecret = this.sessionSecretService.generateSessionSecret();
-				const accountAssociationSessionSecretHash = this.sessionSecretService.hashSessionSecret(
+				const accountAssociationSessionSecret = this.accountAssociationSessionSecretService.generateSessionSecret();
+				const accountAssociationSessionSecretHash = this.accountAssociationSessionSecretService.hashSessionSecret(
 					accountAssociationSessionSecret,
 				);
 				const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
