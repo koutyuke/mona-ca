@@ -6,7 +6,7 @@ type Success = {
 	sessionToken: string;
 };
 
-type Error = Err<"INVALID_EMAIL_OR_PASSWORD">;
+type Error = Err<"INVALID_CREDENTIALS">;
 
 export type LoginUseCaseResult = Result<Success, Error>;
 

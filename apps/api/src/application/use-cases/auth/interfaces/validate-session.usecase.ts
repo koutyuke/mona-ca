@@ -6,7 +6,7 @@ type Success = {
 	user: User;
 };
 
-type Error = Err<"EXPIRED_SESSION"> | Err<"INVALID_SESSION">;
+type Error = Err<"SESSION_EXPIRED"> | Err<"SESSION_INVALID">;
 
 export type ValidateSessionUseCaseResult = Result<Success, Error>;
 

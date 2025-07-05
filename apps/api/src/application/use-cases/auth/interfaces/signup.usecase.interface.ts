@@ -8,7 +8,7 @@ type Success = {
 	sessionToken: string;
 };
 
-type Error = Err<"EMAIL_IS_ALREADY_USED">;
+type Error = Err<"EMAIL_ALREADY_REGISTERED">;
 
 export type SignupUseCaseResult = Result<Success, Error>;
 

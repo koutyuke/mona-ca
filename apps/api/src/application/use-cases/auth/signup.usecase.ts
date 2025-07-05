@@ -21,7 +21,7 @@ export class SignupUseCase implements ISignupUseCase {
 
 		if (existingSameEmailUser) {
 			if (existingSameEmailUser.emailVerified) {
-				return err("EMAIL_IS_ALREADY_USED");
+				return err("EMAIL_ALREADY_REGISTERED");
 			}
 
 			await this.userRepository.deleteById(existingSameEmailUser.id);

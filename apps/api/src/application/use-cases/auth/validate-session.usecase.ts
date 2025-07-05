@@ -16,7 +16,7 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	public async execute(sessionToken: string): Promise<ValidateSessionUseCaseResult> {
 		const idAndSecret = separateSessionTokenToIdAndSecret<SessionId>(sessionToken);
 		if (!idAndSecret) {
-			return err("INVALID_SESSION");
+			return err("SESSION_INVALID");
 		}
 
 		const { id: sessionId, secret: sessionSecret } = idAndSecret;
@@ -27,12 +27,12 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 		]);
 
 		if (!session || !user || !this.sessionSecretService.verifySessionSecret(sessionSecret, session.secretHash)) {
-			return err("INVALID_SESSION");
+			return err("SESSION_INVALID");
 		}
 
 		if (isExpiredSession(session)) {
 			await this.sessionRepository.deleteById(sessionId);
-			return err("EXPIRED_SESSION");
+			return err("SESSION_EXPIRED");
 		}
 
 		if (isRefreshableSession(session)) {

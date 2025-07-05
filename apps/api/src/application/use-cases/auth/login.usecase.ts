@@ -21,7 +21,7 @@ export class LoginUseCase implements ILoginUseCase {
 		const verifyPassword = passwordHash ? await this.passwordService.verifyPassword(password, passwordHash) : false;
 
 		if (!(user && passwordHash && verifyPassword)) {
-			return err("INVALID_EMAIL_OR_PASSWORD");
+			return err("INVALID_CREDENTIALS");
 		}
 
 		const sessionSecret = this.sessionSecretService.generateSessionSecret();
