@@ -11,8 +11,8 @@ import { newClientType } from "../../domain/value-object/client-type";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
-import { ElysiaWithEnv } from "../elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, UnauthorizedException } from "../error";
+import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../error";
 
 type Response = {
 	user: User;
@@ -27,7 +27,6 @@ type Response = {
  * @param {AuthGuardOptions<T>} [options] - Optional configuration for the authentication guard.
  * @param {boolean} [options.requireEmailVerification=true] - Whether email verification is required for authentication.
  * @param {boolean} [options.enableSessionCookieRefresh=true] - Whether to enable session cookie refresh.
- * @param {boolean} [options.includeSessionToken=false] - Whether to include the session token in the derived context.
  * @returns The configured Elysia plugin with derived context.
  *
  * @example
@@ -94,7 +93,7 @@ export const authGuard = (options?: {
 
 			if (requireEmailVerification && !user.emailVerified) {
 				throw new UnauthorizedException({
-					name: "EMAIL_VERIFICATION_IS_REQUIRED",
+					code: "EMAIL_VERIFICATION_REQUIRED",
 					message: "Email verification is required.",
 				});
 			}
@@ -123,8 +122,8 @@ export const AuthGuardSchema = {
 		400: ErrorResponseSchema("INVALID_CLIENT_TYPE"),
 		401: t.Union([
 			ErrorResponseSchema("EXPIRED_SESSION"),
-			ErrorResponseSchema("INVALID_SESSION_TOKEN"),
-			ErrorResponseSchema("EMAIL_VERIFICATION_IS_REQUIRED"),
+			ErrorResponseSchema("INVALID_SESSION"),
+			ErrorResponseSchema("EMAIL_VERIFICATION_REQUIRED"),
 		]),
 	},
 };

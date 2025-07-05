@@ -1,4 +1,4 @@
-import { Kind, type SchemaOptions, type TSchema, type TUnion, Type, TypeGuard, TypeRegistry } from "@sinclair/typebox";
+import { Kind, type SchemaOptions, Type, TypeRegistry } from "@sinclair/typebox";
 import { DefaultErrorFunction, SetErrorFunction, ValueErrorType } from "@sinclair/typebox/errors";
 
 TypeRegistry.Set("StringEnum", (schema: { enum: string[] }, value: unknown) => {
@@ -28,27 +28,4 @@ export const StringEnum = <T extends string[]>(values: [...T], options: SchemaOp
 		type: "string",
 		enum: values,
 	});
-};
-
-// This function flattens a union of unions into a single union.
-// Warning: This function is not type-safe.
-//          It is recommended to be used only for the response schema.
-export const FlattenUnion = <const T extends TSchema[]>(...schemas: T): TUnion<T> => {
-	const result: TSchema[] = [];
-
-	const flatten = (schema: TSchema) => {
-		if (TypeGuard.IsUnion(schema)) {
-			for (const inner of schema.anyOf) {
-				flatten(inner);
-			}
-		} else {
-			result.push(schema);
-		}
-	};
-
-	for (const schema of schemas) {
-		flatten(schema);
-	}
-
-	return Type.Union(result) as unknown as TUnion<T>;
 };
