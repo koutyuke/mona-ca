@@ -5,13 +5,21 @@ import {
 	ValidatePasswordResetSessionUseCase,
 } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schemas";
+
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
+import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
@@ -46,11 +54,13 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
+			const userRepository = new UserRepository(drizzleService);
 			const passwordResetSessionSecretService = new SessionSecretService(PASSWORD_RESET_SESSION_PEPPER);
 
 			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
 				passwordResetSessionSecretService,
+				userRepository,
 			);
 			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
 			// === End of instances ===
@@ -61,8 +71,9 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 					: bodyPasswordResetSessionToken;
 
 			if (!passwordResetSessionToken) {
-				throw new BadRequestException({
-					code: "INVALID_TOKEN",
+				throw new UnauthorizedException({
+					code: "PASSWORD_RESET_SESSION_INVALID",
+					message: "Password reset session token not found. Please request password reset again.",
 				});
 			}
 
@@ -71,17 +82,23 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			if (isErr(validationResult)) {
 				const { code } = validationResult;
 
-				if (code === "EXPIRED_CODE") {
-					throw new BadRequestException({
-						code: "EXPIRED_CODE",
-						message: "Password reset session has expired.",
-					});
+				switch (code) {
+					case "PASSWORD_RESET_SESSION_INVALID":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Invalid password reset session. Please request password reset again.",
+						});
+					case "PASSWORD_RESET_SESSION_EXPIRED":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Password reset session has expired. Please request password reset again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Password reset session validation failed. Please try again.",
+						});
 				}
-
-				throw new BadRequestException({
-					code: code,
-					message: "Invalid token.",
-				});
 			}
 
 			const { passwordResetSession } = validationResult;
@@ -93,17 +110,18 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			if (isErr(verifyEmailResult)) {
 				const { code } = verifyEmailResult;
 
-				if (code === "INVALID_CODE") {
-					throw new BadRequestException({
-						code: "INVALID_CODE",
-						message: "Invalid code.",
-					});
+				switch (code) {
+					case "INVALID_VERIFICATION_CODE":
+						throw new BadRequestException({
+							code: code,
+							message: "Invalid verification code. Please check your email and try again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Email verification failed. Please try again.",
+						});
 				}
-
-				throw new BadRequestException({
-					code,
-					message: "Failed to verify email.",
-				});
 			}
 
 			return NoContentResponse();
@@ -122,11 +140,10 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			}),
 			response: {
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
-					WithClientTypeSchema.response[400],
-					ErrorResponseSchema("INVALID_TOKEN"),
-					ErrorResponseSchema("EXPIRED_TOKEN"),
-					ErrorResponseSchema("INVALID_CODE"),
+				400: ResponseTUnion(WithClientTypeSchema.response[400], ErrorResponseSchema("INVALID_CODE")),
+				401: ResponseTUnion(
+					ErrorResponseSchema("PASSWORD_RESET_SESSION_INVALID"),
+					ErrorResponseSchema("PASSWORD_RESET_SESSION_EXPIRED"),
 				),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
