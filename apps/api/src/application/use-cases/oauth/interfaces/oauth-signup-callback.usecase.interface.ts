@@ -10,15 +10,15 @@ type Success = {
 };
 
 type Error =
-	| Err<"INVALID_STATE">
+	| Err<"INVALID_OAUTH_STATE">
 	| Err<"INVALID_REDIRECT_URL">
-	| Err<"CODE_NOT_FOUND">
-	| Err<"FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: URL }>
-	| Err<"ACCESS_DENIED", { redirectURL: URL }>
-	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
-	| Err<"ACCOUNT_IS_ALREADY_USED", { redirectURL: URL }>
+	| Err<"OAUTH_CODE_MISSING">
+	| Err<"OAUTH_PROVIDER_UNAVAILABLE", { redirectURL: URL }>
+	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
+	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
+	| Err<"OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: URL }>
 	| Err<
-			"EMAIL_ALREADY_USED_BUT_LINKABLE",
+			"OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE",
 			{
 				redirectURL: URL;
 				clientType: ClientType;

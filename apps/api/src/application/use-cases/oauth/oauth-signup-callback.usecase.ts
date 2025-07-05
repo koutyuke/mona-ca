@@ -54,7 +54,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
 
 		if (isErr(validatedState)) {
-			return err("INVALID_STATE");
+			return err("INVALID_OAUTH_STATE");
 		}
 
 		const { client } = validatedState;
@@ -71,14 +71,14 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 
 		if (error) {
 			if (error === "access_denied") {
-				return err("ACCESS_DENIED", { redirectURL: redirectToClientURL });
+				return err("OAUTH_ACCESS_DENIED", { redirectURL: redirectToClientURL });
 			}
 
-			return err("PROVIDER_ERROR", { redirectURL: redirectToClientURL });
+			return err("OAUTH_PROVIDER_ERROR", { redirectURL: redirectToClientURL });
 		}
 
 		if (!code) {
-			return err("CODE_NOT_FOUND");
+			return err("OAUTH_CODE_MISSING");
 		}
 
 		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
@@ -89,7 +89,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		await this.oauthProviderGateway.revokeToken(accessToken);
 
 		if (!providerAccount) {
-			return err("FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: redirectToClientURL });
+			return err("OAUTH_PROVIDER_UNAVAILABLE", { redirectURL: redirectToClientURL });
 		}
 
 		const providerId = newOAuthProviderId(providerAccount.id);
@@ -106,7 +106,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 				// if emailVerified is true, this user is already registered user
 
 				if (existingOAuthAccount) {
-					return err("ACCOUNT_IS_ALREADY_USED", { redirectURL: redirectToClientURL });
+					return err("OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
 				}
 
 				const accountAssociationSessionSecret = this.sessionSecretService.generateSessionSecret();
@@ -131,7 +131,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 				await this.accountAssociationSessionRepository.deleteByUserId(existingUser.id);
 				await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
-				return err("EMAIL_ALREADY_USED_BUT_LINKABLE", {
+				return err("OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE", {
 					redirectURL: redirectToClientURL,
 					clientType,
 					accountAssociationSessionToken,

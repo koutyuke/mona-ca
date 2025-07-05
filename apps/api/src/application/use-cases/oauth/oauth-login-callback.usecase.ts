@@ -46,7 +46,7 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
 
 		if (isErr(validatedState)) {
-			return err("INVALID_STATE");
+			return err("INVALID_OAUTH_STATE");
 		}
 
 		const { client } = validatedState;
@@ -63,14 +63,14 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 
 		if (error) {
 			if (error === "access_denied") {
-				return err("ACCESS_DENIED", { redirectURL: redirectToClientURL });
+				return err("OAUTH_ACCESS_DENIED", { redirectURL: redirectToClientURL });
 			}
 
-			return err("PROVIDER_ERROR", { redirectURL: redirectToClientURL });
+			return err("OAUTH_PROVIDER_ERROR", { redirectURL: redirectToClientURL });
 		}
 
 		if (!code) {
-			return err("CODE_NOT_FOUND");
+			return err("OAUTH_CODE_MISSING");
 		}
 
 		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
@@ -81,7 +81,7 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		await this.oauthProviderGateway.revokeToken(accessToken);
 
 		if (!providerAccount) {
-			return err("FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: redirectToClientURL });
+			return err("OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: redirectToClientURL });
 		}
 
 		const existingOAuthAccount = await this.oauthAccountRepository.findByProviderAndProviderId(

@@ -10,12 +10,12 @@ type Success = {
 };
 
 type Error =
-	| Err<"INVALID_STATE">
+	| Err<"INVALID_OAUTH_STATE">
 	| Err<"INVALID_REDIRECT_URL">
-	| Err<"CODE_NOT_FOUND">
-	| Err<"FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: URL }>
-	| Err<"ACCESS_DENIED", { redirectURL: URL }>
-	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
+	| Err<"OAUTH_CODE_MISSING">
+	| Err<"OAUTH_PROVIDER_UNAVAILABLE", { redirectURL: URL }>
+	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
+	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: URL }>
 	| Err<
 			"OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE",
