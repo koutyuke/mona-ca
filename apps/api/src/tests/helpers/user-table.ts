@@ -14,7 +14,7 @@ export type DatabaseUser = {
 };
 
 export class UserTableHelper {
-	public baseUser = {
+	public baseData = {
 		id: newUserId("userId"),
 		name: "testUser",
 		email: "test.email@example.com",
@@ -27,7 +27,7 @@ export class UserTableHelper {
 
 	public basePasswordHash = "passwordHash";
 
-	public baseDatabaseUser = {
+	public baseDatabaseData = {
 		id: "userId",
 		name: "testUser",
 		email: "test.email@example.com",
@@ -42,7 +42,7 @@ export class UserTableHelper {
 	constructor(private readonly db: D1Database) {}
 
 	public async create(user?: DatabaseUser, passwordHash?: string | null): Promise<void> {
-		const { id, name, email, email_verified, icon_url, gender, created_at, updated_at } = user ?? this.baseDatabaseUser;
+		const { id, name, email, email_verified, icon_url, gender, created_at, updated_at } = user ?? this.baseDatabaseData;
 		const password_hash = passwordHash ?? this.basePasswordHash;
 
 		await this.db

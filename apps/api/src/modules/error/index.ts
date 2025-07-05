@@ -1,10 +1,5 @@
 export { error } from "./error.plugin";
 export {
-	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
-	ValidationErrorResponseSchema,
-} from "./response.schema";
-export {
 	ResponseException,
 	BadRequestException,
 	UnauthorizedException,

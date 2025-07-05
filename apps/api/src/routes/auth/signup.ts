@@ -1,9 +1,8 @@
 import { t } from "elysia";
 import { PasswordService } from "../../application/services/password";
-import { SessionTokenService } from "../../application/services/session-token";
+import { SessionSecretService } from "../../application/services/session";
 import { SignupUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { FlattenUnion } from "../../common/schemas";
 import { isErr } from "../../common/utils";
 import { genderSchema, newGender } from "../../domain/value-object";
 import { DrizzleService } from "../../infrastructure/drizzle";
@@ -11,8 +10,15 @@ import { SessionRepository } from "../../interface-adapter/repositories/session"
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../modules/captcha";
 import { CookieManager } from "../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../modules/elysia-with-env";
+import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
@@ -44,14 +50,14 @@ export const Signup = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const signupUseCase = new SignupUseCase(sessionRepository, userRepository, passwordService, sessionTokenService);
+			const signupUseCase = new SignupUseCase(sessionRepository, userRepository, passwordService, sessionSecretService);
 			// === End of instances ===
 
 			const result = await signupUseCase.execute(name, email, password, newGender(gender));
@@ -59,9 +65,18 @@ export const Signup = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				throw new BadRequestException({
-					name: code,
-				});
+				switch (code) {
+					case "EMAIL_ALREADY_REGISTERED":
+						throw new BadRequestException({
+							code: "EMAIL_ALREADY_REGISTERED",
+							message: "Email is already registered. Please use a different email address or try logging in.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Signup failed. Please try again.",
+						});
+				}
 			}
 
 			const { session, sessionToken } = result;
@@ -107,10 +122,10 @@ export const Signup = new ElysiaWithEnv()
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
+				400: ResponseTUnion(
 					WithClientTypeSchema.response[400],
 					CaptchaSchema.response[400],
-					ErrorResponseSchema("EMAIL_ALREADY_USED"),
+					ErrorResponseSchema("EMAIL_ALREADY_REGISTERED"),
 				),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,

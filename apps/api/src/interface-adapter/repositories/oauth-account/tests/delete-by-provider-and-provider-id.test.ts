@@ -20,12 +20,12 @@ describe("OAuthAccountRepository.deleteByProviderAndProviderId", () => {
 
 	test("should delete date in database", async () => {
 		await oauthAccountRepository.deleteByProviderAndProviderId(
-			oauthAccountTableHelper.baseOAuthAccount.provider,
-			oauthAccountTableHelper.baseOAuthAccount.providerId,
+			oauthAccountTableHelper.baseData.provider,
+			oauthAccountTableHelper.baseData.providerId,
 		);
 		const results = await oauthAccountTableHelper.findByProviderAndProviderId(
-			oauthAccountTableHelper.baseOAuthAccount.provider,
-			oauthAccountTableHelper.baseOAuthAccount.providerId,
+			oauthAccountTableHelper.baseData.provider,
+			oauthAccountTableHelper.baseData.providerId,
 		);
 		expect(results).toHaveLength(0);
 	});

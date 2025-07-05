@@ -1,25 +1,22 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
 
-export type AccountLinkCallbackUseCaseSuccessResult = {
+type Success = {
 	redirectURL: URL;
 	clientType: ClientType;
 };
 
-export type AccountLinkCallbackUseCaseErrorResult =
-	| Err<"INVALID_STATE">
+type Error =
+	| Err<"INVALID_OAUTH_STATE">
 	| Err<"INVALID_REDIRECT_URL">
-	| Err<"CODE_NOT_FOUND">
-	| Err<"FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: URL }>
-	| Err<"ACCESS_DENIED", { redirectURL: URL }>
-	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
-	| Err<"PROVIDER_ALREADY_LINKED", { redirectURL: URL }>
-	| Err<"ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: URL }>;
+	| Err<"OAUTH_CODE_MISSING">
+	| Err<"OAUTH_PROVIDER_UNAVAILABLE", { redirectURL: URL }>
+	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
+	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
+	| Err<"OAUTH_PROVIDER_ALREADY_LINKED", { redirectURL: URL }>
+	| Err<"OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: URL }>;
 
-export type AccountLinkCallbackUseCaseResult = Result<
-	AccountLinkCallbackUseCaseSuccessResult,
-	AccountLinkCallbackUseCaseErrorResult
->;
+export type AccountLinkCallbackUseCaseResult = Result<Success, Error>;
 
 export interface IAccountLinkCallbackUseCase {
 	execute(

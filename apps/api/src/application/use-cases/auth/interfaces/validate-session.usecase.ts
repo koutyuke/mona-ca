@@ -1,17 +1,14 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session, User } from "../../../../domain/entities";
 
-export type ValidateSessionUseCaseSuccessResult = {
+type Success = {
 	session: Session;
 	user: User;
 };
 
-export type ValidateSessionUseCaseErrorResult = Err<"SESSION_OR_USER_NOT_FOUND"> | Err<"EXPIRED_SESSION">;
+type Error = Err<"SESSION_EXPIRED"> | Err<"SESSION_INVALID">;
 
-export type ValidateSessionUseCaseResult = Result<
-	ValidateSessionUseCaseSuccessResult,
-	ValidateSessionUseCaseErrorResult
->;
+export type ValidateSessionUseCaseResult = Result<Success, Error>;
 
 export interface IValidateSessionUseCase {
 	execute(sessionToken: string): Promise<ValidateSessionUseCaseResult>;

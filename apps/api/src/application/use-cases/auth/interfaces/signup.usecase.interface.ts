@@ -2,15 +2,15 @@ import type { Err, Result } from "../../../../common/utils";
 import type { Session, User } from "../../../../domain/entities";
 import type { Gender } from "../../../../domain/value-object";
 
-export type SignupUseCaseSuccessResult = {
+type Success = {
 	user: User;
 	session: Session;
 	sessionToken: string;
 };
 
-export type SignupUseCaseErrorResult = Err<"EMAIL_IS_ALREADY_USED">;
+type Error = Err<"EMAIL_ALREADY_REGISTERED">;
 
-export type SignupUseCaseResult = Result<SignupUseCaseSuccessResult, SignupUseCaseErrorResult>;
+export type SignupUseCaseResult = Result<Success, Error>;
 
 export interface ISignupUseCase {
 	execute(name: string, email: string, password: string, gender: Gender): Promise<SignupUseCaseResult>;

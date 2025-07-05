@@ -5,11 +5,11 @@ import { t } from "elysia";
 import {
 	type Err,
 	type Result,
-	constantTimeCompare,
 	decodeBase64URLSafe,
 	encodeBase64URLSafe,
 	err,
 	generateHMAC,
+	timingSafeStringEqual,
 } from "../../../../common/utils";
 
 export const generateSignedState = <P extends object>(payload: P, hmacSecret: string): string => {
@@ -40,7 +40,7 @@ export const validateSignedState = <P extends TObject>(
 
 		const expectedSignature = generateHMAC(payloadBase64URL, hmacSecret, "base64url");
 
-		if (!constantTimeCompare(signature, expectedSignature)) {
+		if (!timingSafeStringEqual(signature, expectedSignature)) {
 			return err("INVALID_SIGNED_STATE");
 		}
 

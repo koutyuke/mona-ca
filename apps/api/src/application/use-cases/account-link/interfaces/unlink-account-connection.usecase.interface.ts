@@ -1,17 +1,11 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { OAuthProvider, UserId } from "../../../../domain/value-object";
 
-export type UnlinkAccountConnectionUseCaseSuccessResult = undefined;
+type Success = undefined;
 
-export type UnlinkAccountConnectionUseCaseErrorResult =
-	| Err<"ACCOUNT_NOT_LINKED">
-	| Err<"FAILED_TO_UNLINK_ACCOUNT">
-	| Err<"PASSWORD_DOES_NOT_SET">;
+type Error = Err<"ACCOUNT_NOT_LINKED"> | Err<"UNLINK_OPERATION_FAILED"> | Err<"PASSWORD_NOT_SET">;
 
-export type UnlinkAccountConnectionUseCaseResult = Result<
-	UnlinkAccountConnectionUseCaseSuccessResult,
-	UnlinkAccountConnectionUseCaseErrorResult
->;
+export type UnlinkAccountConnectionUseCaseResult = Result<Success, Error>;
 
 export interface IUnlinkAccountConnectionUseCase {
 	execute(provider: OAuthProvider, userId: UserId): Promise<UnlinkAccountConnectionUseCaseResult>;

@@ -1,25 +1,18 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session, User } from "../../../../domain/entities";
+import type { EmailVerificationSession, Session, User } from "../../../../domain/entities";
 
-export type EmailVerificationConfirmUseCaseSuccessResult = {
+type Success = {
 	sessionToken: string;
 	session: Session;
 };
 
-export type EmailVerificationConfirmUseCaseErrorResult =
-	| Err<"INVALID_CODE">
-	| Err<"EXPIRED_CODE">
-	| Err<"NOT_REQUEST">
-	| Err<"INVALID_EMAIL">;
+type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"EMAIL_MISMATCH">;
 
-export type EmailVerificationConfirmUseCaseResult = Result<
-	EmailVerificationConfirmUseCaseSuccessResult,
-	EmailVerificationConfirmUseCaseErrorResult
->;
+export type EmailVerificationConfirmUseCaseResult = Result<Success, Error>;
 export interface IEmailVerificationConfirmUseCase {
 	execute(
-		emailVerificationSessionToken: string,
 		code: string,
 		user: User,
+		emailVerificationSession: EmailVerificationSession,
 	): Promise<EmailVerificationConfirmUseCaseResult>;
 }

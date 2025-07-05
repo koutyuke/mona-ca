@@ -1,43 +1,22 @@
-import { constantTimeCompare, err } from "../../../common/utils";
-import { isExpiredPasswordResetSession, updatePasswordResetSession } from "../../../domain/entities";
-import { newPasswordResetSessionId } from "../../../domain/value-object";
+import { err, timingSafeStringEqual } from "../../../common/utils";
+import { type PasswordResetSession, updatePasswordResetSession } from "../../../domain/entities";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import type { ISessionTokenService } from "../../services/session-token";
 import type {
 	IPasswordResetVerifyEmailUseCase,
 	PasswordResetVerifyEmailUseCaseResult,
 } from "./interfaces/password-reset-verify-email.usecase.interface";
 
+// this use case will be called after the validate password reset session use case.
+// so we don't need to check the expired password reset session.
 export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmailUseCase {
-	constructor(
-		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
-		private readonly passwordResetSessionTokenService: ISessionTokenService,
-		private readonly passwordResetSessionRateLimit: (sessionId: string) => Promise<void>,
-	) {}
+	constructor(private readonly passwordResetSessionRepository: IPasswordResetSessionRepository) {}
 
 	public async execute(
-		passwordResetSessionToken: string,
 		code: string,
+		passwordResetSession: PasswordResetSession,
 	): Promise<PasswordResetVerifyEmailUseCaseResult> {
-		const passwordResetSessionId = newPasswordResetSessionId(
-			this.passwordResetSessionTokenService.hashSessionToken(passwordResetSessionToken),
-		);
-
-		const [passwordResetSession, _] = await Promise.all([
-			this.passwordResetSessionRepository.findById(passwordResetSessionId),
-			this.passwordResetSessionRateLimit(passwordResetSessionId),
-		]);
-
-		if (passwordResetSession === null) {
-			return err("INVALID_TOKEN");
-		}
-
-		if (isExpiredPasswordResetSession(passwordResetSession)) {
-			return err("EXPIRED_TOKEN");
-		}
-
-		if (!constantTimeCompare(passwordResetSession.code, code)) {
-			return err("INVALID_CODE");
+		if (!timingSafeStringEqual(passwordResetSession.code, code)) {
+			return err("INVALID_VERIFICATION_CODE");
 		}
 
 		const updatedSession = updatePasswordResetSession(passwordResetSession, {

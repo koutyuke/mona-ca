@@ -1,5 +1,4 @@
 import { GetConnectionsUseCase } from "../../application/use-cases/account-link";
-import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import {
 	AccountConnectionsPresenter,
@@ -8,8 +7,7 @@ import {
 import { OAuthAccountRepository } from "../../interface-adapter/repositories/oauth-account";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv } from "../../modules/elysia-with-env";
-import { BadRequestException, InternalServerErrorResponseSchema } from "../../modules/error";
+import { ElysiaWithEnv, InternalServerErrorResponseSchema } from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";
 
 export const GetAccountConnections = new ElysiaWithEnv()
@@ -29,10 +27,6 @@ export const GetAccountConnections = new ElysiaWithEnv()
 			const getConnectionsUseCase = new GetConnectionsUseCase(oauthAccountRepository, userRepository);
 
 			const result = await getConnectionsUseCase.execute(user.id);
-
-			if (isErr(result)) {
-				throw new BadRequestException({ code: result.code });
-			}
 
 			return AccountConnectionsPresenter(result);
 		},

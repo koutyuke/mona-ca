@@ -1,37 +1,33 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session } from "../../../../domain/entities";
-import type { ClientType, OAuthProvider, OAuthProviderId, UserId } from "../../../../domain/value-object";
+import type { AccountAssociationSession, Session } from "../../../../domain/entities";
+import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
 
-export type OAuthSignupCallbackUseCaseSuccessResult = {
+type Success = {
 	session: Session;
 	sessionToken: string;
 	redirectURL: URL;
 	clientType: ClientType;
 };
 
-export type OAuthSignupCallbackUseCaseErrorResult =
-	| Err<"INVALID_STATE">
+type Error =
+	| Err<"INVALID_OAUTH_STATE">
 	| Err<"INVALID_REDIRECT_URL">
-	| Err<"CODE_NOT_FOUND">
-	| Err<"FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: URL }>
-	| Err<"ACCESS_DENIED", { redirectURL: URL }>
-	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
-	| Err<"ACCOUNT_IS_ALREADY_USED", { redirectURL: URL }>
+	| Err<"OAUTH_CODE_MISSING">
+	| Err<"OAUTH_PROVIDER_UNAVAILABLE", { redirectURL: URL }>
+	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
+	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
+	| Err<"OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: URL }>
 	| Err<
-			"EMAIL_ALREADY_EXISTS_BUT_LINKABLE",
+			"OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE",
 			{
 				redirectURL: URL;
-				userId: UserId;
-				provider: OAuthProvider;
-				providerId: OAuthProviderId;
 				clientType: ClientType;
+				accountAssociationSessionToken: string;
+				accountAssociationSession: AccountAssociationSession;
 			}
 	  >;
 
-export type OAuthSignupCallbackUseCaseResult = Result<
-	OAuthSignupCallbackUseCaseSuccessResult,
-	OAuthSignupCallbackUseCaseErrorResult
->;
+export type OAuthSignupCallbackUseCaseResult = Result<Success, Error>;
 
 export interface IOAuthSignupCallbackUseCase {
 	execute(

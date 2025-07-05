@@ -18,9 +18,9 @@ describe("UserRepository.findById", async () => {
 	});
 
 	test("should return User instance if user exists.", async () => {
-		const foundUser = await userRepository.findById(userTableHelper.baseUser.id);
+		const foundUser = await userRepository.findById(userTableHelper.baseData.id);
 
-		expect(foundUser).toStrictEqual(userTableHelper.baseUser);
+		expect(foundUser).toStrictEqual(userTableHelper.baseData);
 	});
 
 	test("should return null if user not found.", async () => {

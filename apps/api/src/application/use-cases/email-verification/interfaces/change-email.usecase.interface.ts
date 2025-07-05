@@ -1,19 +1,19 @@
 import type { Err, Result } from "../../../../common/utils";
-import type { Session, User } from "../../../../domain/entities";
+import type { EmailVerificationSession, Session, User } from "../../../../domain/entities";
 
-type ChangeEmailUseCaseSuccessResult = {
-	session: Session;
+type Success = {
 	sessionToken: string;
+	session: Session;
 };
 
-export type ChangeEmailUseCaseErrorResult =
-	| Err<"INVALID_CODE">
-	| Err<"EXPIRED_CODE">
-	| Err<"NOT_REQUEST">
-	| Err<"EMAIL_IS_ALREADY_USED">;
+type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"EMAIL_ALREADY_REGISTERED">;
 
-export type ChangeEmailUseCaseResult = Result<ChangeEmailUseCaseSuccessResult, ChangeEmailUseCaseErrorResult>;
+export type ChangeEmailUseCaseResult = Result<Success, Error>;
 
 export interface IChangeEmailUseCase {
-	execute(emailVerificationSessionToken: string, code: string, user: User): Promise<ChangeEmailUseCaseResult>;
+	execute(
+		code: string,
+		user: User,
+		emailVerificationSession: EmailVerificationSession,
+	): Promise<ChangeEmailUseCaseResult>;
 }

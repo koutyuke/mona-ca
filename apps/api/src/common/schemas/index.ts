@@ -1,1 +1,1 @@
-export { StringEnum, FlattenUnion } from "./utils";
+export { StringEnum } from "./utils";

@@ -21,10 +21,10 @@ describe("PasswordResetSessionRepository.findById", () => {
 
 	test("should return PasswordResetSession instance if exists", async () => {
 		const foundPasswordResetSession = await passwordResetSessionRepository.findById(
-			passwordResetSessionTableHelper.basePasswordResetSession.id,
+			passwordResetSessionTableHelper.baseData.id,
 		);
 
-		expect(foundPasswordResetSession).toStrictEqual(passwordResetSessionTableHelper.basePasswordResetSession);
+		expect(foundPasswordResetSession).toStrictEqual(passwordResetSessionTableHelper.baseData);
 	});
 
 	test("should return null if PasswordResetSession not found", async () => {

@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { constantTimeCompare } from "./constant-time-compare";
+import { timingSafeStringEqual } from "./timing-safe-string-equal";
 
 export const generateHMAC = (
 	data: string,
@@ -18,5 +18,5 @@ export const verifyHMAC = (
 	encoding: "base64" | "hex" | "base64url" = "hex",
 ): boolean => {
 	const generatedHmac = generateHMAC(data, secret, encoding);
-	return constantTimeCompare(generatedHmac, mac);
+	return timingSafeStringEqual(generatedHmac, mac);
 };

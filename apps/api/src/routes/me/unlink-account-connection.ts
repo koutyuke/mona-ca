@@ -1,14 +1,20 @@
 import { t } from "elysia";
 import { UnlinkAccountConnectionUseCase } from "../../application/use-cases/account-link";
-import { FlattenUnion } from "../../common/schemas";
 import { isErr } from "../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../domain/value-object";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { OAuthAccountRepository } from "../../interface-adapter/repositories/oauth-account";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../modules/elysia-with-env";
+import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 
 export const UnlinkAccountConnection = new ElysiaWithEnv()
@@ -33,9 +39,30 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 			const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
 			if (isErr(result)) {
-				throw new BadRequestException({
-					code: result.code,
-				});
+				const { code } = result;
+
+				switch (code) {
+					case "ACCOUNT_NOT_LINKED":
+						throw new BadRequestException({
+							code: "ACCOUNT_NOT_LINKED",
+							message: "Account is not linked to this provider. Please check your account connections.",
+						});
+					case "UNLINK_OPERATION_FAILED":
+						throw new BadRequestException({
+							code: "UNLINK_OPERATION_FAILED",
+							message: "Failed to unlink account connection. Please try again.",
+						});
+					case "PASSWORD_NOT_SET":
+						throw new BadRequestException({
+							code: "PASSWORD_NOT_SET",
+							message: "Cannot unlink account without a password set. Please set a password first.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Failed to unlink account connection. Please try again.",
+						});
+				}
 			}
 
 			return NoContentResponse();
@@ -47,11 +74,11 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 			}),
 			response: {
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
+				400: ResponseTUnion(
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("ACCOUNT_NOT_LINKED"),
-					ErrorResponseSchema("FAILED_TO_UNLINK_ACCOUNT"),
-					ErrorResponseSchema("PASSWORD_DOES_NOT_SET"),
+					ErrorResponseSchema("UNLINK_OPERATION_FAILED"),
+					ErrorResponseSchema("PASSWORD_NOT_SET"),
 				),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,

@@ -22,13 +22,13 @@ describe("AccountAssociationSessionRepository.save", () => {
 	});
 
 	test("should create a new session in the database", async () => {
-		await accountAssociationSessionRepository.save(accountAssociationSessionTableHelper.baseSession);
+		await accountAssociationSessionRepository.save(accountAssociationSessionTableHelper.baseData);
 
 		const databaseSessions = await accountAssociationSessionTableHelper.findById(
-			accountAssociationSessionTableHelper.baseSession.id,
+			accountAssociationSessionTableHelper.baseData.id,
 		);
 
 		expect(databaseSessions.length).toBe(1);
-		expect(databaseSessions[0]).toStrictEqual(accountAssociationSessionTableHelper.baseDatabaseSession);
+		expect(databaseSessions[0]).toStrictEqual(accountAssociationSessionTableHelper.baseDatabaseData);
 	});
 });

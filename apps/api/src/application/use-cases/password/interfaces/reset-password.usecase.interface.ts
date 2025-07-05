@@ -1,11 +1,16 @@
 import type { Err, Result } from "../../../../common/utils";
+import type { PasswordResetSession, User } from "../../../../domain/entities";
 
-export type ResetPasswordUseCaseSuccessResult = undefined;
+type Success = undefined;
 
-export type ResetPasswordUseCaseErrorResult = Err<"INVALID_TOKEN"> | Err<"EXPIRED_TOKEN"> | Err<"EMAIL_NOT_VERIFIED">;
+type Error = Err<"REQUIRED_EMAIL_VERIFICATION">;
 
-export type ResetPasswordUseCaseResult = Result<ResetPasswordUseCaseSuccessResult, ResetPasswordUseCaseErrorResult>;
+export type ResetPasswordUseCaseResult = Result<Success, Error>;
 
 export interface IResetPasswordUseCase {
-	execute(passwordResetSessionToken: string, newPassword: string): Promise<ResetPasswordUseCaseResult>;
+	execute(
+		newPassword: string,
+		passwordResetSession: PasswordResetSession,
+		user: User,
+	): Promise<ResetPasswordUseCaseResult>;
 }

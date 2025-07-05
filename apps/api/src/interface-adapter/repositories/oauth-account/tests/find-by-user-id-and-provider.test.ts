@@ -22,17 +22,17 @@ describe("OAuthAccountRepository.findByUserIdAndProvider", () => {
 
 	test("should return OAuthAccount instance", async () => {
 		const foundOAuthAccount = await oauthAccountRepository.findByUserIdAndProvider(
-			oauthAccountTableHelper.baseOAuthAccount.userId,
-			oauthAccountTableHelper.baseOAuthAccount.provider,
+			oauthAccountTableHelper.baseData.userId,
+			oauthAccountTableHelper.baseData.provider,
 		);
 
-		expect(foundOAuthAccount).toStrictEqual(oauthAccountTableHelper.baseOAuthAccount);
+		expect(foundOAuthAccount).toStrictEqual(oauthAccountTableHelper.baseData);
 	});
 
 	test("should return null if OAuthAccount not found", async () => {
 		const invalidOAuthAccount = await oauthAccountRepository.findByUserIdAndProvider(
 			newUserId("invalidId"),
-			oauthAccountTableHelper.baseOAuthAccount.provider,
+			oauthAccountTableHelper.baseData.provider,
 		);
 		expect(invalidOAuthAccount).toBeNull();
 	});

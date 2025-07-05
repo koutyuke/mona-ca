@@ -32,7 +32,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
 
 		if (isErr(validatedState)) {
-			return err("INVALID_STATE");
+			return err("INVALID_OAUTH_STATE");
 		}
 
 		const { client, uid } = validatedState;
@@ -50,14 +50,14 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 
 		if (error) {
 			if (error === "access_denied") {
-				return err("ACCESS_DENIED", { redirectURL: redirectToClientURL });
+				return err("OAUTH_ACCESS_DENIED", { redirectURL: redirectToClientURL });
 			}
 
-			return err("PROVIDER_ERROR", { redirectURL: redirectToClientURL });
+			return err("OAUTH_PROVIDER_ERROR", { redirectURL: redirectToClientURL });
 		}
 
 		if (!code) {
-			return err("CODE_NOT_FOUND");
+			return err("OAUTH_CODE_MISSING");
 		}
 
 		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
@@ -68,7 +68,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		await this.oauthProviderGateway.revokeToken(accessToken);
 
 		if (!providerAccount) {
-			return err("FAILED_TO_GET_ACCOUNT_INFO", { redirectURL: redirectToClientURL });
+			return err("OAUTH_PROVIDER_ERROR", { redirectURL: redirectToClientURL });
 		}
 
 		const providerId = newOAuthProviderId(providerAccount.id);
@@ -79,11 +79,11 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		]);
 
 		if (existingUserLinkedAccount) {
-			return err("PROVIDER_ALREADY_LINKED", { redirectURL: redirectToClientURL });
+			return err("OAUTH_PROVIDER_ALREADY_LINKED", { redirectURL: redirectToClientURL });
 		}
 
 		if (existingOAuthAccount) {
-			return err("ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: redirectToClientURL });
+			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: redirectToClientURL });
 		}
 
 		const oauthAccount = createOAuthAccount({

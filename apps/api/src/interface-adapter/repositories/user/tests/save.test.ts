@@ -18,27 +18,27 @@ const now = new Date();
 
 describe("UserRepository.save", async () => {
 	test("should set user in the database", async () => {
-		await userRepository.save(userTableHelper.baseUser, {
+		await userRepository.save(userTableHelper.baseData, {
 			passwordHash: userTableHelper.basePasswordHash,
 		});
 
-		const results = await userTableHelper.find(userTableHelper.baseDatabaseUser.id);
+		const results = await userTableHelper.find(userTableHelper.baseDatabaseData.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(userTableHelper.baseDatabaseUser);
+		expect(results[0]).toStrictEqual(userTableHelper.baseDatabaseData);
 	});
 
 	test("should update user in the database if user already exists", async () => {
 		await userTableHelper.create();
 
 		const updatedUser = {
-			id: userTableHelper.baseUser.id,
+			id: userTableHelper.baseData.id,
 			name: "bar",
 			email: "updatedUser@mail.com",
 			emailVerified: true,
 			iconUrl: "iconUrl",
 			gender: newGender("woman"),
-			createdAt: userTableHelper.baseUser.createdAt,
+			createdAt: userTableHelper.baseData.createdAt,
 			updatedAt: now,
 		} satisfies User;
 
@@ -46,17 +46,17 @@ describe("UserRepository.save", async () => {
 			passwordHash: "newPasswordHash",
 		});
 
-		const results = await userTableHelper.find(userTableHelper.baseUser.id);
+		const results = await userTableHelper.find(userTableHelper.baseData.id);
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			id: userTableHelper.baseUser.id,
+			id: userTableHelper.baseData.id,
 			name: "bar",
 			email: "updatedUser@mail.com",
 			email_verified: 1,
 			icon_url: "iconUrl",
 			gender: "woman",
 			password_hash: "newPasswordHash",
-			created_at: userTableHelper.baseDatabaseUser.created_at,
+			created_at: userTableHelper.baseDatabaseData.created_at,
 			updated_at: toDatabaseDate(now),
 		});
 	});

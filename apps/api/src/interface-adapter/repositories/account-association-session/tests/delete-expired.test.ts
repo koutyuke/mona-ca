@@ -22,7 +22,7 @@ describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 	beforeAll(async () => {
 		await userTableHelper.create();
 		await userTableHelper.create({
-			...userTableHelper.baseDatabaseUser,
+			...userTableHelper.baseDatabaseData,
 			id: newUserId("validUser"),
 			name: "validUser",
 			email: "valid.email@example.com",
@@ -35,12 +35,12 @@ describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 
 	test("should delete expired sessions but keep valid ones", async () => {
 		const expiredSession = {
-			...accountAssociationSessionTableHelper.baseDatabaseSession,
+			...accountAssociationSessionTableHelper.baseDatabaseData,
 			expires_at: 0,
 		} satisfies DatabaseAccountAssociationSession;
 
 		const validSession = {
-			...accountAssociationSessionTableHelper.baseDatabaseSession,
+			...accountAssociationSessionTableHelper.baseDatabaseData,
 			id: newAccountAssociationSessionId("validSession"),
 			user_id: "validUser",
 			expires_at: toDatabaseDate(new Date(Date.now() + 1000 * 60 * 60 * 24)),
@@ -65,7 +65,7 @@ describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 
 	test("should do nothing when there are no expired sessions", async () => {
 		const validSession = {
-			...accountAssociationSessionTableHelper.baseDatabaseSession,
+			...accountAssociationSessionTableHelper.baseDatabaseData,
 			id: newAccountAssociationSessionId("validSession"),
 			user_id: "validUser",
 			expires_at: toDatabaseDate(new Date(Date.now() + 1000 * 60 * 60 * 24)),

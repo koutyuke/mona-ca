@@ -1,18 +1,24 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../../application/services/session-token";
+import { SessionSecretService } from "../../../application/services/session";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schemas";
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
@@ -48,13 +54,12 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const sessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
-
+			const emailVerificationSessionSecretService = new SessionSecretService(EMAIL_VERIFICATION_SESSION_PEPPER);
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-				emailVerificationSessionRepository,
 				userRepository,
-				sessionTokenService,
+				emailVerificationSessionRepository,
+				emailVerificationSessionSecretService,
 			);
 			// === End of instances ===
 
@@ -64,10 +69,23 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				throw new BadRequestException({
-					name: code,
-					message: "Email is already used or verified.",
-				});
+				switch (code) {
+					case "EMAIL_ALREADY_VERIFIED":
+						throw new BadRequestException({
+							code: code,
+							message: "Email is already verified. Please use a different email address.",
+						});
+					case "EMAIL_ALREADY_REGISTERED":
+						throw new BadRequestException({
+							code: code,
+							message: "Email is already registered by another user. Please use a different email address.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Email verification request failed. Please try again.",
+						});
+				}
 			}
 
 			const { emailVerificationSession, emailVerificationSessionToken } = result;
@@ -113,10 +131,10 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 					emailVerificationSessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
+				400: ResponseTUnion(
 					AuthGuardSchema.response[400],
-					ErrorResponseSchema("EMAIL_IS_ALREADY_VERIFIED"),
-					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),
+					ErrorResponseSchema("EMAIL_ALREADY_VERIFIED"),
+					ErrorResponseSchema("EMAIL_ALREADY_REGISTERED"),
 				),
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],

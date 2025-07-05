@@ -1,6 +1,11 @@
 import { eq } from "drizzle-orm";
 import type { PasswordResetSession } from "../../../domain/entities";
-import { type PasswordResetSessionId, newPasswordResetSessionId, newUserId } from "../../../domain/value-object";
+import {
+	type PasswordResetSessionId,
+	type UserId,
+	newPasswordResetSessionId,
+	newUserId,
+} from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IPasswordResetSessionRepository } from "./interfaces/password-reset-session.repository.interface";
 
@@ -8,6 +13,7 @@ interface FoundPasswordResetSessionDto {
 	id: string;
 	userId: string;
 	code: string;
+	secretHash: Buffer;
 	email: string;
 	emailVerified: boolean;
 	expiresAt: Date;
@@ -36,6 +42,7 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 				id: passwordResetSession.id,
 				userId: passwordResetSession.userId,
 				code: passwordResetSession.code,
+				secretHash: Buffer.from(passwordResetSession.secretHash),
 				email: passwordResetSession.email,
 				emailVerified: passwordResetSession.emailVerified,
 				expiresAt: passwordResetSession.expiresAt,
@@ -43,16 +50,19 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 			.onConflictDoUpdate({
 				target: this.drizzleService.schema.passwordResetSessions.id,
 				set: {
-					userId: passwordResetSession.userId,
-					code: passwordResetSession.code,
-					email: passwordResetSession.email,
 					emailVerified: passwordResetSession.emailVerified,
 					expiresAt: passwordResetSession.expiresAt,
 				},
 			});
 	}
 
-	public async deleteByUserId(userId: string): Promise<void> {
+	public async deleteById(id: PasswordResetSessionId): Promise<void> {
+		await this.drizzleService.db
+			.delete(this.drizzleService.schema.passwordResetSessions)
+			.where(eq(this.drizzleService.schema.passwordResetSessions.id, id));
+	}
+
+	public async deleteByUserId(userId: UserId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.passwordResetSessions)
 			.where(eq(this.drizzleService.schema.passwordResetSessions.userId, userId));
@@ -63,9 +73,10 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 			id: newPasswordResetSessionId(dto.id),
 			userId: newUserId(dto.userId),
 			code: dto.code,
+			secretHash: new Uint8Array(dto.secretHash),
 			email: dto.email,
 			emailVerified: dto.emailVerified,
 			expiresAt: dto.expiresAt,
-		} satisfies PasswordResetSession;
+		};
 	}
 }

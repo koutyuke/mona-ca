@@ -6,7 +6,7 @@ import { timingSafeEqual } from "node:crypto";
  * @param b - Second string to compare
  * @returns true if the strings are equal, false otherwise
  */
-export const constantTimeCompare = (a: string, b: string): boolean => {
+export const timingSafeStringEqual = (a: string, b: string): boolean => {
 	const aBytes = new TextEncoder().encode(a);
 	const bBytes = new TextEncoder().encode(b);
 

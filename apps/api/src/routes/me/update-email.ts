@@ -1,8 +1,10 @@
 import { t } from "elysia";
-import { SessionTokenService } from "../../application/services/session-token";
-import { ChangeEmailUseCase } from "../../application/use-cases/email-verification";
+import { SessionSecretService } from "../../application/services/session";
+import {
+	ChangeEmailUseCase,
+	ValidateEmailVerificationSessionUseCase,
+} from "../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
-import { FlattenUnion } from "../../common/schemas";
 import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../interface-adapter/repositories/email-verification-session";
@@ -10,8 +12,15 @@ import { SessionRepository } from "../../interface-adapter/repositories/session"
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { CookieManager } from "../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../modules/elysia-with-env";
+import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 
 export const UpdateEmail = new ElysiaWithEnv()
@@ -32,19 +41,22 @@ export const UpdateEmail = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
-			const emailVerificationSessionTokenService = new SessionTokenService(EMAIL_VERIFICATION_SESSION_PEPPER);
+			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
+			const emailVerificationSessionSecretService = new SessionSecretService(EMAIL_VERIFICATION_SESSION_PEPPER);
 
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
+			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
+				emailVerificationSessionRepository,
+				emailVerificationSessionSecretService,
+			);
 			const changeEmailUseCase = new ChangeEmailUseCase(
 				userRepository,
 				sessionRepository,
 				emailVerificationSessionRepository,
-				sessionTokenService,
-				emailVerificationSessionTokenService,
+				sessionSecretService,
 			);
 			// === End of instances ===
 
@@ -55,22 +67,65 @@ export const UpdateEmail = new ElysiaWithEnv()
 
 			if (!emailVerificationSessionToken) {
 				throw new BadRequestException({
-					code: "INVALID_TOKEN",
+					code: "EMAIL_VERIFICATION_SESSION_INVALID",
+					message: "Email verification session is invalid. Please request a new verification email.",
 				});
 			}
 
-			const result = await changeEmailUseCase.execute(emailVerificationSessionToken, code, user);
+			const validationResult = await validateEmailVerificationSessionUseCase.execute(
+				emailVerificationSessionToken,
+				user,
+			);
 
-			if (isErr(result)) {
-				const { code } = result;
+			if (isErr(validationResult)) {
+				const { code } = validationResult;
 
-				throw new BadRequestException({
-					code,
-					message: "Failed to change email.",
-				});
+				switch (code) {
+					case "EMAIL_VERIFICATION_SESSION_EXPIRED":
+						throw new BadRequestException({
+							code: "EMAIL_VERIFICATION_SESSION_EXPIRED",
+							message: "Email verification session has expired. Please request a new verification email.",
+						});
+					case "EMAIL_VERIFICATION_SESSION_INVALID":
+						throw new BadRequestException({
+							code: "EMAIL_VERIFICATION_SESSION_INVALID",
+							message: "Invalid email verification session. Please request a new verification email.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Failed to validate email verification session. Please try again.",
+						});
+				}
 			}
 
-			const { session, sessionToken } = result;
+			const { emailVerificationSession } = validationResult;
+
+			const changeResult = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+
+			if (isErr(changeResult)) {
+				const { code } = changeResult;
+
+				switch (code) {
+					case "EMAIL_ALREADY_REGISTERED":
+						throw new BadRequestException({
+							code: "EMAIL_ALREADY_REGISTERED",
+							message: "Email is already in use by another account. Please use a different email address.",
+						});
+					case "INVALID_VERIFICATION_CODE":
+						throw new BadRequestException({
+							code: "INVALID_VERIFICATION_CODE",
+							message: "Invalid verification code. Please check the code and try again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Failed to change email. Please try again.",
+						});
+				}
+			}
+
+			const { session, sessionToken } = changeResult;
 
 			if (clientType === "mobile") {
 				return {
@@ -101,13 +156,12 @@ export const UpdateEmail = new ElysiaWithEnv()
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
+				400: ResponseTUnion(
 					AuthGuardSchema.response[400],
-					ErrorResponseSchema("EMAIL_IS_ALREADY_USED"),
-					ErrorResponseSchema("INVALID_CODE"),
-					ErrorResponseSchema("EXPIRED_CODE"),
-					ErrorResponseSchema("NOT_REQUEST"),
-					ErrorResponseSchema("INVALID_TOKEN"),
+					ErrorResponseSchema("EMAIL_ALREADY_REGISTERED"),
+					ErrorResponseSchema("EMAIL_VERIFICATION_SESSION_EXPIRED"),
+					ErrorResponseSchema("EMAIL_VERIFICATION_SESSION_INVALID"),
+					ErrorResponseSchema("INVALID_VERIFICATION_CODE"),
 				),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,

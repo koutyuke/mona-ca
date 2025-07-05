@@ -21,8 +21,8 @@ describe("SessionRepository.findById", () => {
 	});
 
 	test("should return session and user from sessionId", async () => {
-		const session = await sessionRepository.findById(sessionTableHelper.baseSession.id);
-		const expectedSession = sessionTableHelper.baseSession;
+		const session = await sessionRepository.findById(sessionTableHelper.baseData.id);
+		const expectedSession = sessionTableHelper.baseData;
 
 		expect(session).toStrictEqual(expectedSession);
 	});

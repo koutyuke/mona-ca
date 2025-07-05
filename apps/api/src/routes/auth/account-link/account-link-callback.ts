@@ -7,15 +7,21 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schemas";
-import { constantTimeCompare, isErr } from "../../../common/utils";
+import { isErr, timingSafeStringEqual } from "../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv, RedirectResponse, RedirectResponseSchema } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	RedirectResponse,
+	RedirectResponseSchema,
+	ResponseTUnion,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
@@ -83,9 +89,9 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			const redirectURI = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
-			if (!queryState || !constantTimeCompare(queryState, signedState)) {
+			if (!queryState || !timingSafeStringEqual(queryState, signedState)) {
 				throw new BadRequestException({
-					code: "INVALID_STATE",
+					code: "INVALID_OAUTH_STATE",
 				});
 			}
 
@@ -103,22 +109,33 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
 			if (isErr(result)) {
-				if (
-					result.code === "INVALID_STATE" ||
-					result.code === "INVALID_REDIRECT_URL" ||
-					result.code === "CODE_NOT_FOUND"
-				) {
-					throw new BadRequestException({
-						code: result.code,
-					});
-				}
+				const { code } = result;
 
-				const {
-					code,
-					value: { redirectURL },
-				} = result;
-				redirectURL.searchParams.set("error", code);
-				return RedirectResponse(redirectURL.toString());
+				switch (code) {
+					case "INVALID_OAUTH_STATE":
+						throw new BadRequestException({
+							code: code,
+							message: "Invalid OAuth state. Please try again.",
+						});
+					case "INVALID_REDIRECT_URL":
+						throw new BadRequestException({
+							code: code,
+							message: "Invalid redirect URL. Please check the URL and try again.",
+						});
+					case "OAUTH_CODE_MISSING":
+						throw new BadRequestException({
+							code: code,
+							message: "OAuth code is missing. Please try again.",
+						});
+					default: {
+						const {
+							code: errorCode,
+							value: { redirectURL },
+						} = result;
+						redirectURL.searchParams.set("error", errorCode);
+						return RedirectResponse(redirectURL.toString());
+					}
+				}
 			}
 
 			const { redirectURL } = result;
@@ -162,11 +179,10 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			}),
 			response: {
 				302: RedirectResponseSchema,
-				400: FlattenUnion(
-					ErrorResponseSchema("INVALID_STATE"),
-					ErrorResponseSchema("INVALID_SIGNED_STATE"),
-					ErrorResponseSchema("FAILED_TO_DECODE_SIGNED_STATE"),
+				400: ResponseTUnion(
+					ErrorResponseSchema("INVALID_OAUTH_STATE"),
 					ErrorResponseSchema("INVALID_REDIRECT_URL"),
+					ErrorResponseSchema("OAUTH_CODE_MISSING"),
 				),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
@@ -178,12 +194,11 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					"Account Link Callback for the provider",
 					"##### **Error Query**",
 					"---",
-					"- `FAILED_TO_GET_ACCOUNT_INFO`",
-					"- `ACCESS_DENIED`",
-					"- `PROVIDER_ERROR`",
-					"- `PROVIDER_ALREADY_LINKED`",
-					"- `ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER`",
-					"- `INVALID_STATE`",
+					"- **OAUTH_PROVIDER_UNAVAILABLE**",
+					"- **OAUTH_ACCESS_DENIED**",
+					"- **OAUTH_PROVIDER_ERROR**",
+					"- **OAUTH_PROVIDER_ALREADY_LINKED**",
+					"- **OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER**",
 				],
 				tag: "Auth - Account Link",
 				withAuth: true,

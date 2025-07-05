@@ -10,8 +10,14 @@ import { isErr } from "../../../common/utils";
 import { clientTypeSchema, newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv, RedirectResponse, RedirectResponseSchema } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	RedirectResponse,
+	RedirectResponseSchema,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
@@ -71,10 +77,18 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				throw new BadRequestException({
-					name: code,
-					message: "Invalid redirect URL.",
-				});
+				switch (code) {
+					case "INVALID_REDIRECT_URL":
+						throw new BadRequestException({
+							code: code,
+							message: "Invalid redirect URL. Please check the URL and try again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "OAuth login request failed. Please try again.",
+						});
+				}
 			}
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;

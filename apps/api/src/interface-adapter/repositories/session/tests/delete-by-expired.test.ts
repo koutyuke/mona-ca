@@ -23,7 +23,7 @@ describe("SessionRepository.deleteByExpired", () => {
 	test("should delete if session is expired", async () => {
 		await sessionRepository.deleteExpiredSessions();
 
-		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
+		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseData.id);
 		expect(results).toHaveLength(0);
 	});
 });

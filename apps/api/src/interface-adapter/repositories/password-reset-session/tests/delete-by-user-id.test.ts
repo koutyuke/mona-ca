@@ -19,13 +19,9 @@ describe("PasswordResetSessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete password reset session from user if exists", async () => {
-		await passwordResetSessionRepository.deleteByUserId(
-			passwordResetSessionTableHelper.basePasswordResetSession.userId,
-		);
+		await passwordResetSessionRepository.deleteByUserId(passwordResetSessionTableHelper.baseData.userId);
 
-		const results = await passwordResetSessionTableHelper.findByUserId(
-			passwordResetSessionTableHelper.basePasswordResetSession.userId,
-		);
+		const results = await passwordResetSessionTableHelper.findByUserId(passwordResetSessionTableHelper.baseData.userId);
 
 		expect(results).toHaveLength(0);
 	});

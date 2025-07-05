@@ -19,9 +19,9 @@ describe("SessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete session from user if exists", async () => {
-		await sessionRepository.deleteByUserId(userTableHelper.baseUser.id);
+		await sessionRepository.deleteByUserId(userTableHelper.baseData.id);
 
-		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
+		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseData.id);
 
 		expect(results).toHaveLength(0);
 	});

@@ -1,14 +1,16 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { SessionTokenService } from "../../../application/services/session-token";
+import { SessionSecretService, createSessionToken } from "../../../application/services/session";
 import { CLIENT_TYPE_HEADER_NAME } from "../../../common/constants";
+import { newSessionId } from "../../../domain/value-object";
 import { type DatabaseSession, SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
+import { toDatabaseSessionSecretHash } from "../../../tests/utils";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
 const { DB, SESSION_PEPPER } = env;
 
-const sessionTokenService = new SessionTokenService(SESSION_PEPPER);
+const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
@@ -16,29 +18,37 @@ const sessionTableHelper = new SessionTableHelper(DB);
 const user1Id = "user1Id" as const;
 const user2Id = "user2Id" as const;
 
-const sessionToken1 = "sessionId1" as const;
-const sessionToken2 = "sessionId2" as const;
+const session1Id = newSessionId("session1Id");
+const session2Id = newSessionId("session2Id");
 
-const session1Id = sessionTokenService.hashSessionToken(sessionToken1);
-const session2Id = sessionTokenService.hashSessionToken(sessionToken2);
+const sessionSecret1 = "session1Secret" as const;
+const sessionSecret2 = "session2Secret" as const;
+
+const sessionSecretHash1 = sessionSecretService.hashSessionSecret(sessionSecret1);
+const sessionSecretHash2 = sessionSecretService.hashSessionSecret(sessionSecret2);
+
+const sessionToken1 = createSessionToken(session1Id, sessionSecret1);
+const sessionToken2 = createSessionToken(session2Id, sessionSecret2);
 
 const databaseSession1: DatabaseSession = {
 	id: session1Id,
 	user_id: user1Id,
-	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
+	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash1),
+	expires_at: sessionTableHelper.baseDatabaseData.expires_at,
 };
 
 const databaseSession2: DatabaseSession = {
 	id: session2Id,
 	user_id: user2Id,
-	expires_at: sessionTableHelper.baseDatabaseSession.expires_at,
+	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash2),
+	expires_at: sessionTableHelper.baseDatabaseData.expires_at,
 };
 
 describe("AuthGuard Authorization Header Test", () => {
 	beforeAll(async () => {
 		// Create Active User
 		await userTableHelper.create({
-			...userTableHelper.baseDatabaseUser,
+			...userTableHelper.baseDatabaseData,
 			id: "user1Id",
 			email_verified: 0,
 			email: "test1.email@example.com",
@@ -46,7 +56,7 @@ describe("AuthGuard Authorization Header Test", () => {
 
 		// Create non-Active User
 		await userTableHelper.create({
-			...userTableHelper.baseDatabaseUser,
+			...userTableHelper.baseDatabaseData,
 			id: "user2Id",
 			email_verified: 1,
 			email: "test2.email@example.com",

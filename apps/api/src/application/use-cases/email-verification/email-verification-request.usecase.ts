@@ -1,10 +1,10 @@
-import { err, generateRandomString } from "../../../common/utils";
+import { err, generateRandomString, ulid } from "../../../common/utils";
 import { createEmailVerificationSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import { newEmailVerificationSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { ISessionTokenService } from "../../services/session-token";
+import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	EmailVerificationRequestUseCaseResult,
 	IEmailVerificationRequestUseCase,
@@ -12,35 +12,39 @@ import type {
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
-		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
 		private readonly userRepository: IUserRepository,
-		private readonly emailVerificationSessionTokenService: ISessionTokenService,
+		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly emailVerificationSessionSecretService: ISessionSecretService,
 	) {}
 
 	public async execute(email: string, user: User): Promise<EmailVerificationRequestUseCaseResult> {
 		if (email === user.email && user.emailVerified) {
-			return err("EMAIL_IS_ALREADY_VERIFIED");
+			return err("EMAIL_ALREADY_VERIFIED");
 		}
 
 		const existingUserForVerifiedEmail = await this.userRepository.findByEmail(email);
 
 		if (existingUserForVerifiedEmail && existingUserForVerifiedEmail.id !== user.id) {
-			return err("EMAIL_IS_ALREADY_USED");
+			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
 		const code = generateRandomString(8, {
 			number: true,
 		});
 
-		const emailVerificationSessionToken = this.emailVerificationSessionTokenService.generateSessionToken();
-		const emailVerificationSessionId = newEmailVerificationSessionId(
-			this.emailVerificationSessionTokenService.hashSessionToken(emailVerificationSessionToken),
+		const emailVerificationSessionSecret = this.emailVerificationSessionSecretService.generateSessionSecret();
+		const secretHash = this.emailVerificationSessionSecretService.hashSessionSecret(emailVerificationSessionSecret);
+		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
+		const emailVerificationSessionToken = createSessionToken(
+			emailVerificationSessionId,
+			emailVerificationSessionSecret,
 		);
 		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			email,
 			userId: user.id,
 			code,
+			secretHash,
 		});
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);

@@ -19,40 +19,40 @@ describe("OAuthAccountRepository.save", () => {
 	});
 
 	test("should set oauthAccount in the database", async () => {
-		await oauthAccountRepository.save(oauthAccountTableHelper.baseOAuthAccount);
+		await oauthAccountRepository.save(oauthAccountTableHelper.baseData);
 
 		const results = await oauthAccountTableHelper.findByProviderAndProviderId(
-			oauthAccountTableHelper.baseOAuthAccount.provider,
-			oauthAccountTableHelper.baseOAuthAccount.providerId,
+			oauthAccountTableHelper.baseData.provider,
+			oauthAccountTableHelper.baseData.providerId,
 		);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(oauthAccountTableHelper.baseDatabaseOAuthAccount);
+		expect(results[0]).toStrictEqual(oauthAccountTableHelper.baseDatabaseData);
 	});
 
 	test("should update oauthAccount in the database if it already exists", async () => {
 		await oauthAccountTableHelper.create();
 
 		const updatedOAuthAccount = {
-			provider: oauthAccountTableHelper.baseOAuthAccount.provider,
-			providerId: oauthAccountTableHelper.baseOAuthAccount.providerId,
-			userId: oauthAccountTableHelper.baseOAuthAccount.userId,
-			linkedAt: oauthAccountTableHelper.baseOAuthAccount.linkedAt,
+			provider: oauthAccountTableHelper.baseData.provider,
+			providerId: oauthAccountTableHelper.baseData.providerId,
+			userId: oauthAccountTableHelper.baseData.userId,
+			linkedAt: oauthAccountTableHelper.baseData.linkedAt,
 		} satisfies OAuthAccount;
 
 		await oauthAccountRepository.save(updatedOAuthAccount);
 
 		const results = await oauthAccountTableHelper.findByProviderAndProviderId(
-			oauthAccountTableHelper.baseOAuthAccount.provider,
-			oauthAccountTableHelper.baseOAuthAccount.providerId,
+			oauthAccountTableHelper.baseData.provider,
+			oauthAccountTableHelper.baseData.providerId,
 		);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			provider: oauthAccountTableHelper.baseDatabaseOAuthAccount.provider,
-			provider_id: oauthAccountTableHelper.baseDatabaseOAuthAccount.provider_id,
-			user_id: oauthAccountTableHelper.baseDatabaseOAuthAccount.user_id,
-			linked_at: oauthAccountTableHelper.baseDatabaseOAuthAccount.linked_at,
+			provider: oauthAccountTableHelper.baseDatabaseData.provider,
+			provider_id: oauthAccountTableHelper.baseDatabaseData.provider_id,
+			user_id: oauthAccountTableHelper.baseDatabaseData.user_id,
+			linked_at: oauthAccountTableHelper.baseDatabaseData.linked_at,
 		});
 	});
 });

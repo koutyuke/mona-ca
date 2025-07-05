@@ -1,8 +1,8 @@
 import { t } from "elysia";
 import { getIP } from "../../common/utils";
 import { TurnstileGateway } from "../../interface-adapter/gateway/turnstile";
-import { ElysiaWithEnv } from "../elysia-with-env";
-import { BadRequestException, ErrorResponseSchema } from "../error";
+import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
+import { BadRequestException } from "../error";
 
 /**
  * Initializes a new instance of the ElysiaWithEnv class with the captcha plugin.

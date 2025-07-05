@@ -21,40 +21,30 @@ describe("PasswordResetSessionRepository.save", () => {
 	});
 
 	test("should set password reset session in the database", async () => {
-		await passwordResetSessionRepository.save(passwordResetSessionTableHelper.basePasswordResetSession);
+		await passwordResetSessionRepository.save(passwordResetSessionTableHelper.baseData);
 
-		const results = await passwordResetSessionTableHelper.findById(
-			passwordResetSessionTableHelper.basePasswordResetSession.id,
-		);
+		const results = await passwordResetSessionTableHelper.findById(passwordResetSessionTableHelper.baseData.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(passwordResetSessionTableHelper.baseDatabasePasswordResetSession);
+		expect(results[0]).toStrictEqual(passwordResetSessionTableHelper.baseDatabaseData);
 	});
 
 	test("should update password reset session in the database if it already exists", async () => {
 		await passwordResetSessionTableHelper.create();
 
 		const updatedPasswordResetSession = {
-			id: passwordResetSessionTableHelper.basePasswordResetSession.id,
-			userId: passwordResetSessionTableHelper.basePasswordResetSession.userId,
-			code: "newCode",
-			email: "new.email@example.com",
+			...passwordResetSessionTableHelper.baseData,
 			emailVerified: false,
 			expiresAt: now,
 		};
 
 		await passwordResetSessionRepository.save(updatedPasswordResetSession);
 
-		const results = await passwordResetSessionTableHelper.findById(
-			passwordResetSessionTableHelper.basePasswordResetSession.id,
-		);
+		const results = await passwordResetSessionTableHelper.findById(passwordResetSessionTableHelper.baseData.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			id: passwordResetSessionTableHelper.baseDatabasePasswordResetSession.id,
-			user_id: passwordResetSessionTableHelper.baseDatabasePasswordResetSession.user_id,
-			code: "newCode",
-			email: "new.email@example.com",
+			...passwordResetSessionTableHelper.baseDatabaseData,
 			email_verified: 0,
 			expires_at: toDatabaseDate(now),
 		});

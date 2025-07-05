@@ -5,7 +5,7 @@ import { type Gender, newSessionId, newUserId } from "../../../domain/value-obje
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IPasswordService } from "../../services/password";
-import type { ISessionTokenService } from "../../services/session-token";
+import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type { ISignupUseCase, SignupUseCaseResult } from "./interfaces/signup.usecase.interface";
 
 export class SignupUseCase implements ISignupUseCase {
@@ -13,7 +13,7 @@ export class SignupUseCase implements ISignupUseCase {
 		private readonly sessionRepository: ISessionRepository,
 		private readonly userRepository: IUserRepository,
 		private readonly passwordService: IPasswordService,
-		private readonly sessionTokenService: ISessionTokenService,
+		private readonly sessionSecretService: ISessionSecretService,
 	) {}
 
 	public async execute(name: string, email: string, password: string, gender: Gender): Promise<SignupUseCaseResult> {
@@ -21,10 +21,10 @@ export class SignupUseCase implements ISignupUseCase {
 
 		if (existingSameEmailUser) {
 			if (existingSameEmailUser.emailVerified) {
-				return err("EMAIL_IS_ALREADY_USED");
+				return err("EMAIL_ALREADY_REGISTERED");
 			}
 
-			await this.userRepository.delete(existingSameEmailUser.id);
+			await this.userRepository.deleteById(existingSameEmailUser.id);
 		}
 
 		const userId = newUserId(ulid());
@@ -38,11 +38,14 @@ export class SignupUseCase implements ISignupUseCase {
 			gender,
 		});
 
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const sessionSecret = this.sessionSecretService.generateSessionSecret();
+		const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = createSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,
+			secretHash: sessionSecretHash,
 		});
 
 		await this.userRepository.save(user, { passwordHash });

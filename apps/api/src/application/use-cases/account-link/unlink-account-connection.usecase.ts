@@ -22,7 +22,7 @@ export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionU
 		}
 
 		if (!passwordHashed) {
-			return err("PASSWORD_DOES_NOT_SET");
+			return err("PASSWORD_NOT_SET");
 		}
 
 		try {
@@ -30,7 +30,7 @@ export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionU
 			return;
 		} catch (error) {
 			console.error(`Failed to unlink account: ${error}`);
-			return err("FAILED_TO_UNLINK_ACCOUNT");
+			return err("UNLINK_OPERATION_FAILED");
 		}
 	}
 }

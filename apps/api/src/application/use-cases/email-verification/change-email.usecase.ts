@@ -1,61 +1,49 @@
-import { err } from "../../../common/utils";
-import { createSession, isExpiredEmailVerificationSession, updateUser } from "../../../domain/entities";
-import type { User } from "../../../domain/entities";
-import { newEmailVerificationSessionId, newSessionId } from "../../../domain/value-object";
+import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
+import { createSession, updateUser } from "../../../domain/entities";
+import type { EmailVerificationSession, User } from "../../../domain/entities";
+import { newSessionId } from "../../../domain/value-object";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { ISessionTokenService } from "../../services/session-token";
+import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type { ChangeEmailUseCaseResult, IChangeEmailUseCase } from "./interfaces/change-email.usecase.interface";
 
+// this use case will be called after the validate email verification session use case.
+// so we don't need to check the expired email verification session.
 export class ChangeEmailUseCase implements IChangeEmailUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private readonly sessionTokenService: ISessionTokenService,
-		private readonly emailVerificationSessionTokenService: ISessionTokenService,
+		private readonly sessionSecretService: ISessionSecretService,
 	) {}
 
 	public async execute(
-		emailVerificationSessionToken: string,
 		code: string,
 		user: User,
+		emailVerificationSession: EmailVerificationSession,
 	): Promise<ChangeEmailUseCaseResult> {
-		const emailVerificationSessionId = newEmailVerificationSessionId(
-			this.emailVerificationSessionTokenService.hashSessionToken(emailVerificationSessionToken),
-		);
-		const emailVerificationSession = await this.emailVerificationSessionRepository.findByIdAndUserId(
-			emailVerificationSessionId,
-			user.id,
-		);
-
-		if (!emailVerificationSession) {
-			return err("NOT_REQUEST");
-		}
-
 		const existingUserForNewEmail = await this.userRepository.findByEmail(emailVerificationSession.email);
 
-		if (existingUserForNewEmail) {
-			return err("EMAIL_IS_ALREADY_USED");
+		if (existingUserForNewEmail && existingUserForNewEmail.id !== user.id) {
+			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
-		if (emailVerificationSession.code !== code) {
-			return err("INVALID_CODE");
+		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
+			return err("INVALID_VERIFICATION_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
 
-		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
-			return err("EXPIRED_CODE");
-		}
-
 		// Generate a new session.
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const sessionSecret = this.sessionSecretService.generateSessionSecret();
+		const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = createSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,
+			secretHash: sessionSecretHash,
 		});
 
 		const updatedUser = updateUser(user, {

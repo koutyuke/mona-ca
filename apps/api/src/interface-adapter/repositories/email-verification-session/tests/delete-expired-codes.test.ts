@@ -22,7 +22,7 @@ describe("EmailVerificationSessionRepository.deleteExpiredVerifications", () => 
 		await emailVerificationSessionRepository.deleteExpiredVerifications();
 
 		const results = await emailVerificationSessionTableHelper.findByUserId(
-			emailVerificationSessionTableHelper.baseEmailVerificationSession.userId,
+			emailVerificationSessionTableHelper.baseData.userId,
 		);
 
 		expect(results.length).toBe(0);

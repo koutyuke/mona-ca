@@ -1,11 +1,11 @@
-import { err } from "../../../common/utils";
+import { err, ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IPasswordService } from "../../services/password";
-import type { ISessionTokenService } from "../../services/session-token";
+import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	IUpdateUserPasswordUseCase,
 	UpdateUserPasswordUseCaseResult,
@@ -16,15 +16,15 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly passwordService: IPasswordService,
-		private readonly sessionTokenService: ISessionTokenService,
+		private readonly sessionTokenService: ISessionSecretService,
 	) {}
 
 	public async execute(
-		currentUser: User,
+		user: User,
 		currentPassword: string | undefined,
 		newPassword: string,
 	): Promise<UpdateUserPasswordUseCaseResult> {
-		const passwordHash = await this.userRepository.findPasswordHashById(currentUser.id);
+		const passwordHash = await this.userRepository.findPasswordHashById(user.id);
 
 		if (passwordHash === null) {
 			if (currentPassword) {
@@ -32,7 +32,7 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 			}
 		} else {
 			if (!currentPassword) {
-				return err("CURRENT_PASSWORD_IS_REQUIRED");
+				return err("REQUIRED_CURRENT_PASSWORD");
 			}
 
 			const verifyPassword = await this.passwordService.verifyPassword(currentPassword, passwordHash);
@@ -45,19 +45,22 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 			this.passwordService.hashPassword(newPassword),
 
 			// Delete all sessions of the user.
-			this.sessionRepository.deleteByUserId(currentUser.id),
+			this.sessionRepository.deleteByUserId(user.id),
 		]);
 
 		// Generate a new session.
-		const sessionToken = this.sessionTokenService.generateSessionToken();
-		const sessionId = newSessionId(this.sessionTokenService.hashSessionToken(sessionToken));
+		const sessionSecret = this.sessionTokenService.generateSessionSecret();
+		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = createSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
-			userId: currentUser.id,
+			userId: user.id,
+			secretHash: sessionSecretHash,
 		});
 
 		await Promise.all([
-			this.userRepository.save(currentUser, { passwordHash: newPasswordHash }),
+			this.userRepository.save(user, { passwordHash: newPasswordHash }),
 			this.sessionRepository.save(session),
 		]);
 

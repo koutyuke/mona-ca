@@ -1,17 +1,24 @@
 import { t } from "elysia";
 import { PasswordService } from "../../../application/services/password";
-import { SessionTokenService } from "../../../application/services/session-token";
-import { ResetPasswordUseCase } from "../../../application/use-cases/password";
+import { SessionSecretService } from "../../../application/services/session";
+import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { FlattenUnion } from "../../../common/schemas";
+
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException, ForbiddenException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
@@ -32,19 +39,23 @@ export const ResetPassword = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
-			const passwordResetSessionTokenService = new SessionTokenService(PASSWORD_RESET_SESSION_PEPPER);
+			const passwordResetSessionSecretService = new SessionSecretService(PASSWORD_RESET_SESSION_PEPPER);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 
-			const resetPasswordUseCase = new ResetPasswordUseCase(
+			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
+				passwordResetSessionSecretService,
+				userRepository,
+			);
+			const resetPasswordUseCase = new ResetPasswordUseCase(
 				userRepository,
 				sessionRepository,
+				passwordResetSessionRepository,
 				passwordService,
-				passwordResetSessionTokenService,
 			);
 			// === End of instances ===
 
@@ -54,19 +65,55 @@ export const ResetPassword = new ElysiaWithEnv()
 					: bodyPasswordResetSessionToken;
 
 			if (!passwordResetSessionToken) {
-				throw new BadRequestException({
-					code: "INVALID_TOKEN",
+				throw new UnauthorizedException({
+					code: "PASSWORD_RESET_SESSION_INVALID",
+					message: "Password reset session token not found. Please request password reset again.",
 				});
 			}
 
-			const result = await resetPasswordUseCase.execute(passwordResetSessionToken, newPassword);
+			const validationResult = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
 
-			if (isErr(result)) {
-				const { code } = result;
+			if (isErr(validationResult)) {
+				const { code } = validationResult;
 
-				throw new BadRequestException({
-					code,
-				});
+				switch (code) {
+					case "PASSWORD_RESET_SESSION_INVALID":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Invalid password reset session. Please request password reset again.",
+						});
+					case "PASSWORD_RESET_SESSION_EXPIRED":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Password reset session has expired. Please request password reset again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Password reset session validation failed. Please try again.",
+						});
+				}
+			}
+
+			const { passwordResetSession, user } = validationResult;
+
+			const resetResult = await resetPasswordUseCase.execute(newPassword, passwordResetSession, user);
+
+			if (isErr(resetResult)) {
+				const { code } = resetResult;
+
+				switch (code) {
+					case "REQUIRED_EMAIL_VERIFICATION":
+						throw new ForbiddenException({
+							code: code,
+							message: "Email verification is required before resetting password. Please verify your email first.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Password reset failed. Please try again.",
+						});
+				}
 			}
 
 			if (clientType === "web") {
@@ -88,12 +135,12 @@ export const ResetPassword = new ElysiaWithEnv()
 			}),
 			response: {
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
-					WithClientTypeSchema.response[400],
-					ErrorResponseSchema("INVALID_TOKEN"),
-					ErrorResponseSchema("EXPIRED_TOKEN"),
-					ErrorResponseSchema("EMAIL_NOT_VERIFIED"),
+				400: WithClientTypeSchema.response[400],
+				401: ResponseTUnion(
+					ErrorResponseSchema("PASSWORD_RESET_SESSION_INVALID"),
+					ErrorResponseSchema("PASSWORD_RESET_SESSION_EXPIRED"),
 				),
+				403: ErrorResponseSchema("REQUIRED_EMAIL_VERIFICATION"),
 				500: InternalServerErrorResponseSchema,
 			},
 			detail: pathDetail({

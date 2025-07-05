@@ -12,10 +12,8 @@ export const oauthAccounts = sqliteTable(
 			.references(() => users.id, { onDelete: "cascade" }),
 		linkedAt: integer("linked_at", { mode: "timestamp" }).notNull().default(sql`(strftime('%s', 'now'))`),
 	},
-	table => {
-		return {
-			uniqueProviderAccount: unique("unq_oauth_accounts__provider_account").on(table.provider, table.providerId),
-			uniqueProviderUser: unique("unq_oauth_accounts__provider_user").on(table.provider, table.userId),
-		};
-	},
+	table => [
+		unique("unq_oauth_accounts__provider_account").on(table.provider, table.providerId),
+		unique("unq_oauth_accounts__provider_user").on(table.provider, table.userId),
+	],
 );

@@ -8,7 +8,7 @@ export interface ISessionRepository {
 
 	save: (session: Session) => Promise<void>;
 
-	delete: (id: SessionId) => Promise<void>;
+	deleteById: (id: SessionId) => Promise<void>;
 
 	deleteByUserId: (userId: UserId) => Promise<void>;
 

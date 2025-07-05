@@ -21,12 +21,12 @@ describe("SessionRepository.save", () => {
 	});
 
 	test("should set session in the database", async () => {
-		await sessionRepository.save(sessionTableHelper.baseSession);
+		await sessionRepository.save(sessionTableHelper.baseData);
 
-		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
+		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseData.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(sessionTableHelper.baseDatabaseSession);
+		expect(results[0]).toStrictEqual(sessionTableHelper.baseDatabaseData);
 	});
 
 	test("should update session in the database if it already exists", async () => {
@@ -35,19 +35,19 @@ describe("SessionRepository.save", () => {
 		const newExpiresAt = new Date(Date.now() + sessionExpiresSpan.milliseconds());
 
 		const updatedSession = {
-			id: sessionTableHelper.baseSession.id,
-			userId: sessionTableHelper.baseSession.userId,
+			id: sessionTableHelper.baseData.id,
+			userId: sessionTableHelper.baseData.userId,
+			secretHash: sessionTableHelper.baseSecretHash,
 			expiresAt: newExpiresAt,
 		} satisfies Session;
 
 		await sessionRepository.save(updatedSession);
 
-		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseSession.id);
+		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseData.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			id: sessionTableHelper.baseDatabaseSession.id,
-			user_id: sessionTableHelper.baseDatabaseSession.user_id,
+			...sessionTableHelper.baseDatabaseData,
 			expires_at: toDatabaseDate(newExpiresAt),
 		});
 	});
