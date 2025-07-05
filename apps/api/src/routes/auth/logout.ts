@@ -5,8 +5,12 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { CookieManager } from "../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
-import { InternalServerErrorResponseSchema } from "../../modules/error";
+import {
+	ElysiaWithEnv,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+} from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";
 
 export const Logout = new ElysiaWithEnv()

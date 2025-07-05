@@ -3,15 +3,21 @@ import { PasswordService } from "../../application/services/password";
 import { SessionSecretService } from "../../application/services/session";
 import { LoginUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { FlattenUnion } from "../../common/schemas";
 import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../modules/captcha";
 import { CookieManager } from "../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../modules/elysia-with-env";
+import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
@@ -58,10 +64,18 @@ export const Login = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				throw new BadRequestException({
-					name: code,
-					message: "Invalid email or password",
-				});
+				switch (code) {
+					case "INVALID_CREDENTIALS":
+						throw new BadRequestException({
+							code: "INVALID_CREDENTIALS",
+							message: "Invalid email or password. Please check your credentials and try again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Login failed. Please try again.",
+						});
+				}
 			}
 			const { session, sessionToken } = result;
 
@@ -98,10 +112,10 @@ export const Login = new ElysiaWithEnv()
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
+				400: ResponseTUnion(
 					WithClientTypeSchema.response[400],
 					CaptchaSchema.response[400],
-					ErrorResponseSchema("INVALID_EMAIL_OR_PASSWORD"),
+					ErrorResponseSchema("INVALID_CREDENTIALS"),
 				),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
