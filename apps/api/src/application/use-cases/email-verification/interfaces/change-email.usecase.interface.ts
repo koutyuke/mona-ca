@@ -6,7 +6,7 @@ type Success = {
 	session: Session;
 };
 
-type Error = Err<"INVALID_CODE"> | Err<"EMAIL_IS_ALREADY_USED">;
+type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"EMAIL_ALREADY_REGISTERED">;
 
 export type ChangeEmailUseCaseResult = Result<Success, Error>;
 

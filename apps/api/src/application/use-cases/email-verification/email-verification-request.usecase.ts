@@ -19,13 +19,13 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 
 	public async execute(email: string, user: User): Promise<EmailVerificationRequestUseCaseResult> {
 		if (email === user.email && user.emailVerified) {
-			return err("EMAIL_IS_ALREADY_VERIFIED");
+			return err("EMAIL_ALREADY_VERIFIED");
 		}
 
 		const existingUserForVerifiedEmail = await this.userRepository.findByEmail(email);
 
 		if (existingUserForVerifiedEmail && existingUserForVerifiedEmail.id !== user.id) {
-			return err("EMAIL_IS_ALREADY_USED");
+			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
 		const code = generateRandomString(8, {

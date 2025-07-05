@@ -27,11 +27,11 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		emailVerificationSession: EmailVerificationSession,
 	): Promise<EmailVerificationConfirmUseCaseResult> {
 		if (emailVerificationSession.email !== user.email) {
-			return err("INVALID_EMAIL");
+			return err("EMAIL_MISMATCH");
 		}
 
 		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
-			return err("INVALID_CODE");
+			return err("INVALID_VERIFICATION_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);

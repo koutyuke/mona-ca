@@ -5,7 +5,7 @@ type Success = {
 	emailVerificationSession: EmailVerificationSession;
 };
 
-type Error = Err<"INVALID_EMAIL_VERIFICATION_SESSION"> | Err<"EXPIRED_EMAIL_VERIFICATION_SESSION">;
+type Error = Err<"EMAIL_VERIFICATION_SESSION_INVALID"> | Err<"EMAIL_VERIFICATION_SESSION_EXPIRED">;
 
 export type ValidateEmailVerificationSessionUseCaseResult = Result<Success, Error>;
 

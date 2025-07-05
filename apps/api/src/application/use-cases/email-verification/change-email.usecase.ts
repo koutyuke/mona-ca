@@ -26,11 +26,11 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 		const existingUserForNewEmail = await this.userRepository.findByEmail(emailVerificationSession.email);
 
 		if (existingUserForNewEmail && existingUserForNewEmail.id !== user.id) {
-			return err("EMAIL_IS_ALREADY_USED");
+			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
 		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
-			return err("INVALID_CODE");
+			return err("INVALID_VERIFICATION_CODE");
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);

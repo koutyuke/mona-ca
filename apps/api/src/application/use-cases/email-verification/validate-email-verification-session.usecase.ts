@@ -22,7 +22,7 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 			separateSessionTokenToIdAndSecret<EmailVerificationSessionId>(emailVerificationSessionToken);
 
 		if (!emailVerificationSessionIdAndSecret) {
-			return err("INVALID_EMAIL_VERIFICATION_SESSION");
+			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 
 		const { id: emailVerificationSessionId, secret: emailVerificationSessionSecret } =
@@ -31,16 +31,16 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 		const emailVerificationSession = await this.emailVerificationSessionRepository.findById(emailVerificationSessionId);
 
 		if (!emailVerificationSession) {
-			return err("INVALID_EMAIL_VERIFICATION_SESSION");
+			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 
 		if (emailVerificationSession.userId !== user.id) {
-			return err("INVALID_EMAIL_VERIFICATION_SESSION");
+			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 
 		if (isExpiredEmailVerificationSession(emailVerificationSession)) {
 			await this.emailVerificationSessionRepository.deleteByUserId(emailVerificationSession.userId);
-			return err("EXPIRED_EMAIL_VERIFICATION_SESSION");
+			return err("EMAIL_VERIFICATION_SESSION_EXPIRED");
 		}
 
 		if (
@@ -49,7 +49,7 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 				emailVerificationSession.secretHash,
 			)
 		) {
-			return err("INVALID_EMAIL_VERIFICATION_SESSION");
+			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 
 		return { emailVerificationSession };

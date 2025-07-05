@@ -7,8 +7,8 @@ export type EmailVerificationRequestUseCaseSuccessResult = {
 };
 
 export type EmailVerificationRequestUseCaseErrorResult =
-	| Err<"EMAIL_IS_ALREADY_VERIFIED">
-	| Err<"EMAIL_IS_ALREADY_USED">;
+	| Err<"EMAIL_ALREADY_VERIFIED">
+	| Err<"EMAIL_ALREADY_REGISTERED">;
 
 export type EmailVerificationRequestUseCaseResult = Result<
 	EmailVerificationRequestUseCaseSuccessResult,
