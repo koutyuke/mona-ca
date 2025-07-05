@@ -3,15 +3,21 @@ import { PasswordService } from "../../application/services/password";
 import { SessionSecretService } from "../../application/services/session";
 import { UpdateUserPasswordUseCase } from "../../application/use-cases/password";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { FlattenUnion } from "../../common/schemas";
 import { isErr } from "../../common/utils";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { CookieManager } from "../../modules/cookie";
-import { ElysiaWithEnv, NoContentResponse, NoContentResponseSchema } from "../../modules/elysia-with-env";
-import { BadRequestException, ErrorResponseSchema, InternalServerErrorResponseSchema } from "../../modules/error";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	InternalServerErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+} from "../../modules/elysia-with-env";
+import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
 
 export const UpdatePassword = new ElysiaWithEnv()
@@ -51,9 +57,23 @@ export const UpdatePassword = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				throw new BadRequestException({
-					code,
-				});
+				switch (code) {
+					case "INVALID_CURRENT_PASSWORD":
+						throw new BadRequestException({
+							code: "INVALID_CURRENT_PASSWORD",
+							message: "Current password is incorrect. Please check your password and try again.",
+						});
+					case "REQUIRED_CURRENT_PASSWORD":
+						throw new BadRequestException({
+							code: "REQUIRED_CURRENT_PASSWORD",
+							message: "Current password is required to update your password.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Failed to update password. Please try again.",
+						});
+				}
 			}
 
 			const { session, sessionToken } = result;
@@ -84,10 +104,10 @@ export const UpdatePassword = new ElysiaWithEnv()
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: FlattenUnion(
+				400: ResponseTUnion(
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("INVALID_CURRENT_PASSWORD"),
-					ErrorResponseSchema("CURRENT_PASSWORD_IS_REQUIRED"),
+					ErrorResponseSchema("REQUIRED_CURRENT_PASSWORD"),
 				),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,

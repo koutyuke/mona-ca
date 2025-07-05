@@ -5,8 +5,7 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenter";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv } from "../../modules/elysia-with-env";
-import { InternalServerErrorResponseSchema } from "../../modules/error";
+import { ElysiaWithEnv, InternalServerErrorResponseSchema } from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";
 
 export const UpdateProfile = new ElysiaWithEnv()
