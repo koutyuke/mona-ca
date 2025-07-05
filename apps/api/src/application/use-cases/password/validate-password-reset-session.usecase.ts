@@ -1,28 +1,27 @@
 import { err } from "../../../common/utils";
-import { type User, isExpiredPasswordResetSession } from "../../../domain/entities";
+import { isExpiredPasswordResetSession } from "../../../domain/entities";
 import type { PasswordResetSessionId } from "../../../domain/value-object";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
+import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import { type ISessionSecretService, separateSessionTokenToIdAndSecret } from "../../services/session";
 import type {
 	IValidatePasswordResetSessionUseCase,
 	ValidatePasswordResetSessionUseCaseResult,
-} from "./interfaces/validate-password-reset-session.interface.usecase";
+} from "./interfaces/validate-password-reset-session.usecase.interface";
 
 export class ValidatePasswordResetSessionUseCase implements IValidatePasswordResetSessionUseCase {
 	constructor(
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly passwordResetSessionSecretService: ISessionSecretService,
+		private readonly userRepository: IUserRepository,
 	) {}
 
-	public async execute(
-		passwordResetSessionToken: string,
-		user: User,
-	): Promise<ValidatePasswordResetSessionUseCaseResult> {
+	public async execute(passwordResetSessionToken: string): Promise<ValidatePasswordResetSessionUseCaseResult> {
 		const passwordResetSessionIdAndSecret =
 			separateSessionTokenToIdAndSecret<PasswordResetSessionId>(passwordResetSessionToken);
 
 		if (!passwordResetSessionIdAndSecret) {
-			return err("INVALID_PASSWORD_RESET_SESSION");
+			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
 		const { id: passwordResetSessionId, secret: passwordResetSessionSecret } = passwordResetSessionIdAndSecret;
@@ -30,11 +29,18 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 		const passwordResetSession = await this.passwordResetSessionRepository.findById(passwordResetSessionId);
 
 		if (!passwordResetSession) {
-			return err("INVALID_PASSWORD_RESET_SESSION");
+			return err("PASSWORD_RESET_SESSION_INVALID");
+		}
+
+		const user = await this.userRepository.findById(passwordResetSession.userId);
+
+		if (!user) {
+			await this.passwordResetSessionRepository.deleteById(passwordResetSessionId);
+			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
 		if (passwordResetSession.userId !== user.id) {
-			return err("INVALID_PASSWORD_RESET_SESSION");
+			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
 		if (
@@ -43,14 +49,14 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 				passwordResetSession.secretHash,
 			)
 		) {
-			return err("INVALID_PASSWORD_RESET_SESSION");
+			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
 		if (isExpiredPasswordResetSession(passwordResetSession)) {
 			await this.passwordResetSessionRepository.deleteById(passwordResetSessionId);
-			return err("EXPIRED_PASSWORD_RESET_SESSION");
+			return err("PASSWORD_RESET_SESSION_EXPIRED");
 		}
 
-		return { passwordResetSession };
+		return { passwordResetSession, user };
 	}
 }

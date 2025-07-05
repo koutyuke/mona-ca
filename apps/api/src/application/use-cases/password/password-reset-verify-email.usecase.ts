@@ -16,7 +16,7 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 		passwordResetSession: PasswordResetSession,
 	): Promise<PasswordResetVerifyEmailUseCaseResult> {
 		if (!timingSafeStringEqual(passwordResetSession.code, code)) {
-			return err("INVALID_CODE");
+			return err("INVALID_VERIFICATION_CODE");
 		}
 
 		const updatedSession = updatePasswordResetSession(passwordResetSession, {

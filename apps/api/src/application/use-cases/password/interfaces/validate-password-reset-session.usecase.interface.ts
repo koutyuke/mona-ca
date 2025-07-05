@@ -3,12 +3,13 @@ import type { PasswordResetSession, User } from "../../../../domain/entities";
 
 type Success = {
 	passwordResetSession: PasswordResetSession;
+	user: User;
 };
 
-type Error = Err<"INVALID_PASSWORD_RESET_SESSION"> | Err<"EXPIRED_PASSWORD_RESET_SESSION">;
+type Error = Err<"PASSWORD_RESET_SESSION_INVALID"> | Err<"PASSWORD_RESET_SESSION_EXPIRED">;
 
 export type ValidatePasswordResetSessionUseCaseResult = Result<Success, Error>;
 
 export interface IValidatePasswordResetSessionUseCase {
-	execute(passwordResetSessionToken: string, user: User): Promise<ValidatePasswordResetSessionUseCaseResult>;
+	execute(passwordResetSessionToken: string): Promise<ValidatePasswordResetSessionUseCaseResult>;
 }

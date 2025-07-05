@@ -22,7 +22,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		user: User,
 	): Promise<ResetPasswordUseCaseResult> {
 		if (!passwordResetSession.emailVerified) {
-			return err("EMAIL_VERIFICATION_REQUIRED");
+			return err("REQUIRED_EMAIL_VERIFICATION");
 		}
 
 		const passwordHash = await this.passwordService.hashPassword(newPassword);

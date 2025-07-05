@@ -8,4 +8,4 @@ export type { IPasswordResetRequestUseCase } from "./interfaces/password-reset-r
 export type { IPasswordResetVerifyEmailUseCase } from "./interfaces/password-reset-verify-email.usecase.interface";
 export type { IResetPasswordUseCase } from "./interfaces/reset-password.usecase.interface";
 export type { IUpdateUserPasswordUseCase } from "./interfaces/update-user-password.usecase.interface";
-export type { IValidatePasswordResetSessionUseCase } from "./interfaces/validate-password-reset-session.interface.usecase";
+export type { IValidatePasswordResetSessionUseCase } from "./interfaces/validate-password-reset-session.usecase.interface";
