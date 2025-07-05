@@ -3,7 +3,7 @@ import type { AccountAssociationSession, User } from "../../../../domain/entitie
 
 type Success = {
 	accountAssociationSessionToken: string;
-	accountAssociationSession: AccountAssociationSession;
+	accountAssociationSession: AccountAssociationSession<string>;
 };
 
 type Error = never;

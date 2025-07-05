@@ -25,11 +25,11 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 		accountAssociationSession: AccountAssociationSession,
 	): Promise<AccountAssociationConfirmUseCaseResult> {
 		if (accountAssociationSession.code === null) {
-			return err("INVALID_CODE");
+			return err("INVALID_ASSOCIATION_CODE");
 		}
 
 		if (!timingSafeStringEqual(accountAssociationSession.code, code)) {
-			return err("INVALID_CODE");
+			return err("INVALID_ASSOCIATION_CODE");
 		}
 
 		await this.accountAssociationSessionRepository.deleteById(accountAssociationSession.id);
@@ -46,11 +46,11 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 		]);
 
 		if (existingUserLinkedAccount) {
-			return err("PROVIDER_ALREADY_LINKED");
+			return err("OAUTH_PROVIDER_ALREADY_LINKED");
 		}
 
 		if (existingOAuthAccount) {
-			return err("ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
+			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
 		}
 
 		const sessionSecret = this.sessionTokenService.generateSessionSecret();

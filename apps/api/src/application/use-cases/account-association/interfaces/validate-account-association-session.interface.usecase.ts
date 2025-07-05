@@ -6,7 +6,7 @@ type Success = {
 	user: User;
 };
 
-type Error = Err<"INVALID_ACCOUNT_ASSOCIATION_SESSION"> | Err<"EXPIRED_ACCOUNT_ASSOCIATION_SESSION">;
+type Error = Err<"ACCOUNT_ASSOCIATION_SESSION_INVALID"> | Err<"ACCOUNT_ASSOCIATION_SESSION_EXPIRED">;
 
 export type ValidateAccountAssociationSessionUseCaseResult = Result<Success, Error>;
 
