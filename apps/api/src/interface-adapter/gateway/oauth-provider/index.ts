@@ -5,4 +5,6 @@ export { OAuthProviderGateway } from "./oauth-provider.gateway";
 export type {
 	IOAuthProviderGateway,
 	AccountInfo,
+	GetTokensResult,
+	GetAccountInfoResult,
 } from "./interfaces/oauth-provider.gateway.interface";
