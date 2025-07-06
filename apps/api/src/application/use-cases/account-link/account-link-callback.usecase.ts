@@ -32,7 +32,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
 
 		if (isErr(validatedState)) {
-			return err("INVALID_OAUTH_STATE");
+			return err("OAUTH_CREDENTIALS_INVALID");
 		}
 
 		const { client, uid } = validatedState;

@@ -7,7 +7,6 @@ type Success = {
 };
 
 type Error =
-	| Err<"INVALID_OAUTH_STATE">
 	| Err<"INVALID_REDIRECT_URL">
 	| Err<"OAUTH_CREDENTIALS_INVALID">
 	| Err<"FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: URL }>
