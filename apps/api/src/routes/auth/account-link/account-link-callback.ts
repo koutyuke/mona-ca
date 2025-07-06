@@ -112,17 +112,12 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 				const { code } = result;
 
 				switch (code) {
-					case "INVALID_OAUTH_STATE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid OAuth state. Please try again.",
-						});
 					case "INVALID_REDIRECT_URL":
 						throw new BadRequestException({
 							code: code,
 							message: "Invalid redirect URL. Please check the URL and try again.",
 						});
-					case "OAUTH_CODE_MISSING":
+					case "OAUTH_CREDENTIALS_INVALID":
 						throw new BadRequestException({
 							code: code,
 							message: "OAuth code is missing. Please try again.",
@@ -180,9 +175,8 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			response: {
 				302: RedirectResponseSchema,
 				400: ResponseTUnion(
-					ErrorResponseSchema("INVALID_OAUTH_STATE"),
 					ErrorResponseSchema("INVALID_REDIRECT_URL"),
-					ErrorResponseSchema("OAUTH_CODE_MISSING"),
+					ErrorResponseSchema("OAUTH_CREDENTIALS_INVALID"),
 				),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
@@ -194,7 +188,8 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					"Account Link Callback for the provider",
 					"##### **Error Query**",
 					"---",
-					"- **OAUTH_PROVIDER_UNAVAILABLE**",
+					"- **FAILED_TO_FETCH_OAUTH_ACCOUNT**",
+					"- **OAUTH_ACCOUNT_EMAIL_NOT_FOUND**",
 					"- **OAUTH_ACCESS_DENIED**",
 					"- **OAUTH_PROVIDER_ERROR**",
 					"- **OAUTH_PROVIDER_ALREADY_LINKED**",

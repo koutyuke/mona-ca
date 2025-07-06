@@ -1,6 +1,5 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
-import type { Static } from "elysia";
 import { err } from "../../../common/utils";
 import type { ClientType } from "../../../domain/value-object";
 import { type IOAuthProviderGateway, generateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
@@ -26,7 +25,7 @@ export class OAuthRequestUseCase implements IOAuthRequestUseCase {
 			return err("INVALID_REDIRECT_URL");
 		}
 
-		const state = generateSignedState<Static<typeof oauthStateSchema>>(
+		const state = generateSignedState<typeof oauthStateSchema.static>(
 			{ client: clientType },
 			this.env.OAUTH_STATE_HMAC_SECRET,
 		);

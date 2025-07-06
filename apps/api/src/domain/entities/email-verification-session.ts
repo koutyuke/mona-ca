@@ -1,5 +1,9 @@
-import { emailVerificationSessionExpiresSpan } from "../../common/constants";
+import { TimeSpan } from "../../common/utils";
 import type { EmailVerificationSessionId, UserId } from "../value-object";
+
+export const EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
+
+export const emailVerificationSessionExpiresSpan = new TimeSpan(EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES, "m");
 
 export interface EmailVerificationSession {
 	id: EmailVerificationSessionId;

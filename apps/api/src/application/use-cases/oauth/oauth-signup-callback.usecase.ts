@@ -1,7 +1,7 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
-import { DEFAULT_USER_GENDER } from "../../../common/constants";
 import { err, isErr, ulid } from "../../../common/utils";
 import {
+	DEFAULT_USER_GENDER,
 	createAccountAssociationSession,
 	createOAuthAccount,
 	createSession,
@@ -79,19 +79,43 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		}
 
 		if (!code) {
-			return err("OAUTH_CODE_MISSING");
+			return err("OAUTH_CREDENTIALS_INVALID");
 		}
 
-		const tokens = await this.oauthProviderGateway.getTokens(code, codeVerifier);
+		const tokensResult = await this.oauthProviderGateway.getTokens(code, codeVerifier);
+
+		if (isErr(tokensResult)) {
+			switch (tokensResult.code) {
+				case "OAUTH_CREDENTIALS_INVALID":
+					return err("OAUTH_CREDENTIALS_INVALID");
+				case "FAILED_TO_FETCH_OAUTH_TOKENS":
+					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+				default:
+					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+			}
+		}
+
+		const tokens = tokensResult;
 		const accessToken = tokens.accessToken();
 
-		const providerAccount = await this.oauthProviderGateway.getAccountInfo(accessToken);
+		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(accessToken);
 
 		await this.oauthProviderGateway.revokeToken(accessToken);
 
-		if (!providerAccount) {
-			return err("OAUTH_PROVIDER_UNAVAILABLE", { redirectURL: redirectToClientURL });
+		if (isErr(accountInfoResult)) {
+			switch (accountInfoResult.code) {
+				case "OAUTH_ACCOUNT_EMAIL_NOT_FOUND":
+					return err("OAUTH_ACCOUNT_EMAIL_NOT_FOUND", { redirectURL: redirectToClientURL });
+				case "OAUTH_ACCESS_TOKEN_INVALID":
+					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+				case "FAILED_TO_GET_ACCOUNT_INFO":
+					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+				default:
+					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+			}
 		}
+
+		const providerAccount = accountInfoResult;
 
 		const providerId = newOAuthProviderId(providerAccount.id);
 

@@ -32,7 +32,7 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 			}
 		} else {
 			if (!currentPassword) {
-				return err("REQUIRED_CURRENT_PASSWORD");
+				return err("INVALID_CURRENT_PASSWORD");
 			}
 
 			const verifyPassword = await this.passwordService.verifyPassword(currentPassword, passwordHash);

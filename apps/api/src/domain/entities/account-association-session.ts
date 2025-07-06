@@ -1,6 +1,10 @@
-import { accountAssociationSessionExpiresSpan } from "../../common/constants";
+import { TimeSpan } from "../../common/utils";
 import type { OAuthProvider, OAuthProviderId, UserId } from "../value-object";
 import type { AccountAssociationSessionId } from "../value-object";
+
+export const ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
+
+export const accountAssociationSessionExpiresSpan = new TimeSpan(ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES, "m");
 
 export interface AccountAssociationSession<Code extends string | null = string | null> {
 	id: AccountAssociationSessionId;

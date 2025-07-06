@@ -63,11 +63,6 @@ export const UpdatePassword = new ElysiaWithEnv()
 							code: "INVALID_CURRENT_PASSWORD",
 							message: "Current password is incorrect. Please check your password and try again.",
 						});
-					case "REQUIRED_CURRENT_PASSWORD":
-						throw new BadRequestException({
-							code: "REQUIRED_CURRENT_PASSWORD",
-							message: "Current password is required to update your password.",
-						});
 					default:
 						throw new BadRequestException({
 							code: code,
@@ -104,11 +99,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
-				400: ResponseTUnion(
-					AuthGuardSchema.response[400],
-					ErrorResponseSchema("INVALID_CURRENT_PASSWORD"),
-					ErrorResponseSchema("REQUIRED_CURRENT_PASSWORD"),
-				),
+				400: ResponseTUnion(AuthGuardSchema.response[400], ErrorResponseSchema("INVALID_CURRENT_PASSWORD")),
 				401: AuthGuardSchema.response[401],
 				500: InternalServerErrorResponseSchema,
 			},

@@ -1,7 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { sessionExpiresSpan } from "../../../../common/constants";
-import type { Session } from "../../../../domain/entities";
+import { type Session, sessionExpiresSpan } from "../../../../domain/entities";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { toDatabaseDate } from "../../../../tests/utils";

@@ -1,7 +1,7 @@
 import type { ToPrimitive } from "../../../common/utils";
 import type { OAuthProvider, OAuthProviderId, UserId } from "../../../domain/value-object";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
-import type { UserRepository } from "../../../interface-adapter/repositories/user";
+import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type {
 	GetConnectionsUseCaseResult,
 	IGetConnectionsUseCase,
@@ -10,7 +10,7 @@ import type {
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {
 	constructor(
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
-		private readonly userRepository: UserRepository,
+		private readonly userRepository: IUserRepository,
 	) {}
 
 	public async execute(userId: UserId): Promise<GetConnectionsUseCaseResult> {

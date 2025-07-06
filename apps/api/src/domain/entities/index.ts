@@ -1,13 +1,33 @@
-export { createUser, updateUser } from "./user";
-export { createEmailVerificationSession, isExpiredEmailVerificationSession } from "./email-verification-session";
-export { createSession, isExpiredSession, isRefreshableSession } from "./session";
+export { createUser, updateUser, DEFAULT_USER_GENDER } from "./user";
+export {
+	createEmailVerificationSession,
+	isExpiredEmailVerificationSession,
+	EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES,
+	emailVerificationSessionExpiresSpan,
+} from "./email-verification-session";
+export {
+	createSession,
+	isExpiredSession,
+	isRefreshableSession,
+	SESSION_EXPIRES_SPAN_DAYS,
+	SESSION_REFRESH_SPAN_DAYS,
+	sessionExpiresSpan,
+	sessionRefreshSpan,
+} from "./session";
 export { createOAuthAccount } from "./oauth-account";
 export {
 	createPasswordResetSession,
 	isExpiredPasswordResetSession,
 	updatePasswordResetSession,
+	PASSWORD_RESET_SESSION_EXPIRES_SPAN_MINUTES,
+	passwordResetSessionExpiresSpan,
 } from "./password-reset-session";
-export { createAccountAssociationSession, isExpiredAccountAssociationSession } from "./account-association-session";
+export {
+	createAccountAssociationSession,
+	isExpiredAccountAssociationSession,
+	ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES,
+	accountAssociationSessionExpiresSpan,
+} from "./account-association-session";
 
 export type { User } from "./user";
 export type { EmailVerificationSession } from "./email-verification-session";

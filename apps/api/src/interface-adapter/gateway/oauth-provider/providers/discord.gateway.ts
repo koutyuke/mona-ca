@@ -1,7 +1,18 @@
 import { Value } from "@sinclair/typebox/value";
-import { Discord as DiscordProvider, type OAuth2Tokens } from "arctic";
+import {
+	ArcticFetchError,
+	Discord as DiscordProvider,
+	OAuth2RequestError,
+	UnexpectedErrorResponseBodyError,
+	UnexpectedResponseError,
+} from "arctic";
 import { t } from "elysia";
-import type { AccountInfo, IOAuthProviderGateway } from "../interfaces/oauth-provider.gateway.interface";
+import { err } from "../../../../common/utils";
+import type {
+	GetAccountInfoResult,
+	GetTokensResult,
+	IOAuthProviderGateway,
+} from "../interfaces/oauth-provider.gateway.interface";
 
 const discordAccountInfoSchema = t.Object({
 	id: t.String(),
@@ -28,30 +39,65 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 		return url;
 	}
 
-	public getTokens(code: string, codeVerifier: string): Promise<OAuth2Tokens> {
-		return this.discord.validateAuthorizationCode(code, codeVerifier);
+	public async getTokens(code: string, codeVerifier: string): Promise<GetTokensResult> {
+		try {
+			const tokens = await this.discord.validateAuthorizationCode(code, codeVerifier);
+			return tokens;
+		} catch (error) {
+			if (error instanceof OAuth2RequestError) {
+				return err("OAUTH_CREDENTIALS_INVALID");
+			}
+			if (error instanceof ArcticFetchError) {
+				return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+			}
+			if (error instanceof UnexpectedResponseError) {
+				return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+			}
+			if (error instanceof UnexpectedErrorResponseBodyError) {
+				return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+			}
+
+			console.error("Unknown error in getTokens:", error);
+			return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+		}
 	}
 
-	public async getAccountInfo(accessToken: string): Promise<AccountInfo | null> {
-		const response = await fetch("https://discord.com/api/v10/users/@me", {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-			},
-		});
+	public async getAccountInfo(accessToken: string): Promise<GetAccountInfoResult> {
+		try {
+			const response = await fetch("https://discord.com/api/v10/users/@me", {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			});
 
-		const user = await response.json();
+			if (!response.ok) {
+				if (response.status === 401) {
+					return err("OAUTH_ACCESS_TOKEN_INVALID");
+				}
+				return err("FAILED_TO_GET_ACCOUNT_INFO");
+			}
 
-		if (!Value.Check(discordAccountInfoSchema, user) || !user.email) {
-			return null;
+			const user = await response.json();
+
+			if (!Value.Check(discordAccountInfoSchema, user)) {
+				return err("FAILED_TO_GET_ACCOUNT_INFO");
+			}
+
+			if (!user.email) {
+				return err("OAUTH_ACCOUNT_EMAIL_NOT_FOUND");
+			}
+
+			return {
+				id: user.id,
+				name: user.username,
+				email: user.email,
+				iconURL: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
+				emailVerified: !!user.verified,
+			};
+		} catch (error) {
+			console.error("Error in getAccountInfo:", error);
+			return err("FAILED_TO_GET_ACCOUNT_INFO");
 		}
-
-		return {
-			id: user.id,
-			name: user.username,
-			email: user.email,
-			iconURL: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
-			emailVerified: !!user.verified,
-		};
 	}
 
 	public async revokeToken(token: string): Promise<void> {

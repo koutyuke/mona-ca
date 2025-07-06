@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, test } from "vitest";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME, sessionRefreshSpan } from "../../../common/constants";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
+import { sessionRefreshSpan } from "../../../domain/entities";
 import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
