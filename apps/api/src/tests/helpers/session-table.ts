@@ -1,7 +1,6 @@
 import { env } from "cloudflare:test";
 import { SessionSecretService, createSessionToken } from "../../application/services/session";
-import { sessionExpiresSpan } from "../../common/constants";
-import type { Session } from "../../domain/entities";
+import { type Session, sessionExpiresSpan } from "../../domain/entities";
 import { newSessionId, newUserId } from "../../domain/value-object";
 import { toDatabaseDate, toDatabaseSessionSecretHash } from "../utils";
 

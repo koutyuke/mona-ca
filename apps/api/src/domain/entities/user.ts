@@ -1,6 +1,8 @@
 import type { Gender } from "../value-object/gender";
 import type { UserId } from "../value-object/ids";
 
+export const DEFAULT_USER_GENDER = "man";
+
 export interface User {
 	id: UserId;
 	email: string;

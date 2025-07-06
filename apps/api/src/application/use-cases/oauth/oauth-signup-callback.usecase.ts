@@ -1,7 +1,7 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
-import { DEFAULT_USER_GENDER } from "../../../common/constants";
 import { err, isErr, ulid } from "../../../common/utils";
 import {
+	DEFAULT_USER_GENDER,
 	createAccountAssociationSession,
 	createOAuthAccount,
 	createSession,

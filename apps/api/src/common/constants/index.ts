@@ -7,15 +7,4 @@ export {
 	EMAIL_VERIFICATION_SESSION_COOKIE_NAME,
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 } from "./cookie";
-export {
-	sessionExpiresSpan,
-	sessionRefreshSpan,
-	emailVerificationSessionExpiresSpan,
-	accountAssociationSessionExpiresSpan,
-	SESSION_EXPIRES_SPAN_DAYS,
-	SESSION_REFRESH_SPAN_DAYS,
-	EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES,
-	ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES,
-} from "./session";
 export { CLIENT_TYPE_HEADER_NAME } from "./header";
-export { DEFAULT_USER_GENDER } from "./default";

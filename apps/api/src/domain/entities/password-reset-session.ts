@@ -1,5 +1,9 @@
-import { passwordResetSessionExpiresSpan } from "../../common/constants/session";
+import { TimeSpan } from "../../common/utils";
 import type { PasswordResetSessionId, UserId } from "../value-object";
+
+export const PASSWORD_RESET_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
+
+export const passwordResetSessionExpiresSpan = new TimeSpan(PASSWORD_RESET_SESSION_EXPIRES_SPAN_MINUTES, "m");
 
 export interface PasswordResetSession {
 	id: PasswordResetSessionId;
