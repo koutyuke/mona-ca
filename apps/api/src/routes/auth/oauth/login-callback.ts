@@ -137,7 +137,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 							code: code,
 							message: "Invalid redirect URL. Please check the URL and try again.",
 						});
-					case "OAUTH_CODE_MISSING":
+					case "OAUTH_CREDENTIALS_INVALID":
 						throw new BadRequestException({
 							code: code,
 							message: "OAuth code is missing. Please try again.",
@@ -230,7 +230,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				400: ResponseTUnion(
 					ErrorResponseSchema("INVALID_OAUTH_STATE"),
 					ErrorResponseSchema("INVALID_REDIRECT_URL"),
-					ErrorResponseSchema("OAUTH_CODE_MISSING"),
+					ErrorResponseSchema("OAUTH_CREDENTIALS_INVALID"),
 				),
 				429: RateLimiterSchema.response[429],
 				500: InternalServerErrorResponseSchema,
@@ -242,12 +242,12 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					"OAuth Login Callback for the provider",
 					"##### **Error Query**",
 					"---",
-					"- **OAUTH_PROVIDER_UNAVAILABLE**",
+					"- **FAILED_TO_FETCH_OAUTH_ACCOUNT**",
 					"- **OAUTH_ACCESS_DENIED**",
 					"- **OAUTH_PROVIDER_ERROR**",
 					"- **OAUTH_ACCOUNT_NOT_FOUND**",
+					"- **OAUTH_ACCOUNT_EMAIL_NOT_FOUND**",
 					"- **OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE**",
-					"- **OAUTH_ACCOUNT_ALREADY_USED**",
 				],
 				tag: "Auth - OAuth",
 			}),
