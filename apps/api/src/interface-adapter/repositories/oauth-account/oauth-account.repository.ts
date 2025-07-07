@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import type { ToPrimitive } from "../../../common/utils";
 import type { OAuthAccount } from "../../../domain/entities";
 import {
 	type OAuthProvider,
@@ -12,7 +13,7 @@ import type { DrizzleService } from "../../../infrastructure/drizzle";
 import type { IOAuthAccountRepository } from "./interfaces/oauth-account.repository.interface";
 
 interface FoundOAuthAccountDto {
-	provider: "discord";
+	provider: ToPrimitive<OAuthProvider>;
 	providerId: string;
 	userId: string;
 	linkedAt: Date;

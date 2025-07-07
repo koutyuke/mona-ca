@@ -1,7 +1,9 @@
 import { eq, lte } from "drizzle-orm";
+import type { ToPrimitive } from "../../../common/utils";
 import type { AccountAssociationSession } from "../../../domain/entities";
 import {
 	type AccountAssociationSessionId,
+	type OAuthProvider,
 	type UserId,
 	newAccountAssociationSessionId,
 	newOAuthProvider,
@@ -17,7 +19,7 @@ interface FoundAccountAssociationSessionDto {
 	code: string | null;
 	secretHash: Buffer;
 	email: string;
-	provider: "discord";
+	provider: ToPrimitive<OAuthProvider>;
 	providerId: string;
 	expiresAt: Date;
 }
