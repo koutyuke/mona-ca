@@ -6,7 +6,7 @@ export const AccountConnectionsPresenterResultSchema = t.Composite([
 	t.Object({
 		password: t.Boolean(),
 	}),
-	t.Mapped(t.Union([t.Literal("discord")]), () =>
+	t.Mapped(t.Union([t.Literal("discord"), t.Literal("google")]), () =>
 		t.Nullable(
 			t.Object({
 				provider: t.String(),
@@ -57,5 +57,6 @@ export const AccountConnectionsPresenter = (
 	return {
 		password,
 		discord: formattedProviders.discord || null,
+		google: formattedProviders.google || null,
 	};
 };
