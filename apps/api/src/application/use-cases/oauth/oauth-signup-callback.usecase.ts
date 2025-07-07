@@ -95,12 +95,9 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			}
 		}
 
-		const tokens = tokensResult;
-		const accessToken = tokens.accessToken();
+		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(tokensResult);
 
-		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(accessToken);
-
-		await this.oauthProviderGateway.revokeToken(accessToken);
+		await this.oauthProviderGateway.revokeToken(tokensResult);
 
 		if (isErr(accountInfoResult)) {
 			switch (accountInfoResult.code) {
