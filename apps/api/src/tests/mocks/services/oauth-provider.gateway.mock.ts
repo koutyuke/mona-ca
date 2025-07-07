@@ -18,7 +18,7 @@ export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 		} as unknown as OAuth2Tokens;
 	}
 
-	public async getAccountInfo(_accessToken: string): Promise<GetAccountInfoResult> {
+	public async getAccountInfo(_tokens: OAuth2Tokens): Promise<GetAccountInfoResult> {
 		return {
 			id: "provider_user_id",
 			email: "test@example.com",
@@ -28,7 +28,7 @@ export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 		};
 	}
 
-	public async revokeToken(_token: string): Promise<void> {
+	public async revokeToken(_tokens: OAuth2Tokens): Promise<void> {
 		// Mock implementation - no-op
 	}
 }

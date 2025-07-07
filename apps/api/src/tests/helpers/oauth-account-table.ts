@@ -1,8 +1,9 @@
+import type { ToPrimitive } from "../../common/utils";
 import type { OAuthAccount } from "../../domain/entities";
-import { newOAuthProvider, newOAuthProviderId, newUserId } from "../../domain/value-object";
+import { type OAuthProvider, newOAuthProvider, newOAuthProviderId, newUserId } from "../../domain/value-object";
 
 export type DatabaseOAuthAccount = {
-	provider: "discord";
+	provider: ToPrimitive<OAuthProvider>;
 	provider_id: string;
 	user_id: string;
 	linked_at: number;
@@ -33,7 +34,10 @@ export class OAuthAccountTableHelper {
 			.run();
 	}
 
-	public async findByProviderAndProviderId(provider: "discord", providerId: string): Promise<DatabaseOAuthAccount[]> {
+	public async findByProviderAndProviderId(
+		provider: OAuthProvider,
+		providerId: string,
+	): Promise<DatabaseOAuthAccount[]> {
 		const { results } = await this.db
 			.prepare("SELECT * FROM oauth_accounts WHERE provider = ?1 AND provider_id = ?2")
 			.bind(provider, providerId)
@@ -42,7 +46,7 @@ export class OAuthAccountTableHelper {
 		return results;
 	}
 
-	public async findByUserIdAndProvider(userId: string, provider: "discord"): Promise<DatabaseOAuthAccount[]> {
+	public async findByUserIdAndProvider(userId: string, provider: OAuthProvider): Promise<DatabaseOAuthAccount[]> {
 		const { results } = await this.db
 			.prepare("SELECT * FROM oauth_accounts WHERE user_id = ?1 AND provider = ?2")
 			.bind(userId, provider)

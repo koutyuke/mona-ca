@@ -1,7 +1,9 @@
 import { env } from "cloudflare:test";
 import { SessionSecretService, createSessionToken } from "../../application/services/session";
+import type { ToPrimitive } from "../../common/utils";
 import type { AccountAssociationSession } from "../../domain/entities";
 import {
+	type OAuthProvider,
 	newAccountAssociationSessionId,
 	newOAuthProvider,
 	newOAuthProviderId,
@@ -15,7 +17,7 @@ export type DatabaseAccountAssociationSession = {
 	code: string | null;
 	secret_hash: Array<number>;
 	email: string;
-	provider: "discord";
+	provider: ToPrimitive<OAuthProvider>;
 	provider_id: string;
 	expires_at: number;
 };
