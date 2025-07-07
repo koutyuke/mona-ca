@@ -5,7 +5,7 @@ import { users } from "./users";
 export const oauthAccounts = sqliteTable(
 	"oauth_accounts",
 	{
-		provider: text("provider", { enum: ["discord"] }).notNull(),
+		provider: text("provider", { enum: ["discord", "google"] }).notNull(),
 		providerId: text("provider_id").notNull(),
 		userId: text("user_id")
 			.notNull()

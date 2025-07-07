@@ -11,7 +11,7 @@ export const accountAssociationSessions = sqliteTable(
 		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		code: text("code"),
 		email: text("email").notNull(),
-		provider: text("provider", { enum: ["discord"] }).notNull(),
+		provider: text("provider", { enum: ["discord", "google"] }).notNull(),
 		providerId: text("provider_id").notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
