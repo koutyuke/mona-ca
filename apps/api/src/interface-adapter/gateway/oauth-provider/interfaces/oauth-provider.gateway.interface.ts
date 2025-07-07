@@ -22,6 +22,6 @@ export type GetAccountInfoResult = Result<
 export interface IOAuthProviderGateway {
 	genAuthURL(state: string, codeVerifier: string): URL;
 	getTokens(code: string, codeVerifier: string): Promise<GetTokensResult>;
-	getAccountInfo(accessToken: string): Promise<GetAccountInfoResult>;
-	revokeToken(token: string): Promise<void>;
+	getAccountInfo(tokens: GetTokensResult): Promise<GetAccountInfoResult>;
+	revokeToken(tokens: OAuth2Tokens): Promise<void>;
 }
