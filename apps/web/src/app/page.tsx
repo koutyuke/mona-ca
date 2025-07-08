@@ -21,9 +21,11 @@ export default function Page(): JSX.Element {
 					// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 					console.log(token);
 				}}
-			/>
+			/> */}
 			<a href="http://localhost:8787/auth/discord/signup?redirect-uri=/&client-type=web">signup with discord</a>
 			<a href="http://localhost:8787/auth/discord/login?redirect-uri=/&client-type=web">login with discord</a>
+			<a href="http://localhost:8787/auth/google/signup?redirect-uri=/&client-type=web">signup with google</a>
+			<a href="http://localhost:8787/auth/google/login?redirect-uri=/&client-type=web">login with google</a>
 			<button
 				type="button"
 				onClick={async () => {
@@ -131,11 +133,12 @@ export default function Page(): JSX.Element {
 
 					const data = await res.json();
 
+					// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 					console.log(data);
 				}}
 			>
 				account-association-preview
-			</button> */}
+			</button>
 		</main>
 	);
 }

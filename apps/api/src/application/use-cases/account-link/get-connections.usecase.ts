@@ -24,6 +24,7 @@ export class GetConnectionsUseCase implements IGetConnectionsUseCase {
 			} | null;
 		} = {
 			discord: null,
+			google: null,
 		};
 
 		const oauthAccounts = await this.oauthAccountRepository.findByUserId(userId);

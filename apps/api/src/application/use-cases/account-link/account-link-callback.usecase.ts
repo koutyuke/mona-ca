@@ -73,12 +73,9 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 			}
 		}
 
-		const tokens = tokensResult;
-		const accessToken = tokens.accessToken();
+		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(tokensResult);
 
-		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(accessToken);
-
-		await this.oauthProviderGateway.revokeToken(accessToken);
+		await this.oauthProviderGateway.revokeToken(tokensResult);
 
 		if (isErr(accountInfoResult)) {
 			switch (accountInfoResult.code) {
@@ -88,6 +85,8 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
 				case "FAILED_TO_GET_ACCOUNT_INFO":
 					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+				case "OAUTH_ACCOUNT_INFO_INVALID":
+					return err("OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: redirectToClientURL });
 				default:
 					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
 			}

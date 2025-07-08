@@ -1,13 +1,13 @@
 import { StringEnum } from "../../common/schemas";
-import type { NewType } from "../../common/utils";
+import type { NewType, ToPrimitive } from "../../common/utils";
 
-export type OAuthProvider = NewType<"oauth-provider", "discord">;
+export type OAuthProvider = NewType<"oauth-provider", "discord" | "google">;
 
-export const newOAuthProvider = (raw: "discord") => {
+export const newOAuthProvider = (raw: ToPrimitive<OAuthProvider>) => {
 	return raw as OAuthProvider;
 };
 
-export const oauthProviderSchema = StringEnum(["discord"]);
+export const oauthProviderSchema = StringEnum(["discord", "google"]);
 
 export type OAuthProviderId = NewType<"OAuthProviderId", string>;
 

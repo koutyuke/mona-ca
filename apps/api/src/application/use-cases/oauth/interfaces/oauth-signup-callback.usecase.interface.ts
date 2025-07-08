@@ -18,6 +18,7 @@ type Error =
 	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: URL }>
+	| Err<"OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: URL }>
 	| Err<
 			"OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE",
 			{
