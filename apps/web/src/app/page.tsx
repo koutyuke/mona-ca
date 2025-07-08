@@ -133,6 +133,7 @@ export default function Page(): JSX.Element {
 
 					const data = await res.json();
 
+					// biome-ignore lint/suspicious/noConsoleLog: <explanation>
 					console.log(data);
 				}}
 			>
