@@ -16,7 +16,10 @@ export type GetTokensResult = Result<
 
 export type GetAccountInfoResult = Result<
 	AccountInfo,
-	Err<"FAILED_TO_GET_ACCOUNT_INFO"> | Err<"OAUTH_ACCESS_TOKEN_INVALID"> | Err<"OAUTH_ACCOUNT_EMAIL_NOT_FOUND">
+	| Err<"FAILED_TO_GET_ACCOUNT_INFO">
+	| Err<"OAUTH_ACCESS_TOKEN_INVALID">
+	| Err<"OAUTH_ACCOUNT_EMAIL_NOT_FOUND">
+	| Err<"OAUTH_ACCOUNT_INFO_INVALID">
 >;
 
 export interface IOAuthProviderGateway {

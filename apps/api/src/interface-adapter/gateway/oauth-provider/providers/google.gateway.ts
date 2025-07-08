@@ -68,7 +68,7 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 			const claims = decodeIdToken(idToken);
 
 			if (!Value.Check(googleIdTokenClaimsSchema, claims)) {
-				return err("FAILED_TO_GET_ACCOUNT_INFO");
+				return err("OAUTH_ACCOUNT_INFO_INVALID");
 			}
 
 			return {

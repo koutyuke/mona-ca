@@ -83,7 +83,7 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 			const user = await response.json();
 
 			if (!Value.Check(discordAccountInfoSchema, user)) {
-				return err("FAILED_TO_GET_ACCOUNT_INFO");
+				return err("OAUTH_ACCOUNT_INFO_INVALID");
 			}
 
 			if (!user.email) {
