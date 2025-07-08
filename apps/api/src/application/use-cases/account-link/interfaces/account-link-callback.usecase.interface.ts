@@ -14,7 +14,8 @@ type Error =
 	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"OAUTH_PROVIDER_ALREADY_LINKED", { redirectURL: URL }>
-	| Err<"OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: URL }>;
+	| Err<"OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: URL }>
+	| Err<"OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: URL }>;
 
 export type AccountLinkCallbackUseCaseResult = Result<Success, Error>;
 

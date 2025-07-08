@@ -18,6 +18,7 @@ type Error =
 	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: URL }>
+	| Err<"OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: URL }>
 	| Err<
 			"OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE",
 			{
