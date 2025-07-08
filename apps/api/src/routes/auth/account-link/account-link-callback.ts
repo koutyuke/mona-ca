@@ -194,6 +194,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					"- **OAUTH_PROVIDER_ERROR**",
 					"- **OAUTH_PROVIDER_ALREADY_LINKED**",
 					"- **OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER**",
+					"- **OAUTH_ACCOUNT_INFO_INVALID**",
 				],
 				tag: "Auth - Account Link",
 				withAuth: true,

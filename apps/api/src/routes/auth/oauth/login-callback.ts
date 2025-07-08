@@ -248,6 +248,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					"- **OAUTH_ACCOUNT_NOT_FOUND**",
 					"- **OAUTH_ACCOUNT_EMAIL_NOT_FOUND**",
 					"- **OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE**",
+					"- **OAUTH_ACCOUNT_INFO_INVALID**",
 				],
 				tag: "Auth - OAuth",
 			}),
