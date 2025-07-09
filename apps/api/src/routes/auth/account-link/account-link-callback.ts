@@ -189,7 +189,6 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					"##### **Error Query**",
 					"---",
 					"- **FAILED_TO_FETCH_OAUTH_ACCOUNT**",
-					"- **OAUTH_ACCOUNT_EMAIL_NOT_FOUND**",
 					"- **OAUTH_ACCESS_DENIED**",
 					"- **OAUTH_PROVIDER_ERROR**",
 					"- **OAUTH_PROVIDER_ALREADY_LINKED**",

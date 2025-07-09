@@ -250,7 +250,6 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 					"- **FAILED_TO_FETCH_OAUTH_ACCOUNT**",
 					"- **OAUTH_ACCESS_DENIED**",
 					"- **OAUTH_PROVIDER_ERROR**",
-					"- **OAUTH_ACCOUNT_EMAIL_NOT_FOUND**",
 					"- **OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE**",
 					"- **OAUTH_ACCOUNT_ALREADY_REGISTERED**",
 					"- **OAUTH_ACCOUNT_INFO_INVALID**",
