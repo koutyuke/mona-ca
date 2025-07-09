@@ -1,5 +1,5 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type ReactNode, type Ref, forwardRef } from "react";
+import type { ReactNode, Ref } from "react";
 import { Text as RNText, type TextProps } from "react-native";
 
 type Props = Omit<TextProps, "children"> & {
@@ -8,6 +8,7 @@ type Props = Omit<TextProps, "children"> & {
 	truncated?: boolean;
 	className?: string;
 	weight?: "light" | "regular" | "medium";
+	ref?: Ref<RNText>;
 };
 
 const variants = tv({
@@ -28,23 +29,6 @@ const variants = tv({
 		},
 	},
 });
-
-const Txt = (
-	{ size = "md", weight = "regular", children, truncated = false, className, ...props }: Props,
-	ref: Ref<RNText>,
-): ReactNode => {
-	const style = variants({
-		size,
-		weight,
-		class: className,
-	});
-
-	return (
-		<RNText ref={ref} {...(truncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})} className={style} {...props}>
-			{children}
-		</RNText>
-	);
-};
 
 /**
  * The `Text` component is used to display text with different levels and weights.
@@ -69,9 +53,31 @@ const Txt = (
  *
  * @param {string} [props.className] - Specifies a custom class name.
  *
+ * @param {Ref<RNText>} [props.ref] - A ref to the underlying Text element.
+ *
  * @returns {JSX.Element} - Returns the `Text` component.
  */
-const Text = forwardRef<RNText, Props>(Txt);
+const Text = ({
+	size = "md",
+	weight = "regular",
+	children,
+	truncated = false,
+	className,
+	ref,
+	...props
+}: Props): ReactNode => {
+	const style = variants({
+		size,
+		weight,
+		class: className,
+	});
+
+	return (
+		<RNText ref={ref} {...(truncated ? { numberOfLines: 1, ellipsizeMode: "tail" } : {})} className={style} {...props}>
+			{children}
+		</RNText>
+	);
+};
 
 Text.displayName = "Text";
 

@@ -1,11 +1,12 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type ElementRef, type Ref, forwardRef, useState } from "react";
+import { type FC, type Ref, useState } from "react";
 import { Pressable, type PressableProps, View } from "react-native";
 
 type Props = Omit<PressableProps, "children" | "disabled" | "onPress" | "className"> & {
 	checked?: boolean;
 	onChange?: (checked: boolean) => void;
 	disabled?: boolean;
+	ref?: Ref<View>;
 };
 
 const styleVariants = tv({
@@ -48,10 +49,7 @@ const styleVariants = tv({
 	],
 });
 
-const Sw = (
-	{ checked = false, onChange = () => {}, disabled, ...props }: Props,
-	ref: Ref<ElementRef<typeof Pressable>>,
-) => {
+const Switch: FC<Props> = ({ checked = false, onChange = () => {}, disabled, ref, ...props }) => {
 	const [isChecked, setChecked] = useState(checked);
 	const { body, indicator } = styleVariants({ checked: isChecked, disabled });
 	return (
@@ -69,8 +67,6 @@ const Sw = (
 		</Pressable>
 	);
 };
-
-const Switch = forwardRef<ElementRef<typeof Pressable>, Props>(Sw);
 
 Switch.displayName = "Switch";
 

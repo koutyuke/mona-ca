@@ -10,7 +10,7 @@ const variants = tv({
 		label: "text-slate-12",
 		required: "text-red-9",
 		description: "text-slate-11",
-		error: "w-full text-right text-red-9",
+		error: "w-full text-red-9",
 	},
 	variants: {
 		disabled: {

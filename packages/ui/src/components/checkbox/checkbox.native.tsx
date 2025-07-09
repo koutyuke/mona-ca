@@ -1,5 +1,5 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type ElementRef, type ReactNode, type Ref, forwardRef, useState } from "react";
+import { type FC, type ReactNode, type Ref, useState } from "react";
 import { Pressable, type PressableProps, View } from "react-native";
 import { CheckIcon } from "../../icons/index.native";
 
@@ -8,6 +8,7 @@ type Props = Omit<PressableProps, "children" | "disabled"> & {
 	checked?: boolean;
 	onChange?: (checked: boolean) => void;
 	disabled?: boolean;
+	ref?: Ref<View>;
 };
 
 const styleVariants = tv({
@@ -56,10 +57,15 @@ const styleVariants = tv({
 	],
 });
 
-const ChkBx = (
-	{ size = "md", checked = false, className, onChange = () => {}, disabled, ...props }: Props,
-	ref: Ref<ElementRef<typeof Pressable>>,
-): ReactNode => {
+const CheckBox: FC<Props> = ({
+	size = "md",
+	checked = false,
+	className,
+	onChange = () => {},
+	disabled,
+	ref,
+	...props
+}: Props): ReactNode => {
 	const [isChecked, setChecked] = useState<boolean>(checked);
 
 	const { body: bodyStyle, icon: iconStyle } = styleVariants({
@@ -84,8 +90,6 @@ const ChkBx = (
 		</Pressable>
 	);
 };
-
-const CheckBox = forwardRef<ElementRef<typeof Pressable>, Props>(ChkBx);
 
 CheckBox.displayName = "CheckBox";
 

@@ -1,6 +1,6 @@
 import { cn, tv } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
-import { type FC, type ReactNode, type Ref, forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { type FC, type ReactNode, type Ref, useImperativeHandle, useRef, useState } from "react";
 import {
 	Pressable,
 	TextInput as RNTextInput,
@@ -66,12 +66,20 @@ type Props = Omit<RNTextInputProps, "placeholder" | "readOnly" | "className"> & 
 	credentials?: boolean;
 	icon?: FC<IconProps>;
 	iconSize?: number;
+	ref?: Ref<RNTextInput>;
 };
 
-const TxtIpt = (
-	{ icon: Icon, placeholder, credentials, size = "md", disabled, error, iconSize, ...props }: Props,
-	ref: Ref<RNTextInput>,
-): ReactNode => {
+const TextInput: FC<Props> = ({
+	icon: Icon,
+	placeholder,
+	credentials,
+	size = "md",
+	disabled,
+	error,
+	iconSize,
+	ref,
+	...props
+}: Props): ReactNode => {
 	const inputRef = useRef<RNTextInput>(null);
 	const [isFocus, setFocused] = useState(false);
 	const [isShowSecureText, setShowSecureText] = useState(true);
@@ -130,7 +138,5 @@ const TxtIpt = (
 		</TouchableWithoutFeedback>
 	);
 };
-
-const TextInput = forwardRef<RNTextInput, Props>(TxtIpt);
 
 export { TextInput };
