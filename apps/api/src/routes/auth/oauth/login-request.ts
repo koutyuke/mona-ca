@@ -105,12 +105,6 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				maxAge: 60 * 10,
 			});
 
-			if (clientType === "mobile") {
-				return {
-					url: redirectToProviderURL.toString(),
-				};
-			}
-
 			return RedirectResponse(redirectToProviderURL.toString());
 		},
 		{
@@ -125,9 +119,6 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				provider: oauthProviderSchema,
 			}),
 			response: {
-				200: t.Object({
-					url: t.String(),
-				}),
 				302: RedirectResponseSchema,
 				400: ErrorResponseSchema("INVALID_REDIRECT_URL"),
 				429: RateLimiterSchema.response[429],
