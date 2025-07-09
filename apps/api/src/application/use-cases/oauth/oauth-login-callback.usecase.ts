@@ -96,8 +96,6 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
 				case "FAILED_TO_GET_ACCOUNT_INFO":
 					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				case "OAUTH_ACCOUNT_EMAIL_NOT_FOUND":
-					return err("OAUTH_ACCOUNT_EMAIL_NOT_FOUND", { redirectURL: redirectToClientURL });
 				case "OAUTH_ACCOUNT_INFO_INVALID":
 					return err("OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: redirectToClientURL });
 				default:

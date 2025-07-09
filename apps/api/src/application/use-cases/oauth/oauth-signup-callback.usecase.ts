@@ -101,8 +101,6 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 
 		if (isErr(accountInfoResult)) {
 			switch (accountInfoResult.code) {
-				case "OAUTH_ACCOUNT_EMAIL_NOT_FOUND":
-					return err("OAUTH_ACCOUNT_EMAIL_NOT_FOUND", { redirectURL: redirectToClientURL });
 				case "OAUTH_ACCOUNT_INFO_INVALID":
 					return err("OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: redirectToClientURL });
 				case "OAUTH_ACCESS_TOKEN_INVALID":
