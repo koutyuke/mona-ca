@@ -15,10 +15,10 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -166,7 +166,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				code: t.String(),
 				emailVerificationSessionToken: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
@@ -182,8 +182,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 					ErrorResponseSchema("EMAIL_VERIFICATION_SESSION_EXPIRED"),
 				),
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "auth-email-verification-confirm",
 				summary: "Email Verification Confirm",

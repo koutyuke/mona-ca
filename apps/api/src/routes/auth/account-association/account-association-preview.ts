@@ -11,8 +11,8 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -91,7 +91,7 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			body: t.Object({
 				accountAssociationSessionToken: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					user: UserPresenterResultSchema,
 					provider: t.String(),
@@ -102,8 +102,7 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_INVALID"),
 					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_EXPIRED"),
 				),
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				tag: "Auth - Account Association",
 				operationId: "account-association-preview",

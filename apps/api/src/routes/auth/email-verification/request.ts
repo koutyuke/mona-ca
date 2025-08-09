@@ -13,10 +13,10 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -126,7 +126,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 					}),
 				),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					emailVerificationSessionToken: t.String(),
 				}),
@@ -138,8 +138,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 				),
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "auth-email-verification-request",
 				summary: "Email Verification Request",

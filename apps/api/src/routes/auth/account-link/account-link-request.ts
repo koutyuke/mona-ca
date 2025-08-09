@@ -14,8 +14,8 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -126,15 +126,14 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			params: t.Object({
 				provider: oauthProviderSchema,
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					url: t.String(),
 				}),
 				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URL"), AuthGuardSchema.response[400]),
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			cookie: t.Cookie({
 				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
 				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.Optional(t.String()),

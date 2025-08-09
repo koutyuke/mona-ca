@@ -5,7 +5,7 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenter";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv, InternalServerErrorResponseSchema } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";
 
 export const UpdateProfile = new ElysiaWithEnv()
@@ -54,12 +54,11 @@ export const UpdateProfile = new ElysiaWithEnv()
 				gender: t.Optional(genderSchema),
 				iconUrl: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: UserPresenterResultSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "me-update-profile",
 				summary: "Update Profile",

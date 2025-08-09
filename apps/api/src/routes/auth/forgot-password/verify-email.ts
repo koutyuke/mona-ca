@@ -5,7 +5,6 @@ import {
 	ValidatePasswordResetSessionUseCase,
 } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
@@ -14,10 +13,10 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -138,7 +137,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				code: t.String(),
 				passwordResetSessionToken: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				204: NoContentResponseSchema,
 				400: ResponseTUnion(WithClientTypeSchema.response[400], ErrorResponseSchema("INVALID_CODE")),
 				401: ResponseTUnion(
@@ -146,8 +145,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 					ErrorResponseSchema("PASSWORD_RESET_SESSION_EXPIRED"),
 				),
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				tag: "Auth - Forgot Password",
 				operationId: "auth-forgot-password-verify-email",

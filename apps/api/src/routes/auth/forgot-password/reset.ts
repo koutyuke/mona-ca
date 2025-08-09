@@ -3,7 +3,6 @@ import { PasswordService } from "../../../application/services/password";
 import { SessionSecretService } from "../../../application/services/session";
 import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
@@ -13,10 +12,10 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException, ForbiddenException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -133,7 +132,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				newPassword: t.String(),
 				passwordResetSessionToken: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				204: NoContentResponseSchema,
 				400: WithClientTypeSchema.response[400],
 				401: ResponseTUnion(
@@ -141,8 +140,7 @@ export const ResetPassword = new ElysiaWithEnv()
 					ErrorResponseSchema("PASSWORD_RESET_SESSION_EXPIRED"),
 				),
 				403: ErrorResponseSchema("REQUIRED_EMAIL_VERIFICATION"),
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				tag: "Auth - Forgot Password",
 				operationId: "auth-forgot-password-reset",

@@ -12,10 +12,10 @@ import { CookieManager } from "../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../modules/elysia-with-env";
 import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
@@ -94,15 +94,14 @@ export const UpdatePassword = new ElysiaWithEnv()
 				currentPassword: t.Optional(t.String()),
 				newPassword: t.String(),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
 				204: NoContentResponseSchema,
 				400: ResponseTUnion(AuthGuardSchema.response[400], ErrorResponseSchema("INVALID_CURRENT_PASSWORD")),
 				401: AuthGuardSchema.response[401],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "me-update-password",
 				summary: "Update Password",

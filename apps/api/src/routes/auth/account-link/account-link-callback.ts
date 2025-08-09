@@ -16,10 +16,10 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	RedirectResponse,
 	RedirectResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -172,15 +172,14 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					minLength: 1,
 				}),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				302: RedirectResponseSchema,
 				400: ResponseTUnion(
 					ErrorResponseSchema("INVALID_REDIRECT_URL"),
 					ErrorResponseSchema("OAUTH_CREDENTIALS_INVALID"),
 				),
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "auth-account-link-callback",
 				summary: "Account Link Callback",
