@@ -101,32 +101,52 @@ const error = new Elysia({
 			};
 		}
 
-		switch (code) {
-			case "NOT_FOUND":
-				set.status = 404;
-				return {
-					code: "NOT_FOUND",
-					message: "The requested resource was not found.",
-				};
-			case "VALIDATION":
-				set.status = 400;
+		if (code === "PARSE") {
+			set.status = 400;
+			return {
+				code: "PARSE_ERROR",
+				message: "Invalid request body",
+			};
+		}
 
-				return {
-					code: "VALIDATION",
-					message: JSON.parse(error.message).summary.replace("  ", " "),
-				};
+		if (code === "INVALID_COOKIE_SIGNATURE") {
+			set.status = 400;
+			return {
+				code: "INVALID_COOKIE_SIGNATURE",
+				message: "Invalid cookie signature",
+			};
+		}
+
+		if (code === "NOT_FOUND") {
+			set.status = 404;
+			return {
+				code: "NOT_FOUND",
+				message: "The requested resource was not found.",
+			};
+		}
+
+		if (code === "VALIDATION") {
+			set.status = 422;
+			return {
+				code: "VALIDATION",
+				message: JSON.parse(error.message).summary.replace("  ", " "),
+			};
+		}
+
+		if (code === "INTERNAL_SERVER_ERROR") {
+			set.status = 500;
+			console.error(error);
+			return {
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Internal server error",
+			};
 		}
 
 		console.error(error);
-
 		set.status = 500;
 		return {
-			code: "INTERNAL_SERVER_ERROR",
-			error: error.toString(),
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			cause: (error as any).cause ?? null,
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			stack: (error as any).stack ?? null,
+			code: "UNKNOWN_ERROR",
+			message: "An unknown error occurred",
 		};
 	});
 
