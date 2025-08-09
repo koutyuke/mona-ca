@@ -79,7 +79,7 @@ export const InvalidCookieSignatureErrorResponseSchema = ErrorResponseSchema("IN
 
 export const NotFoundErrorResponseSchema = ErrorResponseSchema("NOT_FOUND");
 
-export const ValidationErrorResponseSchema = ErrorResponseSchema("VALIDATION");
+export const ValidationErrorResponseSchema = ErrorResponseSchema("VALIDATION_ERROR");
 
 export const InternalServerErrorResponseSchema = ErrorResponseSchema("INTERNAL_SERVER_ERROR");
 

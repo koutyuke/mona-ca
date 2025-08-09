@@ -128,7 +128,7 @@ const error = new Elysia({
 		if (code === "VALIDATION") {
 			set.status = 422;
 			return {
-				code: "VALIDATION",
+				code: "VALIDATION_ERROR",
 				message: JSON.parse(error.message).summary.replace("  ", " "),
 			};
 		}
