@@ -203,7 +203,7 @@
   },
   "editor.defaultFormatter": "biomejs.biome",
   "npm.packageManager": "bun",
-  "svg.preview.background": "transparent",
+  "svg.preview.background": "custom",
   "tailwindCSS.experimental.classRegex": [
     ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
     ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],

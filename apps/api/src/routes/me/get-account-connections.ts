@@ -7,7 +7,7 @@ import {
 import { OAuthAccountRepository } from "../../interface-adapter/repositories/oauth-account";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv, InternalServerErrorResponseSchema } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";
 
 export const GetAccountConnections = new ElysiaWithEnv()
@@ -32,12 +32,11 @@ export const GetAccountConnections = new ElysiaWithEnv()
 		},
 		{
 			headers: AuthGuardSchema.headers,
-			response: {
+			response: withBaseResponseSchema({
 				200: AccountConnectionsPresenterResultSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "me-get-account-connections",
 				summary: "Get Account Connections",

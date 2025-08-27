@@ -10,7 +10,6 @@ type Error =
 	| Err<"INVALID_REDIRECT_URL">
 	| Err<"OAUTH_CREDENTIALS_INVALID">
 	| Err<"FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: URL }>
-	| Err<"OAUTH_ACCOUNT_EMAIL_NOT_FOUND", { redirectURL: URL }>
 	| Err<"OAUTH_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"OAUTH_PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"OAUTH_PROVIDER_ALREADY_LINKED", { redirectURL: URL }>

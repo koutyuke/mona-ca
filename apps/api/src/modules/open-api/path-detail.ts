@@ -21,12 +21,11 @@ export const pathDetail = (props: PathDocumentProps): DocumentDecoration => {
 	if (withAuth) {
 		description = [
 			...description,
-			"##### **Authentication**",
+			"### **Authentication**",
 			"---",
-			"1. **Bearer Authentication**",
+			"#### **Bearer Authentication**",
 			`   If the \`${CLIENT_TYPE_HEADER_NAME}\` header is \`mobile\`, the bearer token to authenticate the request`,
-			"---",
-			"2. **Cookie Authentication**",
+			"#### **Cookie Authentication**",
 			`   If the \`${CLIENT_TYPE_HEADER_NAME}\` header is \`web\`, the session cookie to authenticate the request`,
 			`   _in: cookie, key: \`${SESSION_COOKIE_NAME}\`_`,
 		];

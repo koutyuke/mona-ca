@@ -3,21 +3,10 @@ import { View } from "react-native";
 import { GenderSelector } from "./gender-selector.native";
 
 const meta: Meta<typeof GenderSelector> = {
+	title: "Components/GenderSelector",
 	component: GenderSelector,
-};
-
-export default meta;
-
-type Story = StoryObj<typeof GenderSelector>;
-
-const Template: Story = {
-	render: args => (
-		<View className="w-full px-4">
-			<GenderSelector {...args} />
-		</View>
-	),
 	argTypes: {
-		defaultGender: {
+		value: {
 			options: ["man", "woman"],
 			control: {
 				type: "radio",
@@ -26,9 +15,17 @@ const Template: Story = {
 	},
 };
 
+export default meta;
+
+type Story = StoryObj<typeof GenderSelector>;
+
 export const Default: Story = {
 	args: {
-		defaultGender: "man",
+		value: "woman",
 	},
-	...Template,
+	render: args => (
+		<View className="w-full px-4">
+			<GenderSelector {...args} />
+		</View>
+	),
 };

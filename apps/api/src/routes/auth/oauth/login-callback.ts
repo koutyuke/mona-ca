@@ -21,10 +21,10 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	RedirectResponse,
 	RedirectResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -225,7 +225,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				}),
 				[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				302: RedirectResponseSchema,
 				400: ResponseTUnion(
 					ErrorResponseSchema("INVALID_OAUTH_STATE"),
@@ -233,8 +233,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					ErrorResponseSchema("OAUTH_CREDENTIALS_INVALID"),
 				),
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "auth-oauth-login-callback",
 				summary: "OAuth Login Callback",
@@ -246,7 +245,6 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 					"- **OAUTH_ACCESS_DENIED**",
 					"- **OAUTH_PROVIDER_ERROR**",
 					"- **OAUTH_ACCOUNT_NOT_FOUND**",
-					"- **OAUTH_ACCOUNT_EMAIL_NOT_FOUND**",
 					"- **OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE**",
 					"- **OAUTH_ACCOUNT_INFO_INVALID**",
 				],

@@ -79,8 +79,6 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 
 		if (isErr(accountInfoResult)) {
 			switch (accountInfoResult.code) {
-				case "OAUTH_ACCOUNT_EMAIL_NOT_FOUND":
-					return err("OAUTH_ACCOUNT_EMAIL_NOT_FOUND", { redirectURL: redirectToClientURL });
 				case "OAUTH_ACCESS_TOKEN_INVALID":
 					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
 				case "FAILED_TO_GET_ACCOUNT_INFO":

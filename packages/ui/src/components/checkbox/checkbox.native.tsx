@@ -1,104 +1,96 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type FC, useState } from "react";
-import { TouchableWithoutFeedback, View } from "react-native";
+import { type FC, type ReactNode, type Ref, useState } from "react";
+import { Pressable, type PressableProps, View } from "react-native";
 import { CheckIcon } from "../../icons/index.native";
-import { Text } from "../text/index.native";
 
-type CheckBoxProps = {
+type Props = Omit<PressableProps, "children" | "disabled"> & {
 	size?: "sm" | "md";
 	checked?: boolean;
 	onChange?: (checked: boolean) => void;
 	disabled?: boolean;
-	className?: string;
-	label?: string;
-	labelPosition?: "left" | "right";
-	labelColorClassName?: string;
+	ref?: Ref<View>;
 };
 
 const styleVariants = tv({
 	slots: {
-		body: "flex flex-row items-center gap-2 self-start",
-		checkbox: "flex items-center justify-center border-[1.5px] transition",
-		checkIcon: "transition",
+		body: "flex items-center justify-center border border-slate-7 bg-slate-2 transition",
+		icon: "opacity-0 transition",
 	},
 	variants: {
 		size: {
 			sm: {
-				checkbox: "size-5",
-				checkIcon: "size-4",
+				body: "size-5",
+				icon: "size-4",
 			},
 			md: {
-				checkbox: "size-6 rounded-md",
-				checkIcon: "size-5",
-				label: "",
+				body: "size-6 rounded-md",
+				icon: "size-5",
 			},
 		},
 		isChecked: {
 			true: {
-				checkbox: "border-blue-8 bg-blue-8",
-				checkIcon: "opacity-100",
-			},
-			false: {
-				checkbox: "border-slate-7 bg-slate-3",
-				checkIcon: "opacity-0",
+				body: "border-blue-9 bg-blue-9",
+				icon: "opacity-100",
 			},
 		},
 		disabled: {
-			checked: {
-				checkbox: "border-slate-8 bg-slate-8",
+			true: {
+				body: "opacity-75",
 			},
-			unchecked: {
-				checkbox: "border-slate-5 bg-slate-5",
-			},
-			false: {},
 		},
 	},
+	compoundVariants: [
+		{
+			isChecked: true,
+			disabled: true,
+			class: {
+				body: "border-slate-9 bg-slate-9",
+			},
+		},
+		{
+			isChecked: false,
+			disabled: true,
+			class: {
+				body: "border-slate-4 bg-slate-4",
+			},
+		},
+	],
 });
 
-const CheckBox: FC<CheckBoxProps> = ({
+const CheckBox: FC<Props> = ({
 	size = "md",
 	checked = false,
 	className,
 	onChange = () => {},
 	disabled,
-	label,
-	labelPosition = "right",
-	labelColorClassName = "",
-}) => {
+	ref,
+	...props
+}: Props): ReactNode => {
 	const [isChecked, setChecked] = useState<boolean>(checked);
 
-	const {
-		body: bodyStyle,
-		checkbox: checkboxStyle,
-		checkIcon: checkIconStyle,
-	} = styleVariants({ size, isChecked, disabled: disabled && (isChecked ? "checked" : "unchecked") });
+	const { body: bodyStyle, icon: iconStyle } = styleVariants({
+		size,
+		isChecked,
+		disabled,
+	});
 	return (
-		<TouchableWithoutFeedback
+		<Pressable
+			{...props}
+			className={bodyStyle({ className })}
 			onPress={() => {
 				onChange(!isChecked);
 				setChecked(!isChecked);
 			}}
 			disabled={disabled}
+			ref={ref}
 		>
-			<View className={bodyStyle({ className })}>
-				{labelPosition === "left" && (
-					<Text size={size} className={labelColorClassName}>
-						{label}
-					</Text>
-				)}
-				<View className={checkboxStyle()}>
-					<View className={checkIconStyle()}>
-						<CheckIcon className="h-full w-full stroke-[3] stroke-white" />
-					</View>
-				</View>
-				{labelPosition === "right" && (
-					<Text size={size} className={`${disabled ? "text-slate-9" : labelColorClassName} transition`}>
-						{label}
-					</Text>
-				)}
+			<View className={iconStyle()}>
+				<CheckIcon className="h-full w-full stroke-[3] stroke-white" />
 			</View>
-		</TouchableWithoutFeedback>
+		</Pressable>
 	);
 };
+
+CheckBox.displayName = "CheckBox";
 
 export { CheckBox };

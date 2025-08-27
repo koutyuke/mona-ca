@@ -24,7 +24,7 @@ const discordAccountInfoSchema = t.Object({
 	banner: t.Union([t.String(), t.Null()]),
 	accent_color: t.Union([t.Integer(), t.Null()]),
 	verified: t.Union([t.Boolean(), t.Null()]),
-	email: t.Union([t.String({ format: "email" }), t.Null()]),
+	email: t.String({ format: "email" }),
 });
 
 export class DiscordOAuthGateway implements IOAuthProviderGateway {
@@ -84,10 +84,6 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 
 			if (!Value.Check(discordAccountInfoSchema, user)) {
 				return err("OAUTH_ACCOUNT_INFO_INVALID");
-			}
-
-			if (!user.email) {
-				return err("OAUTH_ACCOUNT_EMAIL_NOT_FOUND");
 			}
 
 			return {

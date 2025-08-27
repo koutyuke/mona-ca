@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Wave } from "./wave.presenter";
+import { Wave } from "./wave";
 
 const meta: Meta<typeof Wave> = {
+	title: "Shared/Wave",
 	component: Wave,
 };
 
@@ -9,13 +10,9 @@ export default meta;
 
 type Story = StoryObj<typeof Wave>;
 
-const Template: Story = {
-	render: args => <Wave {...args} />,
-};
-
 export const Default: Story = {
+	render: args => <Wave {...args} />,
 	args: {
-		className: "h-8 w-full fill-salmon-6",
+		className: "h-8 w-full fill-salmon-9",
 	},
-	...Template,
 };

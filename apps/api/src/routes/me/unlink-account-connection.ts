@@ -9,10 +9,10 @@ import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../modules/elysia-with-env";
 import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
@@ -72,7 +72,7 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 			params: t.Object({
 				provider: oauthProviderSchema,
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				204: NoContentResponseSchema,
 				400: ResponseTUnion(
 					AuthGuardSchema.response[400],
@@ -81,8 +81,7 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 					ErrorResponseSchema("PASSWORD_NOT_SET"),
 				),
 				401: AuthGuardSchema.response[401],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "me-unlink-account-connection",
 				summary: "Unlink Account Connection",

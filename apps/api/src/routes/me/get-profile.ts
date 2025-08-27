@@ -1,6 +1,6 @@
 import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenter";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv, InternalServerErrorResponseSchema } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";
 
 export const GetProfile = new ElysiaWithEnv()
@@ -19,12 +19,11 @@ export const GetProfile = new ElysiaWithEnv()
 		},
 		{
 			headers: AuthGuardSchema.headers,
-			response: {
+			response: withBaseResponseSchema({
 				200: UserPresenterResultSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "me-get-profile",
 				summary: "Get Profile",

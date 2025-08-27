@@ -1,92 +1,62 @@
-import { twMerge } from "@mona-ca/tailwind-helpers";
-import type { FC } from "react";
-import { Pressable } from "react-native";
+import { cn } from "@mona-ca/tailwind-helpers";
+import type { FC, Ref } from "react";
+import { Pressable, View } from "react-native";
+import type { IconProps } from "../../icons/type";
 import { LoadingSpinner } from "../loading-spinner/index.native";
-import type { SupportColor, SupportSize, SupportVariant } from "./type";
-import { filledColorVariants } from "./variants/filled-color.variant";
-import { ghostColorVariants } from "./variants/ghost-color.variant";
-import { lightColorVariants } from "./variants/light-color.variant";
-import { outlineColorVariants } from "./variants/outline-color.variant";
-import { styleVariants } from "./variants/style.native.variant";
+import { colorVariants, styleVariants } from "./style.native.variant";
 
-type Variants = {
-	size?: SupportSize;
-	variant?: SupportVariant;
-	color: SupportColor;
+type Props = {
+	size?: "sm" | "md";
+	variant?: "outline" | "light" | "filled";
+	color: "red" | "blue" | "green" | "yellow" | "salmon" | "gray";
 	loading?: boolean;
 	disabled?: boolean;
-	fullWidth?: boolean;
 	circle?: boolean;
+	className?: string;
+	icon: FC<IconProps>;
+	iconSize?: number;
+	ref?: Ref<View>;
 };
 
-type Props<P extends {}> = Variants & {
-	bodyOverrideClassName?: string;
-	iconOverrideClassName?: string;
-	icon: FC<P & { className?: string }>;
-	iconProps?: Omit<P, "className">;
-};
-
-const IconButton = <P extends {}>({
+const IconButton: FC<Props> = ({
 	size = "md",
 	variant = "outline",
 	color,
 	loading = false,
 	disabled = false,
-	fullWidth = false,
 	circle = false,
-	bodyOverrideClassName,
-	iconOverrideClassName,
-	icon,
-	iconProps,
-	...props
-}: Props<P>) => {
-	const Icon = icon as unknown as FC<{ className?: string }>;
+	className,
+	icon: Icon,
+	iconSize,
+	ref,
+}) => {
+	const colorVariant = colorVariants[variant];
 
-	const colorVariant =
-		variant === "outline"
-			? outlineColorVariants
-			: variant === "light"
-				? lightColorVariants
-				: variant === "filled"
-					? filledColorVariants
-					: variant === "ghost"
-						? ghostColorVariants
-						: (() => {
-								throw new Error("Invalid variant");
-							})();
-
-	const {
-		body: bodyStyle,
-		spinner: spinnerStyle,
-		icon: iconStyle,
-	} = styleVariants({
+	const { body: bodyStyle, icon: iconStyle } = styleVariants({
 		variant,
 		size,
-		loading: !disabled && loading,
+		loading,
 		disabled,
-		fullWidth,
 		circle,
 	});
 
-	const {
-		body: bodyColor,
-		spinner: spinnerColor,
-		icon: iconColor,
-	} = colorVariant({
+	const { body: bodyColor, icon: iconColor } = colorVariant({
 		color,
-		disabled,
+		disabled: disabled || loading,
 	});
 
 	return (
-		<Pressable
-			className={twMerge(bodyStyle(), bodyColor(), bodyOverrideClassName)}
-			disabled={loading || disabled}
-			{...props}
-		>
-			<Icon className={twMerge(iconStyle(), iconColor(), iconOverrideClassName)} {...iconProps} />
-			{!disabled && loading && <LoadingSpinner className={twMerge(spinnerStyle(), spinnerColor())} />}
+		<Pressable ref={ref} className={cn(bodyStyle(), bodyColor(), className)} disabled={loading || disabled}>
+			<Icon className={cn(iconStyle(), iconColor())} size={iconSize ?? (size === "sm" ? 20 : 24)} />
+			{loading && (
+				<View className="absolute">
+					<LoadingSpinner size={size === "sm" ? 20 : 24} color="gray" />
+				</View>
+			)}
 		</Pressable>
 	);
 };
+
+IconButton.displayName = "IconButton";
 
 export { IconButton };

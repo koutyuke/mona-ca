@@ -1,6 +1,6 @@
-import { tv } from "@mona-ca/tailwind-helpers";
+import { cn, tv } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
-import { type FC, useRef, useState } from "react";
+import { type FC, type ReactNode, type Ref, useImperativeHandle, useRef, useState } from "react";
 import {
 	Pressable,
 	TextInput as RNTextInput,
@@ -8,14 +8,7 @@ import {
 	TouchableWithoutFeedback,
 	View,
 } from "react-native";
-import { EyeIcon, PenIcon } from "../../icons/index.native";
-import { Text } from "../text/index.native";
-
-type Variants = {
-	size?: "sm" | "md";
-	disabled?: boolean;
-	error?: boolean;
-};
+import { EyeCloseIcon, EyeIcon, type IconProps } from "../../icons/index.native";
 
 cssInterop(RNTextInput, {
 	className: { target: "style", nativeStyleToProp: { textAlign: true } },
@@ -29,129 +22,120 @@ cssInterop(RNTextInput, {
 
 const variants = tv({
 	slots: {
-		inputBody: "flex w-full flex-row items-center border-[1.5px] border-slate-7 bg-slate-2 transition",
-		input: "flex-1 text-slate-11",
-		iconBody: "flex items-center justify-center",
-		icon: "color-slate-9",
-		separator: "h-[calc(200%_/_3)] w-[1.5px] rounded-full bg-slate-7",
+		inputWrapper: "flex w-full flex-row items-center border border-slate-7 bg-slate-2 transition",
+		input: "flex-1 font-kiwi-maru-regular text-slate-11",
+		iconWrapper: "flex h-full items-center justify-center overflow-hidden",
 	},
 	variants: {
 		size: {
 			sm: {
-				inputBody: "h-9 gap-1.5 rounded-lg px-2",
-				input: "text-[14px]",
-				icon: "size-5",
+				inputWrapper: "h-9 gap-1.5 rounded-lg px-2",
+				input: "size-5 text-[16px] leading-[22px]",
+				iconWrapper: "w-5",
 			},
 			md: {
-				inputBody: "h-12 rounded-xl",
-				input: "mx-2 text-[17px]",
-				iconBody: "h-full w-11",
-				icon: "size-6",
+				inputWrapper: "h-12 gap-2 rounded-xl px-3",
+				input: "text-[18px] leading-[25px]",
+				iconWrapper: "w-6",
 			},
 		},
 		disabled: {
 			true: {
-				inputBody: "bg-slate-3",
+				inputWrapper: "bg-slate-3 opacity-75",
+				input: "text-slate-11",
 			},
 		},
 		error: {
 			true: {
-				inputBody: "border-red-9",
+				inputWrapper: "border-red-9",
 			},
 		},
-		isFocused: {
+		focused: {
 			true: {
-				inputBody: "border-blue-8",
+				inputWrapper: "border-blue-8",
 			},
 		},
 	},
 });
 
-type Props<P extends {}> = Omit<RNTextInputProps, "placeholder" | "readOnly" | "className"> &
-	Variants & {
-		label?: string;
-		placeholder?: string;
-		credentials?: boolean;
-		readOnly?: boolean;
-		icon?: FC<P & { className?: string }>;
-		iconProps?: Omit<P, "className">;
-	};
+type Props = Omit<RNTextInputProps, "placeholder" | "readOnly" | "className"> & {
+	size?: "sm" | "md";
+	disabled?: boolean;
+	error?: boolean;
+	placeholder?: string;
+	credentials?: boolean;
+	icon?: FC<IconProps>;
+	iconSize?: number;
+	ref?: Ref<RNTextInput>;
+};
 
-const TextInput = <P extends {}>({
-	icon,
-	label,
+const TextInput: FC<Props> = ({
+	icon: Icon,
 	placeholder,
 	credentials,
 	size = "md",
 	disabled,
-	readOnly,
 	error,
-	iconProps,
-}: Props<P>): JSX.Element => {
-	const Icon = icon as unknown as FC<{ className?: string }>;
+	iconSize,
+	ref,
+	...props
+}: Props): ReactNode => {
 	const inputRef = useRef<RNTextInput>(null);
-	const [isFocused, setFocused] = useState(false);
+	const [isFocus, setFocused] = useState(false);
 	const [isShowSecureText, setShowSecureText] = useState(true);
 
+	const resolvedIconSize = iconSize !== undefined ? iconSize : size === "sm" ? 20 : 24;
+
 	const {
-		inputBody: inputBodyStyle,
+		inputWrapper: inputWrapperStyle,
 		input: inputStyle,
-		iconBody: iconBodyStyle,
-		icon: iconStyle,
-		separator: separatorStyle,
-	} = variants({ size, isFocused, disabled, error });
+		iconWrapper: iconWrapperStyle,
+	} = variants({ size, focused: isFocus, disabled, error });
 
-	const handleFocus = () => {
-		inputRef.current?.focus();
-		setFocused(true);
-	};
-
-	const handleShowSecureText = () => {
-		setShowSecureText(!isShowSecureText);
-	};
+	useImperativeHandle(ref, () => inputRef.current!, []);
 
 	return (
-		<View className={"flex flex-col gap-[2px]"}>
-			{label && (
-				<Text size={size} bold>
-					{label}
-				</Text>
-			)}
-			<TouchableWithoutFeedback onPress={handleFocus} disabled={disabled || readOnly}>
-				<View className={inputBodyStyle()}>
-					{Icon && (
-						<>
-							<View className={iconBodyStyle()}>
-								<Icon className={iconStyle()} />
-							</View>
-							<View className={separatorStyle()} {...iconProps} />
-						</>
-					)}
-					<RNTextInput
-						ref={inputRef}
-						className={inputStyle()}
-						placeholder={placeholder}
-						onFocus={() => setFocused(true)}
-						onBlur={() => setFocused(false)}
-						secureTextEntry={credentials && isShowSecureText}
-						placeholderClassName="text-slate-8"
-						editable={!disabled && !readOnly}
-					/>
-					{(!!credentials || !!readOnly) && <View className={separatorStyle()} />}
-					{readOnly && (
-						<View className={iconBodyStyle()}>
-							<PenIcon state="off" className={iconStyle({})} />
-						</View>
-					)}
-					{!!credentials && !!readOnly && <View className={separatorStyle()} />}
-					{credentials && (
-						<Pressable onPress={handleShowSecureText} className={iconBodyStyle()}>
-							<EyeIcon state={isShowSecureText ? "on" : "off"} className={iconStyle()} />
-						</Pressable>
-					)}
-				</View>
-			</TouchableWithoutFeedback>
-		</View>
+		<TouchableWithoutFeedback
+			onPress={() => inputRef.current?.focus()}
+			disabled={disabled}
+			onBlur={() => {
+				setFocused(false);
+				inputRef.current?.blur();
+			}}
+		>
+			<View className={inputWrapperStyle()}>
+				{Icon && (
+					<View className={iconWrapperStyle()}>
+						<Icon className={cn("text-slate-9", error && "text-red-9")} size={(iconSize ?? size === "sm") ? 20 : 24} />
+					</View>
+				)}
+				<RNTextInput
+					ref={inputRef}
+					className={inputStyle()}
+					placeholder={placeholder}
+					onFocus={() => setFocused(true)}
+					onBlur={() => setFocused(false)}
+					secureTextEntry={credentials && isShowSecureText}
+					placeholderClassName="text-slate-9"
+					editable={!disabled}
+					{...props}
+				/>
+				{credentials && (
+					<Pressable
+						onPress={() => {
+							setShowSecureText(!isShowSecureText);
+						}}
+						className={iconWrapperStyle({ class: "h-full" })}
+					>
+						{isShowSecureText ? (
+							<EyeCloseIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />
+						) : (
+							<EyeIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />
+						)}
+					</Pressable>
+				)}
+			</View>
+		</TouchableWithoutFeedback>
 	);
 };
 

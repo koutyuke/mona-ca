@@ -1,4 +1,2 @@
-export { Header } from "./ui/header";
-export { PageWaveTitle } from "./ui/page-wave-title";
-export { calculateHeaderAnimationTriggerPointOfPageWaveTitle } from "./utils";
-export { Body, ScrollBody } from "./ui/body";
+export { Page, AnimatedPage, BODY_MIN_HEIGHT } from "./ui/page";
+export { WaveHeader, WAVE_HEADER_HEIGHT } from "./ui/header/wave-header";

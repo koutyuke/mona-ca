@@ -15,10 +15,10 @@ import { CookieManager } from "../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../modules/elysia-with-env";
 import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
@@ -151,7 +151,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				code: t.String(),
 				emailVerificationSessionToken: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
@@ -164,8 +164,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 					ErrorResponseSchema("INVALID_VERIFICATION_CODE"),
 				),
 				401: AuthGuardSchema.response[401],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "me-update-email",
 				summary: "Update Email",

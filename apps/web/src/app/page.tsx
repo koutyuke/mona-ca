@@ -1,5 +1,7 @@
 "use client";
 
+import type { JSX } from "react";
+
 // import Turnstile from "react-turnstile";
 
 export default function Page(): JSX.Element {

@@ -13,10 +13,10 @@ import { CookieManager } from "../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../modules/elysia-with-env";
 import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
@@ -117,7 +117,7 @@ export const Signup = new ElysiaWithEnv()
 				}),
 				gender: genderSchema,
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					sessionToken: t.String(),
 				}),
@@ -128,8 +128,7 @@ export const Signup = new ElysiaWithEnv()
 					ErrorResponseSchema("EMAIL_ALREADY_REGISTERED"),
 				),
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "auth-signup",
 				summary: "Signup",

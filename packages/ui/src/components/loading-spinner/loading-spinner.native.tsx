@@ -1,5 +1,6 @@
+import { cn } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
-import { type ComponentPropsWithoutRef, type FC, useEffect } from "react";
+import { type ComponentPropsWithoutRef, type FC, memo, useEffect } from "react";
 import Animated, { Easing, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { Rect, Svg } from "react-native-svg";
 
@@ -22,15 +23,14 @@ cssInterop(Svg, {
 });
 
 const AnimationRect: FC<AnimationRectProps> = ({ index, ...props }) => {
-	const initialOpacity = MAX_OPACITY - index * OPACITY_RATE;
-	const initialDuration = DURATION - index * DURATION_RATE;
+	const initialOpacity = index * OPACITY_RATE;
+	const initialDuration = index * DURATION_RATE;
 
 	const opacity = useSharedValue(initialOpacity);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		opacity.value = withTiming(MIN_OPACITY, { duration: initialDuration });
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			opacity.value = MAX_OPACITY;
 			opacity.value = withRepeat(
 				withTiming(MIN_OPACITY, { duration: DURATION, easing: Easing.out(Easing.circle) }),
@@ -38,19 +38,31 @@ const AnimationRect: FC<AnimationRectProps> = ({ index, ...props }) => {
 				false,
 			);
 		}, initialDuration);
-	}, []);
+
+		return () => clearTimeout(timeout);
+	}, [opacity, initialDuration]);
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	return <AnimatedRect {...props} opacity={opacity as any} />;
 };
 
 type LoadingSpinnerProps = {
-	className?: string;
+	size?: number;
+	color: "gray" | "white" | "black";
 };
 
-const LoadingSpinner: FC<LoadingSpinnerProps> = ({ className }) => {
+const _LoadingSpinner: FC<LoadingSpinnerProps> = ({ size = 24, color = "gray" }) => {
 	return (
-		<Svg viewBox="0 0 120 120" className={className ?? ""}>
+		<Svg
+			viewBox="0 0 120 120"
+			className={cn(
+				color === "gray" && "fill-slate-11",
+				color === "white" && "fill-white",
+				color === "black" && "fill-black",
+			)}
+			height={size}
+			width={size}
+		>
 			<AnimationRect
 				index={0}
 				x="78.9454"
@@ -94,5 +106,7 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({ className }) => {
 		</Svg>
 	);
 };
+
+const LoadingSpinner = memo(_LoadingSpinner);
 
 export { LoadingSpinner };

@@ -7,9 +7,9 @@ import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { CookieManager } from "../../modules/cookie";
 import {
 	ElysiaWithEnv,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
+	withBaseResponseSchema,
 } from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";
 
@@ -47,12 +47,11 @@ export const Logout = new ElysiaWithEnv()
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				204: NoContentResponseSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				operationId: "auth-logout",
 				summary: "Logout",

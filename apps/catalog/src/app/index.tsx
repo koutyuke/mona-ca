@@ -6,25 +6,26 @@ import StoryBookRoot from "../../.storybook/mobile";
 const isStoryBookEnabled = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === "true";
 
 const Home: FC = () => {
-	const setTheme = useTheme()[1];
+	const { setTheme } = useTheme();
 
 	// on initial render, set the theme to the system color scheme
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		setTheme({ colorTheme: "system" });
+		setTheme("system");
 	}, []);
 
 	if (isStoryBookEnabled) {
 		return <StoryBookRoot />;
 	}
+
 	return (
 		<View
 			style={{
 				height: "100%",
+				width: "100%",
 				justifyContent: "center",
 				alignItems: "center",
 				display: "flex",
-				width: "100%",
 			}}
 		>
 			<Text>Home</Text>

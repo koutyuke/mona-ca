@@ -4,7 +4,6 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { PasswordResetRequestUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-
 import { isErr } from "../../../common/utils";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
@@ -14,10 +13,10 @@ import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
-	InternalServerErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
@@ -120,7 +119,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 				cfTurnstileResponse: t.String(),
 				email: t.String(),
 			}),
-			response: {
+			response: withBaseResponseSchema({
 				200: t.Object({
 					passwordResetSessionToken: t.String(),
 				}),
@@ -131,8 +130,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 					ErrorResponseSchema("USER_NOT_FOUND"),
 				),
 				429: RateLimiterSchema.response[429],
-				500: InternalServerErrorResponseSchema,
-			},
+			}),
 			detail: pathDetail({
 				tag: "Auth - Forgot Password",
 				operationId: "auth-forgot-password-request",
