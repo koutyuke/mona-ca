@@ -1,2 +1,2 @@
-export { LogInPageHeader } from "./ui/log-in-page/header";
-export { LogInPage } from "./ui/log-in-page/page";
+export { LoginPageHeader } from "./ui/login.header";
+export { LoginPage } from "./ui/login.page";
