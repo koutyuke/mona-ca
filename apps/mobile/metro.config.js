@@ -21,7 +21,7 @@ config.resolver = {
 };
 
 module.exports = withNativeWind(config, {
-	input: "./src/styles/global.css",
+	input: "./src/layers/app/styles/global.css",
 	configPath: "tailwind.config.ts",
 	inlineRem: 16,
 });
