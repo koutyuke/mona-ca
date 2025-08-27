@@ -1,7 +1,4 @@
-import { atomWithStorage } from "jotai/utils";
-import { storageKeys, storeStorage } from "../../../shared/lib";
-
-export interface User {
+export type User = {
 	id: string;
 	email: string;
 	emailVerified: boolean;
@@ -10,9 +7,9 @@ export interface User {
 	gender: "man" | "woman";
 	createdAt: Date;
 	updatedAt: Date;
-}
+};
 
-export interface UserDto {
+export type UserDto = {
 	id: string;
 	email: string;
 	emailVerified: boolean;
@@ -21,6 +18,10 @@ export interface UserDto {
 	gender: "man" | "woman";
 	createdAt: string;
 	updatedAt: string;
-}
+};
 
-export const userAtom = atomWithStorage<User | null>(storageKeys.user, null, storeStorage);
+export type UpdateUserDto = {
+	name?: string;
+	iconUrl?: string;
+	gender?: "man" | "woman";
+};

@@ -1,6 +1,6 @@
 import type { User, UserDto } from "../model/user";
 
-export const convertToUser = (data: UserDto): User => {
+export const dtoToUser = (data: UserDto): User => {
 	return {
 		id: data.id,
 		email: data.email,
