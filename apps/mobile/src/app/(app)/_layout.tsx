@@ -1,7 +1,8 @@
 import { Stack } from "expo-router";
-import { ThemeProvider } from "../../features/theme";
+import { ThemeProvider } from "../../layers/app/providers";
 
 const AppLayout = () => {
+	console.log("app layout");
 	return (
 		<ThemeProvider>
 			<Stack>

@@ -1,3 +1,3 @@
-import { LogInPage } from "../../pages/log-in";
+import { LoginPage } from "../../pages/log-in";
 
-export default LogInPage;
+export default LoginPage;
