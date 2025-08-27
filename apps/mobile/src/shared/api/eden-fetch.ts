@@ -5,3 +5,7 @@ export const edenFetch = createEdenFetch(process.env.EXPO_PUBLIC_APP_ENV === "pr
 		"content-type": "application/json",
 	},
 });
+
+export const withBearer = (token: string) => {
+	return `Bearer ${token}`;
+};
