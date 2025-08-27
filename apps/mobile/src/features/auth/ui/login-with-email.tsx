@@ -10,15 +10,14 @@ import { Pressable, View } from "react-native";
 import { ReactNativeModal as Modal } from "react-native-modal";
 import RNTurnstile from "react-native-turnstile";
 import { lastLoginMethodAtom, sessionTokenAtom } from "../../../entities/session";
-import { getMe, userStorageAtom } from "../../../entities/user";
-import { dtoToUser } from "../../../entities/user/lib/converter";
+import { getMe, userAtom } from "../../../entities/user";
 import { login } from "../api/login-with-email";
 import { type LoginFormSchema, loginFormSchema } from "../model/login-form-schema";
 
 export const LoginWithEmail = () => {
 	const setSessionToken = useSetAtom(sessionTokenAtom);
 	const setLastLoginMethod = useSetAtom(lastLoginMethodAtom);
-	const setUserStorage = useSetAtom(userStorageAtom);
+	const setUser = useSetAtom(userAtom);
 
 	const [isModalClosable, setModalClosable] = useState<boolean>(true);
 	const [isModalVisible, setModalVisible] = useState(false);
@@ -53,7 +52,7 @@ export const LoginWithEmail = () => {
 		}
 
 		setSessionToken(sessionToken);
-		setUserStorage({ data: dtoToUser(userResult.value), timestamp: Date.now() });
+		setUser({ type: "update", payload: userResult.value });
 		setLastLoginMethod("email");
 
 		setErrorMessage(null);
