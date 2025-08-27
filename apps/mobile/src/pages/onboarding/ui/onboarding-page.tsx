@@ -1,6 +1,6 @@
 import { MonaCaLogo } from "@mona-ca/ui/native/brand";
 import { Button, Text } from "@mona-ca/ui/native/components";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 import { View } from "react-native";
 import { useLayoutInsets } from "../../../shared/lib";
 import { BODY_MIN_HEIGHT, Page } from "../../../widgets/layout";
@@ -8,7 +8,7 @@ import { OnboardingCardScrollView } from "./card/card-scroll-view";
 
 export const OnboardingPage = () => {
 	const { top, bottom, left, right } = useLayoutInsets();
-	const router = useRouter();
+
 	return (
 		<Page indicatorStyle="black">
 			<View
@@ -24,11 +24,25 @@ export const OnboardingPage = () => {
 					</Text>
 				</View>
 				<View className="flex flex-col gap-2" style={{ paddingLeft: left, paddingRight: right }}>
-					<Button color="salmon" variant="filled" className="w-full" onPress={() => router.push("/(auth)/sign-up")}>
-						Sign up
+					<Button
+						color="salmon"
+						variant="filled"
+						className="w-full"
+						onPress={() => {
+							router.push("/(auth)/sign-up");
+						}}
+					>
+						Sign Up
 					</Button>
-					<Button color="salmon" variant="light" className="w-full" onPress={() => router.push("/(auth)/log-in")}>
-						Log in
+					<Button
+						color="salmon"
+						variant="light"
+						className="w-full"
+						onPress={() => {
+							router.push("/(auth)/log-in");
+						}}
+					>
+						Log In
 					</Button>
 				</View>
 			</View>
