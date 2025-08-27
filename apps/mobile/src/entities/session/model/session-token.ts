@@ -1,4 +1,6 @@
-import { atomWithStorage } from "jotai/utils";
-import { secureStoreStorage, storageKeys } from "../../../shared/lib";
+import { atom } from "jotai";
+import { atomWithSecureStorage, secureStorageKeys } from "../../../shared/lib";
 
-export const sessionTokenAtom = atomWithStorage<string | null>(storageKeys.sessionToken, null, secureStoreStorage);
+export const sessionTokenAtom = atomWithSecureStorage<string | null>(secureStorageKeys.sessionToken, null);
+
+export const isAuthenticatedAtom = atom(get => get(sessionTokenAtom) !== null);
