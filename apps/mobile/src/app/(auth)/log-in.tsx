@@ -1,3 +1,3 @@
-import { LoginPage } from "../../pages/log-in";
+import { LoginPage } from "../../layers/pages/log-in";
 
 export default LoginPage;

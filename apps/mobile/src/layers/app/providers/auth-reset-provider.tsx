@@ -2,12 +2,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { type WritableAtom, useStore } from "jotai";
 import { RESET } from "jotai/utils";
 import { type FC, type ReactNode, useEffect } from "react";
-import { accountAssociationSessionTokenAtom, sessionTokenAtom } from "../../../entities/session";
-import { userAtom } from "../../../entities/user";
-import { visitableSetupPageAtom } from "../../../features/navigation-guard";
-import { themeAtom } from "../../../features/theme";
-import { subscribeToAuthReset } from "../../../shared/auth";
-import type { globalStorageKeys, secureStorageKeys } from "../../../shared/lib";
+import { accountAssociationSessionTokenAtom, sessionTokenAtom } from "../../entities/session";
+import { userAtom } from "../../entities/user";
+import { visitableSetupPageAtom } from "../../features/navigation-guard";
+import { themeAtom } from "../../features/theme";
+import { subscribeToAuthReset } from "../../shared/auth";
+import type { globalStorageKeys, secureStorageKeys } from "../../shared/lib";
 import { useResetJotaiStore } from "./resettable-jotai-provider";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
