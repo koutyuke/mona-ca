@@ -19,7 +19,7 @@
     "db:std:remote": "drizzle-kit studio"
   },
   "dependencies": {
-    "@elysiajs/swagger": "^1.2.2",
+    "@elysiajs/swagger": "~1.2.0",
     "@mona-ca/argon2id": "workspace:*",
     "@mona-ca/core": "workspace:*",
     "@oslojs/crypto": "^1.0.1",
