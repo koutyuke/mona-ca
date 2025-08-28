@@ -5,6 +5,7 @@
   "extends": ["./base.json", "@tsconfig/react-native/tsconfig.json"],
   "compilerOptions": {
     "target": "ESNext",
+    "lib": ["DOM", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "verbatimModuleSyntax": false

@@ -6,7 +6,7 @@ export class DrizzleService {
 	public db: DrizzleD1Database<typeof schema>;
 	public schema = schema;
 
-	constructor(db: D1Database) {
-		this.db = drizzle(db, { schema: this.schema });
+	constructor(d1: D1Database) {
+		this.db = drizzle(d1, { schema: this.schema });
 	}
 }

@@ -15,7 +15,7 @@ export class TurnstileGateway implements ITurnstileGateway {
 			body: formData,
 		});
 
-		const result: TurnstileResult = await res.json();
+		const result = (await res.json()) as TurnstileResult;
 
 		return result;
 	}
