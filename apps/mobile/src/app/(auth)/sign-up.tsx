@@ -3,8 +3,8 @@ import { Link } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { ScrollView } from "react-native";
-import { useLayoutInsets, vw } from "../../shared/lib";
-import { ContinueWithDiscordButton, ContinueWithEmailButton, ContinueWithGoogleButton } from "../../shared/ui";
+import { useLayoutInsets, vw } from "../../layers/shared/lib";
+import { ContinueWithDiscordButton, ContinueWithEmailButton, ContinueWithGoogleButton } from "../../layers/shared/ui";
 
 const SignUpPage = () => {
 	const { top, left, right, bottom } = useLayoutInsets();

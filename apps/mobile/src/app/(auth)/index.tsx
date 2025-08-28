@@ -1,3 +1,3 @@
-import { OnboardingPage } from "../../pages/onboarding";
+import { OnboardingPage } from "../../layers/pages/onboarding";
 
 export default OnboardingPage;

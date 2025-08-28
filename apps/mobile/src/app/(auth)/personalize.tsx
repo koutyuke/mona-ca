@@ -1,9 +1,9 @@
 import { useSetAtom } from "jotai";
 import { RESET } from "jotai/utils";
 import { Pressable, Text, View } from "react-native";
-import { sessionTokenAtom } from "../../entities/session";
-import { userAtom } from "../../entities/user";
-import { visitableSetupPageAtom } from "../../features/navigation-guard";
+import { sessionTokenAtom } from "../../layers/entities/session";
+import { userAtom } from "../../layers/entities/user";
+import { visitableSetupPageAtom } from "../../layers/features/navigation-guard";
 
 const PersonalizePage = () => {
 	const setSessionToken = useSetAtom(sessionTokenAtom);

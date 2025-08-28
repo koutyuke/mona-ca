@@ -1,8 +1,8 @@
 import { Stack } from "expo-router";
-import { useNavigationGuard } from "../../features/navigation-guard";
 import { ThemeProvider } from "../../layers/app/providers";
-import { LoginPageHeader } from "../../pages/log-in";
-import { WaveHeader } from "../../widgets/layout";
+import { useNavigationGuard } from "../../layers/features/navigation-guard";
+import { LoginPageHeader } from "../../layers/pages/log-in";
+import { WaveHeader } from "../../layers/widgets/layout";
 
 const AuthLayout = () => {
 	const navigationGuard = useNavigationGuard();

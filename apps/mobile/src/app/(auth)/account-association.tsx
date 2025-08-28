@@ -1,6 +1,6 @@
 import { useSetAtom } from "jotai";
 import { Pressable, Text, View } from "react-native";
-import { accountAssociationSessionTokenAtom } from "../../entities/session";
+import { accountAssociationSessionTokenAtom } from "../../layers/entities/session";
 
 const AccountAssociationPage = () => {
 	const setAccountAssociationToken = useSetAtom(accountAssociationSessionTokenAtom);

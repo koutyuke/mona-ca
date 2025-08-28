@@ -10,10 +10,10 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 export { ErrorBoundary } from "expo-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useNavigationGuard } from "../features/navigation-guard";
 import { AuthResetProvider, ResettableJotaiProvider } from "../layers/app/providers";
 import { queryClient } from "../layers/app/store";
-import { useNetworkStatus } from "../shared/api";
+import { useNavigationGuard } from "../layers/features/navigation-guard";
+import { useNetworkStatus } from "../layers/shared/api";
 
 export const unstable_settings = {
 	initialRouteName: "(app)",
