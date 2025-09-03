@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { Provider as JotaiProvider } from "jotai";
 import { useEffect } from "react";
-import { ThemeProvider } from "../../../mobile/src/features/theme";
+import { ThemeProvider } from "../../../mobile/src/layers/app/providers";
 
 import "react-native-reanimated";
 import "./global.css";
