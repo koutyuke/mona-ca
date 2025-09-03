@@ -27,25 +27,33 @@ export const LoginPage = (): JSX.Element => {
 						お帰りなさい{"\n"}
 						また会えましたね!
 					</Text>
-					<Text size="xs" className="text-center text-slate-11">
-						※ アプリのご利用を持って、{"\n"}
+					<Text size="xs" className="text-center text-slate-9">
+						※ アプリのご利用を持って、
+						{"\n"}
 						<Text size="xs" className="text-blue-9">
 							利用規約
 						</Text>
+						および
+						<Text size="xs" className="text-blue-9">
+							プライバシーポリシー
+						</Text>
+						{"\n"}
 						に同意したものとみなされます
 					</Text>
 				</View>
-				<LastLoginMethod />
+				<View className="w-full flex-row justify-end">
+					<LastLoginMethod />
+				</View>
 				<LoginWithEmail />
 				<View className="flex h-8 w-full flex-row items-center gap-4">
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
 					<Text size="xs" className="text-slate-9 leading-[18px]" weight="medium">
-						Or
+						または
 					</Text>
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
 				</View>
 				<LoginWithSocial />
-				<Link href="/(auth)/sign-up" asChild>
+				<Link href="/(auth)/signup" asChild>
 					<Pressable className="group self-end">
 						<Text size="xs" className="text-salmon-9 transition-colors group-active:text-salmon-11">
 							アカウントの新規登録はこちら

@@ -29,20 +29,20 @@ export const OnboardingPage = () => {
 						variant="filled"
 						className="w-full"
 						onPress={() => {
-							router.push("/(auth)/sign-up");
+							router.push("/(auth)/signup");
 						}}
 					>
-						Sign Up
+						新規登録
 					</Button>
 					<Button
 						color="salmon"
 						variant="light"
 						className="w-full"
 						onPress={() => {
-							router.push("/(auth)/log-in");
+							router.push("/(auth)/login");
 						}}
 					>
-						Log In
+						ログイン
 					</Button>
 				</View>
 			</View>

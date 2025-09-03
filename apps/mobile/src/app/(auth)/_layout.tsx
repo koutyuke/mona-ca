@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import { ThemeProvider } from "../../layers/app/providers";
 import { useNavigationGuard } from "../../layers/features/navigation-guard";
-import { LoginPageHeader } from "../../layers/pages/log-in";
+import { LoginPageHeader } from "../../layers/pages/login";
 import { WaveHeader } from "../../layers/widgets/layout";
 
 const AuthLayout = () => {
@@ -16,9 +16,9 @@ const AuthLayout = () => {
 			>
 				<Stack.Protected guard={navigationGuard.data === "unauthenticated"}>
 					<Stack.Screen name="index" options={{ headerShown: false }} />
-					<Stack.Screen name="log-in" options={{ header: LoginPageHeader }} />
+					<Stack.Screen name="login" options={{ header: LoginPageHeader }} />
 					<Stack.Screen
-						name="sign-up"
+						name="signup"
 						options={{
 							header: () => <WaveHeader title="Sign Up" enableBackButton />,
 						}}

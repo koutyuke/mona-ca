@@ -39,7 +39,7 @@ const SignUpPage = () => {
 					<ContinueWithEmailButton fullWidth />
 					<ContinueWithGoogleButton fullWidth />
 					<ContinueWithDiscordButton fullWidth />
-					<Link href="/(auth)/log-in" asChild>
+					<Link href="/(auth)/login" asChild>
 						<Pressable className="group">
 							<Text size="xs" className="text-salmon-9 transition-colors group-active:text-salmon-11">
 								既にアカウントをお持ちの方はこちら
