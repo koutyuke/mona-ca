@@ -36,6 +36,8 @@ const RootLayoutNav = () => {
 		KiwiMaru_500Medium,
 	});
 
+	useNetworkStatus();
+
 	useEffect(() => {
 		if (loaded && !navigationGuard.loading) {
 			SplashScreen.hide();
@@ -63,8 +65,6 @@ const RootLayoutNav = () => {
 };
 
 const RootLayout = () => {
-	useNetworkStatus();
-
 	return (
 		<SafeAreaProvider>
 			<KeyboardProvider>
