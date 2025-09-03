@@ -62,7 +62,7 @@ export const WaveHeader: FC<Props> = ({
 				<View className="pr-2">{rightContents}</View>
 			</View>
 			<View className="h-8 w-full">
-				<Wave className="w-full fill-salmon-6" />
+				<Wave className="color-salmon-6 w-full" />
 			</View>
 		</View>
 	);

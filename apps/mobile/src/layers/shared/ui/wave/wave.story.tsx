@@ -13,6 +13,6 @@ type Story = StoryObj<typeof Wave>;
 export const Default: Story = {
 	render: args => <Wave {...args} />,
 	args: {
-		className: "h-8 w-full fill-salmon-9",
+		className: "w-full color-red-9",
 	},
 };
