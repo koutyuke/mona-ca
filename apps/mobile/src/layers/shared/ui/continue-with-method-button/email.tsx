@@ -1,14 +1,14 @@
 import { tv } from "@mona-ca/tailwind-helpers";
 import { LoadingSpinner } from "@mona-ca/ui/native/components";
 import { EmailIcon } from "@mona-ca/ui/native/icons";
-import { type ComponentPropsWithoutRef, type ElementRef, type Ref, forwardRef } from "react";
+import type { ComponentProps, FC } from "react";
 import { Pressable, Text, View } from "react-native";
 
 type Props = {
 	fullWidth?: boolean;
 	loading?: boolean;
 	disabled?: boolean;
-} & Omit<ComponentPropsWithoutRef<typeof Pressable>, "disabled" | "className">;
+} & Omit<ComponentProps<typeof Pressable>, "disabled" | "className">;
 
 const styleVariants = tv({
 	slots: {
@@ -37,10 +37,13 @@ const styleVariants = tv({
 	},
 });
 
-const ContinueWithEmailBtn = (
-	{ fullWidth = false, loading = false, disabled = false, ...props }: Props,
-	ref: Ref<ElementRef<typeof Pressable>>,
-) => {
+const ContinueWithEmailButton: FC<Props> = ({
+	fullWidth = false,
+	loading = false,
+	disabled = false,
+	ref,
+	...props
+}: Props) => {
 	const { body, text, icon } = styleVariants({ fullWidth, disabled, loading });
 	return (
 		<Pressable ref={ref} className={body()} disabled={loading || disabled} {...props}>
@@ -54,7 +57,5 @@ const ContinueWithEmailBtn = (
 		</Pressable>
 	);
 };
-
-const ContinueWithEmailButton = forwardRef<ElementRef<typeof Pressable>, Props>(ContinueWithEmailBtn);
 
 export { ContinueWithEmailButton };
