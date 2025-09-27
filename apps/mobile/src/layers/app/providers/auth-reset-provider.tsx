@@ -4,10 +4,10 @@ import { RESET } from "jotai/utils";
 import { type FC, type ReactNode, useEffect } from "react";
 import { accountAssociationSessionTokenAtom, sessionTokenAtom } from "../../entities/session";
 import { userAtom } from "../../entities/user";
-import { visitableSetupPageAtom } from "../../features/navigation-guard";
+import { visitPersonalizePageFlagAtom } from "../../features/auth";
 import { themeAtom } from "../../features/theme";
-import { subscribeToAuthReset } from "../../shared/auth";
-import type { globalStorageKeys, secureStorageKeys } from "../../shared/lib";
+import { subscribeToAuthReset } from "../../shared/lib/auth";
+import type { globalStorageKeys, secureStorageKeys } from "../../shared/lib/storage";
 import { useResetJotaiStore } from "./resettable-jotai-provider";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -23,7 +23,7 @@ type ExcludeResettableAtom = "lastLoginMethod";
 const globalStorageAtom: Record<Exclude<keyof typeof globalStorageKeys, ExcludeResettableAtom>, ResettableAtom> = {
 	theme: themeAtom,
 	user: userAtom,
-	visitableSetupPage: visitableSetupPageAtom,
+	visitPersonalizePageFlag: visitPersonalizePageFlagAtom,
 } as const;
 
 const resettableAtoms = [...Object.values(secureStorageAtom), ...Object.values(globalStorageAtom)] as const;
