@@ -2,7 +2,7 @@ import { MonaCaLogo } from "@mona-ca/ui/native/brand";
 import { Button, Text } from "@mona-ca/ui/native/components";
 import { router } from "expo-router";
 import { View } from "react-native";
-import { useLayoutInsets } from "../../../shared/lib";
+import { useLayoutInsets } from "../../../shared/lib/view";
 import { BODY_MIN_HEIGHT, Page } from "../../../widgets/layout";
 import { OnboardingCardScrollView } from "./card/card-scroll-view";
 

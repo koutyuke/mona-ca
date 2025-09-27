@@ -1,5 +1,5 @@
 import Animated, { scrollTo, useAnimatedRef, useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
-import { vw } from "../../../../shared/lib";
+import { vw } from "../../../../shared/lib/view";
 import { OnboardingCard } from "./card";
 
 const ITEM_WIDTH = vw(75);

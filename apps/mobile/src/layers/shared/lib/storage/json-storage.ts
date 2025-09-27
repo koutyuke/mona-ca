@@ -2,7 +2,7 @@ import * as Crypto from "expo-crypto";
 import * as expoSecureStorage from "expo-secure-store";
 import { createJSONStorage } from "jotai/utils";
 import { MMKV } from "react-native-mmkv";
-import { bytesToHex } from "../converter";
+import { bytesToHex } from "../data/converter";
 import type { JSONStringifyable } from "./types";
 
 // === unencrypted storage ===

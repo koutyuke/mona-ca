@@ -4,8 +4,8 @@ import { ChevronLeftIcon } from "@mona-ca/ui/native/icons";
 import { useNavigation } from "expo-router";
 import type { FC, ReactNode } from "react";
 import { Pressable, View } from "react-native";
-import { useLayoutInsets, vh } from "../../../../shared/lib";
-import { Wave } from "../../../../shared/ui";
+import { useLayoutInsets, vh } from "../../../../shared/lib/view";
+import { Wave } from "../../../../shared/ui/wave";
 
 type Props = {
 	title: string;

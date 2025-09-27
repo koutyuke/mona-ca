@@ -4,7 +4,7 @@ import type { ScrollView, ScrollViewProps } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
 import { useTheme } from "../../../features/theme";
-import { useLayoutInsets, vh } from "../../../shared/lib";
+import { useLayoutInsets, vh } from "../../../shared/lib/view";
 
 type BodyProps = {
 	indicatorStyle?: "white" | "black";
