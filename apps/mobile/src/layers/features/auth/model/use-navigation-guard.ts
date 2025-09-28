@@ -1,7 +1,7 @@
 import { useAtomValue } from "jotai";
 import { accountAssociationSessionTokenAtom, isAuthenticatedAtom } from "../../../entities/session";
 import { userAtom } from "../../../entities/user";
-import { visitPersonalizePageFlagAtom } from "../model/visit-personalize-page-flag";
+import { visitPersonalizePageFlagAtom } from "./visit-personalize-page-flag-atom";
 
 type ProtectedRoute = "app" | "emailVerification" | "accountAssociation" | "unauthenticated" | "personalize";
 

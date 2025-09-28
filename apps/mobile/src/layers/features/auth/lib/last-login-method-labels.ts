@@ -1,4 +1,4 @@
-import type { LoginMethod } from "../model/last-login-method";
+import type { LoginMethod } from "../model/last-login-method-atom";
 
 export const lastLoginMethodLabels: Record<LoginMethod, string> = {
 	email: "メールアドレス",
