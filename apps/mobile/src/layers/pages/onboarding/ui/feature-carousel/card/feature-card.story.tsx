@@ -1,20 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { View } from "react-native";
-import { OnboardingCard } from "./card";
+import { FeatureCardUI } from "./feature-card.ui";
 
-const meta: Meta<typeof OnboardingCard> = {
-	title: "Pages/Onboarding/Card",
-	component: OnboardingCard,
+const meta: Meta<typeof FeatureCardUI> = {
+	title: "Pages/Onboarding/FeatureCard",
+	component: FeatureCardUI,
 	render: args => (
 		<View className="h-full w-full p-4">
-			<OnboardingCard {...args} />
+			<FeatureCardUI {...args} />
 		</View>
 	),
 };
 
 export default meta;
 
-type Story = StoryObj<typeof OnboardingCard>;
+type Story = StoryObj<typeof FeatureCardUI>;
 
 export const MonaCa: Story = {
 	args: {

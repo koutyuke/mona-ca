@@ -1,13 +1,13 @@
 import Animated, { scrollTo, useAnimatedRef, useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
 import { vw } from "../../../../shared/lib/view";
-import { OnboardingCard } from "./card";
+import { FeatureCardUI } from "./card/feature-card.ui";
 
 const ITEM_WIDTH = vw(75);
 const SPACING = vw(7.5);
 const PADDING = vw(12.5);
 const SNAP_INTERVAL = ITEM_WIDTH + SPACING;
 
-export const OnboardingCardScrollView = () => {
+export const FeatureCarouselUI = () => {
 	const listRef = useAnimatedRef<Animated.ScrollView>();
 
 	const scrollX = useSharedValue(0);
@@ -38,9 +38,9 @@ export const OnboardingCardScrollView = () => {
 			className="flex-grow-0"
 			onScroll={onScroll}
 		>
-			<OnboardingCard variant="mona-ca" className="w-[75vw]" />
-			<OnboardingCard variant="customize" className="w-[75vw]" />
-			<OnboardingCard variant="share" className="w-[75vw]" />
+			<FeatureCardUI variant="mona-ca" className="w-[75vw]" />
+			<FeatureCardUI variant="customize" className="w-[75vw]" />
+			<FeatureCardUI variant="share" className="w-[75vw]" />
 		</Animated.ScrollView>
 	);
 };

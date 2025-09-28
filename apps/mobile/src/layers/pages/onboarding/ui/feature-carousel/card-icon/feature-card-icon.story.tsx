@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { CardIcon } from "./card-icon";
+import { FeatureCardIconUI } from "./feature-card-icon.ui";
 
-const meta: Meta<typeof CardIcon> = {
-	title: "Pages/Onboarding/CardIcon",
-	component: CardIcon,
+const meta: Meta<typeof FeatureCardIconUI> = {
+	title: "Pages/Onboarding/FeatureCardIcon",
+	component: FeatureCardIconUI,
 	args: {
 		variant: "customize",
 	},
@@ -11,7 +11,7 @@ const meta: Meta<typeof CardIcon> = {
 
 export default meta;
 
-type Story = StoryObj<typeof CardIcon>;
+type Story = StoryObj<typeof FeatureCardIconUI>;
 
 export const Widget: Story = {
 	args: {

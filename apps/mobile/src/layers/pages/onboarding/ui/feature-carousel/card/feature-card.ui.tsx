@@ -2,7 +2,7 @@ import { cn } from "@mona-ca/tailwind-helpers";
 import { Text } from "@mona-ca/ui/native/components";
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { CardIcon } from "../card-icon/card-icon";
+import { FeatureCardIconUI } from "../card-icon/feature-card-icon.ui";
 
 type Props = {
 	variant: "mona-ca" | "customize" | "share";
@@ -24,7 +24,7 @@ const textVariants = {
 	},
 };
 
-const OnboardingCard = ({ variant, className }: Props): ReactNode => {
+export const FeatureCardUI = ({ variant, className }: Props): ReactNode => {
 	return (
 		<View
 			className={cn("flex aspect-[3_/_4] flex-col gap-3 rounded-2xl border border-slate-7 bg-slate-2 p-6", className)}
@@ -37,7 +37,7 @@ const OnboardingCard = ({ variant, className }: Props): ReactNode => {
 					variant === "share" && "bg-[#FFDCC3]",
 				)}
 			>
-				<CardIcon variant={variant} className="h-full max-h-40" />
+				<FeatureCardIconUI variant={variant} className="h-full max-h-40" />
 			</View>
 			<View className="flex h-24 w-full flex-col gap-2">
 				<Text size="lg" weight="medium">
@@ -50,5 +50,3 @@ const OnboardingCard = ({ variant, className }: Props): ReactNode => {
 		</View>
 	);
 };
-
-export { OnboardingCard };

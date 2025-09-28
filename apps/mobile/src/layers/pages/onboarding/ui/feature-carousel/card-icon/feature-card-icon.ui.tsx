@@ -23,10 +23,8 @@ const iconVariants = {
 	"mona-ca": MonaCaSvg,
 };
 
-const CardIcon: FC<Props> = ({ variant, className }) => {
+export const FeatureCardIconUI: FC<Props> = ({ variant, className }) => {
 	const IconComponent = iconVariants[variant];
 
 	return <IconComponent className={className || ""} />;
 };
-
-export { CardIcon };
