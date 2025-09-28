@@ -1,47 +1,36 @@
-import { cn } from "@mona-ca/tailwind-helpers";
 import { Text } from "@mona-ca/ui/native/components";
 import { ChevronLeftIcon } from "@mona-ca/ui/native/icons";
-import { useNavigation } from "expo-router";
-import type { FC, ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import { Pressable, View } from "react-native";
-import { useLayoutInsets, vh } from "../../../../shared/lib/view";
+import { useLayoutInsets } from "../../../../shared/lib/view";
 import { Wave } from "../../../../shared/ui/wave";
 
 type Props = {
 	title: string;
 	subTitle?: string;
-	className?: string;
-
 	enableBackButton?: boolean;
 	backButtonLabel?: string;
-	onBackButtonPress?: (goBack?: () => void) => void;
-
 	rightContents?: ReactNode;
+	actions: {
+		onBack: () => void;
+	};
 };
 
-export const WAVE_HEADER_HEIGHT = 44 + vh(8.5);
-
-export const WaveHeader: FC<Props> = ({
+export const WaveHeaderUI = ({
 	title,
 	subTitle,
-	className,
 	enableBackButton,
 	backButtonLabel,
 	rightContents,
-	onBackButtonPress,
-}) => {
+	actions,
+}: Props): JSX.Element => {
 	const { top } = useLayoutInsets();
-	const navigation = useNavigation();
-
 	return (
-		<View className={cn("flex w-full flex-col bg-salmon-6", className)} style={{ paddingTop: top, height: top + 44 }}>
+		<View className={"flex w-full flex-col bg-salmon-6"} style={{ paddingTop: top, height: top + 44 }}>
 			<View className="flex h-11 w-full flex-row items-center justify-between">
 				<View className="pl-2">
 					{enableBackButton && (
-						<Pressable
-							className="flex flex-row items-center transition active:opacity-50"
-							onPress={onBackButtonPress ? () => onBackButtonPress(navigation.goBack) : navigation.goBack}
-						>
+						<Pressable className="flex flex-row items-center transition active:opacity-50" onPress={actions.onBack}>
 							<ChevronLeftIcon className="text-white" size={28} />
 							<Text size="md" weight="medium" className="text-white">
 								{backButtonLabel}

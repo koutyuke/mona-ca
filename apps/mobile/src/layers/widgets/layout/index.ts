@@ -1,3 +1,2 @@
-export { Page, AnimatedPage, BODY_MIN_HEIGHT } from "./ui/page";
-export { WaveHeader, WAVE_HEADER_HEIGHT } from "./ui/header/wave-header";
-export { PageTitle } from "./ui/page-title/page-title";
+export { PageFrame, BODY_MIN_HEIGHT } from "./ui/page-frame/page-frame";
+export { WaveHeader, WAVE_HEADER_HEIGHT } from "./ui/wave-header/wave-header";
