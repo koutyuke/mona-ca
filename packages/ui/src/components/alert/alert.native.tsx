@@ -13,7 +13,7 @@ type Props = {
 
 const styleVariants = tv({
 	slots: {
-		body: "flex flex-row gap-2 rounded-lg border p-3",
+		body: "flex flex-row gap-2 rounded-lg border py-3 pr-4 pl-3",
 		icon: "size-6",
 		title: "max-w-full",
 		description: null,

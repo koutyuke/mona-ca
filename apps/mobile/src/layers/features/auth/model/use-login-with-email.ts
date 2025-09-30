@@ -7,11 +7,7 @@ import { login } from "../api/login-with-email";
 import type { LoginFormSchema } from "../model/login-form-schema";
 import { lastLoginMethodAtom } from "./last-login-method-atom";
 
-type Props = {
-	onError: (errorMessage: string | null) => void;
-};
-
-export const useLoginWithEmail = ({ onError }: Props) => {
+export const useLoginWithEmail = () => {
 	const setSessionToken = useSetAtom(sessionTokenAtom);
 	const setLastLoginMethod = useSetAtom(lastLoginMethodAtom);
 	const setUser = useSetAtom(userAtom);
@@ -19,6 +15,7 @@ export const useLoginWithEmail = ({ onError }: Props) => {
 	const [isTurnstileModalClosable, setTurnstileModalClosable] = useState<boolean>(true);
 	const [isTurnstileModalVisible, setTurnstileModalVisible] = useState(false);
 	const [isLoading, setLoading] = useState<boolean>(false);
+	const [error, setError] = useState<string | null>(null);
 
 	const formData = useRef<LoginFormSchema | null>(null);
 
@@ -42,7 +39,7 @@ export const useLoginWithEmail = ({ onError }: Props) => {
 			const loginResult = await login(email, password, turnstileToken);
 
 			if (isErr(loginResult)) {
-				onError(loginResult.value.errorMessage);
+				setError(loginResult.value.errorMessage);
 				setLoading(false);
 				return;
 			}
@@ -53,7 +50,7 @@ export const useLoginWithEmail = ({ onError }: Props) => {
 
 			if (isErr(userResult)) {
 				// TODO: set log
-				onError("ユーザーの取得に失敗しました");
+				setError("ユーザーの取得に失敗しました");
 				setLoading(false);
 				return;
 			}
@@ -79,6 +76,7 @@ export const useLoginWithEmail = ({ onError }: Props) => {
 		isTurnstileModalClosable,
 		isTurnstileModalVisible,
 		isLoading,
+		error,
 
 		startTurnstileVerification,
 		completeTurnstileVerification,

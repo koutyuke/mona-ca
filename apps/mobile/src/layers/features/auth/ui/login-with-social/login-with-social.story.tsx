@@ -18,3 +18,7 @@ export const Default: Story = {
 export const PendingGoogle: Story = {
 	args: __DEV_LoginWithSocial.props.pendingGoogle(),
 };
+
+export const WithError: Story = {
+	args: __DEV_LoginWithSocial.props.error(),
+};

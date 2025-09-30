@@ -10,6 +10,7 @@ export const __DEV_LoginWithSocial = {
 	props: {
 		default: (): ComponentProps<typeof LoginWithSocialUI> => ({
 			pendingProvider: null,
+			error: null,
 			actions: {
 				onPressDiscord: noop,
 				onPressGoogle: noop,
@@ -17,6 +18,15 @@ export const __DEV_LoginWithSocial = {
 		}),
 		pendingGoogle: (): ComponentProps<typeof LoginWithSocialUI> => ({
 			pendingProvider: "google",
+			error: null,
+			actions: {
+				onPressDiscord: noop,
+				onPressGoogle: noop,
+			},
+		}),
+		error: (): ComponentProps<typeof LoginWithSocialUI> => ({
+			pendingProvider: null,
+			error: "エラーが発生しました",
 			actions: {
 				onPressDiscord: noop,
 				onPressGoogle: noop,

@@ -35,15 +35,9 @@ const createDefaultSlots = () => ({
 });
 
 export const Default: Story = {
-	args: {
-		errorMessage: null,
-	},
 	render: args => <LoginPageUI {...args} slots={createDefaultSlots()} />,
 };
 
 export const WithError: Story = {
-	args: {
-		errorMessage: "メールアドレスまたはパスワードが正しくありません",
-	},
 	render: args => <LoginPageUI {...args} slots={createDefaultSlots()} />,
 };

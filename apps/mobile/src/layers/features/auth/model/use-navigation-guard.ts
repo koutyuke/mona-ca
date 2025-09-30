@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { accountAssociationSessionTokenAtom, isAuthenticatedAtom } from "../../../entities/session";
+import { hasAccountAssociationSessionTokenAtom, hasSessionTokenAtom } from "../../../entities/session";
 import { userAtom } from "../../../entities/user";
 import { visitPersonalizePageFlagAtom } from "./visit-personalize-page-flag-atom";
 
@@ -16,8 +16,8 @@ type GuardState =
 	  };
 
 export const useNavigationGuard = (): GuardState => {
-	const isAuthenticated = useAtomValue(isAuthenticatedAtom);
-	const accountAssociationSessionTokenState = useAtomValue(accountAssociationSessionTokenAtom);
+	const hasSessionToken = useAtomValue(hasSessionTokenAtom);
+	const hasAccountAssociationSessionToken = useAtomValue(hasAccountAssociationSessionTokenAtom);
 	const userState = useAtomValue(userAtom);
 	const visitPersonalizePageFlag = useAtomValue(visitPersonalizePageFlagAtom);
 
@@ -28,8 +28,8 @@ export const useNavigationGuard = (): GuardState => {
 		};
 	}
 
-	if (isAuthenticated) {
-		if (userState.data && !userState.data.emailVerified) {
+	if (hasSessionToken) {
+		if (userState.data) {
 			if (visitPersonalizePageFlag) {
 				return {
 					loading: false,
@@ -37,19 +37,26 @@ export const useNavigationGuard = (): GuardState => {
 				};
 			}
 
+			if (!userState.data.emailVerified) {
+				return {
+					loading: false,
+					data: "emailVerification",
+				};
+			}
+
 			return {
 				loading: false,
-				data: "emailVerification",
+				data: "app",
 			};
 		}
 
 		return {
 			loading: false,
-			data: "app",
+			data: "unauthenticated",
 		};
 	}
 
-	if (accountAssociationSessionTokenState) {
+	if (hasAccountAssociationSessionToken) {
 		return {
 			loading: false,
 			data: "accountAssociation",

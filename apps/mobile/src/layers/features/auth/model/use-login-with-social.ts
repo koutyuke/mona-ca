@@ -1,20 +1,18 @@
 import { isErr } from "@mona-ca/core/utils";
 import { useSetAtom } from "jotai";
 import { useState } from "react";
-import { accountAssociationSessionTokenAtom, lastLoginMethodAtom, sessionTokenAtom } from "../../../entities/session";
+import { accountAssociationSessionTokenAtom, sessionTokenAtom } from "../../../entities/session";
 import { loginWithSocial } from "../api/login-with-social";
 import type { SupportProvider } from "../model/support-provider";
+import { lastLoginMethodAtom } from "./last-login-method-atom";
 
-type Props = {
-	onError: (errorMessage: string) => void;
-};
-
-export const useLoginWithSocial = ({ onError }: Props) => {
+export const useLoginWithSocial = () => {
 	const setAccountAssociationToken = useSetAtom(accountAssociationSessionTokenAtom);
 	const setSessionToken = useSetAtom(sessionTokenAtom);
 	const setLastLoginMethod = useSetAtom(lastLoginMethodAtom);
 
 	const [pendingProvider, setPendingProvider] = useState<SupportProvider | null>(null);
+	const [error, setError] = useState<string | null>(null);
 
 	const handleLoginWithSocial = async (provider: SupportProvider) => {
 		setPendingProvider(provider);
@@ -26,7 +24,7 @@ export const useLoginWithSocial = ({ onError }: Props) => {
 				return;
 			}
 
-			onError(result.value.errorMessage);
+			setError(result.value.errorMessage);
 			setPendingProvider(null);
 			return;
 		}
@@ -38,6 +36,7 @@ export const useLoginWithSocial = ({ onError }: Props) => {
 
 	return {
 		pendingProvider,
+		error,
 		loginWithDiscord: () => handleLoginWithSocial("discord"),
 		loginWithGoogle: () => handleLoginWithSocial("google"),
 	};

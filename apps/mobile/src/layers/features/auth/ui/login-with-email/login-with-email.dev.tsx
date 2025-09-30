@@ -10,6 +10,7 @@ export const __DEV_LoginWithEmail = {
 	props: {
 		default: (): ComponentProps<typeof LoginWithEmailUI> => ({
 			loading: false,
+			error: null,
 			actions: {
 				onSubmit: noop,
 			},
@@ -19,6 +20,17 @@ export const __DEV_LoginWithEmail = {
 		}),
 		loading: (): ComponentProps<typeof LoginWithEmailUI> => ({
 			loading: true,
+			error: null,
+			actions: {
+				onSubmit: noop,
+			},
+			slots: {
+				Turnstile: null,
+			},
+		}),
+		error: (): ComponentProps<typeof LoginWithEmailUI> => ({
+			loading: false,
+			error: "メールアドレスまたはパスワードが間違っています。",
 			actions: {
 				onSubmit: noop,
 			},

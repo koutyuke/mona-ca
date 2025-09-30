@@ -7,7 +7,6 @@ import { PageTitle } from "../../../../shared/ui/page-title";
 import { BODY_MIN_HEIGHT, WAVE_HEADER_HEIGHT } from "../../../../widgets/layout";
 
 type Props = {
-	errorMessage: string | null;
 	slots: {
 		AgreementNotice: ReactNode;
 		LastLoginMethod: ReactNode;
@@ -17,7 +16,6 @@ type Props = {
 };
 
 export const LoginPageUI = ({
-	errorMessage,
 	slots: { AgreementNotice, LastLoginMethod, LoginWithEmail, LoginWithSocial },
 }: Props): JSX.Element => {
 	const { top, left, right, bottom } = useLayoutInsets();
@@ -38,17 +36,8 @@ export const LoginPageUI = ({
 				{AgreementNotice}
 			</View>
 			<View className="flex w-full flex-col gap-2">
-				<View className="flex w-full flex-col items-end">
-					{errorMessage && (
-						<Text size="sm" className="text-red-9">
-							{errorMessage}
-						</Text>
-					)}
-					{LastLoginMethod}
-				</View>
-
+				<View className="flex w-full flex-col items-end">{LastLoginMethod}</View>
 				{LoginWithEmail}
-
 				<View className="flex h-8 w-full flex-row items-center gap-4">
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
 					<Text size="sm" className="text-slate-9 leading-[18px]" weight="medium">
@@ -56,9 +45,7 @@ export const LoginPageUI = ({
 					</Text>
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
 				</View>
-
 				{LoginWithSocial}
-
 				<Link href="/(auth)/signup" asChild>
 					<Pressable className="group self-end">
 						<Text size="sm" className="text-salmon-9 transition-colors group-active:text-salmon-11">

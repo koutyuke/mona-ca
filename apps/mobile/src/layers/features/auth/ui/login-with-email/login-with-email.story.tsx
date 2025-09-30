@@ -18,3 +18,7 @@ export const Default: Story = {
 export const Loading: Story = {
 	args: __DEV_LoginWithEmail.props.loading(),
 };
+
+export const WithError: Story = {
+	args: __DEV_LoginWithEmail.props.error(),
+};

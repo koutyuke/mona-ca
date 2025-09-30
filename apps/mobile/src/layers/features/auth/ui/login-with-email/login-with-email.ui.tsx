@@ -1,14 +1,15 @@
 import { valibotResolver } from "@hookform/resolvers/valibot";
-import { Button, InputWrapper, Text, TextInput } from "@mona-ca/ui/native/components";
+import { Alert, Button, InputWrapper, Text, TextInput } from "@mona-ca/ui/native/components";
 import { EmailIcon, PasswordIcon } from "@mona-ca/ui/native/icons";
 import { Link } from "expo-router";
-import type { ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, View } from "react-native";
 import { type LoginFormSchema, loginFormSchema } from "../../model/login-form-schema";
 
 type Props = {
 	loading: boolean;
+	error: string | null;
 	actions: {
 		onSubmit: (data: LoginFormSchema) => void;
 	};
@@ -17,7 +18,12 @@ type Props = {
 	};
 };
 
-export const LoginWithEmailUI = ({ actions: { onSubmit }, slots: { Turnstile }, loading }: Props) => {
+export const LoginWithEmailUI = ({
+	loading,
+	error,
+	actions: { onSubmit },
+	slots: { Turnstile },
+}: Props): JSX.Element => {
 	const { control, trigger, getValues } = useForm({
 		resolver: valibotResolver(loginFormSchema),
 		defaultValues: {
@@ -29,11 +35,12 @@ export const LoginWithEmailUI = ({ actions: { onSubmit }, slots: { Turnstile }, 
 
 	return (
 		<View className="flex w-full flex-col gap-2">
+			{error && <Alert type="error" title={error} />}
 			<Controller
 				name="email"
 				control={control}
-				render={({ field: { onBlur, onChange, value, ref }, fieldState: { error } }) => (
-					<InputWrapper label="メールアドレス" error={error?.message ?? ""}>
+				render={({ field: { onBlur, onChange, value, ref }, fieldState: { error: validationError } }) => (
+					<InputWrapper label="メールアドレス" error={validationError?.message ?? ""}>
 						<TextInput
 							ref={ref}
 							placeholder="Email"
@@ -48,8 +55,8 @@ export const LoginWithEmailUI = ({ actions: { onSubmit }, slots: { Turnstile }, 
 			<Controller
 				name="password"
 				control={control}
-				render={({ field: { onBlur, onChange, value, ref }, fieldState: { error } }) => (
-					<InputWrapper label="パスワード" error={error?.message ?? ""}>
+				render={({ field: { onBlur, onChange, value, ref }, fieldState: { error: validationError } }) => (
+					<InputWrapper label="パスワード" error={validationError?.message ?? ""}>
 						<TextInput
 							ref={ref}
 							placeholder="Password"

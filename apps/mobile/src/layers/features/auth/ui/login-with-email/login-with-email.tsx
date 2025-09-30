@@ -3,23 +3,21 @@ import { TurnstileFormUI } from "../turnstile/turnstile-form.ui";
 import { TurnstileModalUI } from "../turnstile/turnstile-modal.ui";
 import { LoginWithEmailUI } from "./login-with-email.ui";
 
-type Props = {
-	onError: (errorMessage: string | null) => void;
-};
-
-export const LoginWithEmail = ({ onError }: Props) => {
+export const LoginWithEmail = () => {
 	const {
 		isTurnstileModalClosable,
 		isTurnstileModalVisible,
 		isLoading,
+		error,
 		startTurnstileVerification,
 		completeTurnstileVerification,
 		closeTurnstileModal,
-	} = useLoginWithEmail({ onError });
+	} = useLoginWithEmail();
 
 	return (
 		<LoginWithEmailUI
 			loading={isLoading}
+			error={error}
 			actions={{ onSubmit: startTurnstileVerification }}
 			slots={{
 				Turnstile: (
