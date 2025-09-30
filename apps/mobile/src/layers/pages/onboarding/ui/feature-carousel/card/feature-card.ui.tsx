@@ -12,15 +12,15 @@ type Props = {
 const textVariants = {
 	"mona-ca": {
 		title: "mona-ca",
-		description: "mona-ca は、生理をもっとわかりやすく・共有しやすくするためのアプリです",
+		description: "生理をもっとわかりやすく・共有しやすくするためのアプリです。",
 	},
 	customize: {
 		title: "Customize",
-		description: "共有内容やホーム画面の表示レイアウトもすべて自分好みにカスタマイズできます",
+		description: "共有内容や画面レイアウトなどを自由にカスタマイズできます。",
 	},
 	share: {
 		title: "Share",
-		description: "あなたの周期を予測して信頼できる人にかんたんに共有することができます",
+		description: "周期や体調、日用品などをかんたんに共有することができます。",
 	},
 };
 
@@ -43,7 +43,7 @@ export const FeatureCardUI = ({ variant, className }: Props): ReactNode => {
 				<Text size="lg" weight="medium">
 					{textVariants[variant].title}
 				</Text>
-				<Text size="xs" weight="regular" className="text-slate-11">
+				<Text weight="regular" className="text-slate-11">
 					{textVariants[variant].description}
 				</Text>
 			</View>

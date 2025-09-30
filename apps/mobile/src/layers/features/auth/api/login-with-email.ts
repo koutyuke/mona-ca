@@ -49,7 +49,7 @@ export const login = async (
 
 	if (status === 429) {
 		return err("TOO_MANY_REQUESTS", {
-			errorMessage: "リクエストが多すぎます\n時間をおいて再度お試しください",
+			errorMessage: "リクエストが多すぎます。時間をおいて再度お試しください",
 		});
 	}
 
