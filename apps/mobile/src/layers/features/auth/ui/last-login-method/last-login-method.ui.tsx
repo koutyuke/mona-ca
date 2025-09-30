@@ -12,7 +12,7 @@ export const LastLoginMethodUI = ({ method }: Props) => {
 	}
 
 	return (
-		<Text size="xs" className="text-slate-11">
+		<Text size="sm" className="text-slate-11">
 			前回のログイン方法: {lastLoginMethodLabels[method]}
 		</Text>
 	);

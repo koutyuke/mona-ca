@@ -9,10 +9,10 @@ type Props = {
 
 export const AgreementNoticeUI = ({ actions: { onPressPrivacyPolicy, onPressTermsOfService } }: Props) => {
 	return (
-		<Text size="xs" className="w-full text-slate-9">
+		<Text size="sm" className="w-full text-slate-9">
 			※ アプリのご利用を持って、
 			<Text
-				size="xs"
+				size="sm"
 				className="text-blue-9 transition-colors active:text-blue-11"
 				onPress={onPressTermsOfService}
 				suppressHighlighting
@@ -21,7 +21,7 @@ export const AgreementNoticeUI = ({ actions: { onPressPrivacyPolicy, onPressTerm
 			</Text>
 			および
 			<Text
-				size="xs"
+				size="sm"
 				className="text-blue-9 transition-colors active:text-blue-11"
 				onPress={onPressPrivacyPolicy}
 				suppressHighlighting

@@ -43,7 +43,7 @@ export const WaveHeaderUI = ({
 						{title}
 					</Text>
 					{subTitle && (
-						<Text size="xs" className="text-white">
+						<Text size="sm" className="text-white">
 							{subTitle}
 						</Text>
 					)}

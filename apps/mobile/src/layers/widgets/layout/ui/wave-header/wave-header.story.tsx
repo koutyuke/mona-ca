@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { WaveHeader } from "./wave-header";
 
 const meta: Meta<typeof WaveHeader> = {
-	title: "Widgets/Layout/Header/WaveHeader",
+	title: "Widgets/Layout/WaveHeader",
 	component: WaveHeader,
 };
 

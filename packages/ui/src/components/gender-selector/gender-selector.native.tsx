@@ -22,12 +22,12 @@ const styleVariants = tv({
 		isSelected: {
 			true: {
 				pressable: "bg-salmon-9",
-				icon: "stroke-white",
+				icon: "color-white",
 				text: "text-white",
 			},
 			false: {
 				pressable: "bg-slate-3",
-				icon: "stroke-slate-9",
+				icon: "color-slate-9",
 				text: "text-slate-9",
 			},
 		},

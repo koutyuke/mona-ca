@@ -22,21 +22,24 @@ cssInterop(RNTextInput, {
 
 const variants = tv({
 	slots: {
-		inputWrapper: "flex w-full flex-row items-center border border-slate-7 bg-slate-2 transition",
+		inputWrapper: "flex w-full flex-row items-center overflow-hidden border border-slate-7 bg-slate-2 transition",
 		input: "flex-1 font-kiwi-maru-regular text-slate-11",
 		iconWrapper: "flex h-full items-center justify-center overflow-hidden",
+		secureIconWrapper: "flex h-full items-center justify-center overflow-hidden",
 	},
 	variants: {
 		size: {
 			sm: {
-				inputWrapper: "h-9 gap-1.5 rounded-lg px-2",
-				input: "size-5 text-[16px] leading-[22px]",
+				inputWrapper: "h-9 gap-1.5 rounded-lg pr-2 pl-2",
+				input: "size-5 text-[15px] leading-[20px]",
 				iconWrapper: "w-5",
+				secureIconWrapper: "px-2",
 			},
 			md: {
-				inputWrapper: "h-12 gap-2 rounded-xl px-3",
-				input: "text-[18px] leading-[25px]",
+				inputWrapper: "h-12 gap-2 rounded-xl pr-3 pl-3",
+				input: "text-[17px] leading-[22.5px]",
 				iconWrapper: "w-6",
+				secureIconWrapper: "px-3",
 			},
 		},
 		disabled: {
@@ -53,6 +56,11 @@ const variants = tv({
 		focused: {
 			true: {
 				inputWrapper: "border-blue-8",
+			},
+		},
+		credentials: {
+			true: {
+				inputWrapper: "pr-0",
 			},
 		},
 	},
@@ -90,7 +98,8 @@ const TextInput: FC<Props> = ({
 		inputWrapper: inputWrapperStyle,
 		input: inputStyle,
 		iconWrapper: iconWrapperStyle,
-	} = variants({ size, focused: isFocus, disabled, error });
+		secureIconWrapper: secureIconWrapperStyle,
+	} = variants({ size, focused: isFocus, disabled, error, credentials });
 
 	useImperativeHandle(ref, () => inputRef.current!, []);
 
@@ -125,7 +134,7 @@ const TextInput: FC<Props> = ({
 						onPress={() => {
 							setShowSecureText(!isShowSecureText);
 						}}
-						className={iconWrapperStyle({ class: "h-full" })}
+						className={secureIconWrapperStyle()}
 					>
 						{isShowSecureText ? (
 							<EyeCloseIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />

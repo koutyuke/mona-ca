@@ -3,7 +3,7 @@ import type { ReactNode, Ref } from "react";
 import { Text as RNText, type TextProps } from "react-native";
 
 type Props = Omit<TextProps, "children"> & {
-	size?: "xl" | "lg" | "md" | "sm" | "xs" | "2xs";
+	size?: "xl" | "lg" | "md" | "sm" | "xs";
 	children?: ReactNode;
 	truncated?: boolean;
 	className?: string;
@@ -15,12 +15,11 @@ const variants = tv({
 	base: "text-slate-12",
 	variants: {
 		size: {
-			xl: "text-[36px] leading-[44px]", // page title
-			lg: "text-[24px] leading-[30px]", // section title
-			md: "text-[18px] leading-[25px]", // base text
-			sm: "text-[16px] leading-[22px]", // secondary text
-			xs: "text-sm", // tertiary text, footnote, caption
-			"2xs": "text-xs", // tab name
+			xl: "text-[34px] leading-[42px]", // page title
+			lg: "text-[22px] leading-[28px]", // section title
+			md: "text-[17px] leading-[22px]", // base text
+			sm: "text-[15px] leading-[19px]", // secondary text
+			xs: "text-xs", // tab name
 		},
 		weight: {
 			light: "font-kiwi-maru-light",
@@ -34,14 +33,12 @@ const variants = tv({
  * The `Text` component is used to display text with different levels and weights.
  *
  * @param {Props} props - Properties for the `Text` component.
- * @param {"xl" | "lg" | "md" | "sm" | "xs" | "2xs"} [props.level="md"] - Specifies the level of the text.
- * - `xl`: Large text for page titles
- * - `lg`: Text for section titles
- * - `md`: Base text
- * - `sm`: Secondary text
- * - `xs`: Tertiary text, footnotes, captions
- * - `2xs`: Tab names
- *
+ * @param {"xl" | "lg" | "md" | "sm" | "xs"} [props.level="md"] - Specifies the level of the text. (17px)
+ * - `xl`: Large text for page titles (34px)
+ * - `lg`: Text for section titles (22px)
+ * - `md`: Base text (17px)
+ * - `sm`: Secondary text (15px)
+ * - `xs`: Tab name (13px)
  * @param {"light" | "regular" | "medium"} [props.weight="regular"] - Specifies the weight of the text.
  * - `light`: Light font
  * - `regular`: Regular font

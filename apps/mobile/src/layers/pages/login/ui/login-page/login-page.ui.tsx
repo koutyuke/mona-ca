@@ -40,7 +40,7 @@ export const LoginPageUI = ({
 			<View className="flex w-full flex-col gap-2">
 				<View className="flex w-full flex-col items-end">
 					{errorMessage && (
-						<Text size="xs" className="text-red-9">
+						<Text size="sm" className="text-red-9">
 							{errorMessage}
 						</Text>
 					)}
@@ -51,7 +51,7 @@ export const LoginPageUI = ({
 
 				<View className="flex h-8 w-full flex-row items-center gap-4">
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
-					<Text size="xs" className="text-slate-9 leading-[18px]" weight="medium">
+					<Text size="sm" className="text-slate-9 leading-[18px]" weight="medium">
 						または
 					</Text>
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
@@ -61,7 +61,7 @@ export const LoginPageUI = ({
 
 				<Link href="/(auth)/signup" asChild>
 					<Pressable className="group self-end">
-						<Text size="xs" className="text-salmon-9 transition-colors group-active:text-salmon-11">
+						<Text size="sm" className="text-salmon-9 transition-colors group-active:text-salmon-11">
 							アカウントの新規登録はこちら
 						</Text>
 					</Pressable>
