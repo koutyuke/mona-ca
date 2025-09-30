@@ -1,14 +1,14 @@
 import { atomEffect } from "jotai-effect";
-import { isAuthenticatedAtom } from "../../../session";
+import { hasSessionTokenAtom } from "../../../session";
 import { queryAtom } from "./query-atom";
 import { lastUpdatedAtAtom, userOfflineOutboxAtom, userPersistedAtom } from "./storage-atom";
 
 export const syncUserToStorageEffectAtom = atomEffect((get, set) => {
-	const isAuthenticated = get(isAuthenticatedAtom);
+	const hasSessionToken = get(hasSessionTokenAtom);
 	const q = get(queryAtom);
 	const lastSyncedDataUpdatedAt = get(lastUpdatedAtAtom);
 
-	if (!isAuthenticated) {
+	if (!hasSessionToken) {
 		set(userPersistedAtom, null);
 		set(lastUpdatedAtAtom, 0);
 		return;

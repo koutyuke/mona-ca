@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 import { RESET } from "jotai/utils";
-import { isAuthenticatedAtom } from "../../../session";
+import { hasSessionTokenAtom } from "../../../session";
 import type { UpdateUserDto, User } from "../user";
 import { syncUserToStorageEffectAtom } from "./effect-atom";
 import { queryAtom } from "./query-atom";
@@ -34,12 +34,12 @@ export const userAtom = atom(
 	(get): UserAtom => {
 		get(syncUserToStorageEffectAtom);
 
-		const isAuthenticated = get(isAuthenticatedAtom);
+		const hasSessionToken = get(hasSessionTokenAtom);
 		const q = get(queryAtom);
 		const persisted = get(userPersistedAtom);
 		const outbox = get(userOfflineOutboxAtom);
 
-		if (!isAuthenticated) {
+		if (!hasSessionToken) {
 			return {
 				data: null,
 				loading: false,

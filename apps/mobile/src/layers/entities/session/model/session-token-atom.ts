@@ -3,4 +3,4 @@ import { atomWithSecureStorage, secureStorageKeys } from "../../../shared/lib/st
 
 export const sessionTokenAtom = atomWithSecureStorage<string | null>(secureStorageKeys.sessionToken, null);
 
-export const isAuthenticatedAtom = atom(get => get(sessionTokenAtom) !== null);
+export const hasSessionTokenAtom = atom(get => get(sessionTokenAtom) !== null);
