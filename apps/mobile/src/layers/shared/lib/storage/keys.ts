@@ -7,7 +7,6 @@ export const globalStorageKeys = {
 	theme: "THEME",
 	lastLoginMethod: "LAST_LOGIN_METHOD",
 	user: "USER",
-	visitPersonalizePageFlag: "VISIT_PERSONALIZE_PAGE_FLAG",
 } as const satisfies Record<string, string>;
 
 export const userStorageKeys = {

@@ -5,7 +5,6 @@ import { type FC, type ReactNode, useEffect } from "react";
 import { accountAssociationSessionTokenAtom, sessionTokenAtom } from "../../entities/session";
 import { themeAtom } from "../../entities/theme";
 import { userAtom } from "../../entities/user";
-import { visitPersonalizePageFlagAtom } from "../../features/auth";
 import { subscribeToAuthReset } from "../../shared/lib/auth";
 import type { globalStorageKeys, secureStorageKeys } from "../../shared/lib/storage";
 import { useResetJotaiStore } from "./resettable-jotai-provider";
@@ -23,7 +22,6 @@ type ExcludeResettableAtom = "lastLoginMethod";
 const globalStorageAtom: Record<Exclude<keyof typeof globalStorageKeys, ExcludeResettableAtom>, ResettableAtom> = {
 	theme: themeAtom,
 	user: userAtom,
-	visitPersonalizePageFlag: visitPersonalizePageFlagAtom,
 } as const;
 
 const resettableAtoms = [...Object.values(secureStorageAtom), ...Object.values(globalStorageAtom)] as const;

@@ -1,6 +1,3 @@
-import { atomWithGlobalStorage, globalStorageKeys } from "../../../shared/lib/storage";
+import { atom } from "jotai";
 
-export const visitPersonalizePageFlagAtom = atomWithGlobalStorage<boolean>(
-	globalStorageKeys.visitPersonalizePageFlag,
-	false,
-);
+export const visitPersonalizePageFlagAtom = atom<boolean>(false);
