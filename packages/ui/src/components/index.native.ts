@@ -8,3 +8,4 @@ export { Radio } from "./radio/index.native";
 export { Switch } from "./switch/index.native";
 export { Text } from "./text/index.native";
 export { TextInput } from "./text-input/index.native";
+export { Alert } from "./alert/index.native";

@@ -16,13 +16,17 @@ import {
 	ChevronUpIcon,
 	CodeIcon,
 	EmailIcon,
+	ErrorIcon,
 	EyeCloseIcon,
 	EyeIcon,
 	GoogleIcon,
+	InfoIcon,
 	PasswordIcon,
 	PenIcon,
 	PenOffIcon,
+	SuccessIcon,
 	UserIcon,
+	WarningIcon,
 	WhiteDiscordIcon,
 } from "./icons.native";
 import type { IconProps } from "./type";
@@ -32,7 +36,7 @@ const meta: Meta = {
 	args: {
 		size: 48,
 		strokeWidth: 2,
-		className: "stroke-slate-12",
+		className: "color-slate-9",
 	},
 	argTypes: {
 		className: {
@@ -163,5 +167,18 @@ export const Google: Story = {
 	},
 	render: args => {
 		return <GoogleIcon {...args} />;
+	},
+};
+
+export const Alert: Story = {
+	render: args => {
+		return (
+			<View className="flex flex-col gap-2">
+				<InfoIcon {...args} />
+				<SuccessIcon {...args} />
+				<WarningIcon {...args} />
+				<ErrorIcon {...args} />
+			</View>
+		);
 	},
 };
