@@ -7,7 +7,9 @@
     "icon": "./assets/images/icon.png",
     "scheme": "mona-ca",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mona-ca.mobile",
@@ -21,7 +23,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFB7AE"
-      }
+      },
+      "package": "com.monaca.mobile"
     },
     "web": {
       "bundler": "metro",
@@ -29,7 +32,16 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "../../node_modules/@expo-google-fonts/kiwi-maru/300Light/KiwiMaru_300Light.ttf",
+            "../../node_modules/@expo-google-fonts/kiwi-maru/400Regular/KiwiMaru_400Regular.ttf",
+            "../../node_modules/@expo-google-fonts/kiwi-maru/500Medium/KiwiMaru_500Medium.ttf"
+          ]
+        }
+      ],
       [
         "expo-splash-screen",
         {
