@@ -12,7 +12,7 @@ type Props = {
 const textVariants = {
 	"mona-ca": {
 		title: "mona-ca",
-		description: "生理をもっとわかりやすく・共有しやすくするためのアプリです。",
+		description: "生理をもっとわかりやすく、共有しやすくするためのアプリです。",
 	},
 	customize: {
 		title: "Customize",
