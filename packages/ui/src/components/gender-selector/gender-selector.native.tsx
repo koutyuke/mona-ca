@@ -34,38 +34,48 @@ const styleVariants = tv({
 	},
 });
 
-const GenderSelector: FC<GenderSelectorProps> = ({ value = "woman", onChange = () => {}, className }) => {
-	const [gender, setGender] = useState<Gender>(value);
+const label = {
+	man: "生理がこない",
+	woman: "生理がくる",
+};
+
+const GenderSelector: FC<GenderSelectorProps> = ({ value, onChange = () => {}, className }) => {
+	const [gender, setGender] = useState<Gender | null>(value ?? null);
 
 	const { pressable: pressableStyle, icon: iconStyle, text: textStyle } = styleVariants();
 
 	return (
-		<View className={cn("flex w-full flex-row gap-4", className)}>
-			<Pressable
-				className={pressableStyle({ isSelected: gender === "woman" })}
-				onPress={() => {
-					onChange("woman");
-					setGender("woman");
-				}}
-			>
-				<CalendarHeartIcon className={iconStyle({ isSelected: gender === "woman" })} />
-				<Text size="sm" className={textStyle({ isSelected: gender === "woman" })}>
-					生理がくる
-				</Text>
-			</Pressable>
+		<View className={cn("flex w-full flex-col items-center gap-2", className)}>
+			<View className="flex w-full flex-row gap-4">
+				<Pressable
+					className={pressableStyle({ isSelected: gender === "woman" })}
+					onPress={() => {
+						setGender("woman");
+						onChange("woman");
+					}}
+				>
+					<CalendarHeartIcon className={iconStyle({ isSelected: gender === "woman" })} />
+					<Text size="sm" className={textStyle({ isSelected: gender === "woman" })}>
+						{label.woman}
+					</Text>
+				</Pressable>
 
-			<Pressable
-				className={pressableStyle({ isSelected: gender === "man" })}
-				onPress={() => {
-					onChange("man");
-					setGender("man");
-				}}
-			>
-				<CalendarXIcon className={iconStyle({ isSelected: gender === "man" })} />
-				<Text size="sm" className={textStyle({ isSelected: gender === "man" })}>
-					生理がこない
-				</Text>
-			</Pressable>
+				<Pressable
+					className={pressableStyle({ isSelected: gender === "man" })}
+					onPress={() => {
+						setGender("man");
+						onChange("man");
+					}}
+				>
+					<CalendarXIcon className={iconStyle({ isSelected: gender === "man" })} />
+					<Text size="sm" className={textStyle({ isSelected: gender === "man" })}>
+						{label.man}
+					</Text>
+				</Pressable>
+			</View>
+			<Text size="sm" className="text-slate-9">
+				{gender ? `「${label[gender]}」を選択中` : "未選択"}
+			</Text>
 		</View>
 	);
 };
