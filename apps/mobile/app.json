@@ -7,9 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "mona-ca",
     "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mona-ca.mobile",
