@@ -1,14 +1,14 @@
 import type { ComponentProps } from "react";
-import { LoginWithSocialUI } from "./login-with-social.ui";
+import { AuthWithSocialUI } from "./auth-with-social.ui";
 
 const noop = () => {};
 
-export const __DEV_LoginWithSocial = {
+export const __DEV_AuthWithSocial = {
 	components: {
-		UI: LoginWithSocialUI,
+		UI: AuthWithSocialUI,
 	},
 	props: {
-		default: (): ComponentProps<typeof LoginWithSocialUI> => ({
+		default: (): ComponentProps<typeof AuthWithSocialUI> => ({
 			pendingProvider: null,
 			error: null,
 			actions: {
@@ -16,7 +16,7 @@ export const __DEV_LoginWithSocial = {
 				onPressGoogle: noop,
 			},
 		}),
-		pendingGoogle: (): ComponentProps<typeof LoginWithSocialUI> => ({
+		pendingGoogle: (): ComponentProps<typeof AuthWithSocialUI> => ({
 			pendingProvider: "google",
 			error: null,
 			actions: {
@@ -24,7 +24,7 @@ export const __DEV_LoginWithSocial = {
 				onPressGoogle: noop,
 			},
 		}),
-		error: (): ComponentProps<typeof LoginWithSocialUI> => ({
+		error: (): ComponentProps<typeof AuthWithSocialUI> => ({
 			pendingProvider: null,
 			error: "エラーが発生しました",
 			actions: {

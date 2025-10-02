@@ -31,7 +31,7 @@ export const LoginPageUI = ({
 			className="flex flex-1 flex-col gap-6 bg-slate-1"
 		>
 			<PageTitle>Login</PageTitle>
-			<View className="flex w-full flex-1 flex-col gap-2">
+			<View className="mb-6 flex w-full flex-1 flex-col gap-2">
 				<Text className="text-slate-12">お帰りなさい、 また会えましたね!</Text>
 				{AgreementNotice}
 			</View>

@@ -12,7 +12,7 @@ type Props = {
 	};
 };
 
-export const LoginWithSocialUI = ({ pendingProvider, error, actions: { onPressGoogle, onPressDiscord } }: Props) => {
+export const AuthWithSocialUI = ({ pendingProvider, error, actions: { onPressGoogle, onPressDiscord } }: Props) => {
 	return (
 		<View className="flex w-full flex-col gap-2">
 			{error && <Alert type="error" title={error} />}
