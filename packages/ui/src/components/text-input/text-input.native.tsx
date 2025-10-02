@@ -137,9 +137,9 @@ const TextInput: FC<Props> = ({
 						className={secureIconWrapperStyle()}
 					>
 						{isShowSecureText ? (
-							<EyeCloseIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />
-						) : (
 							<EyeIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />
+						) : (
+							<EyeCloseIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />
 						)}
 					</Pressable>
 				)}
