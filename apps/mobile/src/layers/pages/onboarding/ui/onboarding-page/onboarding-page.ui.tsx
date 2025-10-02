@@ -3,7 +3,7 @@ import { Button, Text } from "@mona-ca/ui/native/components";
 import { Link } from "expo-router";
 import { View } from "react-native";
 import { useLayoutInsets } from "../../../../shared/lib/view";
-import { BODY_MIN_HEIGHT } from "../../../../widgets/layout";
+import { BODY_MIN_HEIGHT, BODY_TOP_PADDING } from "../../../../widgets/layout";
 import { FeatureCarouselUI } from "../feature-carousel/feature-carousel.ui";
 
 export const OnboardingPageUI = () => {
@@ -12,7 +12,7 @@ export const OnboardingPageUI = () => {
 	return (
 		<View
 			className="flex min-h-full flex-col justify-between gap-8 bg-slate-1"
-			style={{ paddingTop: top + 32, paddingBottom: bottom, minHeight: BODY_MIN_HEIGHT }}
+			style={{ paddingTop: top + BODY_TOP_PADDING, paddingBottom: bottom, minHeight: BODY_MIN_HEIGHT }}
 		>
 			<FeatureCarouselUI />
 			<View className="flex flex-col items-center gap-2">

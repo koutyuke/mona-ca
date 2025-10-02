@@ -13,7 +13,7 @@ type Props = {
 	rightContents?: ReactNode;
 };
 
-export const WAVE_HEADER_HEIGHT = 44 + vh(8.5);
+export const WAVE_HEADER_HEIGHT = vh(8.5);
 
 export const WaveHeader = ({
 	title,

@@ -4,7 +4,7 @@ import type { JSX, ReactNode } from "react";
 import { Pressable, View } from "react-native";
 import { useLayoutInsets } from "../../../../shared/lib/view";
 import { PageTitle } from "../../../../shared/ui/page-title";
-import { BODY_MIN_HEIGHT, WAVE_HEADER_HEIGHT } from "../../../../widgets/layout";
+import { BODY_MIN_HEIGHT, BODY_TOP_PADDING, WAVE_HEADER_HEIGHT } from "../../../../widgets/layout";
 
 type Props = {
 	slots: {
@@ -22,7 +22,7 @@ export const LoginPageUI = ({
 	return (
 		<View
 			style={{
-				paddingTop: top + WAVE_HEADER_HEIGHT,
+				paddingTop: top + WAVE_HEADER_HEIGHT + BODY_TOP_PADDING,
 				paddingLeft: left,
 				paddingRight: right,
 				paddingBottom: bottom,
@@ -31,7 +31,7 @@ export const LoginPageUI = ({
 			className="flex flex-1 flex-col gap-6 bg-slate-1"
 		>
 			<PageTitle>Login</PageTitle>
-			<View className="mb-6 flex w-full flex-1 flex-col gap-2">
+			<View className="flex w-full flex-1 flex-col gap-2">
 				<Text className="text-slate-12">お帰りなさい、 また会えましたね!</Text>
 				{AgreementNotice}
 			</View>
@@ -47,7 +47,7 @@ export const LoginPageUI = ({
 				</View>
 				{LoginWithSocial}
 				<Link href="/(auth)/signup" asChild>
-					<Pressable className="group self-end">
+					<Pressable className="group mt-1 self-end">
 						<Text size="sm" className="text-salmon-9 transition-colors group-active:text-salmon-11">
 							アカウントの新規登録はこちら
 						</Text>

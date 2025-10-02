@@ -32,3 +32,5 @@ export const PageFrame = ({ indicatorStyle, scrollIndicatorInsets, className, ch
 };
 
 export const BODY_MIN_HEIGHT = vh(100) - 1;
+
+export const BODY_TOP_PADDING = 24;
