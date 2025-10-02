@@ -71,8 +71,8 @@ export const LoginWithEmailUI = ({
 				)}
 			/>
 			<Link href="/(auth)/forgot-password" asChild>
-				<Pressable className="group">
-					<Text size="sm" className="self-end text-salmon-9 transition-colors group-active:text-salmon-11">
+				<Pressable className="group self-end">
+					<Text size="sm" className="text-salmon-9 transition-colors group-active:text-salmon-11">
 						パスワードをお忘れですか？
 					</Text>
 				</Pressable>
