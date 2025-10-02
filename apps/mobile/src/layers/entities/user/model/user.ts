@@ -1,10 +1,12 @@
+export type Gender = "man" | "woman";
+
 export type User = {
 	id: string;
 	email: string;
 	emailVerified: boolean;
 	name: string;
 	iconUrl: string | null;
-	gender: "man" | "woman";
+	gender: Gender;
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -15,7 +17,7 @@ export type UserDto = {
 	emailVerified: boolean;
 	name: string;
 	iconUrl: string | null;
-	gender: "man" | "woman";
+	gender: Gender;
 	createdAt: string;
 	updatedAt: string;
 };
@@ -23,5 +25,5 @@ export type UserDto = {
 export type UpdateUserDto = {
 	name?: string;
 	iconUrl?: string;
-	gender?: "man" | "woman";
+	gender?: Gender;
 };
