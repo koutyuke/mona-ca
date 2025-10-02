@@ -1,112 +1,92 @@
 import { cn } from "@mona-ca/tailwind-helpers";
-import { cssInterop } from "nativewind";
-import { type ComponentPropsWithoutRef, type FC, memo, useEffect } from "react";
-import Animated, { Easing, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
-import { Rect, Svg } from "react-native-svg";
+import { type FC, useEffect } from "react";
+import { View } from "react-native";
+import Animated, {
+	cancelAnimation,
+	Easing,
+	useAnimatedStyle,
+	useSharedValue,
+	withRepeat,
+	withTiming,
+} from "react-native-reanimated";
 
-const AnimatedRect = Animated.createAnimatedComponent(Rect);
-
-type AnimationRectProps = {
-	index: number;
-} & ComponentPropsWithoutRef<typeof Rect>;
-
-const MIN_OPACITY = 0.2;
-const MAX_OPACITY = 1;
-const OPACITY_RATE = 0.1;
+const MIN_OPACITY = 0.25;
 const DURATION = 1000;
-const DURATION_RATE = 125;
+const HALF_ANGLE = 120;
 
-cssInterop(Svg, {
-	className: {
-		target: "style",
-	},
-});
-
-const AnimationRect: FC<AnimationRectProps> = ({ index, ...props }) => {
-	const initialOpacity = index * OPACITY_RATE;
-	const initialDuration = index * DURATION_RATE;
-
-	const opacity = useSharedValue(initialOpacity);
-
-	useEffect(() => {
-		opacity.value = withTiming(MIN_OPACITY, { duration: initialDuration });
-		const timeout = setTimeout(() => {
-			opacity.value = MAX_OPACITY;
-			opacity.value = withRepeat(
-				withTiming(MIN_OPACITY, { duration: DURATION, easing: Easing.out(Easing.circle) }),
-				-1,
-				false,
-			);
-		}, initialDuration);
-
-		return () => clearTimeout(timeout);
-	}, [opacity, initialDuration]);
-
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	return <AnimatedRect {...props} opacity={opacity as any} />;
-};
+const INDICES = [0, 1, 2, 3, 4, 5, 6, 7];
 
 type LoadingSpinnerProps = {
 	size?: number;
 	color: "gray" | "white" | "black";
 };
 
-const _LoadingSpinner: FC<LoadingSpinnerProps> = ({ size = 24, color = "gray" }) => {
+const colorVariants = {
+	gray: "bg-slate-11",
+	white: "bg-white",
+	black: "bg-black",
+} as const;
+
+export const LoadingSpinner: FC<LoadingSpinnerProps> = ({ size = 32, color = "gray" }) => {
+	const barH = size * 0.33;
+	const barW = size * 0.14;
+
+	const radius = size / 2 - barH / 2;
+
+	const progress = useSharedValue(0);
+
+	useEffect(() => {
+		progress.value = 0;
+		progress.value = withRepeat(withTiming(360, { duration: DURATION, easing: Easing.linear }), -1, false);
+		return () => cancelAnimation(progress);
+	}, [progress]);
+
+	const angleDist = (target: number, base: number) => {
+		"worklet";
+		const d = Math.abs(((target - base + 540) % 360) - 180);
+		return d; // 0..180
+	};
+
+	const falloff = (dist: number, half: number) => {
+		"worklet";
+		if (dist >= half) return 0;
+		const x = dist / half; // 0..1
+		return 0.5 * (1 + Math.cos(Math.PI * x)); // 1..0
+	};
+
 	return (
-		<Svg
-			viewBox="0 0 120 120"
-			className={cn(
-				color === "gray" && "fill-slate-11",
-				color === "white" && "fill-white",
-				color === "black" && "fill-black",
-			)}
-			height={size}
-			width={size}
-		>
-			<AnimationRect
-				index={0}
-				x="78.9454"
-				y="51.1612"
-				width="15"
-				height="40"
-				rx="7.5"
-				transform="rotate(-135 78.9454 51.1612)"
-			/>
-			<AnimationRect index={1} x="80" y="67.5" width="15" height="40" rx="7.5" transform="rotate(-90 80 67.5)" />
-			<AnimationRect
-				index={2}
-				x="68.3389"
-				y="79.4454"
-				width="15"
-				height="40"
-				rx="7.5"
-				transform="rotate(-45 68.3389 79.4454)"
-			/>
-			<AnimationRect index={3} x="52" y="80" width="15" height="40" rx="7.5" />
-			<AnimationRect
-				index={4}
-				x="22.377"
-				y="107.73"
-				width="15"
-				height="40"
-				rx="7.5"
-				transform="rotate(-135 22.377 107.73)"
-			/>
-			<AnimationRect index={5} y="67.5" width="15" height="40" rx="7.5" transform="rotate(-90 0 67.5)" />
-			<AnimationRect
-				index={6}
-				x="11.7703"
-				y="22.8769"
-				width="15"
-				height="40"
-				rx="7.5"
-				transform="rotate(-45 11.7703 22.8769)"
-			/>
-			<AnimationRect index={7} x="52" width="15" height="40" rx="7.5" />
-		</Svg>
+		<View style={{ width: size, height: size }}>
+			{INDICES.map(index => {
+				const angle = (360 / INDICES.length) * index;
+				const half = Math.max(1, HALF_ANGLE / 2);
+
+				const barStyle = useAnimatedStyle(() => {
+					const dist = angleDist(angle, progress.value);
+					const w = falloff(dist, half); // 0..1
+					const opacity = MIN_OPACITY + (1 - MIN_OPACITY) * w;
+					return {
+						opacity,
+					};
+				}, [angle, half]);
+				return (
+					<Animated.View
+						key={index}
+						style={[
+							{
+								position: "absolute",
+								top: size / 2 - barH / 2,
+								left: size / 2 - barW / 2,
+								width: barW,
+								height: barH,
+								borderRadius: barW / 2,
+								transform: [{ rotate: `${angle}deg` }, { translateY: -radius }],
+							},
+							barStyle,
+						]}
+						className={cn(colorVariants[color])}
+					/>
+				);
+			})}
+		</View>
 	);
 };
-
-const LoadingSpinner = memo(_LoadingSpinner);
-
-export { LoadingSpinner };

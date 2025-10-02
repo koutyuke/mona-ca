@@ -13,13 +13,17 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	ChevronUp,
+	CircleCheck,
+	CircleX,
 	Eye,
 	EyeOff,
+	Info,
 	KeyRound,
 	Mail,
 	Pen,
 	PenOff,
 	RectangleEllipsis,
+	TriangleAlert,
 	UserRound,
 } from "lucide-react-native";
 import { cssInterop } from "nativewind";
@@ -49,12 +53,17 @@ const interopIcons = [
 	Google,
 	WhiteDiscord,
 	BlueVioletDiscord,
+	Info,
+	CircleCheck,
+	TriangleAlert,
+	CircleX,
 ] as const;
 
 for (const Icon of interopIcons) {
 	cssInterop(Icon, {
 		className: {
 			target: "style",
+			nativeStyleToProp: { width: true, height: true, stroke: true, fill: true },
 		},
 	});
 }
@@ -145,4 +154,20 @@ export const WhiteDiscordIcon: FC<IconProps> = props => {
 
 export const GoogleIcon: FC<IconProps> = props => {
 	return <Google {...props} />;
+};
+
+export const InfoIcon: FC<IconProps> = ({ size, ...otherProps }) => {
+	return <Info size={size ?? 0} {...otherProps} />;
+};
+
+export const SuccessIcon: FC<IconProps> = ({ size, ...otherProps }) => {
+	return <CircleCheck size={size ?? 0} {...otherProps} />;
+};
+
+export const WarningIcon: FC<IconProps> = ({ size, ...otherProps }) => {
+	return <TriangleAlert size={size ?? 0} {...otherProps} />;
+};
+
+export const ErrorIcon: FC<IconProps> = ({ size, ...otherProps }) => {
+	return <CircleX size={size ?? 0} {...otherProps} />;
 };

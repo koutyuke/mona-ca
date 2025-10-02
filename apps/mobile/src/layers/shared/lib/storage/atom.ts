@@ -1,5 +1,5 @@
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import type { ValueOf } from "../types";
+import type { ValueOf } from "../data/types";
 import { createGlobalJSONStorage, createSecureJSONStorage, createUserJSONStorage } from "./json-storage";
 import type { globalStorageKeys } from "./keys";
 import type { secureStorageKeys, userStorageKeys } from "./keys";

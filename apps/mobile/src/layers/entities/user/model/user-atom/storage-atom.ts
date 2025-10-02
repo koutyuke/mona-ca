@@ -1,13 +1,13 @@
 import { atom } from "jotai";
 import type { atomWithStorage } from "jotai/utils";
+import type { ValueOf } from "../../../../shared/lib/data";
 import {
 	type JSONStringifyable,
-	type ValueOf,
 	atomFamilyWithUserStorage,
 	atomWithGlobalStorage,
 	globalStorageKeys,
 	userStorageKeys,
-} from "../../../../shared/lib";
+} from "../../../../shared/lib/storage";
 import type { UpdateUserDto, User } from "../user";
 
 export const lastUpdatedAtAtom = atom<number>(0);

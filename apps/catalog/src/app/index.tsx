@@ -1,6 +1,6 @@
 import { type FC, useEffect } from "react";
 import { Text, View } from "react-native";
-import { useTheme } from "../../../mobile/src/layers/features/theme";
+import { useTheme } from "../../../mobile/src/layers/entities/theme";
 import StoryBookRoot from "../../.storybook/mobile";
 
 const isStoryBookEnabled = process.env.EXPO_PUBLIC_STORYBOOK_ENABLED === "true";

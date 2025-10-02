@@ -46,22 +46,19 @@ export const AllLevels: Story = {
 	render: args => (
 		<View className="flex flex-col gap-2">
 			<Text {...args} size="xl" className="text-slate-12">
-				我々は宇宙人である。We are aliens.
+				我々は宇宙人である。I am an ninja.
 			</Text>
 			<Text {...args} size="lg" className="text-slate-12">
-				宇宙人である。We are aliens.
+				我々は宇宙人である。I am an ninja.
 			</Text>
 			<Text {...args} size="md" className="text-slate-12">
-				宇宙人である。We are aliens.
+				我々は宇宙人である。I am an ninja.
 			</Text>
 			<Text {...args} size="sm" className="text-slate-12">
-				宇宙人である。We are aliens.
+				我々は宇宙人である。I am an ninja.
 			</Text>
 			<Text {...args} size="xs" className="text-slate-12">
-				宇宙人である。We are aliens.
-			</Text>
-			<Text {...args} size="2xs" className="text-slate-12">
-				宇宙人である。We are aliens.
+				我々は宇宙人である。I am an ninja.
 			</Text>
 		</View>
 	),

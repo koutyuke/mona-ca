@@ -3,6 +3,7 @@ import { colors as colorTokens } from "@mona-ca/design-tokens";
 import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 import { createConfigColors, createThemeColorVariables } from "./utils/color";
+import { fontFamily, fontVariables } from "./utils/font";
 
 const { light, dark, ...particular } = colorTokens;
 
@@ -21,11 +22,7 @@ const baseConfig = {
 			...configColors,
 		},
 		extend: {
-			fontFamily: {
-				"kiwi-maru-light": ["KiwiMaru_300Light", "sans-serif"],
-				"kiwi-maru-regular": ["KiwiMaru_400Regular", "sans-serif"],
-				"kiwi-maru-medium": ["KiwiMaru_500Medium", "sans-serif"],
-			},
+			fontFamily,
 		},
 	},
 	plugins: [
@@ -35,6 +32,8 @@ const baseConfig = {
 			addUtilities({
 				".light, [data-theme='light']": themeColorVariables.light,
 				".dark, [data-theme='dark']": themeColorVariables.dark,
+				".ios, [data-platform='ios']": fontVariables.ios,
+				".android, [data-platform='android']": fontVariables.android,
 			});
 		}),
 	],

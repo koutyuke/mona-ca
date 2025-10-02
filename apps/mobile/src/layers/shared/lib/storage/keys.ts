@@ -7,7 +7,6 @@ export const globalStorageKeys = {
 	theme: "THEME",
 	lastLoginMethod: "LAST_LOGIN_METHOD",
 	user: "USER",
-	visitableSetupPage: "VISITABLE_SETUP_PAGE",
 } as const satisfies Record<string, string>;
 
 export const userStorageKeys = {

@@ -1,8 +1,5 @@
 import "../layers/app/styles/global.css";
 
-import { KiwiMaru_300Light, KiwiMaru_400Regular, KiwiMaru_500Medium } from "@expo-google-fonts/kiwi-maru";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -10,9 +7,10 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 export { ErrorBoundary } from "expo-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { View } from "react-native";
 import { AuthResetProvider, ResettableJotaiProvider } from "../layers/app/providers";
 import { queryClient } from "../layers/app/store";
-import { useNavigationGuard } from "../layers/features/navigation-guard";
+import { useNavigationGuard } from "../layers/features/auth";
 import { useNetworkStatus } from "../layers/shared/api";
 
 export const unstable_settings = {
@@ -29,22 +27,13 @@ SplashScreen.setOptions({
 const RootLayoutNav = () => {
 	const navigationGuard = useNavigationGuard();
 
-	const [loaded, error] = useFonts({
-		...FontAwesome.font,
-		KiwiMaru_300Light,
-		KiwiMaru_400Regular,
-		KiwiMaru_500Medium,
-	});
+	useNetworkStatus();
 
 	useEffect(() => {
-		if (loaded && !navigationGuard.loading) {
+		if (!navigationGuard.loading) {
 			SplashScreen.hide();
 		}
-	}, [loaded, navigationGuard.loading]);
-
-	if (error) {
-		console.error(error);
-	}
+	}, [navigationGuard.loading]);
 
 	if (navigationGuard.loading) {
 		return null;
@@ -63,20 +52,20 @@ const RootLayoutNav = () => {
 };
 
 const RootLayout = () => {
-	useNetworkStatus();
-
 	return (
-		<SafeAreaProvider>
-			<KeyboardProvider>
-				<QueryClientProvider client={queryClient}>
-					<ResettableJotaiProvider>
-						<AuthResetProvider>
-							<RootLayoutNav />
-						</AuthResetProvider>
-					</ResettableJotaiProvider>
-				</QueryClientProvider>
-			</KeyboardProvider>
-		</SafeAreaProvider>
+		<View className="ios:ios android:android h-full w-full">
+			<SafeAreaProvider>
+				<KeyboardProvider>
+					<QueryClientProvider client={queryClient}>
+						<ResettableJotaiProvider>
+							<AuthResetProvider>
+								<RootLayoutNav />
+							</AuthResetProvider>
+						</ResettableJotaiProvider>
+					</QueryClientProvider>
+				</KeyboardProvider>
+			</SafeAreaProvider>
+		</View>
 	);
 };
 

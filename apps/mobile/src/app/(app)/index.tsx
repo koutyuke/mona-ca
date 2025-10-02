@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from "react-native";
-import { publishAuthReset } from "../../layers/shared/auth";
+import { publishAuthReset } from "../../layers/shared/lib/auth";
 
 const Index = () => {
 	return (

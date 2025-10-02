@@ -10,11 +10,12 @@ type Props = {
 cssInterop(WaveSvg, {
 	className: {
 		target: "style",
+		nativeStyleToProp: { width: true, height: true, stroke: true, fill: true, color: "fill" },
 	},
 });
 
 const Wave: FC<Props> = ({ className }) => {
-	return <WaveSvg className={twm("aspect-[200_/_17] ", className)} />;
+	return <WaveSvg className={twm("aspect-[200_/_17]", className)} />;
 };
 
 export { Wave };

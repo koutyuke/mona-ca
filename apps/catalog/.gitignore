@@ -19,6 +19,3 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
-
-# ios build files
-ios

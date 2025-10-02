@@ -1,14 +1,14 @@
 import { tv } from "@mona-ca/tailwind-helpers";
 import { LoadingSpinner } from "@mona-ca/ui/native/components";
 import { GoogleIcon } from "@mona-ca/ui/native/icons";
-import { type ComponentPropsWithoutRef, type ElementRef, type Ref, forwardRef } from "react";
+import type { ComponentProps, FC } from "react";
 import { Pressable, Text, View } from "react-native";
 
 type GoogleButtonProps = {
 	fullWidth?: boolean;
 	loading?: boolean;
 	disabled?: boolean;
-} & Omit<ComponentPropsWithoutRef<typeof Pressable>, "disabled" | "className">;
+} & Omit<ComponentProps<typeof Pressable>, "disabled" | "className">;
 
 const styleVariants = tv({
 	slots: {
@@ -37,10 +37,13 @@ const styleVariants = tv({
 	},
 });
 
-const ContinueWithGoogleBtn = (
-	{ fullWidth = false, loading = false, disabled = false, ...props }: GoogleButtonProps,
-	ref: Ref<ElementRef<typeof Pressable>>,
-) => {
+const ContinueWithGoogleButton: FC<GoogleButtonProps> = ({
+	fullWidth = false,
+	loading = false,
+	disabled = false,
+	ref,
+	...props
+}) => {
 	const { body, text, icon } = styleVariants({ fullWidth, disabled, loading });
 	return (
 		<Pressable ref={ref} className={body()} disabled={loading || disabled} {...props}>
@@ -54,7 +57,5 @@ const ContinueWithGoogleBtn = (
 		</Pressable>
 	);
 };
-
-const ContinueWithGoogleButton = forwardRef<ElementRef<typeof Pressable>, GoogleButtonProps>(ContinueWithGoogleBtn);
 
 export { ContinueWithGoogleButton };

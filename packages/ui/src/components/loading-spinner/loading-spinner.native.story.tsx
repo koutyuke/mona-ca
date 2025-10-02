@@ -18,11 +18,13 @@ type Story = StoryObj<typeof LoadingSpinner>;
 
 export const Default: Story = {
 	args: {
-		size: 32,
+		size: 64,
 	},
 	render: args => (
-		<View className="flex h-full w-full flex-col items-center justify-center">
-			<LoadingSpinner {...args} />
+		<View className="flex h-full w-full flex-col gap-2">
+			<LoadingSpinner {...args} color="gray" />
+			<LoadingSpinner {...args} color="white" />
+			<LoadingSpinner {...args} color="black" />
 		</View>
 	),
 };

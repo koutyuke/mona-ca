@@ -47,13 +47,13 @@ export const Default: Story = {
 	},
 	render: args => (
 		<View className="flex w-full flex-col gap-4 p-4">
-			<TextInput value="我々は宇宙人である。 I am an alien." size="md" />
-			<TextInput value="我々は宇宙人である。 I am an alien." size="sm" />
-			<TextInput {...args} value="我々は宇宙人である。 I am an alien." size="md" />
-			<TextInput {...args} value="我々は宇宙人である。 I am an alien." size="md" error />
-			<TextInput {...args} value="我々は宇宙人である。 I am an alien." size="md" disabled />
-			<TextInput {...args} value="我々は宇宙人である。 I am an alien." size="md" credentials />
-			<TextInput {...args} value="我々は宇宙人である。 I am an alien." size="sm" />
+			<TextInput value="我々は宇宙人である。 I am an ninja." size="md" />
+			<TextInput value="我々は宇宙人である。 I am an ninja." size="sm" />
+			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" />
+			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" error />
+			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" disabled />
+			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" credentials />
+			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="sm" />
 		</View>
 	),
 };

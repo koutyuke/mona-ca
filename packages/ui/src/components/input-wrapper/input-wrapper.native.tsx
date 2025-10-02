@@ -54,24 +54,24 @@ const InputWrapper = ({
 		<View className={cn(wrapperStyle(), className)}>
 			{label && (
 				<View className={labelContainerStyle()}>
-					<Text className={labelStyle()} size="sm" weight="medium">
+					<Text className={labelStyle()} weight="medium">
 						{label}
 					</Text>
 					{required && (
-						<Text className={requiredStyle()} weight="medium" size="xs">
+						<Text className={requiredStyle()} weight="medium">
 							*
 						</Text>
 					)}
 				</View>
 			)}
 			{description && !error && (
-				<Text className={descriptionStyle()} size="xs">
+				<Text className={descriptionStyle()} size="sm">
 					{description}
 				</Text>
 			)}
 			{children}
 			{error && (
-				<Text className={errorStyle()} size="xs">
+				<Text className={errorStyle()} size="sm">
 					{error}
 				</Text>
 			)}

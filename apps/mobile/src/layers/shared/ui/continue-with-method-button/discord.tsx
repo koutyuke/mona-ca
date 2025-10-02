@@ -1,14 +1,14 @@
 import { tv } from "@mona-ca/tailwind-helpers";
 import { LoadingSpinner } from "@mona-ca/ui/native/components";
 import { WhiteDiscordIcon } from "@mona-ca/ui/native/icons";
-import { type ComponentPropsWithoutRef, type ElementRef, type Ref, forwardRef } from "react";
+import type { ComponentProps, FC } from "react";
 import { Pressable, Text, View } from "react-native";
 
 type DiscordButtonProps = {
 	fullWidth?: boolean;
 	loading?: boolean;
 	disabled?: boolean;
-} & Omit<ComponentPropsWithoutRef<typeof Pressable>, "disabled" | "className">;
+} & Omit<ComponentProps<typeof Pressable>, "disabled" | "className">;
 
 const styleVariants = tv({
 	slots: {
@@ -38,10 +38,13 @@ const styleVariants = tv({
 	},
 });
 
-const ContinueWithDiscordBtn = (
-	{ fullWidth = false, loading = false, disabled = false, ...props }: DiscordButtonProps,
-	ref: Ref<ElementRef<typeof Pressable>>,
-) => {
+const ContinueWithDiscordButton: FC<DiscordButtonProps> = ({
+	fullWidth = false,
+	loading = false,
+	disabled = false,
+	ref,
+	...props
+}) => {
 	const { body, text, icon } = styleVariants({ fullWidth, disabled, loading });
 	return (
 		<Pressable ref={ref} className={body()} disabled={loading || disabled} {...props}>
@@ -55,7 +58,5 @@ const ContinueWithDiscordBtn = (
 		</Pressable>
 	);
 };
-
-const ContinueWithDiscordButton = forwardRef<ElementRef<typeof Pressable>, DiscordButtonProps>(ContinueWithDiscordBtn);
 
 export { ContinueWithDiscordButton };
