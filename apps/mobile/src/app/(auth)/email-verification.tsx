@@ -3,12 +3,10 @@ import { RESET } from "jotai/utils";
 import { Pressable, Text, View } from "react-native";
 import { sessionTokenAtom } from "../../layers/entities/session";
 import { userAtom } from "../../layers/entities/user";
-import { visitableSetupPageAtom } from "../../layers/features/navigation-guard";
 
 const EmailVerificationPage = () => {
 	const setSessionToken = useSetAtom(sessionTokenAtom);
 	const [user, setUser] = useAtom(userAtom);
-	const setVisitableSetupPage = useSetAtom(visitableSetupPageAtom);
 
 	return (
 		<View className="flex h-screen w-screen flex-1 items-center justify-center">
@@ -24,7 +22,6 @@ const EmailVerificationPage = () => {
 			<Pressable
 				onPress={() => {
 					setUser({ type: "update", payload: { ...user.data!, emailVerified: true } });
-					setVisitableSetupPage("personalize");
 				}}
 			>
 				<Text>Personalize</Text>

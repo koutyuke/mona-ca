@@ -3,12 +3,12 @@ import { RESET } from "jotai/utils";
 import { Pressable, Text, View } from "react-native";
 import { sessionTokenAtom } from "../../layers/entities/session";
 import { userAtom } from "../../layers/entities/user";
-import { visitableSetupPageAtom } from "../../layers/features/navigation-guard";
+import { visitPersonalizePageFlagAtom } from "../../layers/features/auth";
 
 const PersonalizePage = () => {
 	const setSessionToken = useSetAtom(sessionTokenAtom);
 	const setUser = useSetAtom(userAtom);
-	const setVisitableSetupPage = useSetAtom(visitableSetupPageAtom);
+	const setVisitPersonalizePageFlag = useSetAtom(visitPersonalizePageFlagAtom);
 
 	return (
 		<View className="flex flex-1 items-center justify-center">
@@ -23,7 +23,7 @@ const PersonalizePage = () => {
 			</Pressable>
 			<Pressable
 				onPress={() => {
-					setVisitableSetupPage(false);
+					setVisitPersonalizePageFlag(false);
 				}}
 			>
 				<Text>Go Home</Text>
