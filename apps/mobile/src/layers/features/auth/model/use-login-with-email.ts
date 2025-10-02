@@ -56,7 +56,7 @@ export const useLoginWithEmail = () => {
 			}
 
 			setSessionToken(sessionToken);
-			setUser({ type: "update", payload: userResult.value });
+			setUser({ type: "set", payload: userResult.value });
 			setLastLoginMethod("email");
 
 			setLoading(false);

@@ -21,7 +21,7 @@ const EmailVerificationPage = () => {
 			</Pressable>
 			<Pressable
 				onPress={() => {
-					setUser({ type: "update", payload: { ...user.data!, emailVerified: true } });
+					setUser({ type: "set", payload: { ...user.data!, emailVerified: true } });
 				}}
 			>
 				<Text>Personalize</Text>

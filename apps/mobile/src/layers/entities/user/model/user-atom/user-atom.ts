@@ -19,7 +19,7 @@ type UserAtom = {
 
 type AtomAction =
 	| {
-			type: "update";
+			type: "set";
 			payload: User;
 	  }
 	| {
@@ -79,7 +79,7 @@ export const userAtom = atom(
 			return;
 		}
 
-		if (action.type === "update") {
+		if (action.type === "set") {
 			set(userPersistedAtom, action.payload);
 			set(lastUpdatedAtAtom, Date.now());
 			return;
