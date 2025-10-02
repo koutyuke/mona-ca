@@ -1,13 +1,9 @@
 import { useSetAtom } from "jotai";
-import { RESET } from "jotai/utils";
 import { Pressable, Text, View } from "react-native";
-import { sessionTokenAtom } from "../../layers/entities/session";
-import { userAtom } from "../../layers/entities/user";
 import { visitPersonalizePageFlagAtom } from "../../layers/features/auth";
+import { publishAuthReset } from "../../layers/shared/lib/auth";
 
 const PersonalizePage = () => {
-	const setSessionToken = useSetAtom(sessionTokenAtom);
-	const setUser = useSetAtom(userAtom);
 	const setVisitPersonalizePageFlag = useSetAtom(visitPersonalizePageFlagAtom);
 
 	return (
@@ -15,8 +11,7 @@ const PersonalizePage = () => {
 			<Text>Personalize</Text>
 			<Pressable
 				onPress={() => {
-					setSessionToken(null);
-					setUser(RESET);
+					publishAuthReset("logout");
 				}}
 			>
 				<Text>Log Out</Text>
