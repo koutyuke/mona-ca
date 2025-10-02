@@ -28,7 +28,7 @@ export const AgreementNoticeUI = ({ actions: { onPressPrivacyPolicy, onPressTerm
 			>
 				プライバシーポリシー
 			</Text>
-			に同意したものとみなされます
+			に同意したものとみなされます。
 		</Text>
 	);
 };
