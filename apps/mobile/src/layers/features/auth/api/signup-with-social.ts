@@ -66,13 +66,13 @@ export const signupWithSocial = async (provider: SupportProvider): Promise<Resul
 
 		if (error === "OAUTH_ACCOUNT_INFO_INVALID") {
 			return err("ACCOUNT_INFO_INVALID", {
-				errorMessage: "アカウントの情報(メールアドレスなど)が正しくありません",
+				errorMessage: "アカウントの情報が正しくありません",
 			});
 		}
 
 		if (error === "OAUTH_ACCOUNT_ALREADY_REGISTERED") {
 			return err("ACCOUNT_ALREADY_REGISTERED", {
-				errorMessage: "アカウントが既に登録されています",
+				errorMessage: "アカウントは既に登録されています",
 			});
 		}
 
