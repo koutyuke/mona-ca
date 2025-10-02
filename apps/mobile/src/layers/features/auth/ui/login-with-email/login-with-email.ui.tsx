@@ -24,7 +24,7 @@ export const LoginWithEmailUI = ({
 	actions: { onSubmit },
 	slots: { Turnstile },
 }: Props): JSX.Element => {
-	const { control, trigger, getValues } = useForm({
+	const { control, handleSubmit } = useForm({
 		resolver: valibotResolver(loginFormSchema),
 		defaultValues: {
 			email: "",
@@ -34,7 +34,7 @@ export const LoginWithEmailUI = ({
 	});
 
 	return (
-		<View className="flex w-full flex-col gap-2">
+		<View className="flex w-full flex-col gap-3">
 			{error && <Alert type="error" title={error} />}
 			<Controller
 				name="email"
@@ -77,19 +77,7 @@ export const LoginWithEmailUI = ({
 					</Text>
 				</Pressable>
 			</Link>
-			<Button
-				className="mt-2 w-full"
-				variant="filled"
-				color="salmon"
-				onPress={async () => {
-					const isValid = await trigger();
-					if (isValid) {
-						const values = getValues();
-						onSubmit(values);
-					}
-				}}
-				loading={loading}
-			>
+			<Button className="w-full" variant="filled" color="salmon" onPress={handleSubmit(onSubmit)} loading={loading}>
 				ログイン
 			</Button>
 			{Turnstile}

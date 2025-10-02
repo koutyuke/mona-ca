@@ -1,14 +1,14 @@
 import type { ComponentProps } from "react";
-import { LoginWithEmailUI } from "./login-with-email.ui";
+import { SignupWithEmailUI } from "./signup-with-email.ui";
 
 const noop = () => {};
 
-export const __DEV_LoginWithEmail = {
+export const __DEV_SignupWithEmail = {
 	components: {
-		UI: LoginWithEmailUI,
+		UI: SignupWithEmailUI,
 	},
 	props: {
-		default: (): ComponentProps<typeof LoginWithEmailUI> => ({
+		default: (): ComponentProps<typeof SignupWithEmailUI> => ({
 			loading: false,
 			error: null,
 			actions: {
@@ -18,7 +18,7 @@ export const __DEV_LoginWithEmail = {
 				Turnstile: null,
 			},
 		}),
-		loading: (): ComponentProps<typeof LoginWithEmailUI> => ({
+		loading: (): ComponentProps<typeof SignupWithEmailUI> => ({
 			loading: true,
 			error: null,
 			actions: {
@@ -28,9 +28,9 @@ export const __DEV_LoginWithEmail = {
 				Turnstile: null,
 			},
 		}),
-		error: (): ComponentProps<typeof LoginWithEmailUI> => ({
+		error: (): ComponentProps<typeof SignupWithEmailUI> => ({
 			loading: false,
-			error: "メールアドレスまたはパスワードが間違っています。",
+			error: "エラーが発生しました",
 			actions: {
 				onSubmit: noop,
 			},

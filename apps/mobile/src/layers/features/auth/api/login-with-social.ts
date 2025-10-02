@@ -47,7 +47,11 @@ export const loginWithSocial = async (provider: SupportProvider): Promise<Result
 	const accountAssociationSessionToken = parsedUrl.searchParams.get("account-association-session-token");
 
 	if (error) {
-		if (error === "FAILED_TO_FETCH_OAUTH_ACCOUNT" || error === "OAUTH_PROVIDER_ERROR") {
+		if (
+			error === "FAILED_TO_FETCH_OAUTH_ACCOUNT" ||
+			error === "OAUTH_PROVIDER_ERROR" ||
+			error === "OAUTH_ACCOUNT_INFO_INVALID"
+		) {
 			return err("FAILED_TO_GET_ACCOUNT_INFO", {
 				errorMessage: "アカウント情報の取得に失敗しました",
 			});
@@ -68,12 +72,6 @@ export const loginWithSocial = async (provider: SupportProvider): Promise<Result
 		if (error === "OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE" && accountAssociationSessionToken) {
 			return err("ACCOUNT_ASSOCIATION", {
 				associationSessionToken: accountAssociationSessionToken,
-			});
-		}
-
-		if (error === "OAUTH_ACCOUNT_INFO_INVALID") {
-			return err("FAILED_TO_GET_ACCOUNT_INFO", {
-				errorMessage: "アカウントの情報(メールアドレスなど)が正しくありません",
 			});
 		}
 
