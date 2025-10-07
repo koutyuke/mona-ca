@@ -28,6 +28,7 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
 		},
 		private readonly sessionSecretService: ISessionSecretService,
+		private readonly accountAssociationSessionSecretService: ISessionSecretService,
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
@@ -112,57 +113,57 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 
 		const existingUserForSameEmail = await this.userRepository.findByEmail(providerAccount.email);
 
-		if (!existingOAuthAccount) {
-			if (existingUserForSameEmail?.emailVerified) {
-				const accountAssociationSessionSecret = this.sessionSecretService.generateSessionSecret();
-				const accountAssociationSessionSecretHash = this.sessionSecretService.hashSessionSecret(
-					accountAssociationSessionSecret,
-				);
-				const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-				const accountAssociationSessionToken = createSessionToken(
-					accountAssociationSessionId,
-					accountAssociationSessionSecret,
-				);
-				const accountAssociationSession = createAccountAssociationSession({
-					id: accountAssociationSessionId,
-					userId: existingUserForSameEmail.id,
-					code: null,
-					secretHash: accountAssociationSessionSecretHash,
-					email: existingUserForSameEmail.email,
-					provider,
-					providerId: newOAuthProviderId(providerAccount.id),
-				});
+		if (existingOAuthAccount) {
+			const sessionSecret = this.sessionSecretService.generateSessionSecret();
+			const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
+			const sessionId = newSessionId(ulid());
+			const sessionToken = createSessionToken(sessionId, sessionSecret);
+			const session = createSession({
+				id: sessionId,
+				userId: existingOAuthAccount.userId,
+				secretHash: sessionSecretHash,
+			});
 
-				await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
-				await this.accountAssociationSessionRepository.save(accountAssociationSession);
+			await this.sessionRepository.save(session);
 
-				return err("OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE", {
-					redirectURL: redirectToClientURL,
-					clientType,
-					accountAssociationSessionToken,
-					accountAssociationSession,
-				});
-			}
-			return err("OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: redirectToClientURL });
+			return {
+				session,
+				sessionToken,
+				redirectURL: redirectToClientURL,
+				clientType,
+			};
 		}
 
-		const sessionSecret = this.sessionSecretService.generateSessionSecret();
-		const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
-		const sessionId = newSessionId(ulid());
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
-		const session = createSession({
-			id: sessionId,
-			userId: existingOAuthAccount.userId,
-			secretHash: sessionSecretHash,
-		});
+		if (existingUserForSameEmail) {
+			const accountAssociationSessionSecret = this.accountAssociationSessionSecretService.generateSessionSecret();
+			const accountAssociationSessionSecretHash = this.accountAssociationSessionSecretService.hashSessionSecret(
+				accountAssociationSessionSecret,
+			);
+			const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
+			const accountAssociationSessionToken = createSessionToken(
+				accountAssociationSessionId,
+				accountAssociationSessionSecret,
+			);
+			const accountAssociationSession = createAccountAssociationSession({
+				id: accountAssociationSessionId,
+				userId: existingUserForSameEmail.id,
+				code: null,
+				secretHash: accountAssociationSessionSecretHash,
+				email: existingUserForSameEmail.email,
+				provider,
+				providerId: newOAuthProviderId(providerAccount.id),
+			});
 
-		await this.sessionRepository.save(session);
+			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
+			await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
-		return {
-			session,
-			sessionToken,
-			redirectURL: redirectToClientURL,
-			clientType,
-		};
+			return err("OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE", {
+				redirectURL: redirectToClientURL,
+				clientType,
+				accountAssociationSessionToken,
+				accountAssociationSession,
+			});
+		}
+		return err("OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: redirectToClientURL });
 	}
 }

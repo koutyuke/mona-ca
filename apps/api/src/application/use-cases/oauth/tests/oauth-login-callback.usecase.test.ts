@@ -37,6 +37,7 @@ describe("OAuthLoginCallbackUseCase", () => {
 	let sessionRepositoryMock: SessionRepositoryMock;
 	let oauthAccountRepositoryMock: OAuthAccountRepositoryMock;
 	let sessionSecretServiceMock: SessionSecretServiceMock;
+	let accountAssociationSessionSecretServiceMock: SessionSecretServiceMock;
 	let oauthProviderGatewayMock: OAuthProviderGatewayMock;
 	let accountAssociationSessionRepositoryMock: AccountAssociationSessionRepositoryMock;
 
@@ -48,6 +49,7 @@ describe("OAuthLoginCallbackUseCase", () => {
 		const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
 		sessionSecretServiceMock = new SessionSecretServiceMock();
+		accountAssociationSessionSecretServiceMock = new SessionSecretServiceMock();
 		oauthProviderGatewayMock = new OAuthProviderGatewayMock();
 		sessionRepositoryMock = new SessionRepositoryMock({ sessionMap });
 		oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
@@ -63,6 +65,7 @@ describe("OAuthLoginCallbackUseCase", () => {
 		oauthLoginCallbackUseCase = new OAuthLoginCallbackUseCase(
 			mockEnv,
 			sessionSecretServiceMock,
+			accountAssociationSessionSecretServiceMock,
 			oauthProviderGatewayMock,
 			sessionRepositoryMock,
 			oauthAccountRepositoryMock,
@@ -191,7 +194,7 @@ describe("OAuthLoginCallbackUseCase", () => {
 			id: newUserId(ulid()),
 			name: "test",
 			email: "test@example.com",
-			emailVerified: true,
+			emailVerified: false,
 			iconUrl: "https://example.com/icon.png",
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
@@ -232,12 +235,11 @@ describe("OAuthLoginCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE error when user has same email but no OAuth account", async () => {
-		// existing user with verified email
 		const user = createUser({
 			id: newUserId(ulid()),
 			name: "test",
 			email: "test@example.com",
-			emailVerified: true,
+			emailVerified: false,
 			iconUrl: "https://example.com/icon.png",
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
