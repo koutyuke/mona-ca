@@ -3,6 +3,7 @@ export { EmailVerificationSessionTableHelper } from "./email-verification-sessio
 export { OAuthAccountTableHelper } from "./oauth-account-table";
 export { PasswordResetSessionTableHelper } from "./password-reset-session-table";
 export { SessionTableHelper } from "./session-table";
+export { SignupSessionTableHelper } from "./signup-session-table";
 export { UserTableHelper } from "./user-table";
 
 export type { DatabaseAccountAssociationSession } from "./account-association-session-table";
