@@ -17,4 +17,5 @@ export {
 	createAccountAssociationSessionsMap,
 	createOAuthAccountsMap,
 	createOAuthAccountKey,
+	createSignupSessionsMap,
 } from "./repositories/table-maps";
