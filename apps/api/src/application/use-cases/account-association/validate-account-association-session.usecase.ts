@@ -52,8 +52,7 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 
 		const user = await this.userRepository.findById(accountAssociationSession.userId);
 
-		if (!user || user.email !== accountAssociationSession.email || !user.emailVerified) {
-			// if the user is not found or the email is not verified, delete the account association session
+		if (!user || user.email !== accountAssociationSession.email) {
 			await this.accountAssociationSessionRepository.deleteById(accountAssociationSessionId);
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
