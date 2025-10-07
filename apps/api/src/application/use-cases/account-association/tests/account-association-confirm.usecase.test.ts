@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr, ulid } from "../../../../common/utils";
-import { createAccountAssociationSession, createOAuthAccount } from "../../../../domain/entities";
+import { createAccountAssociationSession, createOAuthAccount, createUser } from "../../../../domain/entities";
 import {
 	newAccountAssociationSessionId,
+	newGender,
 	newOAuthProvider,
 	newOAuthProviderId,
 	newUserId,
@@ -12,26 +13,37 @@ import {
 	OAuthAccountRepositoryMock,
 	SessionRepositoryMock,
 	SessionSecretServiceMock,
+	UserRepositoryMock,
 	createAccountAssociationSessionsMap,
 	createOAuthAccountKey,
 	createOAuthAccountsMap,
 	createSessionsMap,
+	createUserPasswordHashMap,
+	createUsersMap,
 } from "../../../../tests/mocks";
 import { AccountAssociationConfirmUseCase } from "../account-association-confirm.usecase";
 
 describe("AccountAssociationConfirmUseCase", () => {
 	let accountAssociationConfirmUseCase: AccountAssociationConfirmUseCase;
 	let sessionRepositoryMock: SessionRepositoryMock;
+	let userRepositoryMock: UserRepositoryMock;
 	let oauthAccountRepositoryMock: OAuthAccountRepositoryMock;
 	let accountAssociationSessionRepositoryMock: AccountAssociationSessionRepositoryMock;
 	let sessionSecretServiceMock: SessionSecretServiceMock;
 
 	beforeEach(() => {
 		const sessionMap = createSessionsMap();
+		const userMap = createUsersMap();
+		const userPasswordHashMap = createUserPasswordHashMap();
 		const oauthAccountMap = createOAuthAccountsMap();
 		const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
 		sessionRepositoryMock = new SessionRepositoryMock({
+			sessionMap,
+		});
+		userRepositoryMock = new UserRepositoryMock({
+			userMap,
+			userPasswordHashMap,
 			sessionMap,
 		});
 		oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({
@@ -43,6 +55,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 		sessionSecretServiceMock = new SessionSecretServiceMock();
 
 		accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
+			userRepositoryMock,
 			sessionRepositoryMock,
 			oauthAccountRepositoryMock,
 			accountAssociationSessionRepositoryMock,
@@ -54,6 +67,14 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const sessionId = newAccountAssociationSessionId(ulid());
 		const userId = newUserId(ulid());
+		const user = createUser({
+			id: userId,
+			name: "test_user",
+			email: "test@example.com",
+			emailVerified: false,
+			iconUrl: null,
+			gender: newGender("man"),
+		});
 		const code = "12345678";
 		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
 		const session = createAccountAssociationSession({
@@ -67,6 +88,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 		});
 
 		accountAssociationSessionRepositoryMock.accountAssociationSessionMap.set(sessionId, session);
+		userRepositoryMock.userMap.set(userId, user);
 
 		const result = await accountAssociationConfirmUseCase.execute(code, session);
 
@@ -223,6 +245,15 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const sessionId = newAccountAssociationSessionId(ulid());
 		const userId = newUserId(ulid());
+		const user = createUser({
+			id: userId,
+			name: "test_user",
+			email: "test@example.com",
+			emailVerified: false,
+			iconUrl: null,
+			gender: newGender("man"),
+		});
+		userRepositoryMock.userMap.set(userId, user);
 		const code = "12345678";
 		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
 		const session = createAccountAssociationSession({
@@ -250,6 +281,15 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const sessionId = newAccountAssociationSessionId(ulid());
 		const userId = newUserId(ulid());
+		const user = createUser({
+			id: userId,
+			name: "test_user",
+			email: "test@example.com",
+			emailVerified: false,
+			iconUrl: null,
+			gender: newGender("man"),
+		});
+		userRepositoryMock.userMap.set(userId, user);
 		const code = "12345678";
 		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
 		const session = createAccountAssociationSession({
@@ -280,6 +320,15 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const sessionId = newAccountAssociationSessionId(ulid());
 		const userId = newUserId(ulid());
+		const user = createUser({
+			id: userId,
+			name: "test_user",
+			email: "test@example.com",
+			emailVerified: false,
+			iconUrl: null,
+			gender: newGender("man"),
+		});
+		userRepositoryMock.userMap.set(userId, user);
 		const code = "12345678";
 		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
 		const session = createAccountAssociationSession({

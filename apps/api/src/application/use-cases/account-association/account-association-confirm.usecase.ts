@@ -1,9 +1,15 @@
 import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
-import { type AccountAssociationSession, createOAuthAccount, createSession } from "../../../domain/entities";
+import {
+	type AccountAssociationSession,
+	createOAuthAccount,
+	createSession,
+	updateUser,
+} from "../../../domain/entities";
 import { newSessionId } from "../../../domain/value-object";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
+import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	AccountAssociationConfirmUseCaseResult,
@@ -14,6 +20,7 @@ import type {
 // so we don't need to check the expired account association session.
 export class AccountAssociationConfirmUseCase implements IAccountAssociationConfirmUseCase {
 	constructor(
+		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
@@ -53,23 +60,36 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
 		}
 
+		const _user = await this.userRepository.findById(accountAssociationSession.userId);
+		if (!_user) {
+			return err("USER_NOT_FOUND");
+		}
+
+		const user = updateUser(_user, {
+			emailVerified: true,
+		});
+
 		const sessionSecret = this.sessionTokenService.generateSessionSecret();
 		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
 		const sessionId = newSessionId(ulid());
 		const sessionToken = createSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
-			userId: accountAssociationSession.userId,
+			userId: user.id,
 			secretHash: sessionSecretHash,
 		});
 
 		const oauthAccount = createOAuthAccount({
 			provider: accountAssociationSession.provider,
 			providerId: accountAssociationSession.providerId,
-			userId: accountAssociationSession.userId,
+			userId: user.id,
 		});
 
-		await Promise.all([this.oauthAccountRepository.save(oauthAccount), this.sessionRepository.save(session)]);
+		await Promise.all([
+			this.oauthAccountRepository.save(oauthAccount),
+			this.sessionRepository.save(session),
+			this.userRepository.save(user),
+		]);
 
 		return {
 			session,
