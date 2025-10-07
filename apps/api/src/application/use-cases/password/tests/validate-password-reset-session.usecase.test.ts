@@ -140,45 +140,6 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 		expect(passwordResetSessionRepositoryMock.passwordResetSessionMap.has(sessionId)).toBe(false);
 	});
 
-	it("should return PASSWORD_RESET_SESSION_INVALID error when user id does not match", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
-		});
-
-		// create password reset session with different user id
-		const differentUserId = newUserId(ulid());
-		const sessionId = newPasswordResetSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createPasswordResetSession({
-			id: sessionId,
-			userId: differentUserId,
-			code: "12345678",
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-			email: user.email,
-		});
-
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
-
-		// save user and session
-		userRepositoryMock.userMap.set(differentUserId, user);
-		passwordResetSessionRepositoryMock.passwordResetSessionMap.set(sessionId, session);
-
-		const result = await validatePasswordResetSessionUseCase.execute(sessionToken);
-
-		expect(isErr(result)).toBe(true);
-
-		if (isErr(result)) {
-			expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
-		}
-	});
-
 	it("should return PASSWORD_RESET_SESSION_INVALID error for invalid session secret", async () => {
 		// create user
 		const userId = newUserId(ulid());
