@@ -82,6 +82,7 @@ describe("SignupConfirmUseCase", () => {
 			expect(result.user.name).toBe("Test User");
 			expect(result.session.userId).toBe(result.user.id);
 			expect(result.sessionToken.length).toBeGreaterThan(0);
+			expect(result.user.emailVerified).toBe(true);
 
 			const savedUser = userRepositoryMock.userMap.get(result.user.id);
 			expect(savedUser).toBeDefined();
