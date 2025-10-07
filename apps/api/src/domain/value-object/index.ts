@@ -6,6 +6,7 @@ export {
 	newEmailVerificationSessionId,
 	newPasswordResetSessionId,
 	newAccountAssociationSessionId,
+	newSignupSessionId,
 } from "./ids";
 export {
 	newOAuthProvider,
@@ -21,5 +22,6 @@ export type {
 	EmailVerificationSessionId,
 	PasswordResetSessionId,
 	AccountAssociationSessionId,
+	SignupSessionId,
 } from "./ids";
 export type { OAuthProvider, OAuthProviderId } from "./oauth-provider";

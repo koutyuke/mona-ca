@@ -29,3 +29,9 @@ export type AccountAssociationSessionId = NewType<"AccountAssociationSessionId",
 export const newAccountAssociationSessionId = (rawAccountAssociationSessionId: string) => {
 	return rawAccountAssociationSessionId as AccountAssociationSessionId;
 };
+
+export type SignupSessionId = NewType<"SignupSessionId", string>;
+
+export const newSignupSessionId = (rawSignupSessionId: string) => {
+	return rawSignupSessionId as SignupSessionId;
+};
