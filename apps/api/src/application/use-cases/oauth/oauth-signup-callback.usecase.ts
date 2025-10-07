@@ -118,58 +118,48 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 
 		const existingOAuthAccount = await this.oauthAccountRepository.findByProviderAndProviderId(provider, providerId);
 
-		// check pre-register user
-		const existingUser = existingOAuthAccount
-			? await this.userRepository.findById(existingOAuthAccount.userId)
-			: await this.userRepository.findByEmail(providerAccount.email);
+		const existingUserForSameEmail = await this.userRepository.findByEmail(providerAccount.email);
 
-		if (existingUser) {
-			if (existingUser.emailVerified) {
-				// if emailVerified is true, this user is already registered user
+		if (existingOAuthAccount) {
+			return err("OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
+		}
 
-				if (existingOAuthAccount) {
-					return err("OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
-				}
+		if (existingUserForSameEmail) {
+			const accountAssociationSessionSecret = this.accountAssociationSessionSecretService.generateSessionSecret();
+			const accountAssociationSessionSecretHash = this.accountAssociationSessionSecretService.hashSessionSecret(
+				accountAssociationSessionSecret,
+			);
+			const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
+			const accountAssociationSessionToken = createSessionToken(
+				accountAssociationSessionId,
+				accountAssociationSessionSecret,
+			);
+			const accountAssociationSession = createAccountAssociationSession({
+				id: accountAssociationSessionId,
+				userId: existingUserForSameEmail.id,
+				code: null,
+				secretHash: accountAssociationSessionSecretHash,
+				email: existingUserForSameEmail.email,
+				provider,
+				providerId,
+			});
 
-				const accountAssociationSessionSecret = this.accountAssociationSessionSecretService.generateSessionSecret();
-				const accountAssociationSessionSecretHash = this.accountAssociationSessionSecretService.hashSessionSecret(
-					accountAssociationSessionSecret,
-				);
-				const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-				const accountAssociationSessionToken = createSessionToken(
-					accountAssociationSessionId,
-					accountAssociationSessionSecret,
-				);
-				const accountAssociationSession = createAccountAssociationSession({
-					id: accountAssociationSessionId,
-					userId: existingUser.id,
-					code: null,
-					secretHash: accountAssociationSessionSecretHash,
-					email: existingUser.email,
-					provider,
-					providerId,
-				});
+			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
+			await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
-				await this.accountAssociationSessionRepository.deleteByUserId(existingUser.id);
-				await this.accountAssociationSessionRepository.save(accountAssociationSession);
-
-				return err("OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE", {
-					redirectURL: redirectToClientURL,
-					clientType,
-					accountAssociationSessionToken,
-					accountAssociationSession,
-				});
-			}
-			await this.userRepository.deleteById(existingUser.id);
-		} else if (existingOAuthAccount) {
-			await this.oauthAccountRepository.deleteByProviderAndProviderId(provider, providerId);
+			return err("OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE", {
+				redirectURL: redirectToClientURL,
+				clientType,
+				accountAssociationSessionToken,
+				accountAssociationSession,
+			});
 		}
 
 		const user = createUser({
 			id: newUserId(ulid()),
 			name: providerAccount.name,
 			email: providerAccount.email,
-			emailVerified: providerAccount.emailVerified, // if emailVerified is false, this user is pre-register user
+			emailVerified: providerAccount.emailVerified,
 			iconUrl: providerAccount.iconURL,
 			gender: newGender(DEFAULT_USER_GENDER),
 		});

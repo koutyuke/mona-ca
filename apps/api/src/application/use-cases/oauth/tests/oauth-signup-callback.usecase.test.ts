@@ -199,13 +199,12 @@ describe("OAuthSignupCallbackUseCase", () => {
 			id: newUserId(ulid()),
 			name: "test",
 			email: "test@example.com",
-			emailVerified: true,
+			emailVerified: false,
 			iconUrl: "https://example.com/icon.png",
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
 
 		// existing oauth account
-
 		const oauthAccount = createOAuthAccount({
 			userId: user.id,
 			provider: newOAuthProvider("discord"),
@@ -236,13 +235,13 @@ describe("OAuthSignupCallbackUseCase", () => {
 		}
 	});
 
-	it("should return OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE error when user is already registered but email is not verified", async () => {
+	it("should return OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE error when user is already registered", async () => {
 		// existing user
 		const user = createUser({
 			id: newUserId(ulid()),
 			name: "test",
 			email: "test@example.com",
-			emailVerified: true,
+			emailVerified: false,
 			iconUrl: "https://example.com/icon.png",
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
