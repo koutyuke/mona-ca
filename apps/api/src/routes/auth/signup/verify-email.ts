@@ -1,0 +1,158 @@
+import { t } from "elysia";
+import { SessionSecretService } from "../../../application/services/session";
+import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
+import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
+import { isErr } from "../../../common/utils";
+import { DrizzleService } from "../../../infrastructure/drizzle";
+import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
+import { CookieManager } from "../../../modules/cookie";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	NoContentResponse,
+	NoContentResponseSchema,
+	ResponseTUnion,
+	withBaseResponseSchema,
+} from "../../../modules/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../modules/error";
+import { pathDetail } from "../../../modules/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+
+export const SignupVerifyEmail = new ElysiaWithEnv()
+	// Local Middleware & Plugin
+	.use(withClientType)
+	.use(
+		rateLimit("signup-verify-email", {
+			maxTokens: 1000,
+			refillRate: 500,
+			refillInterval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
+
+	// Route
+	.post(
+		"/verify-email",
+		async ({
+			env: { SIGNUP_SESSION_PEPPER, APP_ENV },
+			cfModuleEnv: { DB },
+			cookie,
+			body: { signupSessionToken: bodySignupSessionToken, code },
+			clientType,
+			rateLimit,
+		}) => {
+			// === Instances ===
+			const drizzleService = new DrizzleService(DB);
+			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
+
+			const signupSessionRepository = new SignupSessionRepository(drizzleService);
+			const signupSessionSecretService = new SessionSecretService(SIGNUP_SESSION_PEPPER);
+
+			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
+				signupSessionRepository,
+				signupSessionSecretService,
+			);
+			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository, async signupSessionId =>
+				rateLimit.consume(signupSessionId, 100),
+			);
+			// === End of instances ===
+
+			const signupSessionToken =
+				clientType === "web" ? cookieManager.getCookie(SIGNUP_SESSION_COOKIE_NAME) : bodySignupSessionToken;
+
+			if (!signupSessionToken) {
+				throw new UnauthorizedException({
+					code: "SIGNUP_SESSION_INVALID",
+					message: "Signup session token not found. Please request signup again.",
+				});
+			}
+
+			const validationResult = await validateSignupSessionUseCase.execute(signupSessionToken);
+
+			if (isErr(validationResult)) {
+				const { code } = validationResult;
+
+				switch (code) {
+					case "SIGNUP_SESSION_INVALID":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Signup session token is invalid. Please request signup again.",
+						});
+					case "SIGNUP_SESSION_EXPIRED":
+						throw new UnauthorizedException({
+							code: code,
+							message: "Signup session token has expired. Please request signup again.",
+						});
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Signup session token is invalid. Please request signup again.",
+						});
+				}
+			}
+
+			const { signupSession } = validationResult;
+
+			const verifyEmailResult = await signupVerifyEmailUseCase.execute(code, signupSession);
+
+			if (isErr(verifyEmailResult)) {
+				const { code } = verifyEmailResult;
+
+				switch (code) {
+					case "INVALID_VERIFICATION_CODE":
+						throw new BadRequestException({
+							code: code,
+							message: "Invalid verification code. Please check your email and try again.",
+						});
+					case "ALREADY_VERIFIED":
+						throw new BadRequestException({
+							code: code,
+							message: "Email is already verified. Please login.",
+						});
+
+					default:
+						throw new BadRequestException({
+							code: code,
+							message: "Email verification failed. Please try again.",
+						});
+				}
+			}
+
+			return NoContentResponse();
+		},
+		{
+			beforeHandle: async ({ rateLimit, ip }) => {
+				await rateLimit.consume(ip, 1);
+			},
+			headers: WithClientTypeSchema.headers,
+			cookie: t.Cookie({
+				[SIGNUP_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+			}),
+			body: t.Object({
+				signupSessionToken: t.Optional(t.String()),
+				code: t.String(),
+			}),
+			response: withBaseResponseSchema({
+				204: NoContentResponseSchema,
+				400: ResponseTUnion(
+					WithClientTypeSchema.response[400],
+					ErrorResponseSchema("INVALID_VERIFICATION_CODE"),
+					ErrorResponseSchema("ALREADY_VERIFIED"),
+				),
+				401: ResponseTUnion(
+					ErrorResponseSchema("SIGNUP_SESSION_INVALID"),
+					ErrorResponseSchema("SIGNUP_SESSION_EXPIRED"),
+				),
+				429: RateLimiterSchema.response[429],
+			}),
+			detail: pathDetail({
+				operationId: "auth-signup-verify-email",
+				summary: "Signup Verify Email",
+				description: "Signup Verify Email endpoint for the User",
+				tag: "Auth",
+			}),
+		},
+	);
