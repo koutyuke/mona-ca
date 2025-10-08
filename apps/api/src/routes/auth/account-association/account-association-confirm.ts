@@ -66,6 +66,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				accountAssociationSessionSecretService,
 			);
 			const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
+				userRepository,
 				sessionRepository,
 				oauthAccountRepository,
 				accountAssociationSessionRepository,
@@ -135,6 +136,11 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 							code: code,
 							message: "This OAuth account is already linked to another user.",
 						});
+					case "USER_NOT_FOUND":
+						throw new BadRequestException({
+							code: code,
+							message: "User not found. Please try again.",
+						});
 					default:
 						throw new BadRequestException({
 							code: code,
@@ -181,6 +187,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 					ErrorResponseSchema("INVALID_ASSOCIATION_CODE"),
 					ErrorResponseSchema("OAUTH_PROVIDER_ALREADY_LINKED"),
 					ErrorResponseSchema("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER"),
+					ErrorResponseSchema("USER_NOT_FOUND"),
 				),
 				401: ResponseTUnion(
 					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_INVALID"),

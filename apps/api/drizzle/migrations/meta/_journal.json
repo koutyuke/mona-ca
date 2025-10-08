@@ -71,6 +71,13 @@
       "when": 1751489650784,
       "tag": "0009_parched_colleen_wing",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1759858850772,
+      "tag": "0010_easy_ikaris",
+      "breakpoints": true
     }
   ]
 }

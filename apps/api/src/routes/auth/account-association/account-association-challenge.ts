@@ -39,7 +39,7 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 
 	// Route
 	.post(
-		"/association/challenge",
+		"/association",
 		async ({
 			env: { ACCOUNT_ASSOCIATION_SESSION_PEPPER, APP_ENV, RESEND_API_KEY },
 			cfModuleEnv: { DB },

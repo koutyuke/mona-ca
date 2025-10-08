@@ -14,8 +14,8 @@ export const Auth = new ElysiaWithEnv({
 	.use(EmailVerification)
 	.use(ForgotPassword)
 	.use(OAuth)
+	.use(Signup)
 	.use(Login)
 	.use(Logout)
-	.use(Signup)
 	.use(AccountLink)
 	.use(AccountAssociation);

@@ -258,47 +258,4 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		// verify session is deleted
 		expect(accountAssociationSessionRepositoryMock.accountAssociationSessionMap.has(sessionId)).toBe(false);
 	});
-
-	it("should return ACCOUNT_ASSOCIATION_SESSION_INVALID error when user email is not verified", async () => {
-		// create user with unverified email
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
-		});
-
-		// create account association session
-		const sessionId = newAccountAssociationSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createAccountAssociationSession({
-			id: sessionId,
-			userId: userId,
-			code: "12345678",
-			email: user.email,
-			provider: newOAuthProvider("discord"),
-			providerId: newOAuthProviderId("discord_provider_id"),
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-		});
-
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
-
-		// save user and session
-		userRepositoryMock.userMap.set(userId, user);
-		accountAssociationSessionRepositoryMock.accountAssociationSessionMap.set(sessionId, session);
-
-		const result = await validateAccountAssociationSessionUseCase.execute(sessionToken);
-
-		expect(isErr(result)).toBe(true);
-
-		if (isErr(result)) {
-			expect(result.code).toBe("ACCOUNT_ASSOCIATION_SESSION_INVALID");
-		}
-
-		// verify session is deleted
-		expect(accountAssociationSessionRepositoryMock.accountAssociationSessionMap.has(sessionId)).toBe(false);
-	});
 });

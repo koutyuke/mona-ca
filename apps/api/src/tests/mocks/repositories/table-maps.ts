@@ -4,6 +4,7 @@ import type {
 	OAuthAccount,
 	PasswordResetSession,
 	Session,
+	SignupSession,
 	User,
 } from "../../../domain/entities";
 import type {
@@ -13,6 +14,7 @@ import type {
 	OAuthProviderId,
 	PasswordResetSessionId,
 	SessionId,
+	SignupSessionId,
 	UserId,
 } from "../../../domain/value-object";
 
@@ -52,4 +54,8 @@ export const createOAuthAccountsMap = (accounts: OAuthAccount[] = []): Map<strin
 
 export const createOAuthAccountKey = (provider: OAuthProvider, providerId: OAuthProviderId): string => {
 	return `${provider}-${providerId}`;
+};
+
+export const createSignupSessionsMap = (sessions: SignupSession[] = []): Map<SignupSessionId, SignupSession> => {
+	return new Map(sessions.map(session => [session.id, session]));
 };

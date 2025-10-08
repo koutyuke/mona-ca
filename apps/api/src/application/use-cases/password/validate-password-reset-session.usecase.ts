@@ -39,10 +39,6 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
-		if (passwordResetSession.userId !== user.id) {
-			return err("PASSWORD_RESET_SESSION_INVALID");
-		}
-
 		if (
 			!this.passwordResetSessionSecretService.verifySessionSecret(
 				passwordResetSessionSecret,

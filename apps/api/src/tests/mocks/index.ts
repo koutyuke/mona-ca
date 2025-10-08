@@ -7,6 +7,7 @@ export { OAuthAccountRepositoryMock } from "./repositories/oauth-account.reposit
 export { PasswordServiceMock } from "./services/password.service.mock";
 export { SessionSecretServiceMock } from "./services/session-secret.service.mock";
 export { OAuthProviderGatewayMock } from "./services/oauth-provider.gateway.mock";
+export { SignupSessionRepositoryMock } from "./repositories/signup-session.repository.mock";
 export {
 	createUsersMap,
 	createUserPasswordHashMap,
@@ -16,4 +17,5 @@ export {
 	createAccountAssociationSessionsMap,
 	createOAuthAccountsMap,
 	createOAuthAccountKey,
+	createSignupSessionsMap,
 } from "./repositories/table-maps";

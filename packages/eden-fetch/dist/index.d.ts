@@ -500,13 +500,13 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         code: "INVALID_CLIENT_TYPE";
                         message: string;
                     } | {
+                        code: "USER_NOT_FOUND";
+                        message: string;
+                    } | {
                         code: "IP_ADDRESS_NOT_FOUND";
                         message: string;
                     } | {
                         code: "CAPTCHA_VERIFICATION_FAILED";
-                        message: string;
-                    } | {
-                        code: "USER_NOT_FOUND";
                         message: string;
                     };
                     422: {
@@ -648,6 +648,182 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 }>>;
             };
         };
+        signup: {
+            index: {
+                post: (body: {
+                    email: string;
+                    cfTurnstileResponse: string;
+                }, options: {
+                    headers: {
+                        "mc-client-type": "web" | "mobile";
+                    };
+                    query?: Record<string, unknown>;
+                    fetch?: RequestInit;
+                }) => Promise<Treaty.TreatyResponse<{
+                    200: {
+                        signupSessionToken: string;
+                    };
+                    204: null;
+                    400: {
+                        code: "PARSE_ERROR";
+                        message: string;
+                    } | {
+                        code: "INVALID_COOKIE_SIGNATURE";
+                        message: string;
+                    } | {
+                        code: "INVALID_CLIENT_TYPE";
+                        message: string;
+                    } | {
+                        code: "IP_ADDRESS_NOT_FOUND";
+                        message: string;
+                    } | {
+                        code: "CAPTCHA_VERIFICATION_FAILED";
+                        message: string;
+                    } | {
+                        code: "EMAIL_ALREADY_USED";
+                        message: string;
+                    };
+                    422: {
+                        code: "VALIDATION_ERROR";
+                        message: string;
+                    } & {
+                        type: "validation";
+                        on: string;
+                        summary?: string;
+                        message?: string;
+                        found?: unknown;
+                        property?: string;
+                        expected?: string;
+                    };
+                    429: {
+                        code: "TOO_MANY_REQUESTS";
+                        message: string;
+                    };
+                    500: {
+                        code: "INTERNAL_SERVER_ERROR";
+                        message: string;
+                    } | {
+                        code: "UNKNOWN_ERROR";
+                        message: string;
+                    };
+                }>>;
+            };
+            "verify-email": {
+                post: (body: {
+                    signupSessionToken?: string;
+                    code: string;
+                }, options: {
+                    headers: {
+                        "mc-client-type": "web" | "mobile";
+                    };
+                    query?: Record<string, unknown>;
+                    fetch?: RequestInit;
+                }) => Promise<Treaty.TreatyResponse<{
+                    200: null;
+                    204: null;
+                    400: {
+                        code: "PARSE_ERROR";
+                        message: string;
+                    } | {
+                        code: "INVALID_COOKIE_SIGNATURE";
+                        message: string;
+                    } | {
+                        code: "INVALID_CLIENT_TYPE";
+                        message: string;
+                    } | {
+                        code: "INVALID_VERIFICATION_CODE";
+                        message: string;
+                    } | {
+                        code: "ALREADY_VERIFIED";
+                        message: string;
+                    };
+                    401: {
+                        code: "SIGNUP_SESSION_INVALID";
+                        message: string;
+                    } | {
+                        code: "SIGNUP_SESSION_EXPIRED";
+                        message: string;
+                    };
+                    422: {
+                        code: "VALIDATION_ERROR";
+                        message: string;
+                    } & {
+                        type: "validation";
+                        on: string;
+                        summary?: string;
+                        message?: string;
+                        found?: unknown;
+                        property?: string;
+                        expected?: string;
+                    };
+                    429: {
+                        code: "TOO_MANY_REQUESTS";
+                        message: string;
+                    };
+                    500: {
+                        code: "INTERNAL_SERVER_ERROR";
+                        message: string;
+                    } | {
+                        code: "UNKNOWN_ERROR";
+                        message: string;
+                    };
+                }>>;
+            };
+            confirm: {
+                post: (body: {
+                    signupSessionToken?: string;
+                    name: string;
+                    gender: "man" | "woman";
+                    password: string;
+                }, options: {
+                    headers: {
+                        "mc-client-type": "web" | "mobile";
+                    };
+                    query?: Record<string, unknown>;
+                    fetch?: RequestInit;
+                }) => Promise<Treaty.TreatyResponse<{
+                    200: {
+                        sessionToken: string;
+                    };
+                    204: null;
+                    400: {
+                        code: "PARSE_ERROR";
+                        message: string;
+                    } | {
+                        code: "INVALID_COOKIE_SIGNATURE";
+                        message: string;
+                    } | {
+                        code: "INVALID_CLIENT_TYPE";
+                        message: string;
+                    } | {
+                        code: "EMAIL_VERIFICATION_REQUIRED";
+                        message: string;
+                    } | {
+                        code: "EMAIL_ALREADY_REGISTERED";
+                        message: string;
+                    };
+                    422: {
+                        code: "VALIDATION_ERROR";
+                        message: string;
+                    } & {
+                        type: "validation";
+                        on: string;
+                        summary?: string;
+                        message?: string;
+                        found?: unknown;
+                        property?: string;
+                        expected?: string;
+                    };
+                    500: {
+                        code: "INTERNAL_SERVER_ERROR";
+                        message: string;
+                    } | {
+                        code: "UNKNOWN_ERROR";
+                        message: string;
+                    };
+                }>>;
+            };
+        };
         login: {
             post: (body: {
                 email: string;
@@ -760,14 +936,10 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 };
             }>>;
         };
-        signup: {
+        association: {
             post: (body: {
-                name: string;
-                gender: "man" | "woman";
-                email: string;
-                password: string;
-                cfTurnstileResponse: string;
-            }, options: {
+                accountAssociationSessionToken?: string;
+            } | null, options: {
                 headers: {
                     "mc-client-type": "web" | "mobile";
                 };
@@ -775,7 +947,7 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 fetch?: RequestInit;
             }) => Promise<Treaty.TreatyResponse<{
                 200: {
-                    sessionToken: string;
+                    accountAssociationSessionToken: string;
                 };
                 204: null;
                 400: {
@@ -787,14 +959,12 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 } | {
                     code: "INVALID_CLIENT_TYPE";
                     message: string;
-                } | {
-                    code: "EMAIL_ALREADY_REGISTERED";
+                };
+                401: {
+                    code: "ACCOUNT_ASSOCIATION_SESSION_INVALID";
                     message: string;
                 } | {
-                    code: "IP_ADDRESS_NOT_FOUND";
-                    message: string;
-                } | {
-                    code: "CAPTCHA_VERIFICATION_FAILED";
+                    code: "ACCOUNT_ASSOCIATION_SESSION_EXPIRED";
                     message: string;
                 };
                 422: {
@@ -821,64 +991,6 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     message: string;
                 };
             }>>;
-        };
-        association: {
-            challenge: {
-                post: (body: {
-                    accountAssociationSessionToken?: string;
-                } | null, options: {
-                    headers: {
-                        "mc-client-type": "web" | "mobile";
-                    };
-                    query?: Record<string, unknown>;
-                    fetch?: RequestInit;
-                }) => Promise<Treaty.TreatyResponse<{
-                    200: {
-                        accountAssociationSessionToken: string;
-                    };
-                    204: null;
-                    400: {
-                        code: "PARSE_ERROR";
-                        message: string;
-                    } | {
-                        code: "INVALID_COOKIE_SIGNATURE";
-                        message: string;
-                    } | {
-                        code: "INVALID_CLIENT_TYPE";
-                        message: string;
-                    };
-                    401: {
-                        code: "ACCOUNT_ASSOCIATION_SESSION_INVALID";
-                        message: string;
-                    } | {
-                        code: "ACCOUNT_ASSOCIATION_SESSION_EXPIRED";
-                        message: string;
-                    };
-                    422: {
-                        code: "VALIDATION_ERROR";
-                        message: string;
-                    } & {
-                        type: "validation";
-                        on: string;
-                        summary?: string;
-                        message?: string;
-                        found?: unknown;
-                        property?: string;
-                        expected?: string;
-                    };
-                    429: {
-                        code: "TOO_MANY_REQUESTS";
-                        message: string;
-                    };
-                    500: {
-                        code: "INTERNAL_SERVER_ERROR";
-                        message: string;
-                    } | {
-                        code: "UNKNOWN_ERROR";
-                        message: string;
-                    };
-                }>>;
-            };
             confirm: {
                 post: (body: {
                     accountAssociationSessionToken?: string;
@@ -911,6 +1023,9 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         message: string;
                     } | {
                         code: "OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER";
+                        message: string;
+                    } | {
+                        code: "USER_NOT_FOUND";
                         message: string;
                     };
                     401: {

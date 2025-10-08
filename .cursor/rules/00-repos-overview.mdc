@@ -1,0 +1,32 @@
+---
+description: Monorepoの全体方針とBun運用、スクリプト参照規約（rootと各workspace）を定義
+globs: "**/*"
+alwaysApply: true
+---
+
+# プロジェクト全体方針（Monorepo + Bun）
+
+- ディレクトリ構成
+  - `app/` : アプリケーション実装（mobile / web / backend API など）
+  - `packages/` : アプリで利用する共通パッケージ（ビジネスロジック、UIキット等）
+  - `tools/` : Lint/Format/TSConfig などの共有設定パッケージ（実行時コードは置かない）
+
+- パッケージマネージャ
+  - **Bun** を使用する（`bun run`, `bun test`, `bunx` など）
+  - ルート `package.json` に `"workspaces": ["app/*", "packages/*", "tools/*"]` を定義する
+
+- スクリプト解決規約（最重要）
+  1. **全体に跨る操作**（全ビルド・全テスト 等）は **root の `package.json` のスクリプト** を実行する
+     例: `bun run check` / `bun run test`
+  2. **個別のアプリ/パッケージの操作** は **該当ディレクトリの `package.json`** を参照する
+     例: `cd ./apps/api && bun run check`
+
+- 依存関係の原則
+  - `app/*` → `packages/*` / `tools/*` のみ参照可（逆方向は基本的に禁止）
+  - `packages/*` はフレームワーク非依存・副作用最小
+  - `tools/*` は共有設定（ESLint/Prettier/TSConfig/Tailwind等）をエクスポート
+
+- 生成・変更時のルール
+  - スクリプトや設定を編集/追加する際は、**必ず対象ディレクトリの `package.json` を開いて確認**し、存在しないスクリプトを仮定しない
+  - 生成に日本語が含まれる場合、基本的に常体で記載すること
+  - scriptを実行するときは必ず`bun run`を使用すること

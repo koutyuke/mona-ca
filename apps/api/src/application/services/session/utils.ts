@@ -3,9 +3,15 @@ import type {
 	EmailVerificationSessionId,
 	PasswordResetSessionId,
 	SessionId,
+	SignupSessionId,
 } from "../../../domain/value-object";
 
-export type SessionIds = SessionId | EmailVerificationSessionId | PasswordResetSessionId | AccountAssociationSessionId;
+export type SessionIds =
+	| SessionId
+	| EmailVerificationSessionId
+	| PasswordResetSessionId
+	| AccountAssociationSessionId
+	| SignupSessionId;
 
 export const separateSessionTokenToIdAndSecret = <T extends SessionIds>(
 	token: string,
