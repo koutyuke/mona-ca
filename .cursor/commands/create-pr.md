@@ -14,7 +14,7 @@
 
 2. **変更点を作成する**
 
-   - `git diff`や`git log`などを駆使して現在のブランチの変更点を確認する
+   - `git diff --stat origin/main..HEAD`や`git log --oneline origin/main..HEAD`などを駆使して現在のブランチの変更点を確認する
 
 3. **Titleを作成する**
 
