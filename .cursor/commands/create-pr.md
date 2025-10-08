@@ -18,7 +18,10 @@
 
 2. **変更点を作成する**
 
-   - `git diff --stat origin/main..HEAD`や`git log --oneline origin/main..HEAD`などを駆使して現在のブランチの変更点を確認する
+   - 現在のブランチのとMerge先のブラントの変更点を確認する
+   - これらの変更を確認するコマンドを使用してその内容を確認すること
+     - `git diff --stat origin/{対象のブランチ}..HEAD`
+     - `git log --oneline origin/{対象のブランチ}..HEAD`
 
 3. **Titleを作成する**
 
@@ -32,9 +35,9 @@
    - 確認した変更点を元に作成すること
    - 破壊的変更があれば記載
    - UI変更がある場合はスクリーンショットを追加
+   - 関連するissueをリンクする
+     - 表記方法は`- closed #<issue_number>`とする
+     - Issueも同様にBacklog IDがprefixとしてついているのでブランチのものと同じものをリンクさせる
 
 5. **PRの設定**
    - 作成したtitleと説明文を元にPRを作成する
-   - 適切なラベルを追加
-   - 関連するissueをリンク
-     - これは基本的にBacklog IDと同じものをリンクさせる
