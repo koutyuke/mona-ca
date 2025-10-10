@@ -1,9 +1,9 @@
 import { err } from "../../../common/utils";
 import { isExpiredAccountAssociationSession } from "../../../domain/entities";
-import type { AccountAssociationSessionId } from "../../../domain/value-object";
+import { type AccountAssociationSessionToken, parseSessionToken } from "../../../domain/value-object";
+import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import { type ISessionSecretService, separateSessionTokenToIdAndSecret } from "../../services/session";
 import type {
 	IValidateAccountAssociationSessionUseCase,
 	ValidateAccountAssociationSessionUseCaseResult,
@@ -13,14 +13,12 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
-		private readonly accountAssociationSessionSecretService: ISessionSecretService,
 	) {}
 
 	public async execute(
-		accountAssociationSessionToken: string,
+		accountAssociationSessionToken: AccountAssociationSessionToken,
 	): Promise<ValidateAccountAssociationSessionUseCaseResult> {
-		const accountAssociationSessionIdAndSecret =
-			separateSessionTokenToIdAndSecret<AccountAssociationSessionId>(accountAssociationSessionToken);
+		const accountAssociationSessionIdAndSecret = parseSessionToken(accountAssociationSessionToken);
 
 		if (!accountAssociationSessionIdAndSecret) {
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
@@ -41,12 +39,7 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 			return err("ACCOUNT_ASSOCIATION_SESSION_EXPIRED");
 		}
 
-		if (
-			!this.accountAssociationSessionSecretService.verifySessionSecret(
-				accountAssociationSessionSecret,
-				accountAssociationSession.secretHash,
-			)
-		) {
+		if (!verifySessionSecret(accountAssociationSessionSecret, accountAssociationSession.secretHash)) {
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 

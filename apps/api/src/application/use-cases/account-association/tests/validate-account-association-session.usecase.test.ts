@@ -1,18 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr, ulid } from "../../../../common/utils";
-import {
-	type AccountAssociationSession,
-	createAccountAssociationSession,
-	createUser,
-} from "../../../../domain/entities";
-import {
-	newAccountAssociationSessionId,
-	newGender,
-	newOAuthProvider,
-	newOAuthProviderId,
-	newUserId,
-} from "../../../../domain/value-object";
-import { SessionSecretServiceMock } from "../../../../tests/mocks";
+import { formatSessionToken, newAccountAssociationSessionToken, newUserId } from "../../../../domain/value-object";
+import { generateSessionSecret } from "../../../../infrastructure/crypt";
+import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { AccountAssociationSessionRepositoryMock } from "../../../../tests/mocks/repositories/account-association-session.repository.mock";
 import {
 	createAccountAssociationSessionsMap,
@@ -20,85 +10,66 @@ import {
 	createUsersMap,
 } from "../../../../tests/mocks/repositories/table-maps";
 import { UserRepositoryMock } from "../../../../tests/mocks/repositories/user.repository.mock";
-import { createSessionToken } from "../../../services/session";
 import { ValidateAccountAssociationSessionUseCase } from "../validate-account-association-session.usecase";
 
+const userMap = createUsersMap();
+const userPasswordHashMap = new Map();
+const sessionMap = createSessionsMap();
+const accountAssociationSessionMap = createAccountAssociationSessionsMap();
+
+const userRepositoryMock = new UserRepositoryMock({
+	userMap,
+	userPasswordHashMap,
+	sessionMap,
+});
+const accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
+	accountAssociationSessionMap,
+});
+
+const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
+	userRepositoryMock,
+	accountAssociationSessionRepositoryMock,
+);
+
+const { user } = createUserFixture();
+
 describe("ValidateAccountAssociationSessionUseCase", () => {
-	let validateAccountAssociationSessionUseCase: ValidateAccountAssociationSessionUseCase;
-	let userRepositoryMock: UserRepositoryMock;
-	let accountAssociationSessionRepositoryMock: AccountAssociationSessionRepositoryMock;
-	let sessionSecretServiceMock: SessionSecretServiceMock;
-
 	beforeEach(() => {
-		const userMap = createUsersMap();
-		const userPasswordHashMap = new Map();
-		const sessionMap = createSessionsMap();
-		const accountAssociationSessionMap = createAccountAssociationSessionsMap();
+		userMap.clear();
+		accountAssociationSessionMap.clear();
+		userPasswordHashMap.clear();
+		sessionMap.clear();
 
-		userRepositoryMock = new UserRepositoryMock({
-			userMap,
-			userPasswordHashMap,
-			sessionMap,
-		});
-		accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
-			accountAssociationSessionMap,
-		});
-		sessionSecretServiceMock = new SessionSecretServiceMock();
-
-		validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-			userRepositoryMock,
-			accountAssociationSessionRepositoryMock,
-			sessionSecretServiceMock,
-		);
+		userMap.set(user.id, user);
 	});
 
 	it("should validate account association session successfully with valid token", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
-		});
-
 		// create account association session
-		const sessionId = newAccountAssociationSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createAccountAssociationSession({
-			id: sessionId,
-			userId: userId,
-			code: "12345678",
-			email: user.email,
-			provider: newOAuthProvider("discord"),
-			providerId: newOAuthProviderId("discord_provider_id"),
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+		const { accountAssociationSession, accountAssociationSessionToken } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user.id,
+				code: "12345678",
+				email: user.email,
+			},
 		});
 
-		// create session token
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		accountAssociationSessionMap.set(accountAssociationSession.id, accountAssociationSession);
 
-		// save user and session
-		userRepositoryMock.userMap.set(userId, user);
-		accountAssociationSessionRepositoryMock.accountAssociationSessionMap.set(sessionId, session);
-
-		const result = await validateAccountAssociationSessionUseCase.execute(sessionToken);
+		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
 		expect(isErr(result)).toBe(false);
 		expect(result).toHaveProperty("accountAssociationSession");
 		expect(result).toHaveProperty("user");
 
 		if (!isErr(result)) {
-			expect(result.accountAssociationSession.id).toBe(sessionId);
-			expect(result.accountAssociationSession.userId).toBe(userId);
-			expect(result.user.id).toBe(userId);
+			expect(result.accountAssociationSession.id).toBe(accountAssociationSession.id);
+			expect(result.accountAssociationSession.userId).toBe(user.id);
+			expect(result.user.id).toBe(user.id);
 		}
 	});
 
 	it("should return ACCOUNT_ASSOCIATION_SESSION_INVALID error for invalid token format", async () => {
-		const invalidToken = "invalid_token_format";
+		const invalidToken = newAccountAssociationSessionToken("invalid_token_format");
 
 		const result = await validateAccountAssociationSessionUseCase.execute(invalidToken);
 
@@ -110,11 +81,15 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 	});
 
 	it("should return ACCOUNT_ASSOCIATION_SESSION_INVALID error for non-existent session", async () => {
-		const sessionId = newAccountAssociationSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const { accountAssociationSessionToken } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user.id,
+				code: "12345678",
+				email: user.email,
+			},
+		});
 
-		const result = await validateAccountAssociationSessionUseCase.execute(sessionToken);
+		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
 		expect(isErr(result)).toBe(true);
 
@@ -125,25 +100,19 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 	it("should return ACCOUNT_ASSOCIATION_SESSION_EXPIRED error for expired session", async () => {
 		// create account association session that is expired
-		const sessionId = newAccountAssociationSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const expiredSession: AccountAssociationSession = {
-			id: sessionId,
-			userId: newUserId(ulid()),
-			code: "12345678",
-			email: "test@example.com",
-			provider: newOAuthProvider("discord"),
-			providerId: newOAuthProviderId("discord_provider_id"),
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-			expiresAt: new Date(Date.now() - 1000),
-		};
-
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const { accountAssociationSession, accountAssociationSessionToken } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user.id,
+				code: "12345678",
+				email: user.email,
+				expiresAt: new Date(0),
+			},
+		});
 
 		// save session
-		accountAssociationSessionRepositoryMock.accountAssociationSessionMap.set(sessionId, expiredSession);
+		accountAssociationSessionMap.set(accountAssociationSession.id, accountAssociationSession);
 
-		const result = await validateAccountAssociationSessionUseCase.execute(sessionToken);
+		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
 		expect(isErr(result)).toBe(true);
 
@@ -152,31 +121,27 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		}
 
 		// verify session is deleted
-		expect(accountAssociationSessionRepositoryMock.accountAssociationSessionMap.has(sessionId)).toBe(false);
+		expect(accountAssociationSessionMap.has(accountAssociationSession.id)).toBe(false);
 	});
 
 	it("should return ACCOUNT_ASSOCIATION_SESSION_INVALID error for invalid session secret", async () => {
 		// create account association session
-		const sessionId = newAccountAssociationSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createAccountAssociationSession({
-			id: sessionId,
-			userId: newUserId(ulid()),
-			code: "12345678",
-			email: "test@example.com",
-			provider: newOAuthProvider("discord"),
-			providerId: newOAuthProviderId("discord_provider_id"),
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+		const { accountAssociationSession } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user.id,
+				code: "12345678",
+				email: user.email,
+			},
 		});
 
 		// create token with different secret
-		const wrongSecret = sessionSecretServiceMock.generateSessionSecret();
-		const sessionToken = createSessionToken(sessionId, wrongSecret);
+		const wrongSecret = generateSessionSecret();
+		const invalidSessionToken = formatSessionToken(accountAssociationSession.id, wrongSecret);
 
 		// save session
-		accountAssociationSessionRepositoryMock.accountAssociationSessionMap.set(sessionId, session);
+		accountAssociationSessionMap.set(accountAssociationSession.id, accountAssociationSession);
 
-		const result = await validateAccountAssociationSessionUseCase.execute(sessionToken);
+		const result = await validateAccountAssociationSessionUseCase.execute(invalidSessionToken);
 
 		expect(isErr(result)).toBe(true);
 
@@ -187,24 +152,19 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 	it("should return ACCOUNT_ASSOCIATION_SESSION_INVALID error when user does not exist", async () => {
 		// create account association session
-		const sessionId = newAccountAssociationSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createAccountAssociationSession({
-			id: sessionId,
-			userId: newUserId(ulid()),
-			code: "12345678",
-			email: "test@example.com",
-			provider: newOAuthProvider("discord"),
-			providerId: newOAuthProviderId("discord_provider_id"),
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+		const differentUserId = newUserId(ulid());
+		const { accountAssociationSession, accountAssociationSessionToken } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: differentUserId,
+				code: "12345678",
+				email: user.email,
+			},
 		});
 
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
-
 		// save session but not user
-		accountAssociationSessionRepositoryMock.accountAssociationSessionMap.set(sessionId, session);
+		accountAssociationSessionMap.set(accountAssociationSession.id, accountAssociationSession);
 
-		const result = await validateAccountAssociationSessionUseCase.execute(sessionToken);
+		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
 		expect(isErr(result)).toBe(true);
 
@@ -213,41 +173,24 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		}
 
 		// verify session is deleted
-		expect(accountAssociationSessionRepositoryMock.accountAssociationSessionMap.has(sessionId)).toBe(false);
+		expect(accountAssociationSessionMap.has(accountAssociationSession.id)).toBe(false);
 	});
 
 	it("should return ACCOUNT_ASSOCIATION_SESSION_INVALID error when user email does not match", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "user@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
-		});
-
 		// create account association session with different email
-		const sessionId = newAccountAssociationSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createAccountAssociationSession({
-			id: sessionId,
-			userId: userId,
-			code: "12345678",
-			email: "session@example.com",
-			provider: newOAuthProvider("discord"),
-			providerId: newOAuthProviderId("discord_provider_id"),
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+		const differentEmail = "different@example.com";
+		const { accountAssociationSession, accountAssociationSessionToken } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user.id,
+				code: "12345678",
+				email: differentEmail,
+			},
 		});
-
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
 
 		// save user and session
-		userRepositoryMock.userMap.set(userId, user);
-		accountAssociationSessionRepositoryMock.accountAssociationSessionMap.set(sessionId, session);
+		accountAssociationSessionMap.set(accountAssociationSession.id, accountAssociationSession);
 
-		const result = await validateAccountAssociationSessionUseCase.execute(sessionToken);
+		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
 		expect(isErr(result)).toBe(true);
 
@@ -256,6 +199,6 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		}
 
 		// verify session is deleted
-		expect(accountAssociationSessionRepositoryMock.accountAssociationSessionMap.has(sessionId)).toBe(false);
+		expect(accountAssociationSessionMap.has(accountAssociationSession.id)).toBe(false);
 	});
 });
