@@ -1,8 +1,8 @@
 import { generateRandomString, ulid } from "../../../common/utils";
 import { type AccountAssociationSession, type User, createAccountAssociationSession } from "../../../domain/entities";
-import { newAccountAssociationSessionId } from "../../../domain/value-object";
+import { formatSessionToken, newAccountAssociationSessionId } from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	AccountAssociationChallengeUseCaseResult,
 	IAccountAssociationChallengeUseCase,
@@ -11,10 +11,7 @@ import type {
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.
 export class AccountAssociationChallengeUseCase implements IAccountAssociationChallengeUseCase {
-	constructor(
-		private readonly accountAssociationSessionSecretService: ISessionSecretService,
-		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
-	) {}
+	constructor(private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository) {}
 
 	public async execute(
 		user: User,
@@ -22,12 +19,10 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 	): Promise<AccountAssociationChallengeUseCaseResult> {
 		await this.accountAssociationSessionRepository.deleteByUserId(accountAssociationSession.userId);
 
-		const accountAssociationSessionSecret = this.accountAssociationSessionSecretService.generateSessionSecret();
-		const accountAssociationSessionSecretHash = this.accountAssociationSessionSecretService.hashSessionSecret(
-			accountAssociationSessionSecret,
-		);
+		const accountAssociationSessionSecret = generateSessionSecret();
+		const accountAssociationSessionSecretHash = hashSessionSecret(accountAssociationSessionSecret);
 		const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-		const accountAssociationSessionToken = createSessionToken(
+		const accountAssociationSessionToken = formatSessionToken(
 			accountAssociationSessionId,
 			accountAssociationSessionSecret,
 		);
