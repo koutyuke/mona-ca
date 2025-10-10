@@ -1,10 +1,11 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { AccountAssociationSession, Session } from "../../../../domain/entities";
 import type { ClientType, OAuthProvider } from "../../../../domain/value-object";
+import type { AccountAssociationSessionToken, SessionToken } from "../../../../domain/value-object";
 
 type Success = {
 	session: Session;
-	sessionToken: string;
+	sessionToken: SessionToken;
 	redirectURL: URL;
 	clientType: ClientType;
 };
@@ -23,7 +24,7 @@ type Error =
 			{
 				redirectURL: URL;
 				clientType: ClientType;
-				accountAssociationSessionToken: string;
+				accountAssociationSessionToken: AccountAssociationSessionToken;
 				accountAssociationSession: AccountAssociationSession;
 			}
 	  >;
