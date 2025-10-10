@@ -1,8 +1,9 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { AccountAssociationSession, Session } from "../../../../domain/entities";
+import type { SessionToken } from "../../../../domain/value-object";
 
 type Success = {
-	sessionToken: string;
+	sessionToken: SessionToken;
 	session: Session;
 };
 
