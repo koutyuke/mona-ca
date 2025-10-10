@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
@@ -12,17 +12,28 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("SessionRepository.delete", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
-		await sessionTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
+	});
+
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM sessions");
 	});
 
 	test("should delete session if exists", async () => {
-		await sessionRepository.deleteById(sessionTableHelper.baseData.id);
+		const { session } = sessionTableHelper.createData({
+			session: {
+				userId: user.id,
+			},
+		});
+		await sessionTableHelper.save(session);
 
-		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseData.id);
+		await sessionRepository.deleteById(session.id);
 
-		expect(results).toHaveLength(0);
+		const databaseSessions = await sessionTableHelper.find(session.id);
+		expect(databaseSessions).toHaveLength(0);
 	});
 });

@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import type { OAuthAccount } from "../../../../domain/entities";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -13,46 +13,56 @@ const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("OAuthAccountRepository.save", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
+	});
+
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM oauth_accounts");
 	});
 
 	test("should set oauthAccount in the database", async () => {
-		await oauthAccountRepository.save(oauthAccountTableHelper.baseData);
+		const { oauthAccount } = oauthAccountTableHelper.createData({
+			oauthAccount: {
+				userId: user.id,
+			},
+		});
+
+		await oauthAccountRepository.save(oauthAccount);
 
 		const results = await oauthAccountTableHelper.findByProviderAndProviderId(
-			oauthAccountTableHelper.baseData.provider,
-			oauthAccountTableHelper.baseData.providerId,
+			oauthAccount.provider,
+			oauthAccount.providerId,
 		);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(oauthAccountTableHelper.baseDatabaseData);
+		expect(results[0]).toStrictEqual(oauthAccountTableHelper.convertToRaw(oauthAccount));
 	});
 
 	test("should update oauthAccount in the database if it already exists", async () => {
-		await oauthAccountTableHelper.create();
+		const { oauthAccount } = oauthAccountTableHelper.createData({
+			oauthAccount: {
+				userId: user.id,
+			},
+		});
+		await oauthAccountTableHelper.save(oauthAccount);
 
 		const updatedOAuthAccount = {
-			provider: oauthAccountTableHelper.baseData.provider,
-			providerId: oauthAccountTableHelper.baseData.providerId,
-			userId: oauthAccountTableHelper.baseData.userId,
-			linkedAt: oauthAccountTableHelper.baseData.linkedAt,
+			...oauthAccount,
+			linkedAt: new Date("2024-01-01T00:00:00.000Z"),
 		} satisfies OAuthAccount;
 
 		await oauthAccountRepository.save(updatedOAuthAccount);
 
 		const results = await oauthAccountTableHelper.findByProviderAndProviderId(
-			oauthAccountTableHelper.baseData.provider,
-			oauthAccountTableHelper.baseData.providerId,
+			oauthAccount.provider,
+			oauthAccount.providerId,
 		);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual({
-			provider: oauthAccountTableHelper.baseDatabaseData.provider,
-			provider_id: oauthAccountTableHelper.baseDatabaseData.provider_id,
-			user_id: oauthAccountTableHelper.baseDatabaseData.user_id,
-			linked_at: oauthAccountTableHelper.baseDatabaseData.linked_at,
-		});
+		expect(results[0]).toStrictEqual(oauthAccountTableHelper.convertToRaw(updatedOAuthAccount));
 	});
 });

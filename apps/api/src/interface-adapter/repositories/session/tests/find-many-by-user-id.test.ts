@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -13,19 +13,39 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("SessionRepository.findManyByUserId", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
-		await sessionTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
+	});
+
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM sessions");
 	});
 
 	test("should return sessions", async () => {
-		const sessions = await sessionRepository.findManyByUserId(userTableHelper.baseData.id);
+		const firstSession = sessionTableHelper.createData({
+			session: {
+				userId: user.id,
+			},
+		});
+		const secondSession = sessionTableHelper.createData({
+			session: {
+				userId: user.id,
+			},
+		});
 
-		const expectedSession = sessionTableHelper.baseData;
+		await sessionTableHelper.save(firstSession.session);
+		await sessionTableHelper.save(secondSession.session);
 
-		expect(sessions.length).toBe(1);
-		expect(sessions[0]).toStrictEqual(expectedSession);
+		const sessions = await sessionRepository.findManyByUserId(user.id);
+
+		expect(sessions).toHaveLength(2);
+		expect(sessions.map(sessionTableHelper.convertToRaw)).toStrictEqual([
+			sessionTableHelper.convertToRaw(firstSession.session),
+			sessionTableHelper.convertToRaw(secondSession.session),
+		]);
 	});
 
 	test("should return empty array if session not found", async () => {

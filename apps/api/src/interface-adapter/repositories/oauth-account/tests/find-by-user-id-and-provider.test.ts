@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
-import { newUserId } from "../../../../domain/value-object";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { newOAuthProvider, newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { OAuthAccountRepository } from "../oauth-account.repository";
@@ -13,26 +13,40 @@ const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("OAuthAccountRepository.findByUserIdAndProvider", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
+	});
 
-		await oauthAccountTableHelper.create();
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM oauth_accounts");
 	});
 
 	test("should return OAuthAccount instance", async () => {
+		const { oauthAccount } = oauthAccountTableHelper.createData({
+			oauthAccount: {
+				userId: user.id,
+			},
+		});
+		await oauthAccountTableHelper.save(oauthAccount);
+
 		const foundOAuthAccount = await oauthAccountRepository.findByUserIdAndProvider(
-			oauthAccountTableHelper.baseData.userId,
-			oauthAccountTableHelper.baseData.provider,
+			oauthAccount.userId,
+			oauthAccount.provider,
 		);
 
-		expect(foundOAuthAccount).toStrictEqual(oauthAccountTableHelper.baseData);
+		expect(foundOAuthAccount).not.toBeNull();
+		expect(oauthAccountTableHelper.convertToRaw(foundOAuthAccount!)).toStrictEqual(
+			oauthAccountTableHelper.convertToRaw(oauthAccount),
+		);
 	});
 
 	test("should return null if OAuthAccount not found", async () => {
 		const invalidOAuthAccount = await oauthAccountRepository.findByUserIdAndProvider(
 			newUserId("invalidId"),
-			oauthAccountTableHelper.baseData.provider,
+			newOAuthProvider("discord"),
 		);
 		expect(invalidOAuthAccount).toBeNull();
 	});

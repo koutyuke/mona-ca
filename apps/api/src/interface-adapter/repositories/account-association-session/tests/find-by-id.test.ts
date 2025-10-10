@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { newAccountAssociationSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -13,25 +13,36 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("AccountAssociationSessionRepository.findById", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
-		await accountAssociationSessionTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
+	});
+
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM account_association_sessions");
 	});
 
 	test("should return session from sessionId", async () => {
-		const session = await accountAssociationSessionRepository.findById(
-			accountAssociationSessionTableHelper.baseData.id,
-		);
-		const expectedSession = accountAssociationSessionTableHelper.baseData;
+		const { session } = accountAssociationSessionTableHelper.createData({
+			session: {
+				userId: user.id,
+			},
+		});
+		await accountAssociationSessionTableHelper.save(session);
 
-		expect(session).toStrictEqual(expectedSession);
+		const foundSession = await accountAssociationSessionRepository.findById(session.id);
+		const expectedSession = accountAssociationSessionTableHelper.convertToRaw(session);
+
+		expect(foundSession).toBeDefined();
+		expect(expectedSession).toStrictEqual(accountAssociationSessionTableHelper.convertToRaw(foundSession!));
 	});
 
 	test("should return null if session not found", async () => {
-		const session = await accountAssociationSessionRepository.findById(
+		const foundSession = await accountAssociationSessionRepository.findById(
 			newAccountAssociationSessionId("wrongSessionId"),
 		);
-		expect(session).toBeNull();
+		expect(foundSession).toBeNull();
 	});
 });

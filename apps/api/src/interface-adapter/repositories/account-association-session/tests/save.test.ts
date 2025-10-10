@@ -12,23 +12,28 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-describe("AccountAssociationSessionRepository.save", () => {
-	beforeAll(async () => {
-		await userTableHelper.create();
-	});
+const { user, passwordHash } = userTableHelper.createData();
 
+describe("AccountAssociationSessionRepository.save", () => {
 	beforeEach(async () => {
 		await DB.exec("DELETE FROM account_association_sessions");
 	});
 
-	test("should create a new session in the database", async () => {
-		await accountAssociationSessionRepository.save(accountAssociationSessionTableHelper.baseData);
+	beforeAll(async () => {
+		await userTableHelper.save(user, passwordHash);
+	});
 
-		const databaseSessions = await accountAssociationSessionTableHelper.findById(
-			accountAssociationSessionTableHelper.baseData.id,
-		);
+	test("should create a new session in the database", async () => {
+		const { session } = accountAssociationSessionTableHelper.createData({
+			session: {
+				userId: user.id,
+			},
+		});
+		await accountAssociationSessionRepository.save(session);
+
+		const databaseSessions = await accountAssociationSessionTableHelper.findById(session.id);
 
 		expect(databaseSessions.length).toBe(1);
-		expect(databaseSessions[0]).toStrictEqual(accountAssociationSessionTableHelper.baseDatabaseData);
+		expect(databaseSessions[0]).toStrictEqual(accountAssociationSessionTableHelper.convertToRaw(session));
 	});
 });

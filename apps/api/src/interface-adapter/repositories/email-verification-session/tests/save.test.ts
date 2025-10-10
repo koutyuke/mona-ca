@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
@@ -12,17 +12,29 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 const userTableHelper = new UserTableHelper(DB);
 const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("EmailVerificationSessionRepository.create", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
+	});
+
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM email_verification_sessions");
 	});
 
 	test("should create data in database", async () => {
-		await emailVerificationSessionRepository.save(emailVerificationSessionTableHelper.baseData);
+		const { session } = emailVerificationSessionTableHelper.createData({
+			session: {
+				userId: user.id,
+			},
+		});
 
-		const results = await emailVerificationSessionTableHelper.findById(emailVerificationSessionTableHelper.baseData.id);
+		await emailVerificationSessionRepository.save(session);
+
+		const results = await emailVerificationSessionTableHelper.findById(session.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(emailVerificationSessionTableHelper.baseDatabaseData);
+		expect(results[0]).toStrictEqual(emailVerificationSessionTableHelper.convertToRaw(session));
 	});
 });

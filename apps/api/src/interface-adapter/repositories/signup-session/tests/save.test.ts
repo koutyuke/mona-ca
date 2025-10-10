@@ -1,8 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
-import { SignupSessionTableHelper } from "../../../../tests/helpers";
-import { toDatabaseDate, toDatabaseSessionSecretHash } from "../../../../tests/utils";
+import { SignupSessionTableHelper, toRawDate, toRawSessionSecretHash } from "../../../../tests/helpers";
 import { SignupSessionRepository } from "../signup-session.repository";
 
 const { DB } = env;
@@ -30,8 +29,8 @@ describe("SignupSessionRepository.save", () => {
 			email: signupSession.email,
 			email_verified: Number(signupSession.emailVerified) as 0 | 1,
 			code: signupSession.code,
-			secret_hash: toDatabaseSessionSecretHash(signupSession.secretHash),
-			expires_at: toDatabaseDate(signupSession.expiresAt),
+			secret_hash: toRawSessionSecretHash(signupSession.secretHash),
+			expires_at: toRawDate(signupSession.expiresAt),
 		});
 	});
 
@@ -56,8 +55,8 @@ describe("SignupSessionRepository.save", () => {
 			email: updatedSignupSession.email,
 			email_verified: 1,
 			code: updatedSignupSession.code,
-			secret_hash: toDatabaseSessionSecretHash(updatedSignupSession.secretHash),
-			expires_at: toDatabaseDate(expiresAt),
+			secret_hash: toRawSessionSecretHash(updatedSignupSession.secretHash),
+			expires_at: toRawDate(expiresAt),
 		});
 	});
 });

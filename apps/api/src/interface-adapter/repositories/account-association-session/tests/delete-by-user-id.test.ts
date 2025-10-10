@@ -13,9 +13,11 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("AccountAssociationSessionRepository.deleteByUserId", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
 	});
 
 	beforeEach(async () => {
@@ -23,13 +25,16 @@ describe("AccountAssociationSessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete a sessions for a user", async () => {
-		await accountAssociationSessionTableHelper.create(accountAssociationSessionTableHelper.baseDatabaseData);
+		const { session } = accountAssociationSessionTableHelper.createData({
+			session: {
+				userId: user.id,
+			},
+		});
+		await accountAssociationSessionTableHelper.save(session);
 
-		await accountAssociationSessionRepository.deleteByUserId(accountAssociationSessionTableHelper.baseData.userId);
+		await accountAssociationSessionRepository.deleteByUserId(user.id);
 
-		const sessions = await accountAssociationSessionTableHelper.findByUserId(
-			accountAssociationSessionTableHelper.baseData.userId,
-		);
+		const sessions = await accountAssociationSessionTableHelper.findByUserId(user.id);
 		expect(sessions).toHaveLength(0);
 	});
 

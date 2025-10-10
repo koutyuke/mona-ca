@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
@@ -11,15 +11,22 @@ const userRepository = new UserRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
 
+const { user, passwordHash } = userTableHelper.createData();
+
 describe("UserRepository.findByEmail", async () => {
-	beforeAll(async () => {
-		await userTableHelper.create();
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM users");
 	});
 
 	test("should return User instance if user exists", async () => {
-		const foundUser = await userRepository.findByEmail(userTableHelper.baseData.email);
+		await userTableHelper.save(user, passwordHash);
 
-		expect(foundUser).toStrictEqual(userTableHelper.baseData);
+		const foundUser = await userRepository.findByEmail(user.email);
+
+		const expectedUser = userTableHelper.convertToRaw(user, passwordHash);
+
+		expect(foundUser).not.toBeNull();
+		expect(userTableHelper.convertToRaw(foundUser!, passwordHash)).toStrictEqual(expectedUser);
 	});
 
 	test("should return null if user not found", async () => {
