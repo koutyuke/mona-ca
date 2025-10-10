@@ -1,25 +1,22 @@
 import { err } from "../../../common/utils";
 import { type User, isExpiredEmailVerificationSession } from "../../../domain/entities";
-import type { EmailVerificationSessionId } from "../../../domain/value-object";
+import type { EmailVerificationSessionToken } from "../../../domain/value-object";
+import { parseSessionToken } from "../../../domain/value-object";
+import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
-import { type ISessionSecretService, separateSessionTokenToIdAndSecret } from "../../services/session";
 import type {
 	IValidateEmailVerificationSessionUseCase,
 	ValidateEmailVerificationSessionUseCaseResult,
 } from "./interfaces/validate-email-verification-session.usecase.interface";
 
 export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVerificationSessionUseCase {
-	constructor(
-		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private readonly emailVerificationSessionSecretService: ISessionSecretService,
-	) {}
+	constructor(private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository) {}
 
 	public async execute(
-		emailVerificationSessionToken: string,
+		emailVerificationSessionToken: EmailVerificationSessionToken,
 		user: User,
 	): Promise<ValidateEmailVerificationSessionUseCaseResult> {
-		const emailVerificationSessionIdAndSecret =
-			separateSessionTokenToIdAndSecret<EmailVerificationSessionId>(emailVerificationSessionToken);
+		const emailVerificationSessionIdAndSecret = parseSessionToken(emailVerificationSessionToken);
 
 		if (!emailVerificationSessionIdAndSecret) {
 			return err("EMAIL_VERIFICATION_SESSION_INVALID");
@@ -43,12 +40,7 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 			return err("EMAIL_VERIFICATION_SESSION_EXPIRED");
 		}
 
-		if (
-			!this.emailVerificationSessionSecretService.verifySessionSecret(
-				emailVerificationSessionSecret,
-				emailVerificationSession.secretHash,
-			)
-		) {
+		if (!verifySessionSecret(emailVerificationSessionSecret, emailVerificationSession.secretHash)) {
 			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 

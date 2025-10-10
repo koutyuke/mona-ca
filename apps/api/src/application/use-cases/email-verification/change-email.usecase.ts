@@ -1,11 +1,11 @@
 import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
 import { createSession, updateUser } from "../../../domain/entities";
 import type { EmailVerificationSession, User } from "../../../domain/entities";
-import { newSessionId } from "../../../domain/value-object";
+import { formatSessionToken, newSessionId } from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type { ChangeEmailUseCaseResult, IChangeEmailUseCase } from "./interfaces/change-email.usecase.interface";
 
 // this use case will be called after the validate email verification session use case.
@@ -15,7 +15,6 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private readonly sessionSecretService: ISessionSecretService,
 	) {}
 
 	public async execute(
@@ -34,12 +33,13 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 		}
 
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
+		await this.sessionRepository.deleteByUserId(user.id);
 
 		// Generate a new session.
-		const sessionSecret = this.sessionSecretService.generateSessionSecret();
-		const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
+		const sessionSecret = generateSessionSecret();
+		const sessionSecretHash = hashSessionSecret(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,

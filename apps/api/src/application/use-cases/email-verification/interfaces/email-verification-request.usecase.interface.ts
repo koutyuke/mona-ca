@@ -1,8 +1,9 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { EmailVerificationSession, User } from "../../../../domain/entities";
+import type { EmailVerificationSessionToken } from "../../../../domain/value-object";
 
 export type EmailVerificationRequestUseCaseSuccessResult = {
-	emailVerificationSessionToken: string;
+	emailVerificationSessionToken: EmailVerificationSessionToken;
 	emailVerificationSession: EmailVerificationSession;
 };
 
