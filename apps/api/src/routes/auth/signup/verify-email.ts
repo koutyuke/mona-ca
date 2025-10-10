@@ -1,8 +1,8 @@
 import { t } from "elysia";
-import { SessionSecretService } from "../../../application/services/session";
 import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { newSignupSessionToken } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { CookieManager } from "../../../modules/cookie";
@@ -37,7 +37,7 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 	.post(
 		"/verify-email",
 		async ({
-			env: { SIGNUP_SESSION_PEPPER, APP_ENV },
+			env: { APP_ENV },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { signupSessionToken: bodySignupSessionToken, code },
@@ -49,28 +49,24 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
-			const signupSessionSecretService = new SessionSecretService(SIGNUP_SESSION_PEPPER);
 
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
-				signupSessionRepository,
-				signupSessionSecretService,
-			);
+			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository);
 			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository, async signupSessionId =>
 				rateLimit.consume(signupSessionId, 100),
 			);
 			// === End of instances ===
 
-			const signupSessionToken =
+			const rawSignupSessionToken =
 				clientType === "web" ? cookieManager.getCookie(SIGNUP_SESSION_COOKIE_NAME) : bodySignupSessionToken;
 
-			if (!signupSessionToken) {
+			if (!rawSignupSessionToken) {
 				throw new UnauthorizedException({
 					code: "SIGNUP_SESSION_INVALID",
 					message: "Signup session token not found. Please request signup again.",
 				});
 			}
 
-			const validationResult = await validateSignupSessionUseCase.execute(signupSessionToken);
+			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
 
 			if (isErr(validationResult)) {
 				const { code } = validationResult;

@@ -1,9 +1,9 @@
 import { t } from "elysia";
-import { SessionSecretService } from "../../../application/services/session";
 import { AccountAssociationConfirmUseCase } from "../../../application/use-cases/account-association";
 import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { newAccountAssociationSessionToken } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
@@ -43,7 +43,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 		async ({
 			cookie,
 			body: { accountAssociationSessionToken: bodyAccountAssociationSessionToken, code },
-			env: { SESSION_PEPPER, ACCOUNT_ASSOCIATION_SESSION_PEPPER, APP_ENV },
+			env: { APP_ENV },
 			cfModuleEnv: { DB },
 			clientType,
 			rateLimit,
@@ -51,9 +51,6 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const sessionTokenService = new SessionSecretService(SESSION_PEPPER);
-			const accountAssociationSessionSecretService = new SessionSecretService(ACCOUNT_ASSOCIATION_SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
@@ -63,30 +60,30 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
 				accountAssociationSessionRepository,
-				accountAssociationSessionSecretService,
 			);
 			const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
 				userRepository,
 				sessionRepository,
 				oauthAccountRepository,
 				accountAssociationSessionRepository,
-				sessionTokenService,
 			);
 			// === End of instances ===
 
-			const accountAssociationSessionToken =
+			const rawAccountAssociationSessionToken =
 				clientType === "web"
 					? cookieManager.getCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME)
 					: bodyAccountAssociationSessionToken;
 
-			if (!accountAssociationSessionToken) {
+			if (!rawAccountAssociationSessionToken) {
 				throw new UnauthorizedException({
 					code: "ACCOUNT_ASSOCIATION_SESSION_INVALID",
 					message: "Account association session not found. Please login again.",
 				});
 			}
 
-			const validateResult = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
+			const validateResult = await validateAccountAssociationSessionUseCase.execute(
+				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
+			);
 
 			if (isErr(validateResult)) {
 				const { code } = validateResult;

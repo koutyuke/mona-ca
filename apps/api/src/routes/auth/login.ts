@@ -1,6 +1,5 @@
 import { t } from "elysia";
 import { PasswordService } from "../../application/services/password";
-import { SessionSecretService } from "../../application/services/session";
 import { LoginUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { isErr } from "../../common/utils";
@@ -42,7 +41,7 @@ export const Login = new ElysiaWithEnv()
 		"/login",
 		async ({
 			clientType,
-			env: { SESSION_PEPPER, APP_ENV, PASSWORD_PEPPER },
+			env: { APP_ENV, PASSWORD_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { email, password },
@@ -50,13 +49,12 @@ export const Login = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, passwordService, sessionSecretService);
+			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, passwordService);
 			// === End of instances ===
 
 			const result = await loginUseCase.execute(email, password);

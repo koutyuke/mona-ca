@@ -1,5 +1,4 @@
 import { t } from "elysia";
-import { SessionSecretService } from "../../../application/services/session";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
@@ -41,7 +40,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 		"",
 		async ({
 			cfModuleEnv: { DB },
-			env: { APP_ENV, RESEND_API_KEY, EMAIL_VERIFICATION_SESSION_PEPPER },
+			env: { APP_ENV, RESEND_API_KEY },
 			cookie,
 			body: { email: bodyEmail },
 			user,
@@ -54,12 +53,10 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const emailVerificationSessionSecretService = new SessionSecretService(EMAIL_VERIFICATION_SESSION_PEPPER);
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 				userRepository,
 				emailVerificationSessionRepository,
-				emailVerificationSessionSecretService,
 			);
 			// === End of instances ===
 
