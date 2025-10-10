@@ -1,6 +1,4 @@
 import type { PasswordResetSession } from "../../domain/entities";
-import { formatSessionToken, newPasswordResetSessionId, newUserId } from "../../domain/value-object";
-import { hashSessionSecret } from "../../infrastructure/crypt";
 import { toRawBoolean, toRawDate, toRawSessionSecretHash } from "./utils";
 
 export type RawPasswordResetSession = {
@@ -15,34 +13,6 @@ export type RawPasswordResetSession = {
 
 export class PasswordResetSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
-
-	public createData(override?: {
-		session?: Partial<PasswordResetSession>;
-		sessionSecret?: string;
-	}): {
-		session: PasswordResetSession;
-		sessionSecret: string;
-		sessionToken: string;
-	} {
-		const sessionSecret = override?.sessionSecret ?? "passwordResetSessionSecret";
-		const secretHash = hashSessionSecret(sessionSecret);
-
-		const session: PasswordResetSession = {
-			id: override?.session?.id ?? newPasswordResetSessionId("passwordResetSessionId"),
-			userId: override?.session?.userId ?? newUserId("userId"),
-			code: override?.session?.code ?? "testCode",
-			secretHash: override?.session?.secretHash ?? secretHash,
-			email: override?.session?.email ?? "test.email@example.com",
-			emailVerified: override?.session?.emailVerified ?? true,
-			expiresAt: override?.session?.expiresAt ?? new Date(1704067200 * 1000),
-		} satisfies PasswordResetSession;
-
-		return {
-			session,
-			sessionSecret,
-			sessionToken: formatSessionToken(session.id, sessionSecret),
-		};
-	}
 
 	public convertToRaw(session: PasswordResetSession): RawPasswordResetSession {
 		return {

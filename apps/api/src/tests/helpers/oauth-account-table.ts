@@ -1,6 +1,5 @@
 import type { ToPrimitive } from "../../common/utils";
 import type { OAuthAccount } from "../../domain/entities";
-import { newOAuthProvider, newOAuthProviderId, newUserId } from "../../domain/value-object";
 import type { OAuthProvider } from "../../domain/value-object";
 import { toRawDate } from "./utils";
 
@@ -13,19 +12,6 @@ export type RawOAuthAccount = {
 
 export class OAuthAccountTableHelper {
 	constructor(private readonly db: D1Database) {}
-
-	public createData(override?: {
-		oauthAccount?: Partial<OAuthAccount>;
-	}): { oauthAccount: OAuthAccount } {
-		const oauthAccount: OAuthAccount = {
-			provider: override?.oauthAccount?.provider ?? newOAuthProvider("discord"),
-			providerId: override?.oauthAccount?.providerId ?? newOAuthProviderId("providerId"),
-			userId: override?.oauthAccount?.userId ?? newUserId("userId"),
-			linkedAt: override?.oauthAccount?.linkedAt ?? new Date(1704067200 * 1000),
-		} satisfies OAuthAccount;
-
-		return { oauthAccount };
-	}
 
 	public convertToRaw(oauthAccount: OAuthAccount): RawOAuthAccount {
 		return {

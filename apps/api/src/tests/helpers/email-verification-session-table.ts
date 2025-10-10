@@ -1,6 +1,4 @@
 import type { EmailVerificationSession } from "../../domain/entities";
-import { formatSessionToken, newEmailVerificationSessionId, newUserId } from "../../domain/value-object";
-import { hashSessionSecret } from "../../infrastructure/crypt";
 import { toRawDate, toRawSessionSecretHash } from "./utils";
 
 export type RawEmailVerificationSession = {
@@ -14,33 +12,6 @@ export type RawEmailVerificationSession = {
 
 export class EmailVerificationSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
-
-	public createData(override?: {
-		session?: Partial<EmailVerificationSession>;
-		sessionSecret?: string;
-	}): {
-		session: EmailVerificationSession;
-		sessionSecret: string;
-		sessionToken: string;
-	} {
-		const sessionSecret = override?.sessionSecret ?? "emailVerificationSessionSecret";
-		const secretHash = hashSessionSecret(sessionSecret);
-
-		const session: EmailVerificationSession = {
-			id: override?.session?.id ?? newEmailVerificationSessionId("emailVerificationSessionId"),
-			email: override?.session?.email ?? "test.email@example.com",
-			userId: override?.session?.userId ?? newUserId("userId"),
-			code: override?.session?.code ?? "testCode",
-			secretHash: override?.session?.secretHash ?? secretHash,
-			expiresAt: override?.session?.expiresAt ?? new Date(1704067200 * 1000),
-		} satisfies EmailVerificationSession;
-
-		return {
-			session,
-			sessionSecret,
-			sessionToken: formatSessionToken(session.id, sessionSecret),
-		};
-	}
 
 	public convertToRaw(session: EmailVerificationSession): RawEmailVerificationSession {
 		return {

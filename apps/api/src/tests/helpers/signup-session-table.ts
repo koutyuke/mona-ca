@@ -1,7 +1,4 @@
-import { ulid } from "../../common/utils";
 import type { SignupSession } from "../../domain/entities";
-import { formatSessionToken, newSignupSessionId } from "../../domain/value-object";
-import { hashSessionSecret } from "../../infrastructure/crypt";
 import { toRawBoolean, toRawDate, toRawSessionSecretHash } from "./utils";
 
 export type RawSignupSession = {
@@ -15,32 +12,6 @@ export type RawSignupSession = {
 
 export class SignupSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
-
-	public createData(override?: {
-		signupSession?: Partial<SignupSession>;
-		signupSessionSecret?: string;
-	}): {
-		signupSession: SignupSession;
-		signupSessionSecret: string;
-		signupSessionToken: string;
-	} {
-		const secret = override?.signupSessionSecret ?? "signupSessionSecret";
-		const secretHash = hashSessionSecret(secret);
-
-		return {
-			signupSession: {
-				id: newSignupSessionId(ulid()),
-				email: "test@example.com",
-				emailVerified: false,
-				code: "testCode",
-				secretHash: secretHash,
-				expiresAt: new Date(1704067200 * 1000),
-				...override?.signupSession,
-			},
-			signupSessionSecret: secret,
-			signupSessionToken: formatSessionToken(newSignupSessionId(ulid()), secret),
-		};
-	}
 
 	public convertToRaw(signupSession: SignupSession): RawSignupSession {
 		return {

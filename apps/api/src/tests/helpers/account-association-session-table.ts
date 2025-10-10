@@ -1,14 +1,6 @@
-import { type ToPrimitive, ulid } from "../../common/utils";
-import { type AccountAssociationSession, accountAssociationSessionExpiresSpan } from "../../domain/entities";
-import {
-	formatSessionToken,
-	newAccountAssociationSessionId,
-	newOAuthProvider,
-	newOAuthProviderId,
-	newUserId,
-} from "../../domain/value-object";
+import type { ToPrimitive } from "../../common/utils";
+import type { AccountAssociationSession } from "../../domain/entities";
 import type { OAuthProvider } from "../../domain/value-object";
-import { hashSessionSecret } from "../../infrastructure/crypt";
 import { toRawDate, toRawSessionSecretHash } from "./utils";
 
 export type RawAccountAssociationSession = {
@@ -24,38 +16,6 @@ export type RawAccountAssociationSession = {
 
 export class AccountAssociationSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
-
-	public createData(override?: {
-		session?: Partial<AccountAssociationSession>;
-		sessionSecret?: string;
-	}): {
-		session: AccountAssociationSession;
-		sessionSecret: string;
-		sessionToken: string;
-	} {
-		const sessionSecret = override?.sessionSecret ?? "accountAssociationSessionSecret";
-		const secretHash = hashSessionSecret(sessionSecret);
-
-		const session: AccountAssociationSession = {
-			id: override?.session?.id ?? newAccountAssociationSessionId(ulid()),
-			userId: override?.session?.userId ?? newUserId(ulid()),
-			code: override?.session?.code ?? "testCode",
-			secretHash: override?.session?.secretHash ?? secretHash,
-			email: override?.session?.email ?? "test.email@example.com",
-			provider: override?.session?.provider ?? newOAuthProvider("discord"),
-			providerId: override?.session?.providerId ?? newOAuthProviderId(ulid()),
-			expiresAt:
-				override?.session?.expiresAt ?? new Date(Date.now() + accountAssociationSessionExpiresSpan.milliseconds()),
-		} satisfies AccountAssociationSession;
-
-		const sessionToken = formatSessionToken(session.id, sessionSecret);
-
-		return {
-			session,
-			sessionSecret,
-			sessionToken,
-		};
-	}
 
 	public async save(session: AccountAssociationSession): Promise<void> {
 		const raw = this.convertToRaw(session);
