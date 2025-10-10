@@ -2,6 +2,8 @@ import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { sessionExpiresSpan } from "../../../../domain/entities";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { createSessionFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
 
@@ -13,7 +15,7 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("SessionRepository.save", () => {
 	beforeAll(async () => {
@@ -25,7 +27,7 @@ describe("SessionRepository.save", () => {
 	});
 
 	test("should insert a session", async () => {
-		const { session } = sessionTableHelper.createData({
+		const { session } = createSessionFixture({
 			session: {
 				userId: user.id,
 				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
@@ -40,7 +42,7 @@ describe("SessionRepository.save", () => {
 	});
 
 	test("should update session if it already exists", async () => {
-		const { session } = sessionTableHelper.createData({
+		const { session } = createSessionFixture({
 			session: {
 				userId: user.id,
 			},

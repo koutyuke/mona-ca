@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createPasswordResetSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { PasswordResetSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { PasswordResetSessionRepository } from "../password-reset-session.repository";
 
@@ -12,7 +13,7 @@ const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzl
 const userTableHelper = new UserTableHelper(DB);
 const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("PasswordResetSessionRepository.deleteByUserId", () => {
 	beforeAll(async () => {
@@ -24,12 +25,12 @@ describe("PasswordResetSessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete password reset session from user if exists", async () => {
-		const { session } = passwordResetSessionTableHelper.createData({
-			session: {
+		const { passwordResetSession } = createPasswordResetSessionFixture({
+			passwordResetSession: {
 				userId: user.id,
 			},
 		});
-		await passwordResetSessionTableHelper.save(session);
+		await passwordResetSessionTableHelper.save(passwordResetSession);
 
 		await passwordResetSessionRepository.deleteByUserId(user.id);
 

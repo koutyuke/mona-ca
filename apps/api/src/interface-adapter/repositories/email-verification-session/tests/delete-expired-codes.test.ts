@@ -1,6 +1,8 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { createEmailVerificationSessionFixture } from "../../../../tests/fixtures";
 import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
 
@@ -12,7 +14,7 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 const userTableHelper = new UserTableHelper(DB);
 const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("EmailVerificationSessionRepository.deleteExpiredVerifications", () => {
 	beforeAll(async () => {
@@ -24,17 +26,17 @@ describe("EmailVerificationSessionRepository.deleteExpiredVerifications", () => 
 	});
 
 	test("should delete data in database", async () => {
-		const { session } = emailVerificationSessionTableHelper.createData({
-			session: {
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
 				userId: user.id,
 				expiresAt: new Date(0),
 			},
 		});
-		await emailVerificationSessionTableHelper.save(session);
+		await emailVerificationSessionTableHelper.save(emailVerificationSession);
 
 		await emailVerificationSessionRepository.deleteExpiredVerifications();
 
-		const results = await emailVerificationSessionTableHelper.findByUserId(user.id);
+		const results = await emailVerificationSessionTableHelper.findByUserId(emailVerificationSession.userId);
 
 		expect(results.length).toBe(0);
 	});

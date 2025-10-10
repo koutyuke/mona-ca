@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { newPasswordResetSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createPasswordResetSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { PasswordResetSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { PasswordResetSessionRepository } from "../password-reset-session.repository";
 
@@ -13,7 +14,7 @@ const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzl
 const userTableHelper = new UserTableHelper(DB);
 const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("PasswordResetSessionRepository.findById", () => {
 	beforeEach(async () => {
@@ -24,18 +25,18 @@ describe("PasswordResetSessionRepository.findById", () => {
 	test("should return PasswordResetSession instance if exists", async () => {
 		await userTableHelper.save(user, passwordHash);
 
-		const { session } = passwordResetSessionTableHelper.createData({
-			session: {
+		const { passwordResetSession } = createPasswordResetSessionFixture({
+			passwordResetSession: {
 				userId: user.id,
 			},
 		});
-		await passwordResetSessionTableHelper.save(session);
+		await passwordResetSessionTableHelper.save(passwordResetSession);
 
-		const foundSession = await passwordResetSessionRepository.findById(session.id);
+		const foundSession = await passwordResetSessionRepository.findById(passwordResetSession.id);
 
 		expect(foundSession).not.toBeNull();
 		expect(passwordResetSessionTableHelper.convertToRaw(foundSession!)).toStrictEqual(
-			passwordResetSessionTableHelper.convertToRaw(session),
+			passwordResetSessionTableHelper.convertToRaw(passwordResetSession),
 		);
 	});
 

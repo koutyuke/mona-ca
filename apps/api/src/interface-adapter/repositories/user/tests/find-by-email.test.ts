@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
 import { UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
 
@@ -11,7 +12,7 @@ const userRepository = new UserRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("UserRepository.findByEmail", async () => {
 	beforeEach(async () => {

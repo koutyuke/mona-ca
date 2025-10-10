@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import type { User } from "../../../../domain/entities";
 import { newSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
 
@@ -14,7 +15,7 @@ const userRepository = new UserRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("UserRepository.findBySessionId", async () => {
 	beforeAll(async () => {
@@ -26,7 +27,7 @@ describe("UserRepository.findBySessionId", async () => {
 	});
 
 	test("should return User instance if user exists.", async () => {
-		const { session } = sessionTableHelper.createData({
+		const { session } = createSessionFixture({
 			session: {
 				userId: user.id,
 			},

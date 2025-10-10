@@ -1,6 +1,8 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { createPasswordResetSessionFixture } from "../../../../tests/fixtures";
 import { PasswordResetSessionTableHelper, UserTableHelper, toRawDate } from "../../../../tests/helpers";
 import { PasswordResetSessionRepository } from "../password-reset-session.repository";
 
@@ -14,7 +16,7 @@ const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
 const now = new Date();
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("PasswordResetSessionRepository.save", () => {
 	beforeAll(async () => {
@@ -26,41 +28,41 @@ describe("PasswordResetSessionRepository.save", () => {
 	});
 
 	test("should set password reset session in the database", async () => {
-		const { session } = passwordResetSessionTableHelper.createData({
-			session: {
+		const { passwordResetSession } = createPasswordResetSessionFixture({
+			passwordResetSession: {
 				userId: user.id,
 			},
 		});
 
-		await passwordResetSessionRepository.save(session);
+		await passwordResetSessionRepository.save(passwordResetSession);
 
-		const results = await passwordResetSessionTableHelper.findById(session.id);
+		const results = await passwordResetSessionTableHelper.findById(passwordResetSession.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(passwordResetSessionTableHelper.convertToRaw(session));
+		expect(results[0]).toStrictEqual(passwordResetSessionTableHelper.convertToRaw(passwordResetSession));
 	});
 
 	test("should update password reset session in the database if it already exists", async () => {
-		const { session } = passwordResetSessionTableHelper.createData({
-			session: {
+		const { passwordResetSession } = createPasswordResetSessionFixture({
+			passwordResetSession: {
 				userId: user.id,
 			},
 		});
-		await passwordResetSessionTableHelper.save(session);
+		await passwordResetSessionTableHelper.save(passwordResetSession);
 
 		const updatedPasswordResetSession = {
-			...session,
+			...passwordResetSession,
 			emailVerified: false,
 			expiresAt: now,
 		};
 
 		await passwordResetSessionRepository.save(updatedPasswordResetSession);
 
-		const results = await passwordResetSessionTableHelper.findById(session.id);
+		const results = await passwordResetSessionTableHelper.findById(passwordResetSession.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			...passwordResetSessionTableHelper.convertToRaw(session),
+			...passwordResetSessionTableHelper.convertToRaw(passwordResetSession),
 			email_verified: 0,
 			expires_at: toRawDate(now),
 		});

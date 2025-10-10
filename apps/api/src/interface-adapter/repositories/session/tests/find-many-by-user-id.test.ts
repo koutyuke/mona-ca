@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
 
@@ -13,7 +14,7 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("SessionRepository.findManyByUserId", () => {
 	beforeAll(async () => {
@@ -25,12 +26,12 @@ describe("SessionRepository.findManyByUserId", () => {
 	});
 
 	test("should return sessions", async () => {
-		const firstSession = sessionTableHelper.createData({
+		const firstSession = createSessionFixture({
 			session: {
 				userId: user.id,
 			},
 		});
-		const secondSession = sessionTableHelper.createData({
+		const secondSession = createSessionFixture({
 			session: {
 				userId: user.id,
 			},

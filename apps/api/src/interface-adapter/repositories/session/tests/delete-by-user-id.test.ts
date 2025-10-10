@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
 
@@ -12,7 +13,7 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("SessionRepository.deleteByUserId", () => {
 	beforeAll(async () => {
@@ -24,7 +25,7 @@ describe("SessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete session from user if exists", async () => {
-		const { session } = sessionTableHelper.createData({
+		const { session } = createSessionFixture({
 			session: {
 				userId: user.id,
 			},

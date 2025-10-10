@@ -2,6 +2,8 @@ import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { newAccountAssociationSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { createAccountAssociationSessionFixture } from "../../../../tests/fixtures";
 import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { AccountAssociationSessionRepository } from "../account-association-session.repository";
 
@@ -13,7 +15,7 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("AccountAssociationSessionRepository.findById", () => {
 	beforeAll(async () => {
@@ -25,15 +27,15 @@ describe("AccountAssociationSessionRepository.findById", () => {
 	});
 
 	test("should return session from sessionId", async () => {
-		const { session } = accountAssociationSessionTableHelper.createData({
-			session: {
+		const { accountAssociationSession } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
 				userId: user.id,
 			},
 		});
-		await accountAssociationSessionTableHelper.save(session);
+		await accountAssociationSessionTableHelper.save(accountAssociationSession);
 
-		const foundSession = await accountAssociationSessionRepository.findById(session.id);
-		const expectedSession = accountAssociationSessionTableHelper.convertToRaw(session);
+		const foundSession = await accountAssociationSessionRepository.findById(accountAssociationSession.id);
+		const expectedSession = accountAssociationSessionTableHelper.convertToRaw(accountAssociationSession);
 
 		expect(foundSession).toBeDefined();
 		expect(expectedSession).toStrictEqual(accountAssociationSessionTableHelper.convertToRaw(foundSession!));

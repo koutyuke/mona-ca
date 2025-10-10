@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test } from "vitest";
 import type { User } from "../../../../domain/entities";
 import { newGender } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
 import { UserTableHelper, toRawDate } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
 
@@ -15,7 +16,7 @@ const userTableHelper = new UserTableHelper(DB);
 
 const now = new Date();
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("UserRepository.save", async () => {
 	beforeEach(async () => {

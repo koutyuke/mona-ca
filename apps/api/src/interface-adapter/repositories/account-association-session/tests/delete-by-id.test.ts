@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { newAccountAssociationSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { AccountAssociationSessionRepository } from "../account-association-session.repository";
 
@@ -13,7 +14,7 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("AccountAssociationSessionRepository.delete", () => {
 	beforeAll(async () => {
@@ -25,16 +26,16 @@ describe("AccountAssociationSessionRepository.delete", () => {
 	});
 
 	test("should delete session by id", async () => {
-		const { session } = accountAssociationSessionTableHelper.createData({
-			session: {
+		const { accountAssociationSession } = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
 				userId: user.id,
 			},
 		});
-		await accountAssociationSessionTableHelper.save(session);
+		await accountAssociationSessionTableHelper.save(accountAssociationSession);
 
-		await accountAssociationSessionRepository.deleteById(session.id);
+		await accountAssociationSessionRepository.deleteById(accountAssociationSession.id);
 
-		const databaseSessions = await accountAssociationSessionTableHelper.findById(session.id);
+		const databaseSessions = await accountAssociationSessionTableHelper.findById(accountAssociationSession.id);
 		expect(databaseSessions).toHaveLength(0);
 	});
 

@@ -2,6 +2,8 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { newEmailVerificationSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { createEmailVerificationSessionFixture } from "../../../../tests/fixtures";
 import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
 
@@ -13,7 +15,7 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 const userTableHelper = new UserTableHelper(DB);
 const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("EmailVerificationSessionRepository.findId", () => {
 	beforeEach(async () => {
@@ -24,18 +26,20 @@ describe("EmailVerificationSessionRepository.findId", () => {
 	test("should return EmailVerificationSession instance", async () => {
 		await userTableHelper.save(user, passwordHash);
 
-		const { session } = emailVerificationSessionTableHelper.createData({
-			session: {
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
 				userId: user.id,
 			},
 		});
-		await emailVerificationSessionTableHelper.save(session);
+		await emailVerificationSessionTableHelper.save(emailVerificationSession);
 
-		const foundEmailVerificationSession = await emailVerificationSessionRepository.findById(session.id);
+		const foundEmailVerificationSession = await emailVerificationSessionRepository.findById(
+			emailVerificationSession.id,
+		);
 
 		expect(foundEmailVerificationSession).not.toBeNull();
 		expect(emailVerificationSessionTableHelper.convertToRaw(foundEmailVerificationSession!)).toStrictEqual(
-			emailVerificationSessionTableHelper.convertToRaw(session),
+			emailVerificationSessionTableHelper.convertToRaw(emailVerificationSession),
 		);
 	});
 

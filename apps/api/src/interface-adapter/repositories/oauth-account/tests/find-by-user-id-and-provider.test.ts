@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { newOAuthProvider, newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
 import { OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
@@ -13,7 +14,7 @@ const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
 
-const { user, passwordHash } = userTableHelper.createData();
+const { user, passwordHash } = createUserFixture();
 
 describe("OAuthAccountRepository.findByUserIdAndProvider", () => {
 	beforeAll(async () => {
@@ -25,7 +26,7 @@ describe("OAuthAccountRepository.findByUserIdAndProvider", () => {
 	});
 
 	test("should return OAuthAccount instance", async () => {
-		const { oauthAccount } = oauthAccountTableHelper.createData({
+		const { oauthAccount } = createOAuthAccountFixture({
 			oauthAccount: {
 				userId: user.id,
 			},

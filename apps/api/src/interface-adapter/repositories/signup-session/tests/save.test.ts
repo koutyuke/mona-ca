@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createSignupSessionFixture } from "../../../../tests/fixtures";
 import { SignupSessionTableHelper, toRawDate, toRawSessionSecretHash } from "../../../../tests/helpers";
 import { SignupSessionRepository } from "../signup-session.repository";
 
@@ -17,7 +18,7 @@ describe("SignupSessionRepository.save", () => {
 	});
 
 	test("should create signup session in database", async () => {
-		const { signupSession } = signupSessionTableHelper.createData();
+		const { signupSession } = createSignupSessionFixture();
 
 		await signupSessionRepository.save(signupSession);
 
@@ -36,7 +37,7 @@ describe("SignupSessionRepository.save", () => {
 
 	test("should update signup session in database if already exists", async () => {
 		const expiresAt = new Date(1704067200 * 1000 + 60_000);
-		const { signupSession } = signupSessionTableHelper.createData();
+		const { signupSession } = createSignupSessionFixture();
 		await signupSessionRepository.save(signupSession);
 
 		const updatedSignupSession = {
