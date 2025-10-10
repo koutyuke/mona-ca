@@ -1,9 +1,10 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { Session, User } from "../../../../domain/entities";
+import type { SessionToken } from "../../../../domain/value-object";
 
 type Success = {
 	session: Session;
-	sessionToken: string;
+	sessionToken: SessionToken;
 };
 
 type Error = Err<"INVALID_CURRENT_PASSWORD">;

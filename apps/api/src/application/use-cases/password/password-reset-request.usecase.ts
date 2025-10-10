@@ -1,9 +1,9 @@
 import { err, generateRandomString, ulid } from "../../../common/utils";
 import { createPasswordResetSession } from "../../../domain/entities";
-import { newPasswordResetSessionId } from "../../../domain/value-object";
+import { formatSessionToken, newPasswordResetSessionId } from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	IPasswordResetRequestUseCase,
 	PasswordResetRequestUseCaseResult,
@@ -13,7 +13,6 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 	constructor(
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly userRepository: IUserRepository,
-		private readonly passwordResetSessionSecretService: ISessionSecretService,
 	) {}
 
 	public async execute(email: string): Promise<PasswordResetRequestUseCaseResult> {
@@ -27,11 +26,10 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 			number: true,
 		});
 
-		const passwordResetSessionSecret = this.passwordResetSessionSecretService.generateSessionSecret();
-		const passwordResetSessionSecretHash =
-			this.passwordResetSessionSecretService.hashSessionSecret(passwordResetSessionSecret);
+		const passwordResetSessionSecret = generateSessionSecret();
+		const passwordResetSessionSecretHash = hashSessionSecret(passwordResetSessionSecret);
 		const passwordResetSessionId = newPasswordResetSessionId(ulid());
-		const passwordResetSessionToken = createSessionToken(passwordResetSessionId, passwordResetSessionSecret);
+		const passwordResetSessionToken = formatSessionToken(passwordResetSessionId, passwordResetSessionSecret);
 		const passwordResetSession = createPasswordResetSession({
 			id: passwordResetSessionId,
 			userId: user.id,
