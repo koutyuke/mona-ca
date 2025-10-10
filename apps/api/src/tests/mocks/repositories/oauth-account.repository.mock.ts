@@ -3,7 +3,7 @@ import type { OAuthProvider, OAuthProviderId, UserId } from "../../../domain/val
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account/interfaces/oauth-account.repository.interface";
 
 export class OAuthAccountRepositoryMock implements IOAuthAccountRepository {
-	public oauthAccountMap: Map<string, OAuthAccount>;
+	private readonly oauthAccountMap: Map<string, OAuthAccount>;
 
 	constructor(maps: {
 		oauthAccountMap: Map<string, OAuthAccount>;
