@@ -1,21 +1,19 @@
 import { err } from "../../../common/utils";
 import { isExpiredSignupSession } from "../../../domain/entities";
-import type { SignupSessionId } from "../../../domain/value-object";
+import type { SignupSessionToken } from "../../../domain/value-object";
+import { parseSessionToken } from "../../../domain/value-object";
+import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
-import { type ISessionSecretService, separateSessionTokenToIdAndSecret } from "../../services/session";
 import type {
 	IValidateSignupSessionUseCase,
 	ValidateSignupSessionUseCaseResult,
 } from "./interfaces/validate-signup-session.usecase.interface";
 
 export class ValidateSignupSessionUseCase implements IValidateSignupSessionUseCase {
-	constructor(
-		private readonly signupSessionRepository: ISignupSessionRepository,
-		private readonly signupSessionSecretService: ISessionSecretService,
-	) {}
+	constructor(private readonly signupSessionRepository: ISignupSessionRepository) {}
 
-	async execute(signupSessionToken: string): Promise<ValidateSignupSessionUseCaseResult> {
-		const signupSessionIdAndSecret = separateSessionTokenToIdAndSecret<SignupSessionId>(signupSessionToken);
+	async execute(signupSessionToken: SignupSessionToken): Promise<ValidateSignupSessionUseCaseResult> {
+		const signupSessionIdAndSecret = parseSessionToken(signupSessionToken);
 
 		if (!signupSessionIdAndSecret) {
 			return err("SIGNUP_SESSION_INVALID");
@@ -29,7 +27,7 @@ export class ValidateSignupSessionUseCase implements IValidateSignupSessionUseCa
 			return err("SIGNUP_SESSION_INVALID");
 		}
 
-		if (!this.signupSessionSecretService.verifySessionSecret(signupSessionSecret, signupSession.secretHash)) {
+		if (!verifySessionSecret(signupSessionSecret, signupSession.secretHash)) {
 			return err("SIGNUP_SESSION_INVALID");
 		}
 

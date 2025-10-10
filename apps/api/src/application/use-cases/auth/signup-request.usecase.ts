@@ -1,16 +1,16 @@
 import { err, generateRandomString, ulid } from "../../../common/utils";
 import { type SignupSession, createSignupSession } from "../../../domain/entities";
-import { newSignupSessionId } from "../../../domain/value-object";
+import { formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
+import type { SignupSessionToken } from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session/interfaces/signup-session.repository.interface";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "./interfaces/signup-request.usecase.interface";
 
 export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(
 		private readonly signupSessionRepository: ISignupSessionRepository,
 		private readonly userRepository: IUserRepository,
-		private readonly signupSessionSecretService: ISessionSecretService,
 	) {}
 
 	async execute(email: string): Promise<SignupRequestUseCaseResult> {
@@ -22,23 +22,23 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 
 		await this.signupSessionRepository.deleteByEmail(email);
 
-		const { sessionToken, session } = this.createSignupSession(email);
+		const { signupSessionToken, signupSession } = this.createSignupSession(email);
 
-		await this.signupSessionRepository.save(session);
+		await this.signupSessionRepository.save(signupSession);
 
 		return {
-			signupSessionToken: sessionToken,
-			signupSession: session,
+			signupSessionToken,
+			signupSession,
 		};
 	}
 
-	private createSignupSession(email: string): { sessionToken: string; session: SignupSession } {
+	private createSignupSession(email: string): { signupSessionToken: SignupSessionToken; signupSession: SignupSession } {
 		const code = generateRandomString(8, {
 			number: true,
 		});
 
-		const signupSessionSecret = this.signupSessionSecretService.generateSessionSecret();
-		const signupSessionSecretHash = this.signupSessionSecretService.hashSessionSecret(signupSessionSecret);
+		const signupSessionSecret = generateSessionSecret();
+		const signupSessionSecretHash = hashSessionSecret(signupSessionSecret);
 		const signupSessionId = newSignupSessionId(ulid());
 		const signupSession = createSignupSession({
 			id: signupSessionId,
@@ -46,8 +46,8 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 			code,
 			secretHash: signupSessionSecretHash,
 		});
-		const signupSessionToken = createSessionToken(signupSessionId, signupSessionSecret);
+		const signupSessionToken = formatSessionToken(signupSessionId, signupSessionSecret);
 
-		return { sessionToken: signupSessionToken, session: signupSession };
+		return { signupSessionToken, signupSession };
 	}
 }

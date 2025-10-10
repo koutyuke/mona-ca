@@ -1,54 +1,34 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { ulid } from "../../../../common/utils";
-import { createSession } from "../../../../domain/entities";
-import { newSessionId, newUserId } from "../../../../domain/value-object";
-import { SessionSecretServiceMock } from "../../../../tests/mocks";
-import { SessionRepositoryMock } from "../../../../tests/mocks/repositories/session.repository.mock";
-import { createSessionsMap } from "../../../../tests/mocks/repositories/table-maps";
+import { describe, expect, it } from "vitest";
+import { createSessionFixture } from "../../../../tests/fixtures";
+import { SessionRepositoryMock } from "../../../../tests/mocks";
+import { createSessionsMap } from "../../../../tests/mocks";
 import type { ILogoutUseCase } from "../interfaces/logout.usecase.interface";
 import { LogoutUseCase } from "../logout.usecase";
 
+const sessionMap = createSessionsMap();
+const sessionRepositoryMock = new SessionRepositoryMock({
+	sessionMap,
+});
+const logoutUseCase: ILogoutUseCase = new LogoutUseCase(sessionRepositoryMock);
+
 describe("LogoutUseCase", () => {
-	let logoutUseCase: ILogoutUseCase;
-	let sessionRepositoryMock: SessionRepositoryMock;
-	let sessionSecretServiceMock: SessionSecretServiceMock;
-
-	beforeEach(() => {
-		const sessionMap = createSessionsMap();
-
-		sessionRepositoryMock = new SessionRepositoryMock({
-			sessionMap,
-		});
-
-		logoutUseCase = new LogoutUseCase(sessionRepositoryMock);
-		sessionSecretServiceMock = new SessionSecretServiceMock();
-	});
-
 	it("should delete the session on logout", async () => {
-		const sessionId = newSessionId(ulid());
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const sessionSecretHash = sessionSecretServiceMock.hashSessionSecret(sessionSecret);
+		const { session } = createSessionFixture();
 
-		const session = createSession({
-			id: sessionId,
-			userId: newUserId(ulid()),
-			secretHash: sessionSecretHash,
-		});
+		sessionMap.set(session.id, session);
 
-		sessionRepositoryMock.sessionMap.set(sessionId, session);
+		expect(sessionMap.has(session.id)).toBe(true);
 
-		expect(sessionRepositoryMock.sessionMap.has(sessionId)).toBe(true);
+		await logoutUseCase.execute(session.id);
 
-		await logoutUseCase.execute(sessionId);
-
-		expect(sessionRepositoryMock.sessionMap.has(sessionId)).toBe(false);
+		expect(sessionMap.has(session.id)).toBe(false);
 	});
 
 	it("should not throw error when trying to delete non-existent session", async () => {
-		const sessionId = newSessionId(ulid());
+		const { session } = createSessionFixture();
 
-		expect(sessionRepositoryMock.sessionMap.has(sessionId)).toBe(false);
+		expect(sessionMap.has(session.id)).toBe(false);
 
-		await expect(logoutUseCase.execute(sessionId)).resolves.not.toThrow();
+		await expect(logoutUseCase.execute(session.id)).resolves.not.toThrow();
 	});
 });

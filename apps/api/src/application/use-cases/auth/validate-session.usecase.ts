@@ -1,20 +1,20 @@
 import { err } from "../../../common/utils";
 import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities";
-import type { SessionId } from "../../../domain/value-object";
+import type { SessionToken } from "../../../domain/value-object";
+import { parseSessionToken } from "../../../domain/value-object";
+import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import { type ISessionSecretService, separateSessionTokenToIdAndSecret } from "../../services/session";
 import type { IValidateSessionUseCase, ValidateSessionUseCaseResult } from "./interfaces/validate-session.usecase";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(
-		private readonly sessionSecretService: ISessionSecretService,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly userRepository: IUserRepository,
 	) {}
 
-	public async execute(sessionToken: string): Promise<ValidateSessionUseCaseResult> {
-		const idAndSecret = separateSessionTokenToIdAndSecret<SessionId>(sessionToken);
+	public async execute(sessionToken: SessionToken): Promise<ValidateSessionUseCaseResult> {
+		const idAndSecret = parseSessionToken(sessionToken);
 		if (!idAndSecret) {
 			return err("SESSION_INVALID");
 		}
@@ -26,7 +26,7 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 			this.sessionRepository.findById(sessionId),
 		]);
 
-		if (!session || !user || !this.sessionSecretService.verifySessionSecret(sessionSecret, session.secretHash)) {
+		if (!session || !user || !verifySessionSecret(sessionSecret, session.secretHash)) {
 			return err("SESSION_INVALID");
 		}
 
