@@ -6,11 +6,6 @@ export const PublicSchema = t.Object({
 
 export const PepperSchema = t.Object({
 	PASSWORD_PEPPER: t.String(),
-	SESSION_PEPPER: t.String(),
-	PASSWORD_RESET_SESSION_PEPPER: t.String(),
-	EMAIL_VERIFICATION_SESSION_PEPPER: t.String(),
-	ACCOUNT_ASSOCIATION_SESSION_PEPPER: t.String(),
-	SIGNUP_SESSION_PEPPER: t.String(),
 });
 
 export const ResendSchema = t.Object({
