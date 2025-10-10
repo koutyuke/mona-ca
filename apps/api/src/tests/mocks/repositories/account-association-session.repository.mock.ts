@@ -4,7 +4,7 @@ import type { AccountAssociationSessionId, UserId } from "../../../domain/value-
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session/interfaces/account-association-session.repository.interface";
 
 export class AccountAssociationSessionRepositoryMock implements IAccountAssociationSessionRepository {
-	public accountAssociationSessionMap: Map<AccountAssociationSessionId, AccountAssociationSession>;
+	private readonly accountAssociationSessionMap: Map<AccountAssociationSessionId, AccountAssociationSession>;
 
 	constructor(maps: {
 		accountAssociationSessionMap: Map<AccountAssociationSessionId, AccountAssociationSession>;

@@ -1,5 +1,4 @@
 import { t } from "elysia";
-import { SessionSecretService } from "../../../application/services/session";
 import { SignupRequestUseCase } from "../../../application/use-cases/auth";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
@@ -42,27 +41,16 @@ export const SignupRequest = new ElysiaWithEnv()
 	// Route
 	.post(
 		"",
-		async ({
-			env: { SIGNUP_SESSION_PEPPER, APP_ENV, RESEND_API_KEY },
-			cfModuleEnv: { DB },
-			cookie,
-			body: { email },
-			clientType,
-		}) => {
+		async ({ env: { APP_ENV, RESEND_API_KEY }, cfModuleEnv: { DB }, cookie, body: { email }, clientType }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const signupSessionSecretService = new SessionSecretService(SIGNUP_SESSION_PEPPER);
 
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
-			const signupRequestUseCase = new SignupRequestUseCase(
-				signupSessionRepository,
-				userRepository,
-				signupSessionSecretService,
-			);
+			const signupRequestUseCase = new SignupRequestUseCase(signupSessionRepository, userRepository);
 			// === End of instances ===
 
 			const result = await signupRequestUseCase.execute(email);

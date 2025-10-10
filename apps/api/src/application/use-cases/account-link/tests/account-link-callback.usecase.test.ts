@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
-import { createOAuthAccount } from "../../../../domain/entities";
-import { newClientType, newOAuthProvider, newOAuthProviderId, newUserId } from "../../../../domain/value-object";
+import { isErr } from "../../../../common/utils";
+import { newClientType, newOAuthProvider, newOAuthProviderId } from "../../../../domain/value-object";
 import { generateSignedState } from "../../../../interface-adapter/gateway/oauth-provider";
+import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	OAuthAccountRepositoryMock,
 	OAuthProviderGatewayMock,
@@ -18,21 +18,18 @@ describe("AccountLinkCallbackUseCase", () => {
 		OAUTH_STATE_HMAC_SECRET: "test_secret",
 	};
 
-	let accountLinkCallbackUseCase: IAccountLinkCallbackUseCase;
-	let oauthAccountRepositoryMock: OAuthAccountRepositoryMock;
-	let oauthProviderGatewayMock: OAuthProviderGatewayMock;
+	const oauthAccountMap = createOAuthAccountsMap();
+	const oauthProviderGatewayMock = new OAuthProviderGatewayMock();
+	const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
+	const accountLinkCallbackUseCase: IAccountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
+		mockEnv,
+		oauthProviderGatewayMock,
+		oauthAccountRepositoryMock,
+	);
+	const { user } = createUserFixture();
 
 	beforeEach(() => {
-		const oauthAccountMap = createOAuthAccountsMap();
-
-		oauthProviderGatewayMock = new OAuthProviderGatewayMock();
-		oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
-
-		accountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
-			mockEnv,
-			oauthProviderGatewayMock,
-			oauthAccountRepositoryMock,
-		);
+		oauthAccountMap.clear();
 	});
 
 	it("should return OAUTH_CREDENTIALS_INVALID error for invalid state", async () => {
@@ -55,7 +52,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", async () => {
-		const userId = newUserId(ulid());
+		const userId = user.id;
 		const signedState = generateSignedState(
 			{ client: newClientType("web"), uid: userId },
 			mockEnv.OAUTH_STATE_HMAC_SECRET,
@@ -78,7 +75,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_CREDENTIALS_INVALID error when code is missing", async () => {
-		const userId = newUserId(ulid());
+		const userId = user.id;
 		const signedState = generateSignedState(
 			{ client: newClientType("web"), uid: userId },
 			mockEnv.OAUTH_STATE_HMAC_SECRET,
@@ -101,7 +98,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_ACCESS_DENIED error when user denies access", async () => {
-		const userId = newUserId(ulid());
+		const userId = user.id;
 		const signedState = generateSignedState(
 			{ client: newClientType("web"), uid: userId },
 			mockEnv.OAUTH_STATE_HMAC_SECRET,
@@ -124,7 +121,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_PROVIDER_ERROR error for provider error", async () => {
-		const userId = newUserId(ulid());
+		const userId = user.id;
 		const signedState = generateSignedState(
 			{ client: newClientType("web"), uid: userId },
 			mockEnv.OAUTH_STATE_HMAC_SECRET,
@@ -147,18 +144,19 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_PROVIDER_ALREADY_LINKED error when user already has linked account for this provider", async () => {
-		const userId = newUserId(ulid());
+		const userId = user.id;
 		const provider = newOAuthProvider("discord");
 		const providerId = newOAuthProviderId("different_provider_id");
 
-		// existing oauth account for this user and provider
-		const existingOAuthAccount = createOAuthAccount({
-			userId,
-			provider,
-			providerId,
+		const { oauthAccount: existingOAuthAccount } = createOAuthAccountFixture({
+			oauthAccount: {
+				userId,
+				provider,
+				providerId,
+			},
 		});
 
-		oauthAccountRepositoryMock.oauthAccountMap.set(createOAuthAccountKey(provider, providerId), existingOAuthAccount);
+		oauthAccountMap.set(createOAuthAccountKey(provider, providerId), existingOAuthAccount);
 
 		const signedState = generateSignedState(
 			{ client: newClientType("web"), uid: userId },
@@ -181,19 +179,20 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER error when provider account is already linked to another user", async () => {
-		const userId = newUserId(ulid());
-		const anotherUserId = newUserId(ulid());
+		const userId = user.id;
+		const { user: anotherUser } = createUserFixture();
 		const provider = newOAuthProvider("discord");
 		const providerId = newOAuthProviderId("provider_user_id");
 
-		// existing oauth account for another user
-		const existingOAuthAccount = createOAuthAccount({
-			userId: anotherUserId,
-			provider,
-			providerId,
+		const { oauthAccount: existingOAuthAccount } = createOAuthAccountFixture({
+			oauthAccount: {
+				userId: anotherUser.id,
+				provider,
+				providerId,
+			},
 		});
 
-		oauthAccountRepositoryMock.oauthAccountMap.set(createOAuthAccountKey(provider, providerId), existingOAuthAccount);
+		oauthAccountMap.set(createOAuthAccountKey(provider, providerId), existingOAuthAccount);
 
 		const signedState = generateSignedState(
 			{ client: newClientType("web"), uid: userId },
@@ -216,7 +215,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should successfully link account when no conflicts", async () => {
-		const userId = newUserId(ulid());
+		const userId = user.id;
 		const provider = newOAuthProvider("discord");
 		const signedState = generateSignedState(
 			{ client: newClientType("web"), uid: userId },
@@ -236,7 +235,7 @@ describe("AccountLinkCallbackUseCase", () => {
 		if (!isErr(result)) {
 			expect(result.redirectURL).toBeInstanceOf(URL);
 			expect(result.clientType).toBe(newClientType("web"));
-			expect(oauthAccountRepositoryMock.oauthAccountMap.size).toBe(1);
+			expect(oauthAccountMap.size).toBe(1);
 		}
 	});
 });

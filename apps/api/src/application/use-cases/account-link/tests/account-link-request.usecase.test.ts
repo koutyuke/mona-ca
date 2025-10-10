@@ -1,9 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { isErr, ulid } from "../../../../common/utils";
 import { newClientType, newUserId } from "../../../../domain/value-object";
 import { OAuthProviderGatewayMock } from "../../../../tests/mocks";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
-import type { IAccountLinkRequestUseCase } from "../interfaces/account-link-request.usecase.interface";
 
 describe("AccountLinkRequestUseCase", () => {
 	const mockEnv = {
@@ -11,13 +10,8 @@ describe("AccountLinkRequestUseCase", () => {
 		OAUTH_STATE_HMAC_SECRET: "test_secret",
 	};
 
-	let accountLinkRequestUseCase: IAccountLinkRequestUseCase;
-	let oauthProviderGatewayMock: OAuthProviderGatewayMock;
-
-	beforeEach(() => {
-		oauthProviderGatewayMock = new OAuthProviderGatewayMock();
-		accountLinkRequestUseCase = new AccountLinkRequestUseCase(mockEnv, oauthProviderGatewayMock);
-	});
+	const oauthProviderGatewayMock = new OAuthProviderGatewayMock();
+	const accountLinkRequestUseCase = new AccountLinkRequestUseCase(mockEnv, oauthProviderGatewayMock);
 
 	it("should generate account link request successfully for web client", () => {
 		const clientType = newClientType("web");

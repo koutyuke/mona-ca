@@ -1,9 +1,10 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
-import { type Session, sessionExpiresSpan } from "../../../../domain/entities";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { sessionExpiresSpan } from "../../../../domain/entities";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { createSessionFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
-import { toDatabaseDate } from "../../../../tests/utils";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -14,40 +15,49 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
+const { user, passwordHash } = createUserFixture();
+
 describe("SessionRepository.save", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
 	});
 
-	test("should set session in the database", async () => {
-		await sessionRepository.save(sessionTableHelper.baseData);
-
-		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseData.id);
-
-		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(sessionTableHelper.baseDatabaseData);
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM sessions");
 	});
 
-	test("should update session in the database if it already exists", async () => {
-		await sessionTableHelper.create();
+	test("should insert a session", async () => {
+		const { session } = createSessionFixture({
+			session: {
+				userId: user.id,
+				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
+			},
+		});
 
-		const newExpiresAt = new Date(Date.now() + sessionExpiresSpan.milliseconds());
+		await sessionRepository.save(session);
+
+		const databaseSessions = await sessionTableHelper.find(session.id);
+		expect(databaseSessions).toHaveLength(1);
+		expect(databaseSessions[0]).toStrictEqual(sessionTableHelper.convertToRaw(session));
+	});
+
+	test("should update session if it already exists", async () => {
+		const { session } = createSessionFixture({
+			session: {
+				userId: user.id,
+			},
+		});
+		await sessionTableHelper.save(session);
 
 		const updatedSession = {
-			id: sessionTableHelper.baseData.id,
-			userId: sessionTableHelper.baseData.userId,
-			secretHash: sessionTableHelper.baseSecretHash,
-			expiresAt: newExpiresAt,
-		} satisfies Session;
+			...session,
+			expiresAt: new Date(),
+		};
 
 		await sessionRepository.save(updatedSession);
 
-		const results = await sessionTableHelper.find(sessionTableHelper.baseDatabaseData.id);
-
-		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual({
-			...sessionTableHelper.baseDatabaseData,
-			expires_at: toDatabaseDate(newExpiresAt),
-		});
+		const databaseSessions = await sessionTableHelper.find(session.id);
+		expect(databaseSessions).toHaveLength(1);
+		expect(databaseSessions[0]).toStrictEqual(sessionTableHelper.convertToRaw(updatedSession));
 	});
 });

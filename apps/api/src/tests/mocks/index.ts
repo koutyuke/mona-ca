@@ -5,7 +5,6 @@ export { EmailVerificationSessionRepositoryMock } from "./repositories/email-ver
 export { AccountAssociationSessionRepositoryMock } from "./repositories/account-association-session.repository.mock";
 export { OAuthAccountRepositoryMock } from "./repositories/oauth-account.repository.mock";
 export { PasswordServiceMock } from "./services/password.service.mock";
-export { SessionSecretServiceMock } from "./services/session-secret.service.mock";
 export { OAuthProviderGatewayMock } from "./services/oauth-provider.gateway.mock";
 export { SignupSessionRepositoryMock } from "./repositories/signup-session.repository.mock";
 export {

@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createSignupSessionFixture } from "../../../../tests/fixtures";
 import { SignupSessionTableHelper } from "../../../../tests/helpers";
 import { SignupSessionRepository } from "../signup-session.repository";
 
@@ -17,7 +18,7 @@ describe("SignupSessionRepository.deleteByEmail", () => {
 	});
 
 	test("should delete signup sessions by email", async () => {
-		const { signupSession } = signupSessionTableHelper.createData();
+		const { signupSession } = createSignupSessionFixture();
 		await signupSessionRepository.save(signupSession);
 
 		await signupSessionRepository.deleteByEmail(signupSession.email);

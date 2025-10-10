@@ -1,9 +1,9 @@
 import { t } from "elysia";
 import { PasswordService } from "../../../application/services/password";
-import { SessionSecretService } from "../../../application/services/session";
 import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { newPasswordResetSessionToken } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
@@ -30,7 +30,7 @@ export const ResetPassword = new ElysiaWithEnv()
 		"/reset",
 		async ({
 			cfModuleEnv: { DB },
-			env: { PASSWORD_PEPPER, PASSWORD_RESET_SESSION_PEPPER, APP_ENV },
+			env: { PASSWORD_PEPPER, APP_ENV },
 			cookie,
 			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, newPassword },
 			clientType,
@@ -38,7 +38,6 @@ export const ResetPassword = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
-			const passwordResetSessionSecretService = new SessionSecretService(PASSWORD_RESET_SESSION_PEPPER);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const userRepository = new UserRepository(drizzleService);
@@ -47,7 +46,6 @@ export const ResetPassword = new ElysiaWithEnv()
 
 			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
-				passwordResetSessionSecretService,
 				userRepository,
 			);
 			const resetPasswordUseCase = new ResetPasswordUseCase(
@@ -58,19 +56,21 @@ export const ResetPassword = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const passwordResetSessionToken =
+			const rawPasswordResetSessionToken =
 				clientType === "web"
 					? cookieManager.getCookie(PASSWORD_RESET_SESSION_COOKIE_NAME)
 					: bodyPasswordResetSessionToken;
 
-			if (!passwordResetSessionToken) {
+			if (!rawPasswordResetSessionToken) {
 				throw new UnauthorizedException({
 					code: "PASSWORD_RESET_SESSION_INVALID",
 					message: "Password reset session token not found. Please request password reset again.",
 				});
 			}
 
-			const validationResult = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
+			const validationResult = await validatePasswordResetSessionUseCase.execute(
+				newPasswordResetSessionToken(rawPasswordResetSessionToken),
+			);
 
 			if (isErr(validationResult)) {
 				const { code } = validationResult;

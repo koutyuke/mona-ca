@@ -9,6 +9,7 @@ import {
 } from "../../../domain/entities";
 import {
 	type OAuthProvider,
+	formatSessionToken,
 	newAccountAssociationSessionId,
 	newClientType,
 	newGender,
@@ -16,13 +17,13 @@ import {
 	newSessionId,
 	newUserId,
 } from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { AppEnv } from "../../../modules/env";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	IOAuthSignupCallbackUseCase,
 	OAuthSignupCallbackUseCaseResult,
@@ -35,8 +36,6 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			APP_ENV: AppEnv["APP_ENV"];
 			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
 		},
-		private readonly sessionSecretService: ISessionSecretService,
-		private readonly accountAssociationSessionSecretService: ISessionSecretService,
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
@@ -125,12 +124,10 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		}
 
 		if (existingUserForSameEmail) {
-			const accountAssociationSessionSecret = this.accountAssociationSessionSecretService.generateSessionSecret();
-			const accountAssociationSessionSecretHash = this.accountAssociationSessionSecretService.hashSessionSecret(
-				accountAssociationSessionSecret,
-			);
+			const accountAssociationSessionSecret = generateSessionSecret();
+			const accountAssociationSessionSecretHash = hashSessionSecret(accountAssociationSessionSecret);
 			const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-			const accountAssociationSessionToken = createSessionToken(
+			const accountAssociationSessionToken = formatSessionToken(
 				accountAssociationSessionId,
 				accountAssociationSessionSecret,
 			);
@@ -166,10 +163,10 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 
 		await this.userRepository.save(user, { passwordHash: null });
 
-		const sessionSecret = this.sessionSecretService.generateSessionSecret();
-		const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
+		const sessionSecret = generateSessionSecret();
+		const sessionSecretHash = hashSessionSecret(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,

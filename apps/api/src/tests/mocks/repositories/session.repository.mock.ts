@@ -3,7 +3,7 @@ import type { SessionId, UserId } from "../../../domain/value-object";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session/interfaces/session.repository.interface";
 
 export class SessionRepositoryMock implements ISessionRepository {
-	public sessionMap: Map<SessionId, Session>;
+	private readonly sessionMap: Map<SessionId, Session>;
 
 	constructor(maps: {
 		sessionMap: Map<SessionId, Session>;

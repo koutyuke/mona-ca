@@ -32,6 +32,8 @@ export {
 	createSignupSession,
 	isExpiredSignupSession,
 	completeEmailVerificationForSignupSession,
+	signupSessionEmailVerificationExpiresSpan,
+	signupSessionSignupExpiresSpan,
 	SIGNUP_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES,
 	SIGNUP_SESSION_SIGNUP_EXPIRES_SPAN_MINUTES,
 } from "./signup-session";

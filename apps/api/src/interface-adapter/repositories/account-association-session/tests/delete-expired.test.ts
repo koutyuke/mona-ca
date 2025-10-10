@@ -1,13 +1,8 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { newAccountAssociationSessionId, newUserId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
-import {
-	AccountAssociationSessionTableHelper,
-	type DatabaseAccountAssociationSession,
-	UserTableHelper,
-} from "../../../../tests/helpers";
-import { toDatabaseDate } from "../../../../tests/utils";
+import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
+import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { AccountAssociationSessionRepository } from "../account-association-session.repository";
 
 const { DB } = env;
@@ -18,15 +13,17 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
+const { user, passwordHash } = createUserFixture();
+const { user: user2, passwordHash: passwordHash2 } = createUserFixture({
+	user: {
+		email: "user2@example.com",
+	},
+});
+
 describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
-		await userTableHelper.create({
-			...userTableHelper.baseDatabaseData,
-			id: newUserId("validUser"),
-			name: "validUser",
-			email: "valid.email@example.com",
-		});
+		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user2, passwordHash2);
 	});
 
 	beforeEach(async () => {
@@ -34,50 +31,57 @@ describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 	});
 
 	test("should delete expired sessions but keep valid ones", async () => {
-		const expiredSession = {
-			...accountAssociationSessionTableHelper.baseDatabaseData,
-			expires_at: 0,
-		} satisfies DatabaseAccountAssociationSession;
+		const expiredSession = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user.id,
+				expiresAt: new Date(0),
+			},
+		});
 
-		const validSession = {
-			...accountAssociationSessionTableHelper.baseDatabaseData,
-			id: newAccountAssociationSessionId("validSession"),
-			user_id: "validUser",
-			expires_at: toDatabaseDate(new Date(Date.now() + 1000 * 60 * 60 * 24)),
-		} satisfies DatabaseAccountAssociationSession;
+		const validSession = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user2.id,
+			},
+		});
 
-		await accountAssociationSessionTableHelper.create(expiredSession);
-		await accountAssociationSessionTableHelper.create(validSession);
+		await accountAssociationSessionTableHelper.save(expiredSession.accountAssociationSession);
+		await accountAssociationSessionTableHelper.save(validSession.accountAssociationSession);
 
 		await accountAssociationSessionRepository.deleteExpiredSessions();
 
-		const expiredSessionAfterDelete = await accountAssociationSessionRepository.findById(
-			newAccountAssociationSessionId(expiredSession.id),
+		const expiredSessionAfterDelete = await accountAssociationSessionTableHelper.findById(
+			expiredSession.accountAssociationSession.id,
 		);
-		expect(expiredSessionAfterDelete).toBeNull();
+		expect(expiredSessionAfterDelete).toHaveLength(0);
 
-		const validSessionAfterDelete = await accountAssociationSessionRepository.findById(
-			newAccountAssociationSessionId(validSession.id),
+		const validSessionAfterDelete = await accountAssociationSessionTableHelper.findById(
+			validSession.accountAssociationSession.id,
 		);
 
-		expect(validSessionAfterDelete).toStrictEqual(accountAssociationSessionTableHelper.toSession(validSession));
+		expect(validSessionAfterDelete).toHaveLength(1);
+		expect(validSessionAfterDelete[0]).toStrictEqual(
+			accountAssociationSessionTableHelper.convertToRaw(validSession.accountAssociationSession),
+		);
 	});
 
 	test("should do nothing when there are no expired sessions", async () => {
-		const validSession = {
-			...accountAssociationSessionTableHelper.baseDatabaseData,
-			id: newAccountAssociationSessionId("validSession"),
-			user_id: "validUser",
-			expires_at: toDatabaseDate(new Date(Date.now() + 1000 * 60 * 60 * 24)),
-		} satisfies DatabaseAccountAssociationSession;
+		const validSession = createAccountAssociationSessionFixture({
+			accountAssociationSession: {
+				userId: user2.id,
+			},
+		});
 
-		await accountAssociationSessionTableHelper.create(validSession);
+		await accountAssociationSessionTableHelper.save(validSession.accountAssociationSession);
 
 		await accountAssociationSessionRepository.deleteExpiredSessions();
 
-		const validSessionAfterDelete = await accountAssociationSessionRepository.findById(
-			newAccountAssociationSessionId(validSession.id),
+		const validSessionAfterDelete = await accountAssociationSessionTableHelper.findById(
+			validSession.accountAssociationSession.id,
 		);
-		expect(validSessionAfterDelete).toStrictEqual(accountAssociationSessionTableHelper.toSession(validSession));
+
+		expect(validSessionAfterDelete).toHaveLength(1);
+		expect(validSessionAfterDelete[0]).toStrictEqual(
+			accountAssociationSessionTableHelper.convertToRaw(validSession.accountAssociationSession),
+		);
 	});
 });

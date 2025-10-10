@@ -1,7 +1,7 @@
 import type { User } from "../../domain/entities";
-import { newGender, newUserId } from "../../domain/value-object";
+import { toRawBoolean, toRawDate } from "./utils";
 
-export type DatabaseUser = {
+export type RawUser = {
 	id: string;
 	name: string;
 	email: string;
@@ -14,36 +14,25 @@ export type DatabaseUser = {
 };
 
 export class UserTableHelper {
-	public baseData = {
-		id: newUserId("userId"),
-		name: "testUser",
-		email: "test.email@example.com",
-		emailVerified: true,
-		iconUrl: "http://example.com/icon-url",
-		gender: newGender("man"),
-		createdAt: new Date(1704067200 * 1000),
-		updatedAt: new Date(1704067200 * 1000),
-	} satisfies User;
-
-	public basePasswordHash = "passwordHash";
-
-	public baseDatabaseData = {
-		id: "userId",
-		name: "testUser",
-		email: "test.email@example.com",
-		email_verified: 1,
-		icon_url: "http://example.com/icon-url",
-		gender: "man",
-		password_hash: "passwordHash",
-		created_at: 1704067200,
-		updated_at: 1704067200,
-	} as const satisfies DatabaseUser;
-
 	constructor(private readonly db: D1Database) {}
 
-	public async create(user?: DatabaseUser, passwordHash?: string | null): Promise<void> {
-		const { id, name, email, email_verified, icon_url, gender, created_at, updated_at } = user ?? this.baseDatabaseData;
-		const password_hash = passwordHash ?? this.basePasswordHash;
+	public convertToRaw(user: User, passwordHash: string | null): RawUser {
+		return {
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			email_verified: toRawBoolean(user.emailVerified),
+			icon_url: user.iconUrl,
+			gender: user.gender,
+			password_hash: passwordHash,
+			created_at: toRawDate(user.createdAt),
+			updated_at: toRawDate(user.updatedAt),
+		};
+	}
+
+	public async save(user: User, passwordHash: string | null): Promise<void> {
+		const { id, name, email, email_verified, icon_url, gender, created_at, updated_at, password_hash } =
+			this.convertToRaw(user, passwordHash);
 
 		await this.db
 			.prepare(
@@ -53,9 +42,13 @@ export class UserTableHelper {
 			.run();
 	}
 
-	public async find(id: string): Promise<DatabaseUser[]> {
-		const { results } = await this.db.prepare("SELECT * FROM users WHERE id = ?1").bind(id).all<DatabaseUser>();
+	public async findById(id: string): Promise<RawUser[]> {
+		const { results } = await this.db.prepare("SELECT * FROM users WHERE id = ?1").bind(id).all<RawUser>();
 
 		return results;
+	}
+
+	public async deleteAll(): Promise<void> {
+		await this.db.prepare("DELETE FROM users").run();
 	}
 }

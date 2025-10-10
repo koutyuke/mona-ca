@@ -1,8 +1,8 @@
 import { t } from "elysia";
-import { SessionSecretService } from "../../../application/services/session";
 import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { newAccountAssociationSessionToken } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenter";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
@@ -25,35 +25,35 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 	// Route
 	.post(
 		"/association/preview",
-		async ({ cookie, body, env: { APP_ENV, ACCOUNT_ASSOCIATION_SESSION_PEPPER }, cfModuleEnv: { DB }, clientType }) => {
+		async ({ cookie, body, env: { APP_ENV }, cfModuleEnv: { DB }, clientType }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const userRepository = new UserRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
-			const accountAssociationSessionSecretService = new SessionSecretService(ACCOUNT_ASSOCIATION_SESSION_PEPPER);
 
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
 				accountAssociationSessionRepository,
-				accountAssociationSessionSecretService,
 			);
 			// === End of instances ===
 
-			const accountAssociationSessionToken =
+			const rawAccountAssociationSessionToken =
 				clientType === "web"
 					? cookieManager.getCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME)
 					: body?.accountAssociationSessionToken;
 
-			if (!accountAssociationSessionToken) {
+			if (!rawAccountAssociationSessionToken) {
 				throw new UnauthorizedException({
 					code: "ACCOUNT_ASSOCIATION_SESSION_INVALID",
 					message: "Account association session not found. Please login again.",
 				});
 			}
 
-			const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
+			const result = await validateAccountAssociationSessionUseCase.execute(
+				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
+			);
 
 			if (isErr(result)) {
 				const { code } = result;

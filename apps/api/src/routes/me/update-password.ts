@@ -1,6 +1,5 @@
 import { t } from "elysia";
 import { PasswordService } from "../../application/services/password";
-import { SessionSecretService } from "../../application/services/session";
 import { UpdateUserPasswordUseCase } from "../../application/use-cases/password";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { isErr } from "../../common/utils";
@@ -28,7 +27,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 	.patch(
 		"/password",
 		async ({
-			env: { PASSWORD_PEPPER, SESSION_PEPPER, APP_ENV },
+			env: { PASSWORD_PEPPER, APP_ENV },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { currentPassword, newPassword },
@@ -42,13 +41,11 @@ export const UpdatePassword = new ElysiaWithEnv()
 
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
-			const sessionTokenService = new SessionSecretService(SESSION_PEPPER);
 
 			const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
 				userRepository,
 				sessionRepository,
 				passwordService,
-				sessionTokenService,
 			);
 			// === End of instances ===
 

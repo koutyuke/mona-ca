@@ -1,6 +1,5 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { SessionSecretService } from "../../../application/services/session";
 import { OAuthSignupCallbackUseCase } from "../../../application/use-cases/oauth";
 import {
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
@@ -50,13 +49,11 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 		async ({
 			env: {
 				APP_ENV,
-				SESSION_PEPPER,
 				DISCORD_CLIENT_ID,
 				DISCORD_CLIENT_SECRET,
 				GOOGLE_CLIENT_ID,
 				GOOGLE_CLIENT_SECRET,
 				OAUTH_STATE_HMAC_SECRET,
-				ACCOUNT_ASSOCIATION_SESSION_PEPPER,
 			},
 			cfModuleEnv: { DB },
 			cookie,
@@ -73,8 +70,6 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
-			const accountAssociationSessionSecretService = new SessionSecretService(ACCOUNT_ASSOCIATION_SESSION_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
@@ -94,8 +89,6 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 
 			const oauthSignupCallbackUseCase = new OAuthSignupCallbackUseCase(
 				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
-				sessionSecretService,
-				accountAssociationSessionSecretService,
 				oauthProviderGateway,
 				sessionRepository,
 				oauthAccountRepository,

@@ -1,145 +1,107 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
-import { createEmailVerificationSession, createUser } from "../../../../domain/entities";
-import { newEmailVerificationSessionId, newGender, newUserId } from "../../../../domain/value-object";
-import { SessionSecretServiceMock } from "../../../../tests/mocks";
-import { EmailVerificationSessionRepositoryMock } from "../../../../tests/mocks/repositories/email-verification-session.repository.mock";
-import { SessionRepositoryMock } from "../../../../tests/mocks/repositories/session.repository.mock";
+import { isErr } from "../../../../common/utils";
 import {
+	createEmailVerificationSessionFixture,
+	createSessionFixture,
+	createUserFixture,
+} from "../../../../tests/fixtures";
+import {
+	EmailVerificationSessionRepositoryMock,
+	SessionRepositoryMock,
+	UserRepositoryMock,
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 	createUserPasswordHashMap,
 	createUsersMap,
-} from "../../../../tests/mocks/repositories/table-maps";
-import { UserRepositoryMock } from "../../../../tests/mocks/repositories/user.repository.mock";
+} from "../../../../tests/mocks";
 import { ChangeEmailUseCase } from "../change-email.usecase";
 
+const userMap = createUsersMap();
+const sessionMap = createSessionsMap();
+const userPasswordHashMap = createUserPasswordHashMap();
+const emailVerificationSessionMap = createEmailVerificationSessionsMap();
+const userRepositoryMock = new UserRepositoryMock({
+	userMap,
+	userPasswordHashMap,
+	sessionMap,
+});
+const sessionRepositoryMock = new SessionRepositoryMock({
+	sessionMap,
+});
+const emailVerificationSessionRepositoryMock = new EmailVerificationSessionRepositoryMock({
+	emailVerificationSessionMap,
+});
+const changeEmailUseCase = new ChangeEmailUseCase(
+	userRepositoryMock,
+	sessionRepositoryMock,
+	emailVerificationSessionRepositoryMock,
+);
+
+const { user } = createUserFixture({
+	user: {
+		email: "old@example.com",
+		name: "test_user",
+	},
+});
+
 describe("ChangeEmailUseCase", () => {
-	let changeEmailUseCase: ChangeEmailUseCase;
-	let userRepositoryMock: UserRepositoryMock;
-	let sessionRepositoryMock: SessionRepositoryMock;
-	let emailVerificationSessionRepositoryMock: EmailVerificationSessionRepositoryMock;
-	let sessionSecretServiceMock: SessionSecretServiceMock;
-
 	beforeEach(() => {
-		const userMap = createUsersMap();
-		const sessionMap = createSessionsMap();
-		const userPasswordHashMap = createUserPasswordHashMap();
-		const emailVerificationSessionMap = createEmailVerificationSessionsMap();
-
-		userRepositoryMock = new UserRepositoryMock({
-			userMap,
-			userPasswordHashMap,
-			sessionMap,
-		});
-		sessionRepositoryMock = new SessionRepositoryMock({
-			sessionMap,
-		});
-		emailVerificationSessionRepositoryMock = new EmailVerificationSessionRepositoryMock({
-			emailVerificationSessionMap,
-		});
-		sessionSecretServiceMock = new SessionSecretServiceMock();
-
-		changeEmailUseCase = new ChangeEmailUseCase(
-			userRepositoryMock,
-			sessionRepositoryMock,
-			emailVerificationSessionRepositoryMock,
-			sessionSecretServiceMock,
-		);
+		userMap.clear();
+		sessionMap.clear();
+		userPasswordHashMap.clear();
+		emailVerificationSessionMap.clear();
 	});
 
 	it("should change email successfully with valid verification code", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "old@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: "new@example.com",
+				code: "12345678",
+			},
 		});
 
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "new@example.com",
-			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-		});
+		userMap.set(user.id, user);
+		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		userRepositoryMock.userMap.set(userId, user);
-		emailVerificationSessionRepositoryMock.emailVerificationSessionMap.set(
-			emailVerificationSessionId,
-			emailVerificationSession,
-		);
-
-		const result = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 		expect(result).toHaveProperty("session");
 		expect(result).toHaveProperty("sessionToken");
 
 		if (!isErr(result)) {
-			expect(result.session.userId).toBe(userId);
+			expect(result.session.userId).toBe(user.id);
 			expect(typeof result.sessionToken).toBe("string");
 			expect(result.sessionToken.length).toBeGreaterThan(0);
 		}
 
-		// verify email verification session is deleted
-		expect(emailVerificationSessionRepositoryMock.emailVerificationSessionMap.has(emailVerificationSessionId)).toBe(
-			false,
-		);
+		expect(emailVerificationSessionMap.has(emailVerificationSession.id)).toBe(false);
 
-		// verify user email is updated and verified
-		const updatedUser = userRepositoryMock.userMap.get(userId);
+		const updatedUser = userMap.get(user.id);
 		expect(updatedUser?.email).toBe("new@example.com");
 		expect(updatedUser?.emailVerified).toBe(true);
 	});
 
 	it("should return EMAIL_ALREADY_REGISTERED error when new email is already taken by another user", async () => {
-		// create user who wants to change email
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "old@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { user: anotherUser } = createUserFixture({
+			user: {
+				email: "new@example.com",
+				name: "another_user",
+			},
+		});
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: "new@example.com",
+				code: "12345678",
+			},
 		});
 
-		// create another user with the email that the first user wants to change to
-		const anotherUserId = newUserId(ulid());
-		const anotherUser = createUser({
-			id: anotherUserId,
-			name: "another_user",
-			email: "new@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("woman"),
-		});
+		userMap.set(user.id, user);
+		userMap.set(anotherUser.id, anotherUser);
 
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "new@example.com",
-			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-		});
-
-		userRepositoryMock.userMap.set(userId, user);
-		userRepositoryMock.userMap.set(anotherUserId, anotherUser);
-
-		const result = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(true);
 
@@ -149,33 +111,17 @@ describe("ChangeEmailUseCase", () => {
 	});
 
 	it("should return INVALID_VERIFICATION_CODE error when verification code is incorrect", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "old@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: "new@example.com",
+				code: "12345678",
+			},
 		});
 
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const correctCode = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "new@example.com",
-			code: correctCode,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-		});
+		userMap.set(user.id, user);
 
-		userRepositoryMock.userMap.set(userId, user);
-
-		const wrongCode = "87654321";
-		const result = await changeEmailUseCase.execute(wrongCode, user, emailVerificationSession);
+		const result = await changeEmailUseCase.execute("87654321", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(true);
 
@@ -185,77 +131,74 @@ describe("ChangeEmailUseCase", () => {
 	});
 
 	it("should allow changing to same email if user is changing their own email", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "same@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: "same@example.com",
+				code: "12345678",
+			},
 		});
 
-		// create email verification session for the same email
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "same@example.com",
-			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-		});
+		userMap.set(user.id, { ...user, email: "same@example.com", emailVerified: false });
 
-		userRepositoryMock.userMap.set(userId, user);
-
-		const result = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 		expect(result).toHaveProperty("session");
 		expect(result).toHaveProperty("sessionToken");
 
-		// verify user email is verified
-		const updatedUser = userRepositoryMock.userMap.get(userId);
+		const updatedUser = userMap.get(user.id);
 		expect(updatedUser?.email).toBe("same@example.com");
 		expect(updatedUser?.emailVerified).toBe(true);
 	});
 
 	it("should create and save a new session on successful email change", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "old@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: "new@example.com",
+				code: "12345678",
+			},
 		});
 
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "new@example.com",
-			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-		});
+		userMap.set(user.id, user);
 
-		userRepositoryMock.userMap.set(userId, user);
-
-		const result = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 
 		if (!isErr(result)) {
-			const savedSession = sessionRepositoryMock.sessionMap.get(result.session.id);
+			const savedSession = sessionMap.get(result.session.id);
 			expect(savedSession).toBeDefined();
-			expect(savedSession?.userId).toBe(userId);
+			expect(savedSession?.userId).toBe(user.id);
+		}
+	});
+
+	it("should delete existing sessions when creating new session", async () => {
+		const { session: existingSession } = createSessionFixture({
+			session: {
+				userId: user.id,
+			},
+		});
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: "new@example.com",
+				code: "12345678",
+			},
+		});
+
+		userMap.set(user.id, user);
+		sessionMap.set(existingSession.id, existingSession);
+
+		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
+
+		expect(isErr(result)).toBe(false);
+
+		expect(sessionMap.has(existingSession.id)).toBe(false);
+
+		if (!isErr(result)) {
+			expect(sessionMap.get(result.session.id)).toBeDefined();
 		}
 	});
 });

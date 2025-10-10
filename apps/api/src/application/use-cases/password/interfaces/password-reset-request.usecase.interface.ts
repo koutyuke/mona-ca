@@ -1,8 +1,9 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { PasswordResetSession } from "../../../../domain/entities";
+import type { PasswordResetSessionToken } from "../../../../domain/value-object";
 
 type Success = {
-	passwordResetSessionToken: string;
+	passwordResetSessionToken: PasswordResetSessionToken;
 	passwordResetSession: PasswordResetSession;
 };
 

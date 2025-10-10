@@ -3,9 +3,9 @@ import type { SessionId, UserId } from "../../../domain/value-object";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user/interfaces/user.repository.interface";
 
 export class UserRepositoryMock implements IUserRepository {
-	public userMap: Map<UserId, User>;
-	public userPasswordHashMap: Map<UserId, string>;
-	public sessionMap: Map<SessionId, Session>;
+	private readonly userMap: Map<UserId, User>;
+	private readonly userPasswordHashMap: Map<UserId, string>;
+	private readonly sessionMap: Map<SessionId, Session>;
 
 	constructor(maps: {
 		userMap: Map<UserId, User>;

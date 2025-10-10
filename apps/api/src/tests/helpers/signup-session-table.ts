@@ -1,9 +1,5 @@
-import { env } from "cloudflare:test";
-import { SessionSecretService, createSessionToken } from "../../application/services/session";
-import { ulid } from "../../common/utils";
 import type { SignupSession } from "../../domain/entities";
-import { newSignupSessionId } from "../../domain/value-object";
-import { toDatabaseDate, toDatabaseSessionSecretHash } from "../utils";
+import { toRawBoolean, toRawDate, toRawSessionSecretHash } from "./utils";
 
 export type RawSignupSession = {
 	id: string;
@@ -14,46 +10,17 @@ export type RawSignupSession = {
 	expires_at: number;
 };
 
-const { SIGNUP_SESSION_PEPPER } = env;
-
-const sessionSecretService = new SessionSecretService(SIGNUP_SESSION_PEPPER);
-
 export class SignupSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
-
-	public createData(override?: {
-		signupSession?: Partial<SignupSession>;
-		signupSessionSecret?: string;
-	}): {
-		signupSession: SignupSession;
-		signupSessionSecret: string;
-		signupSessionToken: string;
-	} {
-		const secret = override?.signupSessionSecret ?? "signupSessionSecret";
-		const secretHash = sessionSecretService.hashSessionSecret(secret);
-
-		return {
-			signupSession: {
-				id: newSignupSessionId(ulid()),
-				email: "test@example.com",
-				emailVerified: false,
-				code: "testCode",
-				secretHash: secretHash,
-				expiresAt: new Date(1704067200 * 1000),
-			},
-			signupSessionSecret: secret,
-			signupSessionToken: createSessionToken(newSignupSessionId(ulid()), secret),
-		};
-	}
 
 	public convertToRaw(signupSession: SignupSession): RawSignupSession {
 		return {
 			id: signupSession.id,
 			email: signupSession.email,
-			email_verified: signupSession.emailVerified ? 1 : 0,
+			email_verified: toRawBoolean(signupSession.emailVerified),
 			code: signupSession.code,
-			secret_hash: toDatabaseSessionSecretHash(signupSession.secretHash),
-			expires_at: toDatabaseDate(signupSession.expiresAt),
+			secret_hash: toRawSessionSecretHash(signupSession.secretHash),
+			expires_at: toRawDate(signupSession.expiresAt),
 		};
 	}
 
@@ -85,5 +52,9 @@ export class SignupSessionTableHelper {
 
 	public async deleteById(id: string): Promise<void> {
 		await this.db.prepare("DELETE FROM signup_sessions WHERE id = ?1").bind(id).run();
+	}
+
+	public async deleteAll(): Promise<void> {
+		await this.db.prepare("DELETE FROM signup_sessions").run();
 	}
 }

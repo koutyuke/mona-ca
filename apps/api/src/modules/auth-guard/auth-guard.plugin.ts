@@ -1,12 +1,11 @@
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
-import { SessionSecretService } from "../../application/services/session";
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
 import { readBearerToken } from "../../common/utils";
 import { isErr } from "../../common/utils";
 import type { Session, User } from "../../domain/entities";
-import { type ClientType, clientTypeSchema } from "../../domain/value-object";
+import { type ClientType, clientTypeSchema, newSessionToken } from "../../domain/value-object";
 import { newClientType } from "../../domain/value-object/client-type";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
@@ -46,23 +45,13 @@ export const authGuard = (options?: {
 		},
 	}).derive<Response, "scoped">(
 		{ as: "scoped" },
-		async ({
-			env: { SESSION_PEPPER },
-			cfModuleEnv: { DB },
-			cookie,
-			headers: { authorization, [CLIENT_TYPE_HEADER_NAME]: clientType },
-		}) => {
+		async ({ cfModuleEnv: { DB }, cookie, headers: { authorization, [CLIENT_TYPE_HEADER_NAME]: clientType } }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const validateSessionUseCase = new ValidateSessionUseCase(
-				sessionSecretService,
-				sessionRepository,
-				userRepository,
-			);
+			const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, userRepository);
 			// === End of instances ===
 
 			if (!clientType || !Value.Check(clientTypeSchema, clientType)) {
@@ -79,7 +68,7 @@ export const authGuard = (options?: {
 				throw new UnauthorizedException();
 			}
 
-			const result = await validateSessionUseCase.execute(sessionToken);
+			const result = await validateSessionUseCase.execute(newSessionToken(sessionToken));
 
 			if (isErr(result)) {
 				const { code } = result;

@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
-import {} from "../../../../domain/entities";
+import { beforeEach, describe, expect, test } from "vitest";
 import { newSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { SessionRepository } from "../session.repository";
 
@@ -15,16 +15,27 @@ const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
 describe("SessionRepository.findById", () => {
-	beforeAll(async () => {
-		await userTableHelper.create();
-		await sessionTableHelper.create();
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM sessions");
+		await DB.exec("DELETE FROM users");
 	});
 
 	test("should return session and user from sessionId", async () => {
-		const session = await sessionRepository.findById(sessionTableHelper.baseData.id);
-		const expectedSession = sessionTableHelper.baseData;
+		const { user, passwordHash } = createUserFixture();
+		await userTableHelper.save(user, passwordHash);
 
-		expect(session).toStrictEqual(expectedSession);
+		const { session } = createSessionFixture({
+			session: {
+				userId: user.id,
+			},
+		});
+		await sessionTableHelper.save(session);
+
+		const foundSession = await sessionRepository.findById(session.id);
+		const expectedSession = sessionTableHelper.convertToRaw(session);
+
+		expect(foundSession).not.toBeNull();
+		expect(sessionTableHelper.convertToRaw(foundSession!)).toStrictEqual(expectedSession);
 	});
 
 	test("should return null if session not found", async () => {

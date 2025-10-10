@@ -1,10 +1,10 @@
 import { env } from "cloudflare:test";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import type { User } from "../../../../domain/entities";
 import { newGender } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
-import { UserTableHelper } from "../../../../tests/helpers";
-import { toDatabaseDate } from "../../../../tests/utils";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { UserTableHelper, toRawDate } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
 
 const { DB } = env;
@@ -16,29 +16,34 @@ const userTableHelper = new UserTableHelper(DB);
 
 const now = new Date();
 
+const { user, passwordHash } = createUserFixture();
+
 describe("UserRepository.save", async () => {
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM users");
+	});
+
 	test("should set user in the database", async () => {
-		await userRepository.save(userTableHelper.baseData, {
-			passwordHash: userTableHelper.basePasswordHash,
+		await userRepository.save(user, {
+			passwordHash,
 		});
 
-		const results = await userTableHelper.find(userTableHelper.baseDatabaseData.id);
+		const results = await userTableHelper.findById(user.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(userTableHelper.baseDatabaseData);
+		expect(results[0]).toStrictEqual(userTableHelper.convertToRaw(user, passwordHash));
 	});
 
 	test("should update user in the database if user already exists", async () => {
-		await userTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
 
 		const updatedUser = {
-			id: userTableHelper.baseData.id,
+			...user,
 			name: "bar",
 			email: "updatedUser@mail.com",
 			emailVerified: true,
 			iconUrl: "iconUrl",
 			gender: newGender("woman"),
-			createdAt: userTableHelper.baseData.createdAt,
 			updatedAt: now,
 		} satisfies User;
 
@@ -46,18 +51,18 @@ describe("UserRepository.save", async () => {
 			passwordHash: "newPasswordHash",
 		});
 
-		const results = await userTableHelper.find(userTableHelper.baseData.id);
+		const results = await userTableHelper.findById(user.id);
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
-			id: userTableHelper.baseData.id,
+			id: user.id,
 			name: "bar",
 			email: "updatedUser@mail.com",
 			email_verified: 1,
 			icon_url: "iconUrl",
 			gender: "woman",
 			password_hash: "newPasswordHash",
-			created_at: userTableHelper.baseDatabaseData.created_at,
-			updated_at: toDatabaseDate(now),
+			created_at: toRawDate(user.createdAt),
+			updated_at: toRawDate(now),
 		});
 	});
 });

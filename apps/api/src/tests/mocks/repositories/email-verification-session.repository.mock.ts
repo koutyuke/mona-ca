@@ -4,7 +4,7 @@ import type { EmailVerificationSessionId, UserId } from "../../../domain/value-o
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session/interfaces/email-verification-session.repository.interface";
 
 export class EmailVerificationSessionRepositoryMock implements IEmailVerificationSessionRepository {
-	public emailVerificationSessionMap: Map<EmailVerificationSessionId, EmailVerificationSession>;
+	private readonly emailVerificationSessionMap: Map<EmailVerificationSessionId, EmailVerificationSession>;
 
 	constructor(maps: {
 		emailVerificationSessionMap: Map<EmailVerificationSessionId, EmailVerificationSession>;

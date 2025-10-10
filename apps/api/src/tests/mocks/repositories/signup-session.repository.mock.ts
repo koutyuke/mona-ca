@@ -3,7 +3,7 @@ import type { SignupSessionId } from "../../../domain/value-object";
 import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session/interfaces/signup-session.repository.interface";
 
 export class SignupSessionRepositoryMock implements ISignupSessionRepository {
-	public signupSessionMap: Map<SignupSessionId, SignupSession>;
+	private readonly signupSessionMap: Map<SignupSessionId, SignupSession>;
 
 	constructor(maps: {
 		signupSessionMap: Map<SignupSessionId, SignupSession>;

@@ -1,7 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { newEmailVerificationSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
+import { createEmailVerificationSessionFixture } from "../../../../tests/fixtures";
 import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
 
@@ -13,18 +15,32 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 const userTableHelper = new UserTableHelper(DB);
 const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
 
+const { user, passwordHash } = createUserFixture();
+
 describe("EmailVerificationSessionRepository.findId", () => {
-	beforeAll(async () => {
-		await userTableHelper.create();
-		await emailVerificationSessionTableHelper.create();
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM email_verification_sessions");
+		await DB.exec("DELETE FROM users");
 	});
 
 	test("should return EmailVerificationSession instance", async () => {
+		await userTableHelper.save(user, passwordHash);
+
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+			},
+		});
+		await emailVerificationSessionTableHelper.save(emailVerificationSession);
+
 		const foundEmailVerificationSession = await emailVerificationSessionRepository.findById(
-			emailVerificationSessionTableHelper.baseData.id,
+			emailVerificationSession.id,
 		);
 
-		expect(foundEmailVerificationSession).toStrictEqual(emailVerificationSessionTableHelper.baseData);
+		expect(foundEmailVerificationSession).not.toBeNull();
+		expect(emailVerificationSessionTableHelper.convertToRaw(foundEmailVerificationSession!)).toStrictEqual(
+			emailVerificationSessionTableHelper.convertToRaw(emailVerificationSession),
+		);
 	});
 
 	test("should return null if EmailVerificationSession is not found", async () => {

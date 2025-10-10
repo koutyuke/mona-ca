@@ -5,12 +5,12 @@ import {
 	createSession,
 	updateUser,
 } from "../../../domain/entities";
-import { newSessionId } from "../../../domain/value-object";
+import { formatSessionToken, newSessionId } from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	AccountAssociationConfirmUseCaseResult,
 	IAccountAssociationConfirmUseCase,
@@ -24,7 +24,6 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 		private readonly sessionRepository: ISessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
-		private readonly sessionTokenService: ISessionSecretService,
 	) {}
 
 	public async execute(
@@ -69,10 +68,10 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			emailVerified: true,
 		});
 
-		const sessionSecret = this.sessionTokenService.generateSessionSecret();
-		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
+		const sessionSecret = generateSessionSecret();
+		const sessionSecretHash = hashSessionSecret(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,

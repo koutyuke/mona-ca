@@ -1,8 +1,9 @@
 import type { Err, Result } from "../../../../common/utils";
 import type { SignupSession } from "../../../../domain/entities";
+import type { SignupSessionToken } from "../../../../domain/value-object";
 
 type Success = {
-	signupSessionToken: string;
+	signupSessionToken: SignupSessionToken;
 	signupSession: SignupSession;
 };
 

@@ -1,11 +1,18 @@
 import { err, ulid } from "../../../common/utils";
 import { type Session, type SignupSession, createSession, createUser } from "../../../domain/entities";
-import { type Gender, type UserId, newSessionId, newUserId } from "../../../domain/value-object";
+import {
+	type Gender,
+	type SessionToken,
+	type UserId,
+	formatSessionToken,
+	newSessionId,
+	newUserId,
+} from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IPasswordService } from "../../services/password";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type { ISignupConfirmUseCase, SignupConfirmUseCaseResult } from "./interfaces/signup-confirm.usecase.interface";
 
 export class SignupConfirmUseCase implements ISignupConfirmUseCase {
@@ -13,7 +20,6 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly signupSessionRepository: ISignupSessionRepository,
-		private readonly sessionSecretService: ISessionSecretService,
 		private readonly passwordService: IPasswordService,
 	) {}
 
@@ -61,12 +67,12 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 
 	private createSession(userId: UserId): {
 		session: Session;
-		sessionToken: string;
+		sessionToken: SessionToken;
 	} {
-		const sessionSecret = this.sessionSecretService.generateSessionSecret();
-		const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
+		const sessionSecret = generateSessionSecret();
+		const sessionSecretHash = hashSessionSecret(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId,

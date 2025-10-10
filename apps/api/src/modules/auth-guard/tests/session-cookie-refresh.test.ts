@@ -1,7 +1,8 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { sessionRefreshSpan } from "../../../domain/entities";
+import { createSessionFixture, createUserFixture } from "../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
@@ -11,14 +12,29 @@ const { DB } = env;
 const sessionTokenRefreshExpires = new Date(Date.now() + sessionRefreshSpan.milliseconds() / 2 - 1000);
 
 const userTableHelper = new UserTableHelper(DB);
-const sessionTableHelper = new SessionTableHelper(DB, {
-	expiresAt: sessionTokenRefreshExpires,
+const sessionTableHelper = new SessionTableHelper(DB);
+
+const { user, passwordHash } = createUserFixture({
+	user: {
+		email: "test1.email@example.com",
+	},
+	passwordHash: "passwordHash1",
+});
+
+const { session, sessionToken } = createSessionFixture({
+	session: {
+		userId: user.id,
+		expiresAt: sessionTokenRefreshExpires,
+	},
 });
 
 describe("AuthGuard enableSessionCookieRefresh option", () => {
-	beforeAll(async () => {
-		await userTableHelper.create();
-		await sessionTableHelper.create();
+	beforeEach(async () => {
+		sessionTableHelper.deleteAll();
+		userTableHelper.deleteAll();
+
+		await userTableHelper.save(user, passwordHash);
+		await sessionTableHelper.save(session);
 	});
 
 	test("should refresh the session token", async () => {
@@ -32,7 +48,7 @@ describe("AuthGuard enableSessionCookieRefresh option", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					cookie: `${SESSION_COOKIE_NAME}=${sessionTableHelper.baseToken};`,
+					cookie: `${SESSION_COOKIE_NAME}=${sessionToken};`,
 					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),

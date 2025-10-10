@@ -1,6 +1,8 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
+import { newSignupSessionId } from "../../../../domain/value-object";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createSignupSessionFixture } from "../../../../tests/fixtures";
 import { SignupSessionTableHelper } from "../../../../tests/helpers";
 import { SignupSessionRepository } from "../signup-session.repository";
 
@@ -17,7 +19,7 @@ describe("SignupSessionRepository.deleteById", () => {
 	});
 
 	test("should delete signup session if exists", async () => {
-		const { signupSession } = signupSessionTableHelper.createData();
+		const { signupSession } = createSignupSessionFixture();
 		await signupSessionRepository.save(signupSession);
 
 		await signupSessionRepository.deleteById(signupSession.id);
@@ -28,8 +30,6 @@ describe("SignupSessionRepository.deleteById", () => {
 	});
 
 	test("should not throw when deleting non existent signup session", async () => {
-		await expect(
-			signupSessionRepository.deleteById(signupSessionTableHelper.createData().signupSession.id),
-		).resolves.not.toThrow();
+		await expect(signupSessionRepository.deleteById(newSignupSessionId("nonExistentSessionId"))).resolves.not.toThrow();
 	});
 });

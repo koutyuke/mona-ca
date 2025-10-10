@@ -1,10 +1,9 @@
 import { t } from "elysia";
 import { PasswordService } from "../../../application/services/password";
-import { SessionSecretService } from "../../../application/services/session";
 import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
-import { genderSchema, newGender } from "../../../domain/value-object";
+import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
@@ -31,7 +30,7 @@ export const SignupConfirm = new ElysiaWithEnv()
 	.post(
 		"/confirm",
 		async ({
-			env: { APP_ENV, SESSION_PEPPER, PASSWORD_PEPPER, SIGNUP_SESSION_PEPPER },
+			env: { APP_ENV, PASSWORD_PEPPER },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { signupSessionToken: bodySignupSessionToken, name, password, gender },
@@ -45,34 +44,28 @@ export const SignupConfirm = new ElysiaWithEnv()
 			const sessionRepository = new SessionRepository(drizzleService);
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
-			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
 			const passwordService = new PasswordService(PASSWORD_PEPPER);
-			const signupSessionSecretService = new SessionSecretService(SIGNUP_SESSION_PEPPER);
 
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
-				signupSessionRepository,
-				signupSessionSecretService,
-			);
+			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository);
 			const signupConfirmUseCase = new SignupConfirmUseCase(
 				userRepository,
 				sessionRepository,
 				signupSessionRepository,
-				sessionSecretService,
 				passwordService,
 			);
 			// === End of instances ===
 
-			const signupSessionToken =
+			const rawSignupSessionToken =
 				clientType === "web" ? cookieManager.getCookie(SIGNUP_SESSION_COOKIE_NAME) : bodySignupSessionToken;
 
-			if (!signupSessionToken) {
+			if (!rawSignupSessionToken) {
 				throw new UnauthorizedException({
 					code: "SIGNUP_SESSION_INVALID",
 					message: "Signup session token not found. Please request signup again.",
 				});
 			}
 
-			const validationResult = await validateSignupSessionUseCase.execute(signupSessionToken);
+			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
 
 			if (isErr(validationResult)) {
 				const { code } = validationResult;

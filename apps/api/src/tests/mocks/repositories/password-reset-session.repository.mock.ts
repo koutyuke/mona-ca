@@ -3,7 +3,7 @@ import type { PasswordResetSessionId, UserId } from "../../../domain/value-objec
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session/interfaces/password-reset-session.repository.interface";
 
 export class PasswordResetSessionRepositoryMock implements IPasswordResetSessionRepository {
-	public passwordResetSessionMap: Map<PasswordResetSessionId, PasswordResetSession>;
+	private readonly passwordResetSessionMap: Map<PasswordResetSessionId, PasswordResetSession>;
 
 	constructor(maps: {
 		passwordResetSessionMap: Map<PasswordResetSessionId, PasswordResetSession>;

@@ -1,11 +1,11 @@
 import { err, ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
-import { newSessionId } from "../../../domain/value-object";
+import { formatSessionToken, newSessionId } from "../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IPasswordService } from "../../services/password";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	IUpdateUserPasswordUseCase,
 	UpdateUserPasswordUseCaseResult,
@@ -16,7 +16,6 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly passwordService: IPasswordService,
-		private readonly sessionTokenService: ISessionSecretService,
 	) {}
 
 	public async execute(
@@ -49,10 +48,10 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 		]);
 
 		// Generate a new session.
-		const sessionSecret = this.sessionTokenService.generateSessionSecret();
-		const sessionSecretHash = this.sessionTokenService.hashSessionSecret(sessionSecret);
+		const sessionSecret = generateSessionSecret();
+		const sessionSecretHash = hashSessionSecret(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,

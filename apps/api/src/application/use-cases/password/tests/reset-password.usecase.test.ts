@@ -1,123 +1,89 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
-import { createPasswordResetSession, createSession, createUser } from "../../../../domain/entities";
-import { newGender, newPasswordResetSessionId, newSessionId, newUserId } from "../../../../domain/value-object";
-import { PasswordServiceMock, SessionSecretServiceMock } from "../../../../tests/mocks";
-import { PasswordResetSessionRepositoryMock } from "../../../../tests/mocks/repositories/password-reset-session.repository.mock";
-import { SessionRepositoryMock } from "../../../../tests/mocks/repositories/session.repository.mock";
+import { isErr } from "../../../../common/utils";
+import { createPasswordResetSessionFixture, createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
+	PasswordResetSessionRepositoryMock,
+	PasswordServiceMock,
+	SessionRepositoryMock,
+	UserRepositoryMock,
 	createPasswordResetSessionsMap,
 	createSessionsMap,
+	createUserPasswordHashMap,
 	createUsersMap,
-} from "../../../../tests/mocks/repositories/table-maps";
-import { UserRepositoryMock } from "../../../../tests/mocks/repositories/user.repository.mock";
+} from "../../../../tests/mocks";
 import { ResetPasswordUseCase } from "../reset-password.usecase";
 
+const passwordResetSessionMap = createPasswordResetSessionsMap();
+const sessionMap = createSessionsMap();
+const userMap = createUsersMap();
+const userPasswordHashMap = createUserPasswordHashMap();
+const passwordResetSessionRepositoryMock = new PasswordResetSessionRepositoryMock({
+	passwordResetSessionMap,
+});
+const sessionRepositoryMock = new SessionRepositoryMock({
+	sessionMap,
+});
+const userRepositoryMock = new UserRepositoryMock({
+	userMap,
+	userPasswordHashMap,
+	sessionMap,
+});
+const passwordServiceMock = new PasswordServiceMock();
+const resetPasswordUseCase = new ResetPasswordUseCase(
+	userRepositoryMock,
+	sessionRepositoryMock,
+	passwordResetSessionRepositoryMock,
+	passwordServiceMock,
+);
+
+const { user } = createUserFixture({
+	user: {
+		email: "test@example.com",
+		name: "test_user",
+	},
+});
+
 describe("ResetPasswordUseCase", () => {
-	let resetPasswordUseCase: ResetPasswordUseCase;
-	let userRepositoryMock: UserRepositoryMock;
-	let sessionRepositoryMock: SessionRepositoryMock;
-	let sessionSecretServiceMock: SessionSecretServiceMock;
-	let passwordResetSessionRepositoryMock: PasswordResetSessionRepositoryMock;
-	let passwordServiceMock: PasswordServiceMock;
-
 	beforeEach(() => {
-		const userMap = createUsersMap();
-		const userPasswordHashMap = new Map();
-		const sessionMap = createSessionsMap();
-		const passwordResetSessionMap = createPasswordResetSessionsMap();
-
-		userRepositoryMock = new UserRepositoryMock({
-			userMap,
-			userPasswordHashMap,
-			sessionMap,
-		});
-		sessionRepositoryMock = new SessionRepositoryMock({
-			sessionMap,
-		});
-		sessionSecretServiceMock = new SessionSecretServiceMock();
-		passwordResetSessionRepositoryMock = new PasswordResetSessionRepositoryMock({
-			passwordResetSessionMap,
-		});
-		passwordServiceMock = new PasswordServiceMock();
-
-		resetPasswordUseCase = new ResetPasswordUseCase(
-			userRepositoryMock,
-			sessionRepositoryMock,
-			passwordResetSessionRepositoryMock,
-			passwordServiceMock,
-		);
+		passwordResetSessionMap.clear();
+		sessionMap.clear();
+		userMap.clear();
+		userPasswordHashMap.clear();
 	});
 
 	it("should reset password successfully when email is verified", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				userId: user.id,
+				email: user.email,
+				emailVerified: true,
+			},
 		});
 
-		// create password reset session with verified email
-		const sessionId = newPasswordResetSessionId(ulid());
-		const code = "12345678";
-		const sessionSecretServiceMock = new SessionSecretServiceMock();
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createPasswordResetSession({
-			id: sessionId,
-			userId: userId,
-			code: code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-			email: user.email,
-		});
-
-		// set email as verified
-		session.emailVerified = true;
+		userMap.set(user.id, user);
 
 		const newPassword = "new_password123";
 		const result = await resetPasswordUseCase.execute(newPassword, session, user);
 
 		expect(isErr(result)).toBe(false);
 
-		// verify password was hashed and saved
-		const savedUser = userRepositoryMock.userMap.get(userId);
+		const savedUser = userMap.get(user.id);
 		expect(savedUser).toBeDefined();
-		expect(savedUser?.id).toBe(userId);
+		expect(savedUser?.id).toBe(user.id);
 	});
 
 	it("should return REQUIRED_EMAIL_VERIFICATION error when email is not verified", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				userId: user.id,
+				email: user.email,
+				emailVerified: false,
+			},
 		});
 
-		// create password reset session with unverified email
-		const sessionId = newPasswordResetSessionId(ulid());
-		const code = "12345678";
-		const sessionSecretServiceMock = new SessionSecretServiceMock();
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createPasswordResetSession({
-			id: sessionId,
-			userId: userId,
-			code: code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-			email: user.email,
-		});
+		userMap.set(user.id, user);
 
-		// set email as not verified
-		session.emailVerified = false;
-
-		const newPassword = "new_password123";
-		const result = await resetPasswordUseCase.execute(newPassword, session, user);
+		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
 		expect(isErr(result)).toBe(true);
 
@@ -127,187 +93,106 @@ describe("ResetPasswordUseCase", () => {
 	});
 
 	it("should hash password before saving", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				userId: user.id,
+				email: user.email,
+				emailVerified: true,
+			},
 		});
 
-		// create password reset session with verified email
-		const sessionId = newPasswordResetSessionId(ulid());
-		const code = "12345678";
-		const sessionSecretServiceMock = new SessionSecretServiceMock();
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const sessionSecretHash = sessionSecretServiceMock.hashSessionSecret(sessionSecret);
-		const session = createPasswordResetSession({
-			id: sessionId,
-			userId: userId,
-			code: code,
-			secretHash: sessionSecretHash,
-			email: user.email,
-		});
-
-		// set email as verified
-		session.emailVerified = true;
+		userMap.set(user.id, user);
 
 		const newPassword = "new_password123";
 		const result = await resetPasswordUseCase.execute(newPassword, session, user);
 
 		expect(isErr(result)).toBe(false);
 
-		// verify password was hashed
-		const savedPasswordHash = userRepositoryMock.userPasswordHashMap.get(userId);
+		const savedPasswordHash = userPasswordHashMap.get(user.id);
 		expect(savedPasswordHash).toBeDefined();
-		expect(savedPasswordHash).not.toBe(newPassword); // should be hashed
-		expect(savedPasswordHash).toBe(await passwordServiceMock.hashPassword(newPassword)); // should match mock hash
+		expect(savedPasswordHash).not.toBe(newPassword);
+		if (savedPasswordHash) {
+			expect(await passwordServiceMock.verifyPassword(newPassword, savedPasswordHash)).toBe(true);
+		}
 	});
 
 	it("should delete all user sessions after password reset", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { session: existingSession1 } = createSessionFixture({
+			session: {
+				userId: user.id,
+			},
 		});
 
-		const sessionId1 = newSessionId(ulid());
-		const sessionSecret1 = sessionSecretServiceMock.generateSessionSecret();
-		const session1 = createSession({
-			id: sessionId1,
-			userId: userId,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret1),
+		sessionMap.set(existingSession1.id, existingSession1);
+
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				userId: user.id,
+				email: user.email,
+				emailVerified: true,
+			},
 		});
 
-		sessionRepositoryMock.sessionMap.set(sessionId1, session1);
+		userMap.set(user.id, user);
 
-		// create password reset session with verified email
-		const passwordResetSessionId = newPasswordResetSessionId(ulid());
-		const passwordResetCode = "12345678";
-		const passwordResetSessionSecretServiceMock = new SessionSecretServiceMock();
-		const passwordResetSessionSecret = passwordResetSessionSecretServiceMock.generateSessionSecret();
-		const passwordResetSession = createPasswordResetSession({
-			id: passwordResetSessionId,
-			userId: userId,
-			code: passwordResetCode,
-			secretHash: passwordResetSessionSecretServiceMock.hashSessionSecret(passwordResetSessionSecret),
-			email: user.email,
-		});
-
-		// set email as verified
-		passwordResetSession.emailVerified = true;
-
-		const newPassword = "new_password123";
-		const result = await resetPasswordUseCase.execute(newPassword, passwordResetSession, user);
+		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
 		expect(isErr(result)).toBe(false);
 
-		expect(sessionRepositoryMock.sessionMap.has(sessionId1)).toBe(false);
+		expect(sessionMap.size).toBe(0);
 	});
 
 	it("should delete password reset sessions for the user", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				userId: user.id,
+				email: user.email,
+				emailVerified: true,
+			},
+		});
+		const { passwordResetSession: anotherSession } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				userId: user.id,
+				email: user.email,
+			},
 		});
 
-		// create password reset session with verified email
-		const sessionId = newPasswordResetSessionId(ulid());
-		const code = "12345678";
-		const sessionSecretServiceMock = new SessionSecretServiceMock();
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createPasswordResetSession({
-			id: sessionId,
-			userId: userId,
-			code: code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-			email: user.email,
-		});
+		userMap.set(user.id, user);
+		passwordResetSessionMap.set(session.id, session);
+		passwordResetSessionMap.set(anotherSession.id, anotherSession);
 
-		// set email as verified
-		session.emailVerified = true;
-
-		// add session to repository
-		passwordResetSessionRepositoryMock.passwordResetSessionMap.set(sessionId, session);
-
-		// add another session for the same user
-		const anotherSessionId = newPasswordResetSessionId(ulid());
-		const anotherSession = createPasswordResetSession({
-			id: anotherSessionId,
-			userId: userId,
-			code: "87654321",
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-			email: user.email,
-		});
-		passwordResetSessionRepositoryMock.passwordResetSessionMap.set(anotherSessionId, anotherSession);
-
-		const newPassword = "new_password123";
-		const result = await resetPasswordUseCase.execute(newPassword, session, user);
+		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
 		expect(isErr(result)).toBe(false);
 
-		// verify password reset sessions were deleted
-		expect(passwordResetSessionRepositoryMock.passwordResetSessionMap.has(sessionId)).toBe(false);
-		expect(passwordResetSessionRepositoryMock.passwordResetSessionMap.has(anotherSessionId)).toBe(false);
+		expect(passwordResetSessionMap.has(session.id)).toBe(false);
+		expect(passwordResetSessionMap.has(anotherSession.id)).toBe(false);
 	});
 
 	it("should save user with new password hash", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: true,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				userId: user.id,
+				email: user.email,
+				emailVerified: true,
+			},
 		});
 
-		// create password reset session with verified email
-		const sessionId = newPasswordResetSessionId(ulid());
-		const code = "12345678";
-		const sessionSecretServiceMock = new SessionSecretServiceMock();
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
-		const session = createPasswordResetSession({
-			id: sessionId,
-			userId: userId,
-			code: code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
-			email: user.email,
-		});
+		userMap.set(user.id, user);
 
-		// set email as verified
-		session.emailVerified = true;
-
-		const newPassword = "new_password123";
-		const result = await resetPasswordUseCase.execute(newPassword, session, user);
+		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
 		expect(isErr(result)).toBe(false);
 
-		// verify user was saved
-		const savedUser = userRepositoryMock.userMap.get(userId);
+		const savedUser = userMap.get(user.id);
 		expect(savedUser).toBeDefined();
-		expect(savedUser?.id).toBe(userId);
-		expect(savedUser?.email).toBe(user.email);
+		expect(savedUser?.id).toBe(user.id);
 
-		// verify password hash was saved
-		const savedPasswordHash = userRepositoryMock.userPasswordHashMap.get(userId);
+		const savedPasswordHash = userPasswordHashMap.get(user.id);
 		expect(savedPasswordHash).toBeDefined();
-		expect(savedPasswordHash).not.toBe(newPassword); // should be hashed
-		expect(savedPasswordHash).toBe(await passwordServiceMock.hashPassword(newPassword)); // should match mock hash
+		expect(savedPasswordHash).not.toBe("new_password123");
+		if (savedPasswordHash) {
+			expect(await passwordServiceMock.verifyPassword("new_password123", savedPasswordHash)).toBe(true);
+		}
 	});
 });

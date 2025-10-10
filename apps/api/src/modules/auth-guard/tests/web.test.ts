@@ -1,70 +1,52 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
-import { SessionSecretService, createSessionToken } from "../../../application/services/session";
+import { beforeEach, describe, expect, test } from "vitest";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newSessionId } from "../../../domain/value-object";
-import { type DatabaseSession, SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
-import { toDatabaseSessionSecretHash } from "../../../tests/utils";
+import { createSessionFixture, createUserFixture } from "../../../tests/fixtures";
+import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
-const { DB, SESSION_PEPPER } = env;
-
-const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
+const { DB } = env;
 
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const user1Id = "user1Id" as const;
-const user2Id = "user2Id" as const;
+const { user: user1, passwordHash: passwordHash1 } = createUserFixture({
+	user: {
+		email: "test1.email@example.com",
+		emailVerified: false,
+	},
+	passwordHash: "passwordHash1",
+});
+const { user: user2, passwordHash: passwordHash2 } = createUserFixture({
+	user: {
+		email: "test2.email@example.com",
+		emailVerified: true,
+	},
+	passwordHash: "passwordHash2",
+});
 
-const session1Id = newSessionId("session1Id");
-const session2Id = newSessionId("session2Id");
-
-const sessionSecret1 = "session1Secret" as const;
-const sessionSecret2 = "session2Secret" as const;
-
-const sessionSecretHash1 = sessionSecretService.hashSessionSecret(sessionSecret1);
-const sessionSecretHash2 = sessionSecretService.hashSessionSecret(sessionSecret2);
-
-const sessionToken1 = createSessionToken(session1Id, sessionSecret1);
-const sessionToken2 = createSessionToken(session2Id, sessionSecret2);
-
-const databaseSession1: DatabaseSession = {
-	id: session1Id,
-	user_id: user1Id,
-	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash1),
-	expires_at: sessionTableHelper.baseDatabaseData.expires_at,
-};
-
-const databaseSession2: DatabaseSession = {
-	id: session2Id,
-	user_id: user2Id,
-	secret_hash: toDatabaseSessionSecretHash(sessionSecretHash2),
-	expires_at: sessionTableHelper.baseDatabaseData.expires_at,
-};
+const { session: session1, sessionToken: sessionToken1 } = createSessionFixture({
+	session: {
+		userId: user1.id,
+	},
+});
+const { session: session2, sessionToken: sessionToken2 } = createSessionFixture({
+	session: {
+		userId: user2.id,
+	},
+});
 
 describe("AuthGuard cookie test", () => {
-	beforeAll(async () => {
-		// Create non-email-verified User
-		await userTableHelper.create({
-			...userTableHelper.baseDatabaseData,
-			id: "user1Id",
-			email_verified: 0,
-			email: "test1.email@example.com",
-		});
+	beforeEach(async () => {
+		sessionTableHelper.deleteAll();
+		userTableHelper.deleteAll();
 
-		// Create email-verified User
-		await userTableHelper.create({
-			...userTableHelper.baseDatabaseData,
-			id: "user2Id",
-			email_verified: 1,
-			email: "test2.email@example.com",
-		});
+		await userTableHelper.save(user1, passwordHash1);
+		await userTableHelper.save(user2, passwordHash2);
 
-		await sessionTableHelper.create(databaseSession1);
-
-		await sessionTableHelper.create(databaseSession2);
+		await sessionTableHelper.save(session1);
+		await sessionTableHelper.save(session2);
 	});
 
 	test("Pass with valid cookie that email verification is not required", async () => {

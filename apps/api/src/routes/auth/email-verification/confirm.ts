@@ -1,11 +1,11 @@
 import { t } from "elysia";
-import { SessionSecretService } from "../../../application/services/session";
 import {
 	EmailVerificationConfirmUseCase,
 	ValidateEmailVerificationSessionUseCase,
 } from "../../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { newEmailVerificationSessionToken } from "../../../domain/value-object";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
@@ -42,7 +42,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 	.post(
 		"/confirm",
 		async ({
-			env: { APP_ENV, EMAIL_VERIFICATION_SESSION_PEPPER, SESSION_PEPPER },
+			env: { APP_ENV },
 			cfModuleEnv: { DB },
 			cookie,
 			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
@@ -57,27 +57,22 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
-			const sessionSecretService = new SessionSecretService(SESSION_PEPPER);
-			const emailVerificationSessionSecretService = new SessionSecretService(EMAIL_VERIFICATION_SESSION_PEPPER);
-
 			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
 				emailVerificationSessionRepository,
-				emailVerificationSessionSecretService,
 			);
 			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
 				userRepository,
 				sessionRepository,
 				emailVerificationSessionRepository,
-				sessionSecretService,
 			);
 			// === End of Instances ===
 
-			const emailVerificationSessionToken =
+			const rawEmailVerificationSessionToken =
 				clientType === "web"
 					? cookieManager.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
 					: bodyEmailVerificationSessionToken;
 
-			if (!emailVerificationSessionToken) {
+			if (!rawEmailVerificationSessionToken) {
 				throw new UnauthorizedException({
 					code: "EMAIL_VERIFICATION_SESSION_INVALID",
 					message: "Email verification session token not found. Please request email verification again.",
@@ -85,7 +80,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			}
 
 			const validationResult = await validateEmailVerificationSessionUseCase.execute(
-				emailVerificationSessionToken,
+				newEmailVerificationSessionToken(rawEmailVerificationSessionToken),
 				user,
 			);
 

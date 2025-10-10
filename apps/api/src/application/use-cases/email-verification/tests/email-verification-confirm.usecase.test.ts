@@ -1,8 +1,23 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr, ulid } from "../../../../common/utils";
-import { createEmailVerificationSession, createSession, createUser } from "../../../../domain/entities";
-import { newEmailVerificationSessionId, newGender, newSessionId, newUserId } from "../../../../domain/value-object";
-import { SessionSecretServiceMock } from "../../../../tests/mocks";
+import {
+	type EmailVerificationSession,
+	type Session,
+	type User,
+	createEmailVerificationSession,
+	createSession,
+	createUser,
+} from "../../../../domain/entities";
+import {
+	type EmailVerificationSessionId,
+	type SessionId,
+	type UserId,
+	newEmailVerificationSessionId,
+	newGender,
+	newSessionId,
+	newUserId,
+} from "../../../../domain/value-object";
+import { generateSessionSecret, hashSessionSecret } from "../../../../infrastructure/crypt";
 import { EmailVerificationSessionRepositoryMock } from "../../../../tests/mocks/repositories/email-verification-session.repository.mock";
 import { SessionRepositoryMock } from "../../../../tests/mocks/repositories/session.repository.mock";
 import {
@@ -19,13 +34,17 @@ describe("EmailVerificationConfirmUseCase", () => {
 	let userRepositoryMock: UserRepositoryMock;
 	let sessionRepositoryMock: SessionRepositoryMock;
 	let emailVerificationSessionRepositoryMock: EmailVerificationSessionRepositoryMock;
-	let sessionSecretServiceMock: SessionSecretServiceMock;
+
+	let userMap: Map<UserId, User>;
+	let sessionMap: Map<SessionId, Session>;
+	let userPasswordHashMap: Map<UserId, string>;
+	let emailVerificationSessionMap: Map<EmailVerificationSessionId, EmailVerificationSession>;
 
 	beforeEach(() => {
-		const userMap = createUsersMap();
-		const sessionMap = createSessionsMap();
-		const userPasswordHashMap = createUserPasswordHashMap();
-		const emailVerificationSessionMap = createEmailVerificationSessionsMap();
+		userMap = createUsersMap();
+		sessionMap = createSessionsMap();
+		userPasswordHashMap = createUserPasswordHashMap();
+		emailVerificationSessionMap = createEmailVerificationSessionsMap();
 
 		userRepositoryMock = new UserRepositoryMock({
 			userMap,
@@ -38,13 +57,11 @@ describe("EmailVerificationConfirmUseCase", () => {
 		emailVerificationSessionRepositoryMock = new EmailVerificationSessionRepositoryMock({
 			emailVerificationSessionMap,
 		});
-		sessionSecretServiceMock = new SessionSecretServiceMock();
 
 		emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
 			userRepositoryMock,
 			sessionRepositoryMock,
 			emailVerificationSessionRepositoryMock,
-			sessionSecretServiceMock,
 		);
 	});
 
@@ -63,20 +80,17 @@ describe("EmailVerificationConfirmUseCase", () => {
 		// create email verification session
 		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
 		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
+		const sessionSecret = generateSessionSecret();
 		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			userId: userId,
 			email: "test@example.com",
 			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+			secretHash: hashSessionSecret(sessionSecret),
 		});
 
-		userRepositoryMock.userMap.set(userId, user);
-		emailVerificationSessionRepositoryMock.emailVerificationSessionMap.set(
-			emailVerificationSessionId,
-			emailVerificationSession,
-		);
+		userMap.set(userId, user);
+		emailVerificationSessionMap.set(emailVerificationSessionId, emailVerificationSession);
 
 		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
 
@@ -91,12 +105,10 @@ describe("EmailVerificationConfirmUseCase", () => {
 		}
 
 		// verify email verification session is deleted
-		expect(emailVerificationSessionRepositoryMock.emailVerificationSessionMap.has(emailVerificationSessionId)).toBe(
-			false,
-		);
+		expect(emailVerificationSessionMap.has(emailVerificationSessionId)).toBe(false);
 
 		// verify user email is verified
-		const updatedUser = userRepositoryMock.userMap.get(userId);
+		const updatedUser = userMap.get(userId);
 		expect(updatedUser?.emailVerified).toBe(true);
 	});
 
@@ -115,16 +127,16 @@ describe("EmailVerificationConfirmUseCase", () => {
 		// create email verification session with different email
 		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
 		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
+		const sessionSecret = generateSessionSecret();
 		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			userId: userId,
 			email: "different@example.com",
 			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+			secretHash: hashSessionSecret(sessionSecret),
 		});
 
-		userRepositoryMock.userMap.set(userId, user);
+		userMap.set(userId, user);
 
 		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
 
@@ -150,16 +162,16 @@ describe("EmailVerificationConfirmUseCase", () => {
 		// create email verification session
 		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
 		const correctCode = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
+		const sessionSecret = generateSessionSecret();
 		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			userId: userId,
 			email: "test@example.com",
 			code: correctCode,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+			secretHash: hashSessionSecret(sessionSecret),
 		});
 
-		userRepositoryMock.userMap.set(userId, user);
+		userMap.set(userId, user);
 
 		const wrongCode = "87654321";
 		const result = await emailVerificationConfirmUseCase.execute(wrongCode, user, emailVerificationSession);
@@ -185,49 +197,49 @@ describe("EmailVerificationConfirmUseCase", () => {
 
 		// create existing sessions
 		const existingSessionId1 = newSessionId(ulid());
-		const sessionSecret1 = sessionSecretServiceMock.generateSessionSecret();
+		const sessionSecret1 = generateSessionSecret();
 		const existingSession1 = createSession({
 			id: existingSessionId1,
 			userId: userId,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret1),
+			secretHash: hashSessionSecret(sessionSecret1),
 		});
 
 		const existingSessionId2 = newSessionId(ulid());
-		const sessionSecret2 = sessionSecretServiceMock.generateSessionSecret();
+		const sessionSecret2 = generateSessionSecret();
 		const existingSession2 = createSession({
 			id: existingSessionId2,
 			userId: userId,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret2),
+			secretHash: hashSessionSecret(sessionSecret2),
 		});
 
-		sessionRepositoryMock.sessionMap.set(existingSessionId1, existingSession1);
-		sessionRepositoryMock.sessionMap.set(existingSessionId2, existingSession2);
+		sessionMap.set(existingSessionId1, existingSession1);
+		sessionMap.set(existingSessionId2, existingSession2);
 
 		// create email verification session
 		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
 		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
+		const sessionSecret = generateSessionSecret();
 		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			userId: userId,
 			email: "test@example.com",
 			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+			secretHash: hashSessionSecret(sessionSecret),
 		});
 
-		userRepositoryMock.userMap.set(userId, user);
+		userMap.set(userId, user);
 
 		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 
 		// verify existing sessions are deleted
-		expect(sessionRepositoryMock.sessionMap.has(existingSessionId1)).toBe(false);
-		expect(sessionRepositoryMock.sessionMap.has(existingSessionId2)).toBe(false);
+		expect(sessionMap.has(existingSessionId1)).toBe(false);
+		expect(sessionMap.has(existingSessionId2)).toBe(false);
 
 		// verify new session is created
 		if (!isErr(result)) {
-			const newSession = sessionRepositoryMock.sessionMap.get(result.session.id);
+			const newSession = sessionMap.get(result.session.id);
 			expect(newSession).toBeDefined();
 			expect(newSession?.userId).toBe(userId);
 		}
@@ -248,23 +260,23 @@ describe("EmailVerificationConfirmUseCase", () => {
 		// create email verification session
 		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
 		const code = "12345678";
-		const sessionSecret = sessionSecretServiceMock.generateSessionSecret();
+		const sessionSecret = generateSessionSecret();
 		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			userId: userId,
 			email: "test@example.com",
 			code,
-			secretHash: sessionSecretServiceMock.hashSessionSecret(sessionSecret),
+			secretHash: hashSessionSecret(sessionSecret),
 		});
 
-		userRepositoryMock.userMap.set(userId, user);
+		userMap.set(userId, user);
 
 		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 
 		if (!isErr(result)) {
-			const savedSession = sessionRepositoryMock.sessionMap.get(result.session.id);
+			const savedSession = sessionMap.get(result.session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(userId);
 		}

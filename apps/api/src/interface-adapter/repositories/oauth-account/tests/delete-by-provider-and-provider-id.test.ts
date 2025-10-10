@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
 import { OAuthAccountTableHelper, UserTableHelper } from "../../../../tests/helpers";
 import { OAuthAccountRepository } from "../oauth-account.repository";
 
@@ -12,20 +13,29 @@ const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
 
+const { user, passwordHash } = createUserFixture();
+
 describe("OAuthAccountRepository.deleteByProviderAndProviderId", () => {
 	beforeAll(async () => {
-		await userTableHelper.create();
-		await oauthAccountTableHelper.create();
+		await userTableHelper.save(user, passwordHash);
+	});
+
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM oauth_accounts");
 	});
 
 	test("should delete date in database", async () => {
-		await oauthAccountRepository.deleteByProviderAndProviderId(
-			oauthAccountTableHelper.baseData.provider,
-			oauthAccountTableHelper.baseData.providerId,
-		);
+		const { oauthAccount } = createOAuthAccountFixture({
+			oauthAccount: {
+				userId: user.id,
+			},
+		});
+		await oauthAccountTableHelper.save(oauthAccount);
+
+		await oauthAccountRepository.deleteByProviderAndProviderId(oauthAccount.provider, oauthAccount.providerId);
 		const results = await oauthAccountTableHelper.findByProviderAndProviderId(
-			oauthAccountTableHelper.baseData.provider,
-			oauthAccountTableHelper.baseData.providerId,
+			oauthAccount.provider,
+			oauthAccount.providerId,
 		);
 		expect(results).toHaveLength(0);
 	});

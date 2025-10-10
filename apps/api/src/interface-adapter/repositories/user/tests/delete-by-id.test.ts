@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
-import { beforeAll, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { createUserFixture } from "../../../../tests/fixtures";
 import { UserTableHelper } from "../../../../tests/helpers";
 import { UserRepository } from "../user.repository";
 
@@ -11,15 +12,19 @@ const userRepository = new UserRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
 
+const { user, passwordHash } = createUserFixture();
+
 describe("UserRepository.delete", async () => {
-	beforeAll(async () => {
-		await userTableHelper.create();
+	beforeEach(async () => {
+		await DB.exec("DELETE FROM users");
 	});
 
 	test("should deleted user from the database", async () => {
-		await userRepository.deleteById(userTableHelper.baseData.id);
+		await userTableHelper.save(user, passwordHash);
 
-		const results = await userTableHelper.find(userTableHelper.baseData.id);
+		await userRepository.deleteById(user.id);
+
+		const results = await userTableHelper.findById(user.id);
 
 		expect(results).toHaveLength(0);
 	});

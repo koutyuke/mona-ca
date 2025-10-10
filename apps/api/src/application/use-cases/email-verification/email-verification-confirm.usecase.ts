@@ -1,11 +1,12 @@
 import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
 import { createSession, updateUser } from "../../../domain/entities";
 import type { EmailVerificationSession, User } from "../../../domain/entities";
-import { newSessionId } from "../../../domain/value-object";
+import { formatSessionToken, newSessionId } from "../../../domain/value-object";
+import { hashSessionSecret } from "../../../infrastructure/crypt";
+import { generateSessionSecret } from "../../../infrastructure/crypt";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import { type ISessionSecretService, createSessionToken } from "../../services/session";
 import type {
 	EmailVerificationConfirmUseCaseResult,
 	IEmailVerificationConfirmUseCase,
@@ -18,7 +19,6 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private readonly sessionSecretService: ISessionSecretService,
 	) {}
 
 	public async execute(
@@ -39,10 +39,10 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		// Delete all sessions for the user.
 		await this.sessionRepository.deleteByUserId(user.id);
 
-		const sessionSecret = this.sessionSecretService.generateSessionSecret();
-		const sessionSecretHash = this.sessionSecretService.hashSessionSecret(sessionSecret);
+		const sessionSecret = generateSessionSecret();
+		const sessionSecretHash = hashSessionSecret(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = createSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId: user.id,

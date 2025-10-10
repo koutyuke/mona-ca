@@ -1,8 +1,9 @@
 import type { Result } from "../../../../common/utils";
 import type { AccountAssociationSession, User } from "../../../../domain/entities";
+import type { AccountAssociationSessionToken } from "../../../../domain/value-object";
 
 type Success = {
-	accountAssociationSessionToken: string;
+	accountAssociationSessionToken: AccountAssociationSessionToken;
 	accountAssociationSession: AccountAssociationSession<string>;
 };
 
