@@ -13,6 +13,15 @@ export {
 	oauthProviderSchema,
 	newOAuthProviderId,
 } from "./oauth-provider";
+export {
+	parseSessionToken,
+	formatSessionToken,
+	newSessionToken,
+	newAccountAssociationSessionToken,
+	newEmailVerificationSessionToken,
+	newPasswordResetSessionToken,
+	newSignupSessionToken,
+} from "./session-token";
 
 export type { ClientType } from "./client-type";
 export type { Gender } from "./gender";
@@ -25,3 +34,10 @@ export type {
 	SignupSessionId,
 } from "./ids";
 export type { OAuthProvider, OAuthProviderId } from "./oauth-provider";
+export type {
+	SessionToken,
+	EmailVerificationSessionToken,
+	PasswordResetSessionToken,
+	AccountAssociationSessionToken,
+	SignupSessionToken,
+} from "./session-token";
