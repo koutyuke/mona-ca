@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
+import { verifyPassword } from "../../../../infrastructure/crypt";
 import { createPasswordResetSessionFixture, createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordResetSessionRepositoryMock,
-	PasswordServiceMock,
 	SessionRepositoryMock,
 	UserRepositoryMock,
 	createPasswordResetSessionsMap,
@@ -28,12 +28,10 @@ const userRepositoryMock = new UserRepositoryMock({
 	userPasswordHashMap,
 	sessionMap,
 });
-const passwordServiceMock = new PasswordServiceMock();
 const resetPasswordUseCase = new ResetPasswordUseCase(
 	userRepositoryMock,
 	sessionRepositoryMock,
 	passwordResetSessionRepositoryMock,
-	passwordServiceMock,
 );
 
 const { user } = createUserFixture({
@@ -112,7 +110,7 @@ describe("ResetPasswordUseCase", () => {
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe(newPassword);
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword(newPassword, savedPasswordHash)).toBe(true);
+			expect(await verifyPassword(newPassword, savedPasswordHash)).toBe(true);
 		}
 	});
 
@@ -192,7 +190,7 @@ describe("ResetPasswordUseCase", () => {
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe("new_password123");
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword("new_password123", savedPasswordHash)).toBe(true);
+			expect(await verifyPassword("new_password123", savedPasswordHash)).toBe(true);
 		}
 	});
 });

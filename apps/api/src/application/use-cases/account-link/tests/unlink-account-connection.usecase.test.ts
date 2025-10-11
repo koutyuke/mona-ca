@@ -11,7 +11,7 @@ import {
 	createUserPasswordHashMap,
 	createUsersMap,
 } from "../../../../tests/mocks";
-import type { IUnlinkAccountConnectionUseCase } from "../interfaces/unlink-account-connection.usecase.interface";
+import type { IUnlinkAccountConnectionUseCase } from "../../../ports/in";
 import { UnlinkAccountConnectionUseCase } from "../unlink-account-connection.usecase";
 
 describe("UnlinkAccountConnectionUseCase", () => {

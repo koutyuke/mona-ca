@@ -10,8 +10,8 @@ import {
 	createUserPasswordHashMap,
 	createUsersMap,
 } from "../../../../tests/mocks";
+import type { IGetConnectionsUseCase } from "../../../ports/in";
 import { GetConnectionsUseCase } from "../get-connections.usecase";
-import type { IGetConnectionsUseCase } from "../interfaces/get-connections.usecase.interface";
 
 describe("GetConnectionsUseCase", () => {
 	const sessionMap = createSessionsMap();

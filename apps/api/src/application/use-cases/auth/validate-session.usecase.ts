@@ -5,7 +5,10 @@ import { parseSessionToken } from "../../../domain/value-object";
 import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IValidateSessionUseCase, ValidateSessionUseCaseResult } from "./interfaces/validate-session.usecase";
+import type {
+	IValidateSessionUseCase,
+	ValidateSessionUseCaseResult,
+} from "../../ports/in/auth/validate-session.usecase";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(

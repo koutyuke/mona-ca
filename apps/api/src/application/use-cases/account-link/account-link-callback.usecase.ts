@@ -5,10 +5,7 @@ import { type OAuthProvider, newClientType, newOAuthProviderId, newUserId } from
 import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { AppEnv } from "../../../modules/env";
-import type {
-	AccountLinkCallbackUseCaseResult,
-	IAccountLinkCallbackUseCase,
-} from "./interfaces/account-link-callback.usecase.interface";
+import type { AccountLinkCallbackUseCaseResult, IAccountLinkCallbackUseCase } from "../../ports/in";
 import { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {

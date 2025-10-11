@@ -11,10 +11,7 @@ import type { IAccountAssociationSessionRepository } from "../../../interface-ad
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	AccountAssociationConfirmUseCaseResult,
-	IAccountAssociationConfirmUseCase,
-} from "./interfaces/account-association-confirm.interface.usecase";
+import type { AccountAssociationConfirmUseCaseResult, IAccountAssociationConfirmUseCase } from "../../ports/in";
 
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.

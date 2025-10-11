@@ -1,13 +1,10 @@
-import { err, generateRandomString, ulid } from "../../../common/utils";
+import { err, ulid } from "../../../common/utils";
 import { createPasswordResetSession } from "../../../domain/entities";
 import { formatSessionToken, newPasswordResetSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
+import { generateRandomString, generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	IPasswordResetRequestUseCase,
-	PasswordResetRequestUseCaseResult,
-} from "./interfaces/password-reset-request.usecase.interface";
+import type { IPasswordResetRequestUseCase, PasswordResetRequestUseCaseResult } from "../../ports/in";
 
 export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase {
 	constructor(

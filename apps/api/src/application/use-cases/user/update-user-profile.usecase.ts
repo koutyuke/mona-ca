@@ -1,11 +1,7 @@
 import { updateUser } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	IUpdateUserProfileUseCase,
-	UpdateUserProfileDto,
-	UpdateUserProfileUseCaseResult,
-} from "./interfaces/update-user-profile.usecase.interface";
+import type { IUpdateUserProfileUseCase, UpdateUserProfileDto, UpdateUserProfileUseCaseResult } from "../../ports/in";
 
 export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
 	constructor(private readonly userRepository: IUserRepository) {}

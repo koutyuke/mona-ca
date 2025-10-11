@@ -1,11 +1,11 @@
-import { err, generateRandomString, ulid } from "../../../common/utils";
+import { err, ulid } from "../../../common/utils";
 import { type SignupSession, createSignupSession } from "../../../domain/entities";
 import { formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
 import type { SignupSessionToken } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
+import { generateRandomString, generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session/interfaces/signup-session.repository.interface";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "./interfaces/signup-request.usecase.interface";
+import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "../../ports/in";
 
 export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(

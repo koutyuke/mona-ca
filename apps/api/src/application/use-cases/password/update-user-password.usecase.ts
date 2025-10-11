@@ -2,20 +2,15 @@ import { err, ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import { formatSessionToken, newSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
+import { generateSessionSecret, hashPassword, hashSessionSecret, verifyPassword } from "../../../infrastructure/crypt";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IPasswordService } from "../../services/password";
-import type {
-	IUpdateUserPasswordUseCase,
-	UpdateUserPasswordUseCaseResult,
-} from "./interfaces/update-user-password.usecase.interface";
+import type { IUpdateUserPasswordUseCase, UpdateUserPasswordUseCaseResult } from "../../ports/in";
 
 export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly passwordService: IPasswordService,
 	) {}
 
 	public async execute(
@@ -34,14 +29,14 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 				return err("INVALID_CURRENT_PASSWORD");
 			}
 
-			const verifyPassword = await this.passwordService.verifyPassword(currentPassword, passwordHash);
-			if (!verifyPassword) {
+			const verifyPasswordResult = await verifyPassword(currentPassword, passwordHash);
+			if (!verifyPasswordResult) {
 				return err("INVALID_CURRENT_PASSWORD");
 			}
 		}
 
 		const [newPasswordHash] = await Promise.all([
-			this.passwordService.hashPassword(newPassword),
+			hashPassword(newPassword),
 
 			// Delete all sessions of the user.
 			this.sessionRepository.deleteByUserId(user.id),

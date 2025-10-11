@@ -7,10 +7,7 @@ import { generateSessionSecret } from "../../../infrastructure/crypt";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	EmailVerificationConfirmUseCaseResult,
-	IEmailVerificationConfirmUseCase,
-} from "./interfaces/email-verification-confirm.usecase.interface";
+import type { EmailVerificationConfirmUseCaseResult, IEmailVerificationConfirmUseCase } from "../../ports/in";
 
 // this use case will be called after the validate email verification session use case.
 // so we don't need to check the expired email verification session.

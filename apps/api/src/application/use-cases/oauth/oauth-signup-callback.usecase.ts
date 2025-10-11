@@ -24,10 +24,7 @@ import type { IOAuthAccountRepository } from "../../../interface-adapter/reposit
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { AppEnv } from "../../../modules/env";
-import type {
-	IOAuthSignupCallbackUseCase,
-	OAuthSignupCallbackUseCaseResult,
-} from "./interfaces/oauth-signup-callback.usecase.interface";
+import type { IOAuthSignupCallbackUseCase, OAuthSignupCallbackUseCaseResult } from "../../ports/in";
 import { oauthStateSchema } from "./schema";
 
 export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {

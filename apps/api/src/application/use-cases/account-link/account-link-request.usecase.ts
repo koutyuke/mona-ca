@@ -6,10 +6,7 @@ import type { ClientType } from "../../../domain/value-object";
 import type { UserId } from "../../../domain/value-object";
 import { type IOAuthProviderGateway, generateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
 import type { AppEnv } from "../../../modules/env";
-import type {
-	AccountLinkRequestUseCaseResult,
-	IAccountLinkRequestUseCase,
-} from "./interfaces/account-link-request.usecase.interface";
+import type { AccountLinkRequestUseCaseResult, IAccountLinkRequestUseCase } from "../../ports/in";
 import type { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkRequestUseCase implements IAccountLinkRequestUseCase {

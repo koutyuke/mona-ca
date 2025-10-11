@@ -1,14 +1,11 @@
-import { err, generateRandomString, ulid } from "../../../common/utils";
+import { err, ulid } from "../../../common/utils";
 import { createEmailVerificationSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import { formatSessionToken, newEmailVerificationSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
+import { generateRandomString, generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	EmailVerificationRequestUseCaseResult,
-	IEmailVerificationRequestUseCase,
-} from "./interfaces/email-verification-request.usecase.interface";
+import type { EmailVerificationRequestUseCaseResult, IEmailVerificationRequestUseCase } from "../../ports/in";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(

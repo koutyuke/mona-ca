@@ -4,10 +4,7 @@ import { type PasswordResetSessionToken, parseSessionToken } from "../../../doma
 import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	IValidatePasswordResetSessionUseCase,
-	ValidatePasswordResetSessionUseCaseResult,
-} from "./interfaces/validate-password-reset-session.usecase.interface";
+import type { IValidatePasswordResetSessionUseCase, ValidatePasswordResetSessionUseCaseResult } from "../../ports/in";
 
 export class ValidatePasswordResetSessionUseCase implements IValidatePasswordResetSessionUseCase {
 	constructor(

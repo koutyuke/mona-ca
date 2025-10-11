@@ -1,12 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { createSignupSessionFixture, createUserFixture } from "../../../../tests/fixtures";
-import {
-	PasswordServiceMock,
-	SessionRepositoryMock,
-	SignupSessionRepositoryMock,
-	UserRepositoryMock,
-} from "../../../../tests/mocks";
+import { SessionRepositoryMock, SignupSessionRepositoryMock, UserRepositoryMock } from "../../../../tests/mocks";
 import {
 	createSessionsMap,
 	createSignupSessionsMap,
@@ -34,15 +29,11 @@ const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
 
-// Services
-const passwordServiceMock = new PasswordServiceMock();
-
 // Use Case
 const signupConfirmUseCase = new SignupConfirmUseCase(
 	userRepositoryMock,
 	sessionRepositoryMock,
 	signupSessionRepositoryMock,
-	passwordServiceMock,
 );
 
 const { user: verifiedUserFixture } = createUserFixture({

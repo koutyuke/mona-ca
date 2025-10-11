@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { createUserFixture } from "../../../../tests/fixtures";
-import { PasswordServiceMock, SessionRepositoryMock, UserRepositoryMock } from "../../../../tests/mocks";
+import { SessionRepositoryMock, UserRepositoryMock } from "../../../../tests/mocks";
 import { createSessionsMap, createUserPasswordHashMap, createUsersMap } from "../../../../tests/mocks";
 import { LoginUseCase } from "../login.usecase";
 
@@ -16,8 +16,7 @@ const userRepositoryMock = new UserRepositoryMock({
 	userPasswordHashMap,
 	sessionMap,
 });
-const passwordServiceMock = new PasswordServiceMock();
-const loginUseCase = new LoginUseCase(sessionRepositoryMock, userRepositoryMock, passwordServiceMock);
+const loginUseCase = new LoginUseCase(sessionRepositoryMock, userRepositoryMock);
 const { user, passwordHash } = createUserFixture({
 	user: {
 		email: "test@example.com",

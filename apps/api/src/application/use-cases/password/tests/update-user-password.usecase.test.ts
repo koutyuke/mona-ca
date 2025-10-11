@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
+import { hashPassword, verifyPassword } from "../../../../infrastructure/crypt";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
-	PasswordServiceMock,
 	SessionRepositoryMock,
 	UserRepositoryMock,
 	createSessionsMap,
@@ -22,12 +22,7 @@ const userRepositoryMock = new UserRepositoryMock({
 	userPasswordHashMap,
 	sessionMap,
 });
-const passwordServiceMock = new PasswordServiceMock();
-const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	passwordServiceMock,
-);
+const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(userRepositoryMock, sessionRepositoryMock);
 
 const { user } = createUserFixture({
 	user: {
@@ -61,7 +56,7 @@ describe("UpdateUserPasswordUseCase", () => {
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe(newPassword);
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword(newPassword, savedPasswordHash)).toBe(true);
+			expect(await verifyPassword(newPassword, savedPasswordHash)).toBe(true);
 		}
 	});
 
@@ -89,7 +84,7 @@ describe("UpdateUserPasswordUseCase", () => {
 
 	it("should return INVALID_CURRENT_PASSWORD error when current password is incorrect", async () => {
 		const existingPassword = "existing_password";
-		const existingPasswordHash = await passwordServiceMock.hashPassword(existingPassword);
+		const existingPasswordHash = await hashPassword(existingPassword);
 		userPasswordHashMap.set(user.id, existingPasswordHash);
 
 		const result = await updateUserPasswordUseCase.execute(user, "wrong_password", "new_password123");
@@ -103,7 +98,7 @@ describe("UpdateUserPasswordUseCase", () => {
 
 	it("should update password successfully when current password is correct", async () => {
 		const existingPassword = "existing_password";
-		const existingPasswordHash = await passwordServiceMock.hashPassword(existingPassword);
+		const existingPasswordHash = await hashPassword(existingPassword);
 		userPasswordHashMap.set(user.id, existingPasswordHash);
 
 		const newPassword = "new_password123";
@@ -124,7 +119,7 @@ describe("UpdateUserPasswordUseCase", () => {
 		expect(savedPasswordHash).not.toBe(newPassword);
 		expect(savedPasswordHash).not.toBe(existingPasswordHash);
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword(newPassword, savedPasswordHash)).toBe(true);
+			expect(await verifyPassword(newPassword, savedPasswordHash)).toBe(true);
 		}
 	});
 
@@ -194,7 +189,7 @@ describe("UpdateUserPasswordUseCase", () => {
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe("new_password123");
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword("new_password123", savedPasswordHash)).toBe(true);
+			expect(await verifyPassword("new_password123", savedPasswordHash)).toBe(true);
 		}
 	});
 });

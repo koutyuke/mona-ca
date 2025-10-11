@@ -2,10 +2,7 @@ import { err } from "../../../common/utils";
 import type { OAuthProvider, UserId } from "../../../domain/value-object";
 import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	IUnlinkAccountConnectionUseCase,
-	UnlinkAccountConnectionUseCaseResult,
-} from "./interfaces/unlink-account-connection.usecase.interface";
+import type { IUnlinkAccountConnectionUseCase, UnlinkAccountConnectionUseCaseResult } from "../../ports/in";
 
 export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionUseCase {
 	constructor(

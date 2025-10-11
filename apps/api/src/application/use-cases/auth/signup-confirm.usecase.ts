@@ -8,19 +8,17 @@ import {
 	newSessionId,
 	newUserId,
 } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
+import { generateSessionSecret, hashPassword, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
 import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IPasswordService } from "../../services/password";
-import type { ISignupConfirmUseCase, SignupConfirmUseCaseResult } from "./interfaces/signup-confirm.usecase.interface";
+import type { ISignupConfirmUseCase, SignupConfirmUseCaseResult } from "../../ports/in";
 
 export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly signupSessionRepository: ISignupSessionRepository,
-		private readonly passwordService: IPasswordService,
 	) {}
 
 	async execute(
@@ -49,7 +47,7 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 			gender,
 		});
 
-		const passwordHash = await this.passwordService.hashPassword(password);
+		const passwordHash = await hashPassword(password);
 
 		const { session, sessionToken } = this.createSession(userId);
 

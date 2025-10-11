@@ -1,10 +1,7 @@
 import { err, timingSafeStringEqual } from "../../../common/utils";
 import { type PasswordResetSession, updatePasswordResetSession } from "../../../domain/entities";
 import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import type {
-	IPasswordResetVerifyEmailUseCase,
-	PasswordResetVerifyEmailUseCaseResult,
-} from "./interfaces/password-reset-verify-email.usecase.interface";
+import type { IPasswordResetVerifyEmailUseCase, PasswordResetVerifyEmailUseCaseResult } from "../../ports/in";
 
 // this use case will be called after the validate password reset session use case.
 // so we don't need to check the expired password reset session.

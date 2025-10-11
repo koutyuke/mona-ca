@@ -7,7 +7,7 @@ import type { IUserRepository } from "../../../interface-adapter/repositories/us
 import type {
 	IValidateAccountAssociationSessionUseCase,
 	ValidateAccountAssociationSessionUseCaseResult,
-} from "./interfaces/validate-account-association-session.interface.usecase";
+} from "../../ports/in";
 
 export class ValidateAccountAssociationSessionUseCase implements IValidateAccountAssociationSessionUseCase {
 	constructor(

@@ -7,7 +7,7 @@ import type { IEmailVerificationSessionRepository } from "../../../interface-ada
 import type {
 	IValidateEmailVerificationSessionUseCase,
 	ValidateEmailVerificationSessionUseCaseResult,
-} from "./interfaces/validate-email-verification-session.usecase.interface";
+} from "../../ports/in";
 
 export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVerificationSessionUseCase {
 	constructor(private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository) {}
