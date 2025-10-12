@@ -1,7 +1,8 @@
-import type { ITurnstileGateway, TurnstileResult } from "./interfaces/turnstile.gateway.interface";
+import type { ITurnstileGateway, TurnstileResult } from "../../../application/ports/out/gateways";
 
 export class TurnstileGateway implements ITurnstileGateway {
 	constructor(private readonly secret: string) {}
+
 	public async verify(token: string, ipAddress: string): Promise<TurnstileResult> {
 		const formData = new FormData();
 
