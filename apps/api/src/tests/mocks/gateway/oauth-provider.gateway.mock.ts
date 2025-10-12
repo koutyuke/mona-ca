@@ -3,7 +3,7 @@ import type {
 	GetAccountInfoResult,
 	GetTokensResult,
 	IOAuthProviderGateway,
-} from "../../../interface-adapter/gateway/oauth-provider";
+} from "../../../application/ports/out/gateways";
 
 export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 	public genAuthURL(state: string, codeVerifier: string): URL {

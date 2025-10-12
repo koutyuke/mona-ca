@@ -9,18 +9,20 @@ import {
 	newOAuthProviderId,
 	newUserId,
 } from "../../../domain/value-object";
-import { hashSessionSecret } from "../../../infrastructure/crypt";
 
-export const createAccountAssociationSessionFixture = (override?: {
-	accountAssociationSession?: Partial<AccountAssociationSession>;
-	accountAssociationSessionSecret?: string;
-}): {
+export const createAccountAssociationSessionFixture = (
+	hasher: (secret: string) => Uint8Array,
+	override?: {
+		accountAssociationSession?: Partial<AccountAssociationSession>;
+		accountAssociationSessionSecret?: string;
+	},
+): {
 	accountAssociationSession: AccountAssociationSession;
 	accountAssociationSessionSecret: string;
 	accountAssociationSessionToken: AccountAssociationSessionToken;
 } => {
 	const sessionSecret = override?.accountAssociationSessionSecret ?? "accountAssociationSessionSecret";
-	const secretHash = hashSessionSecret(sessionSecret);
+	const secretHash = override?.accountAssociationSession?.secretHash ?? hasher(sessionSecret);
 
 	const expiresAt = new Date(
 		override?.accountAssociationSession?.expiresAt?.getTime() ??

@@ -6,18 +6,20 @@ import {
 	newPasswordResetSessionId,
 	newUserId,
 } from "../../../domain/value-object";
-import { hashSessionSecret } from "../../../infrastructure/crypt";
 
-export const createPasswordResetSessionFixture = (override?: {
-	passwordResetSession?: Partial<PasswordResetSession>;
-	passwordResetSessionSecret?: string;
-}): {
+export const createPasswordResetSessionFixture = (
+	hasher: (secret: string) => Uint8Array,
+	override?: {
+		passwordResetSession?: Partial<PasswordResetSession>;
+		passwordResetSessionSecret?: string;
+	},
+): {
 	passwordResetSession: PasswordResetSession;
 	passwordResetSessionSecret: string;
 	passwordResetSessionToken: PasswordResetSessionToken;
 } => {
 	const passwordResetSessionSecret = override?.passwordResetSessionSecret ?? "passwordResetSessionSecret";
-	const secretHash = override?.passwordResetSession?.secretHash ?? hashSessionSecret(passwordResetSessionSecret);
+	const secretHash = override?.passwordResetSession?.secretHash ?? hasher(passwordResetSessionSecret);
 
 	const expiresAt = new Date(
 		override?.passwordResetSession?.expiresAt?.getTime() ?? Date.now() + passwordResetSessionExpiresSpan.milliseconds(),
