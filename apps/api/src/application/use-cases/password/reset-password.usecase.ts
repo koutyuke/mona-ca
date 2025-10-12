@@ -1,12 +1,12 @@
 import { err } from "../../../common/utils";
 import type { PasswordResetSession, User } from "../../../domain/entities";
-import { hashPassword } from "../../../infrastructure/crypt";
 import type { IResetPasswordUseCase, ResetPasswordUseCaseResult } from "../../ports/in";
 import type {
 	IPasswordResetSessionRepository,
 	ISessionRepository,
 	IUserRepository,
 } from "../../ports/out/repositories";
+import type { IPasswordHasher } from "../../ports/out/system";
 
 // this use case will be called after the validate password reset session use case.
 // so we don't need to check the expired password reset session.
@@ -15,6 +15,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
+		private readonly passwordHasher: IPasswordHasher,
 	) {}
 
 	public async execute(
@@ -26,7 +27,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			return err("REQUIRED_EMAIL_VERIFICATION");
 		}
 
-		const passwordHash = await hashPassword(newPassword);
+		const passwordHash = await this.passwordHasher.hash(newPassword);
 
 		await Promise.all([
 			this.userRepository.save(user, { passwordHash }),

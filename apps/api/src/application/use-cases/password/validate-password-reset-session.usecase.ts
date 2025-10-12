@@ -1,14 +1,15 @@
 import { err } from "../../../common/utils";
 import { isExpiredPasswordResetSession } from "../../../domain/entities";
 import { type PasswordResetSessionToken, parseSessionToken } from "../../../domain/value-object";
-import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { IValidatePasswordResetSessionUseCase, ValidatePasswordResetSessionUseCaseResult } from "../../ports/in";
 import type { IPasswordResetSessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 export class ValidatePasswordResetSessionUseCase implements IValidatePasswordResetSessionUseCase {
 	constructor(
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly userRepository: IUserRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(
@@ -35,7 +36,7 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
-		if (!verifySessionSecret(passwordResetSessionSecret, passwordResetSession.secretHash)) {
+		if (!this.sessionSecretHasher.verify(passwordResetSessionSecret, passwordResetSession.secretHash)) {
 			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
