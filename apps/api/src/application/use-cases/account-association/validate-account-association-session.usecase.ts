@@ -1,17 +1,18 @@
 import { err } from "../../../common/utils";
 import { isExpiredAccountAssociationSession } from "../../../domain/entities";
 import { type AccountAssociationSessionToken, parseSessionToken } from "../../../domain/value-object";
-import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type {
 	IValidateAccountAssociationSessionUseCase,
 	ValidateAccountAssociationSessionUseCaseResult,
 } from "../../ports/in";
 import type { IAccountAssociationSessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 export class ValidateAccountAssociationSessionUseCase implements IValidateAccountAssociationSessionUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(
@@ -38,7 +39,7 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 			return err("ACCOUNT_ASSOCIATION_SESSION_EXPIRED");
 		}
 
-		if (!verifySessionSecret(accountAssociationSessionSecret, accountAssociationSession.secretHash)) {
+		if (!this.sessionSecretHasher.verify(accountAssociationSessionSecret, accountAssociationSession.secretHash)) {
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 
