@@ -1,4 +1,5 @@
 import { eq, lte } from "drizzle-orm";
+import type { IAccountAssociationSessionRepository } from "../../../application/ports/out/repositories";
 import type { ToPrimitive } from "../../../common/utils";
 import type { AccountAssociationSession } from "../../../domain/entities";
 import {
@@ -11,7 +12,6 @@ import {
 	newUserId,
 } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { IAccountAssociationSessionRepository } from "./interfaces/account-association-session.repository.interface";
 
 interface FoundAccountAssociationSessionDto {
 	id: string;

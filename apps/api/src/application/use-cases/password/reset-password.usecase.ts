@@ -1,10 +1,12 @@
 import { err } from "../../../common/utils";
 import type { PasswordResetSession, User } from "../../../domain/entities";
 import { hashPassword } from "../../../infrastructure/crypt";
-import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IResetPasswordUseCase, ResetPasswordUseCaseResult } from "../../ports/in";
+import type {
+	IPasswordResetSessionRepository,
+	ISessionRepository,
+	IUserRepository,
+} from "../../ports/out/repositories";
 
 // this use case will be called after the validate password reset session use case.
 // so we don't need to check the expired password reset session.

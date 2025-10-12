@@ -3,12 +3,11 @@ import { createSession, isExpiredSession, isRefreshableSession } from "../../../
 import type { SessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
 import { verifySessionSecret } from "../../../infrastructure/crypt";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type {
 	IValidateSessionUseCase,
 	ValidateSessionUseCaseResult,
 } from "../../ports/in/auth/validate-session.usecase";
+import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(

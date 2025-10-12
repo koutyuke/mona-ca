@@ -3,9 +3,8 @@ import { createSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import { formatSessionToken, newSessionId } from "../../../domain/value-object";
 import { generateSessionSecret, hashPassword, hashSessionSecret, verifyPassword } from "../../../infrastructure/crypt";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IUpdateUserPasswordUseCase, UpdateUserPasswordUseCaseResult } from "../../ports/in";
+import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 	constructor(

@@ -9,10 +9,8 @@ import {
 	newUserId,
 } from "../../../domain/value-object";
 import { generateSessionSecret, hashPassword, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ISignupConfirmUseCase, SignupConfirmUseCaseResult } from "../../ports/in";
+import type { ISessionRepository, ISignupSessionRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 	constructor(

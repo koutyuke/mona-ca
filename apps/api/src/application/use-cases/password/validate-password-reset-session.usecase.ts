@@ -2,9 +2,8 @@ import { err } from "../../../common/utils";
 import { isExpiredPasswordResetSession } from "../../../domain/entities";
 import { type PasswordResetSessionToken, parseSessionToken } from "../../../domain/value-object";
 import { verifySessionSecret } from "../../../infrastructure/crypt";
-import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { IValidatePasswordResetSessionUseCase, ValidatePasswordResetSessionUseCaseResult } from "../../ports/in";
+import type { IPasswordResetSessionRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class ValidatePasswordResetSessionUseCase implements IValidatePasswordResetSessionUseCase {
 	constructor(

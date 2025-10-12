@@ -3,9 +3,9 @@ import { err, isErr } from "../../../common/utils";
 import { createOAuthAccount } from "../../../domain/entities";
 import { type OAuthProvider, newClientType, newOAuthProviderId, newUserId } from "../../../domain/value-object";
 import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
-import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
 import type { AppEnv } from "../../../modules/env";
 import type { AccountLinkCallbackUseCaseResult, IAccountLinkCallbackUseCase } from "../../ports/in";
+import type { IOAuthAccountRepository } from "../../ports/out/repositories";
 import { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {

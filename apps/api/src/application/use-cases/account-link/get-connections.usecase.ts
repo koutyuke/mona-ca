@@ -1,8 +1,7 @@
 import type { ToPrimitive } from "../../../common/utils";
 import type { OAuthProvider, OAuthProviderId, UserId } from "../../../domain/value-object";
-import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { GetConnectionsUseCaseResult, IGetConnectionsUseCase } from "../../ports/in";
+import type { IOAuthAccountRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {
 	constructor(

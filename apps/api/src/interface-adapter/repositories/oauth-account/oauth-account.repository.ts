@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import type { IOAuthAccountRepository } from "../../../application/ports/out/repositories";
 import type { ToPrimitive } from "../../../common/utils";
 import type { OAuthAccount } from "../../../domain/entities";
 import {
@@ -10,7 +11,6 @@ import {
 	newUserId,
 } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { IOAuthAccountRepository } from "./interfaces/oauth-account.repository.interface";
 
 interface FoundOAuthAccountDto {
 	provider: ToPrimitive<OAuthProvider>;

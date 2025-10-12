@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
+import type { ISignupSessionRepository } from "../../../application/ports/out/repositories";
 import type { SignupSession } from "../../../domain/entities";
 import { type SignupSessionId, newSignupSessionId } from "../../../domain/value-object";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { ISignupSessionRepository } from "./interfaces/signup-session.repository.interface";
 
 interface FoundSignupSessionDto {
 	id: string;

@@ -3,8 +3,8 @@ import { isExpiredSignupSession } from "../../../domain/entities";
 import type { SignupSessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
 import { verifySessionSecret } from "../../../infrastructure/crypt";
-import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import type { IValidateSignupSessionUseCase, ValidateSignupSessionUseCaseResult } from "../../ports/in";
+import type { ISignupSessionRepository } from "../../ports/out/repositories";
 
 export class ValidateSignupSessionUseCase implements IValidateSignupSessionUseCase {
 	constructor(private readonly signupSessionRepository: ISignupSessionRepository) {}

@@ -2,9 +2,8 @@ import { err, ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import { formatSessionToken, newSessionId } from "../../../domain/value-object";
 import { generateSessionSecret, hashSessionSecret, verifyPassword } from "../../../infrastructure/crypt";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ILoginUseCase, LoginUseCaseResult } from "../../ports/in";
+import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class LoginUseCase implements ILoginUseCase {
 	constructor(

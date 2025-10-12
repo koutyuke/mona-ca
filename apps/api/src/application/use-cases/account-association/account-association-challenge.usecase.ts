@@ -2,8 +2,8 @@ import { ulid } from "../../../common/utils";
 import { type AccountAssociationSession, type User, createAccountAssociationSession } from "../../../domain/entities";
 import { formatSessionToken, newAccountAssociationSessionId } from "../../../domain/value-object";
 import { generateRandomString, generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import type { AccountAssociationChallengeUseCaseResult, IAccountAssociationChallengeUseCase } from "../../ports/in";
+import type { IAccountAssociationSessionRepository } from "../../ports/out/repositories";
 
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.

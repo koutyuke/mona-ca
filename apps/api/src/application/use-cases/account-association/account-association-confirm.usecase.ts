@@ -7,11 +7,13 @@ import {
 } from "../../../domain/entities";
 import { formatSessionToken, newSessionId } from "../../../domain/value-object";
 import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { AccountAssociationConfirmUseCaseResult, IAccountAssociationConfirmUseCase } from "../../ports/in";
+import type {
+	IAccountAssociationSessionRepository,
+	IOAuthAccountRepository,
+	ISessionRepository,
+	IUserRepository,
+} from "../../ports/out/repositories";
 
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.

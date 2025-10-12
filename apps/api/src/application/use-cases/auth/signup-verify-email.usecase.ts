@@ -1,8 +1,8 @@
 import { err, timingSafeStringEqual } from "../../../common/utils";
 import { type SignupSession, completeEmailVerificationForSignupSession } from "../../../domain/entities";
 import type { SignupSessionId } from "../../../domain/value-object";
-import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import type { ISignupVerifyEmailUseCase, SignupVerifyEmailUseCaseResult } from "../../ports/in";
+import type { ISignupSessionRepository } from "../../ports/out/repositories";
 
 export class SignupVerifyEmailUseCase implements ISignupVerifyEmailUseCase {
 	constructor(

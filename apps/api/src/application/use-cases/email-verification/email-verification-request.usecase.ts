@@ -3,9 +3,8 @@ import { createEmailVerificationSession } from "../../../domain/entities";
 import type { User } from "../../../domain/entities";
 import { formatSessionToken, newEmailVerificationSessionId } from "../../../domain/value-object";
 import { generateRandomString, generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { EmailVerificationRequestUseCaseResult, IEmailVerificationRequestUseCase } from "../../ports/in";
+import type { IEmailVerificationSessionRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(

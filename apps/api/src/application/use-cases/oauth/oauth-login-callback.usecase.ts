@@ -12,12 +12,14 @@ import { formatSessionToken } from "../../../domain/value-object";
 import { hashSessionSecret } from "../../../infrastructure/crypt";
 import { generateSessionSecret } from "../../../infrastructure/crypt";
 import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
-import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { AppEnv } from "../../../modules/env";
 import type { IOAuthLoginCallbackUseCase, OAuthLoginCallbackUseCaseResult } from "../../ports/in";
+import type {
+	IAccountAssociationSessionRepository,
+	IOAuthAccountRepository,
+	ISessionRepository,
+	IUserRepository,
+} from "../../ports/out/repositories";
 import { oauthStateSchema } from "./schema";
 
 export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {

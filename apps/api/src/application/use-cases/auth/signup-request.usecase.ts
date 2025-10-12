@@ -3,9 +3,9 @@ import { type SignupSession, createSignupSession } from "../../../domain/entitie
 import { formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
 import type { SignupSessionToken } from "../../../domain/value-object";
 import { generateRandomString, generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session/interfaces/signup-session.repository.interface";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
 import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "../../ports/in";
+import type { IUserRepository } from "../../ports/out/repositories";
+import type { ISignupSessionRepository } from "../../ports/out/repositories";
 
 export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(

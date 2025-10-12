@@ -1,6 +1,6 @@
+import type { IOAuthAccountRepository } from "../../../application/ports/out/repositories";
 import type { OAuthAccount } from "../../../domain/entities";
 import type { OAuthProvider, OAuthProviderId, UserId } from "../../../domain/value-object";
-import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account/interfaces/oauth-account.repository.interface";
 
 export class OAuthAccountRepositoryMock implements IOAuthAccountRepository {
 	private readonly oauthAccountMap: Map<string, OAuthAccount>;

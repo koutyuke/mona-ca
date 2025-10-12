@@ -3,11 +3,11 @@ import { type User, isExpiredEmailVerificationSession } from "../../../domain/en
 import type { EmailVerificationSessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
 import { verifySessionSecret } from "../../../infrastructure/crypt";
-import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import type {
 	IValidateEmailVerificationSessionUseCase,
 	ValidateEmailVerificationSessionUseCaseResult,
 } from "../../ports/in";
+import type { IEmailVerificationSessionRepository } from "../../ports/out/repositories";
 
 export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVerificationSessionUseCase {
 	constructor(private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository) {}
