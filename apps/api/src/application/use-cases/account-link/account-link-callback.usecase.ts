@@ -2,23 +2,21 @@ import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/co
 import { err, isErr } from "../../../common/utils";
 import { createOAuthAccount } from "../../../domain/entities";
 import { type OAuthProvider, newClientType, newOAuthProviderId, newUserId } from "../../../domain/value-object";
-import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
-import type { AppEnv } from "../../../modules/env";
 import type { AccountLinkCallbackUseCaseResult, IAccountLinkCallbackUseCase } from "../../ports/in";
+import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type { IOAuthAccountRepository } from "../../ports/out/repositories";
-import { accountLinkStateSchema } from "./schemas";
+import type { IOAuthStateSigner } from "../../ports/out/system";
+import type { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	constructor(
-		private readonly env: {
-			APP_ENV: AppEnv["APP_ENV"];
-			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
-		},
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly oauthStateSigner: IOAuthStateSigner<typeof accountLinkStateSchema>,
 	) {}
 
 	public async execute(
+		production: boolean,
 		error: string | undefined,
 		redirectURI: string,
 		provider: OAuthProvider,
@@ -26,7 +24,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<AccountLinkCallbackUseCaseResult> {
-		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
+		const validatedState = this.oauthStateSigner.validate(signedState);
 
 		if (isErr(validatedState)) {
 			return err("OAUTH_CREDENTIALS_INVALID");
@@ -37,7 +35,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		const clientType = newClientType(client);
 		const userId = newUserId(uid);
 
-		const clientBaseURL = clientType === "web" ? getWebBaseURL(this.env.APP_ENV === "production") : getMobileScheme();
+		const clientBaseURL = clientType === "web" ? getWebBaseURL(production) : getMobileScheme();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 

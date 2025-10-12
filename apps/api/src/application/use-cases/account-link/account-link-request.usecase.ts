@@ -1,25 +1,26 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
-import type { Static } from "elysia";
 import { err } from "../../../common/utils";
 import type { ClientType } from "../../../domain/value-object";
 import type { UserId } from "../../../domain/value-object";
-import { type IOAuthProviderGateway, generateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
-import type { AppEnv } from "../../../modules/env";
 import type { AccountLinkRequestUseCaseResult, IAccountLinkRequestUseCase } from "../../ports/in";
+import type { IOAuthProviderGateway } from "../../ports/out/gateways";
+import type { IOAuthStateSigner } from "../../ports/out/system";
 import type { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkRequestUseCase implements IAccountLinkRequestUseCase {
 	constructor(
-		private readonly env: {
-			APP_ENV: AppEnv["APP_ENV"];
-			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
-		},
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
+		private readonly oauthStateSigner: IOAuthStateSigner<typeof accountLinkStateSchema>,
 	) {}
 
-	public execute(clientType: ClientType, queryRedirectURI: string, userId: UserId): AccountLinkRequestUseCaseResult {
-		const clientBaseURL = clientType === "web" ? getWebBaseURL(this.env.APP_ENV === "production") : getMobileScheme();
+	public execute(
+		production: boolean,
+		clientType: ClientType,
+		queryRedirectURI: string,
+		userId: UserId,
+	): AccountLinkRequestUseCaseResult {
+		const clientBaseURL = clientType === "web" ? getWebBaseURL(production) : getMobileScheme();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, queryRedirectURI ?? "/");
 
@@ -27,10 +28,7 @@ export class AccountLinkRequestUseCase implements IAccountLinkRequestUseCase {
 			return err("INVALID_REDIRECT_URL");
 		}
 
-		const state = generateSignedState<Static<typeof accountLinkStateSchema>>(
-			{ client: clientType, uid: userId },
-			this.env.OAUTH_STATE_HMAC_SECRET,
-		);
+		const state = this.oauthStateSigner.generate({ client: clientType, uid: userId });
 		const codeVerifier = generateCodeVerifier();
 		const redirectToProviderURL = this.oauthProviderGateway.genAuthURL(state, codeVerifier);
 
