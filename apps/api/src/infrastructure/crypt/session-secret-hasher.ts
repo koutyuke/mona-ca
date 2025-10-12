@@ -16,6 +16,10 @@ export class SessionSecretHasher implements ISessionSecretHasher {
 	}
 
 	verify(sessionSecret: string, hash: Uint8Array): boolean {
-		return timingSafeEqual(this.hash(sessionSecret), hash);
+		const hashed = this.hash(sessionSecret);
+		if (hashed.byteLength !== hash.byteLength) {
+			return false;
+		}
+		return timingSafeEqual(hashed, hash);
 	}
 }
