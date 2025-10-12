@@ -9,7 +9,13 @@ export class OAuthStateSignerMock<P extends TObject> implements IOAuthStateSigne
 	}
 
 	validate(signedState: string): Result<Static<P>, Err<"INVALID_SIGNED_STATE"> | Err<"FAILED_TO_DECODE_SIGNED_STATE">> {
-		const [prefix, payloadString] = signedState.split(":");
+		const colon = signedState.indexOf(":");
+		if (colon <= 0 || colon === signedState.length - 1) {
+			return err("INVALID_SIGNED_STATE");
+		}
+		const prefix = signedState.slice(0, colon);
+		const payloadString = signedState.slice(colon + 1);
+
 		if (prefix !== "__oauth-state-signed" || !payloadString) {
 			return err("INVALID_SIGNED_STATE");
 		}

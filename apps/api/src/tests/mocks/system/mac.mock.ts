@@ -6,7 +6,7 @@ export class MacMock implements IMac {
 	}
 
 	verify(plaintext: string, mac: string, _opts?: MacOptions): boolean {
-		const generatedMac = `__mac:${plaintext}`;
+		const generatedMac = this.sign(plaintext, _opts);
 		return generatedMac === mac;
 	}
 }
