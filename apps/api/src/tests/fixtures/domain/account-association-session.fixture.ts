@@ -9,20 +9,23 @@ import {
 	newOAuthProviderId,
 	newUserId,
 } from "../../../domain/value-object";
+import { SessionSecretHasherMock } from "../../mocks";
 
-export const createAccountAssociationSessionFixture = (
-	hasher: (secret: string) => Uint8Array,
-	override?: {
-		accountAssociationSession?: Partial<AccountAssociationSession>;
-		accountAssociationSessionSecret?: string;
-	},
-): {
+const sessionSecretHasher = new SessionSecretHasherMock();
+
+export const createAccountAssociationSessionFixture = (override?: {
+	secretHasher?: (secret: string) => Uint8Array;
+	accountAssociationSession?: Partial<AccountAssociationSession>;
+	accountAssociationSessionSecret?: string;
+}): {
 	accountAssociationSession: AccountAssociationSession;
 	accountAssociationSessionSecret: string;
 	accountAssociationSessionToken: AccountAssociationSessionToken;
 } => {
+	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+
 	const sessionSecret = override?.accountAssociationSessionSecret ?? "accountAssociationSessionSecret";
-	const secretHash = override?.accountAssociationSession?.secretHash ?? hasher(sessionSecret);
+	const secretHash = override?.accountAssociationSession?.secretHash ?? secretHasher(sessionSecret);
 
 	const expiresAt = new Date(
 		override?.accountAssociationSession?.expiresAt?.getTime() ??

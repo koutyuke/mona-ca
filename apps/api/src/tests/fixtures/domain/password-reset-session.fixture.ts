@@ -6,20 +6,23 @@ import {
 	newPasswordResetSessionId,
 	newUserId,
 } from "../../../domain/value-object";
+import { SessionSecretHasherMock } from "../../mocks";
 
-export const createPasswordResetSessionFixture = (
-	hasher: (secret: string) => Uint8Array,
-	override?: {
-		passwordResetSession?: Partial<PasswordResetSession>;
-		passwordResetSessionSecret?: string;
-	},
-): {
+const sessionSecretHasher = new SessionSecretHasherMock();
+
+export const createPasswordResetSessionFixture = (override?: {
+	secretHasher?: (secret: string) => Uint8Array;
+	passwordResetSession?: Partial<PasswordResetSession>;
+	passwordResetSessionSecret?: string;
+}): {
 	passwordResetSession: PasswordResetSession;
 	passwordResetSessionSecret: string;
 	passwordResetSessionToken: PasswordResetSessionToken;
 } => {
+	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+
 	const passwordResetSessionSecret = override?.passwordResetSessionSecret ?? "passwordResetSessionSecret";
-	const secretHash = override?.passwordResetSession?.secretHash ?? hasher(passwordResetSessionSecret);
+	const secretHash = override?.passwordResetSession?.secretHash ?? secretHasher(passwordResetSessionSecret);
 
 	const expiresAt = new Date(
 		override?.passwordResetSession?.expiresAt?.getTime() ?? Date.now() + passwordResetSessionExpiresSpan.milliseconds(),

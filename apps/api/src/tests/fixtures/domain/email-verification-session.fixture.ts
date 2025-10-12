@@ -6,20 +6,23 @@ import {
 	newEmailVerificationSessionId,
 	newUserId,
 } from "../../../domain/value-object";
+import { SessionSecretHasherMock } from "../../mocks";
 
-export const createEmailVerificationSessionFixture = (
-	hasher: (secret: string) => Uint8Array,
-	override?: {
-		emailVerificationSession?: Partial<EmailVerificationSession>;
-		emailVerificationSecret?: string;
-	},
-): {
+const sessionSecretHasher = new SessionSecretHasherMock();
+
+export const createEmailVerificationSessionFixture = (override?: {
+	secretHasher?: (secret: string) => Uint8Array;
+	emailVerificationSession?: Partial<EmailVerificationSession>;
+	emailVerificationSecret?: string;
+}): {
 	emailVerificationSession: EmailVerificationSession;
 	emailVerificationSessionSecret: string;
 	emailVerificationSessionToken: EmailVerificationSessionToken;
 } => {
+	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+
 	const sessionSecret = override?.emailVerificationSecret ?? "emailVerificationSessionSecret";
-	const secretHash = override?.emailVerificationSession?.secretHash ?? hasher(sessionSecret);
+	const secretHash = override?.emailVerificationSession?.secretHash ?? secretHasher(sessionSecret);
 
 	const expiresAt = new Date(
 		override?.emailVerificationSession?.expiresAt?.getTime() ??
