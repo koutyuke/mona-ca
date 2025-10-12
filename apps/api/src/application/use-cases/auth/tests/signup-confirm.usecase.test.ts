@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { createSignupSessionFixture, createUserFixture } from "../../../../tests/fixtures";
-import { SessionRepositoryMock, SignupSessionRepositoryMock, UserRepositoryMock } from "../../../../tests/mocks";
+import {
+	PasswordHasherMock,
+	SessionRepositoryMock,
+	SessionSecretHasherMock,
+	SignupSessionRepositoryMock,
+	UserRepositoryMock,
+} from "../../../../tests/mocks";
 import {
 	createSessionsMap,
 	createSignupSessionsMap,
@@ -16,24 +22,28 @@ const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const signupSessionMap = createSignupSessionsMap();
 
-// Repositories
-const userRepositoryMock = new UserRepositoryMock({
+// Mocks
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const sessionRepositoryMock = new SessionRepositoryMock({
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
+const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
+const passwordHasher = new PasswordHasherMock();
 
 // Use Case
 const signupConfirmUseCase = new SignupConfirmUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	signupSessionRepositoryMock,
+	userRepository,
+	sessionRepository,
+	signupSessionRepository,
+	sessionSecretHasher,
+	passwordHasher,
 );
 
 const { user: verifiedUserFixture } = createUserFixture({
@@ -138,7 +148,7 @@ describe("SignupConfirmUseCase", () => {
 
 		if (!isErr(result)) {
 			const savedPasswordHash = userPasswordHashMap.get(result.user.id);
-			expect(savedPasswordHash).toBe("hashed_securePassword");
+			expect(savedPasswordHash).toBe("__password-hashed:securePassword");
 
 			const savedSession = sessionMap.get(result.session.id);
 			expect(savedSession?.userId).toBe(result.user.id);

@@ -7,6 +7,8 @@ import {
 } from "../../../../tests/fixtures";
 import {
 	EmailVerificationSessionRepositoryMock,
+	RandomGeneratorMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
@@ -19,17 +21,23 @@ const userMap = createUsersMap();
 const sessionMap = createSessionsMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
-const userRepositoryMock = new UserRepositoryMock({
+
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const emailVerificationSessionRepositoryMock = new EmailVerificationSessionRepositoryMock({
+const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
 	emailVerificationSessionMap,
 });
+const randomGenerator = new RandomGeneratorMock();
+const sessionSecretHasher = new SessionSecretHasherMock();
+
 const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-	userRepositoryMock,
-	emailVerificationSessionRepositoryMock,
+	userRepository,
+	emailVerificationSessionRepository,
+	randomGenerator,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture({

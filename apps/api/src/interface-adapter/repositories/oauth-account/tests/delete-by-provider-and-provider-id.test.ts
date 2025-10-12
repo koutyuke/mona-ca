@@ -13,11 +13,11 @@ const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const oauthAccountTableHelper = new OAuthAccountTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("OAuthAccountRepository.deleteByProviderAndProviderId", () => {
 	beforeAll(async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 	});
 
 	beforeEach(async () => {

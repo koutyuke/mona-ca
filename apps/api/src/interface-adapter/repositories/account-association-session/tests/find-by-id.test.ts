@@ -15,11 +15,11 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("AccountAssociationSessionRepository.findById", () => {
 	beforeAll(async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 	});
 
 	beforeEach(async () => {

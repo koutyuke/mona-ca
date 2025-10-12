@@ -7,6 +7,7 @@ import {
 	AccountAssociationSessionRepositoryMock,
 	OAuthAccountRepositoryMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createAccountAssociationSessionsMap,
 	createOAuthAccountKey,
@@ -23,26 +24,28 @@ const userPasswordHashMap = createUserPasswordHashMap();
 const oauthAccountMap = createOAuthAccountsMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
-const sessionRepositoryMock = new SessionRepositoryMock({
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({
+const oauthAccountRepository = new OAuthAccountRepositoryMock({
 	oauthAccountMap,
 });
-const accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
+const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
 	accountAssociationSessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
 
 const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	oauthAccountRepositoryMock,
-	accountAssociationSessionRepositoryMock,
+	userRepository,
+	sessionRepository,
+	oauthAccountRepository,
+	accountAssociationSessionRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture();

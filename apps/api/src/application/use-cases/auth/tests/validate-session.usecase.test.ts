@@ -4,7 +4,9 @@ import { sessionExpiresSpan, sessionRefreshSpan } from "../../../../domain/entit
 import { formatSessionToken, newSessionToken } from "../../../../domain/value-object";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
+	PasswordHasherMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createSessionsMap,
 	createUserPasswordHashMap,
@@ -15,23 +17,27 @@ import { ValidateSessionUseCase } from "../validate-session.usecase";
 const sessionMap = createSessionsMap();
 const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
-const sessionRepositoryMock = new SessionRepositoryMock({
+
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const validateSessionUseCase = new ValidateSessionUseCase(sessionRepositoryMock, userRepositoryMock);
+const sessionSecretHasher = new SessionSecretHasherMock();
+const passwordHasher = new PasswordHasherMock();
 
-const { user, passwordHash } = createUserFixture({
+const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, userRepository, sessionSecretHasher);
+
+const { user } = createUserFixture({
 	user: {
 		email: "test@example.com",
-		name: "test_user",
 	},
-	passwordHash: "hashed_password",
 });
+const password = "password123";
+const passwordHash = await passwordHasher.hash(password);
 
 describe("ValidateSessionUseCase", () => {
 	beforeEach(() => {

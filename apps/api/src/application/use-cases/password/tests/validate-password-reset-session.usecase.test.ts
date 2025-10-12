@@ -3,6 +3,7 @@ import { isErr } from "../../../../common/utils";
 import { createPasswordResetSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordResetSessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createPasswordResetSessionsMap,
 	createSessionsMap,
@@ -15,17 +16,21 @@ const passwordResetSessionMap = createPasswordResetSessionsMap();
 const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const sessionMap = createSessionsMap();
-const passwordResetSessionRepositoryMock = new PasswordResetSessionRepositoryMock({
+
+const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
+
 const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
-	passwordResetSessionRepositoryMock,
-	userRepositoryMock,
+	passwordResetSessionRepository,
+	userRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture({

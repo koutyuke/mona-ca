@@ -2,13 +2,14 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { DEFAULT_USER_GENDER } from "../../../../domain/entities";
 import { newClientType, newGender, newOAuthProvider, newOAuthProviderId } from "../../../../domain/value-object";
-import { generateSignedState } from "../../../../interface-adapter/gateway/oauth-provider";
 import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,
 	OAuthAccountRepositoryMock,
 	OAuthProviderGatewayMock,
+	OAuthStateSignerMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createAccountAssociationSessionsMap,
 	createOAuthAccountKey,
@@ -18,36 +19,39 @@ import {
 	createUsersMap,
 } from "../../../../tests/mocks";
 import { OAuthSignupCallbackUseCase } from "../oauth-signup-callback.usecase";
-
-const mockEnv = {
-	APP_ENV: "development" as const,
-	OAUTH_STATE_HMAC_SECRET: "test_secret",
-};
+import type { oauthStateSchema } from "../schema";
 
 const userMap = createUsersMap();
 const sessionMap = createSessionsMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const oauthAccountMap = createOAuthAccountsMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
-const oauthProviderGatewayMock = new OAuthProviderGatewayMock();
-const sessionRepositoryMock = new SessionRepositoryMock({ sessionMap });
-const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
-const userRepositoryMock = new UserRepositoryMock({
+
+const oauthProviderGateway = new OAuthProviderGatewayMock();
+const sessionRepository = new SessionRepositoryMock({ sessionMap });
+const oauthAccountRepository = new OAuthAccountRepositoryMock({ oauthAccountMap });
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
+const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
 	accountAssociationSessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
+const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
+
 const oauthSignupCallbackUseCase = new OAuthSignupCallbackUseCase(
-	mockEnv,
-	oauthProviderGatewayMock,
-	sessionRepositoryMock,
-	oauthAccountRepositoryMock,
-	userRepositoryMock,
-	accountAssociationSessionRepositoryMock,
+	oauthProviderGateway,
+	sessionRepository,
+	oauthAccountRepository,
+	userRepository,
+	accountAssociationSessionRepository,
+	sessionSecretHasher,
+	oauthStateSigner,
 );
+
+const PRODUCTION = false;
 
 describe("OAuthSignupCallbackUseCase", () => {
 	beforeEach(() => {
@@ -60,6 +64,7 @@ describe("OAuthSignupCallbackUseCase", () => {
 
 	it("should return INVALID_OAUTH_STATE error for invalid state", async () => {
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			newOAuthProvider("discord"),
@@ -75,9 +80,10 @@ describe("OAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", async () => {
-		const signedState = generateSignedState({ client: newClientType("web") }, mockEnv.OAUTH_STATE_HMAC_SECRET);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"https://malicious.com/redirect",
 			newOAuthProvider("discord"),
@@ -93,9 +99,10 @@ describe("OAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_CREDENTIALS_INVALID error when code is missing", async () => {
-		const signedState = generateSignedState({ client: newClientType("web") }, mockEnv.OAUTH_STATE_HMAC_SECRET);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			newOAuthProvider("discord"),
@@ -111,9 +118,10 @@ describe("OAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_ACCESS_DENIED error when user denies access", async () => {
-		const signedState = generateSignedState({ client: newClientType("web") }, mockEnv.OAUTH_STATE_HMAC_SECRET);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			"access_denied",
 			"/dashboard",
 			newOAuthProvider("discord"),
@@ -129,9 +137,10 @@ describe("OAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return OAUTH_PROVIDER_ERROR error for provider error", async () => {
-		const signedState = generateSignedState({ client: newClientType("web") }, mockEnv.OAUTH_STATE_HMAC_SECRET);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			"server_error",
 			"/dashboard",
 			newOAuthProvider("discord"),
@@ -147,9 +156,10 @@ describe("OAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should process successful signup with new user", async () => {
-		const signedState = generateSignedState({ client: newClientType("web") }, mockEnv.OAUTH_STATE_HMAC_SECRET);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			newOAuthProvider("discord"),
@@ -190,9 +200,10 @@ describe("OAuthSignupCallbackUseCase", () => {
 		userMap.set(existingUser.id, existingUser);
 		oauthAccountMap.set(createOAuthAccountKey(oauthAccount.provider, oauthAccount.providerId), oauthAccount);
 
-		const signedState = generateSignedState({ client: newClientType("web") }, mockEnv.OAUTH_STATE_HMAC_SECRET);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			newOAuthProvider("discord"),
@@ -217,9 +228,10 @@ describe("OAuthSignupCallbackUseCase", () => {
 
 		userMap.set(existingUser.id, existingUser);
 
-		const signedState = generateSignedState({ client: newClientType("web") }, mockEnv.OAUTH_STATE_HMAC_SECRET);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await oauthSignupCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			newOAuthProvider("discord"),

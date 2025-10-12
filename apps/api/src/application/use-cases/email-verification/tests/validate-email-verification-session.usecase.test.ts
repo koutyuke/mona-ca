@@ -1,15 +1,24 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { createEmailVerificationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
-import { EmailVerificationSessionRepositoryMock, createEmailVerificationSessionsMap } from "../../../../tests/mocks";
+import {
+	EmailVerificationSessionRepositoryMock,
+	SessionSecretHasherMock,
+	createEmailVerificationSessionsMap,
+} from "../../../../tests/mocks";
 import { ValidateEmailVerificationSessionUseCase } from "../validate-email-verification-session.usecase";
 
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
-const emailVerificationSessionRepositoryMock = new EmailVerificationSessionRepositoryMock({
+
+const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
 	emailVerificationSessionMap,
 });
+
+const sessionSecretHasher = new SessionSecretHasherMock();
+
 const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
-	emailVerificationSessionRepositoryMock,
+	emailVerificationSessionRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture({

@@ -5,10 +5,10 @@ import { PasswordResetSessionRepositoryMock, createPasswordResetSessionsMap } fr
 import { PasswordResetVerifyEmailUseCase } from "../password-reset-verify-email.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
-const passwordResetSessionRepositoryMock = new PasswordResetSessionRepositoryMock({
+const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepositoryMock);
+const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
 
 describe("PasswordResetVerifyEmailUseCase", () => {
 	beforeEach(() => {

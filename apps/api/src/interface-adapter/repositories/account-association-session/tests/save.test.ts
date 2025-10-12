@@ -14,7 +14,7 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("AccountAssociationSessionRepository.save", () => {
 	beforeEach(async () => {
@@ -22,7 +22,7 @@ describe("AccountAssociationSessionRepository.save", () => {
 	});
 
 	beforeAll(async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 	});
 
 	test("should create a new session in the database", async () => {

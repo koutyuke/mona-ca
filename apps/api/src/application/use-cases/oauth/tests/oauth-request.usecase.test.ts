@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { newClientType } from "../../../../domain/value-object";
-import { OAuthProviderGatewayMock } from "../../../../tests/mocks";
+import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
 import { OAuthRequestUseCase } from "../oauth-request.usecase";
+import type { oauthStateSchema } from "../schema";
 
-const mockEnv = {
-	APP_ENV: "development" as const,
-	OAUTH_STATE_HMAC_SECRET: "test_secret",
-};
+const oauthProviderGateway = new OAuthProviderGatewayMock();
+const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
 
-const oauthProviderGatewayMock = new OAuthProviderGatewayMock();
-const oauthRequestUseCase = new OAuthRequestUseCase(mockEnv, oauthProviderGatewayMock);
+const oauthRequestUseCase = new OAuthRequestUseCase(oauthProviderGateway, oauthStateSigner);
+
+const PRODUCTION = false;
 
 describe("OAuthRequestUseCase", () => {
 	it("should generate OAuth request successfully for web client", () => {
-		const result = oauthRequestUseCase.execute(newClientType("web"), "/dashboard");
+		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("web"), "/dashboard");
 
 		expect(isErr(result)).toBe(false);
 		if (!isErr(result)) {
@@ -27,7 +27,7 @@ describe("OAuthRequestUseCase", () => {
 	});
 
 	it("should generate OAuth request successfully for mobile client", () => {
-		const result = oauthRequestUseCase.execute(newClientType("mobile"), "/home");
+		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("mobile"), "/home");
 
 		expect(isErr(result)).toBe(false);
 		if (!isErr(result)) {
@@ -40,7 +40,7 @@ describe("OAuthRequestUseCase", () => {
 	});
 
 	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", () => {
-		const result = oauthRequestUseCase.execute(newClientType("web"), "https://malicious.com/redirect");
+		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("web"), "https://malicious.com/redirect");
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
@@ -49,25 +49,11 @@ describe("OAuthRequestUseCase", () => {
 	});
 
 	it("should handle empty redirect URI with default path", () => {
-		const result = oauthRequestUseCase.execute(newClientType("web"), "");
+		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("web"), "");
 
 		expect(isErr(result)).toBe(false);
 		if (!isErr(result)) {
 			expect(result.redirectToClientURL.pathname).toBe("/");
-		}
-	});
-
-	it("should generate different state and code verifier for each request", () => {
-		const clientType = newClientType("web");
-		const result1 = oauthRequestUseCase.execute(clientType, "/dashboard");
-		const result2 = oauthRequestUseCase.execute(clientType, "/dashboard");
-
-		expect(isErr(result1)).toBe(false);
-		expect(isErr(result2)).toBe(false);
-
-		if (!isErr(result1) && !isErr(result2)) {
-			expect(result1.state).not.toBe(result2.state);
-			expect(result1.codeVerifier).not.toBe(result2.codeVerifier);
 		}
 	});
 });

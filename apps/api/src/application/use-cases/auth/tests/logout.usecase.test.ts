@@ -6,10 +6,12 @@ import type { ILogoutUseCase } from "../../../ports/in";
 import { LogoutUseCase } from "../logout.usecase";
 
 const sessionMap = createSessionsMap();
-const sessionRepositoryMock = new SessionRepositoryMock({
+
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const logoutUseCase: ILogoutUseCase = new LogoutUseCase(sessionRepositoryMock);
+
+const logoutUseCase: ILogoutUseCase = new LogoutUseCase(sessionRepository);
 
 describe("LogoutUseCase", () => {
 	it("should delete the session on logout", async () => {

@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr, ulid } from "../../../../common/utils";
 import { formatSessionToken, newAccountAssociationSessionToken, newUserId } from "../../../../domain/value-object";
-import { generateSessionSecret } from "../../../../infrastructure/crypt";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
+import { SessionSecretHasherMock } from "../../../../tests/mocks";
 import { AccountAssociationSessionRepositoryMock } from "../../../../tests/mocks/repositories/account-association-session.repository.mock";
 import {
 	createAccountAssociationSessionsMap,
@@ -17,18 +17,20 @@ const userPasswordHashMap = new Map();
 const sessionMap = createSessionsMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
+const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
 	accountAssociationSessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
 
 const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-	userRepositoryMock,
-	accountAssociationSessionRepositoryMock,
+	userRepository,
+	accountAssociationSessionRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture();
@@ -135,7 +137,7 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		});
 
 		// create token with different secret
-		const wrongSecret = generateSessionSecret();
+		const wrongSecret = "wrongSecret";
 		const invalidSessionToken = formatSessionToken(accountAssociationSession.id, wrongSecret);
 
 		// save session

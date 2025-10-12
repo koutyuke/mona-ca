@@ -1,144 +1,114 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
+import { isErr } from "../../../../common/utils";
 import {
-	type EmailVerificationSession,
-	type Session,
-	type User,
-	createEmailVerificationSession,
-	createSession,
-	createUser,
-} from "../../../../domain/entities";
+	createEmailVerificationSessionFixture,
+	createSessionFixture,
+	createUserFixture,
+} from "../../../../tests/fixtures";
 import {
-	type EmailVerificationSessionId,
-	type SessionId,
-	type UserId,
-	newEmailVerificationSessionId,
-	newGender,
-	newSessionId,
-	newUserId,
-} from "../../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../../infrastructure/crypt";
-import { EmailVerificationSessionRepositoryMock } from "../../../../tests/mocks/repositories/email-verification-session.repository.mock";
-import { SessionRepositoryMock } from "../../../../tests/mocks/repositories/session.repository.mock";
+	EmailVerificationSessionRepositoryMock,
+	SessionRepositoryMock,
+	SessionSecretHasherMock,
+	UserRepositoryMock,
+} from "../../../../tests/mocks";
 import {
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 	createUserPasswordHashMap,
 	createUsersMap,
 } from "../../../../tests/mocks/repositories/table-maps";
-import { UserRepositoryMock } from "../../../../tests/mocks/repositories/user.repository.mock";
 import { EmailVerificationConfirmUseCase } from "../email-verification-confirm.usecase";
 
+const userMap = createUsersMap();
+const sessionMap = createSessionsMap();
+const userPasswordHashMap = createUserPasswordHashMap();
+const emailVerificationSessionMap = createEmailVerificationSessionsMap();
+
+const userRepository = new UserRepositoryMock({
+	userMap,
+	userPasswordHashMap,
+	sessionMap,
+});
+const sessionRepository = new SessionRepositoryMock({
+	sessionMap,
+});
+const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
+	emailVerificationSessionMap,
+});
+const sessionSecretHasher = new SessionSecretHasherMock();
+
+const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
+	userRepository,
+	sessionRepository,
+	emailVerificationSessionRepository,
+	sessionSecretHasher,
+);
+
+const { user } = createUserFixture({
+	user: {
+		name: "test_user",
+		email: "test@example.com",
+	},
+});
+
 describe("EmailVerificationConfirmUseCase", () => {
-	let emailVerificationConfirmUseCase: EmailVerificationConfirmUseCase;
-	let userRepositoryMock: UserRepositoryMock;
-	let sessionRepositoryMock: SessionRepositoryMock;
-	let emailVerificationSessionRepositoryMock: EmailVerificationSessionRepositoryMock;
-
-	let userMap: Map<UserId, User>;
-	let sessionMap: Map<SessionId, Session>;
-	let userPasswordHashMap: Map<UserId, string>;
-	let emailVerificationSessionMap: Map<EmailVerificationSessionId, EmailVerificationSession>;
-
 	beforeEach(() => {
-		userMap = createUsersMap();
-		sessionMap = createSessionsMap();
-		userPasswordHashMap = createUserPasswordHashMap();
-		emailVerificationSessionMap = createEmailVerificationSessionsMap();
+		userMap.clear();
+		sessionMap.clear();
+		userPasswordHashMap.clear();
+		emailVerificationSessionMap.clear();
 
-		userRepositoryMock = new UserRepositoryMock({
-			userMap,
-			userPasswordHashMap,
-			sessionMap,
-		});
-		sessionRepositoryMock = new SessionRepositoryMock({
-			sessionMap,
-		});
-		emailVerificationSessionRepositoryMock = new EmailVerificationSessionRepositoryMock({
-			emailVerificationSessionMap,
-		});
-
-		emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
-			userRepositoryMock,
-			sessionRepositoryMock,
-			emailVerificationSessionRepositoryMock,
-		);
+		userMap.set(user.id, user);
 	});
 
 	it("should confirm email verification successfully with valid code", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: user.email,
+			},
 		});
 
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "test@example.com",
-			code,
-			secretHash: hashSessionSecret(sessionSecret),
-		});
+		userMap.set(user.id, user);
+		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		userMap.set(userId, user);
-		emailVerificationSessionMap.set(emailVerificationSessionId, emailVerificationSession);
-
-		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
+		const result = await emailVerificationConfirmUseCase.execute(
+			emailVerificationSession.code,
+			user,
+			emailVerificationSession,
+		);
 
 		expect(isErr(result)).toBe(false);
 		expect(result).toHaveProperty("session");
 		expect(result).toHaveProperty("sessionToken");
 
 		if (!isErr(result)) {
-			expect(result.session.userId).toBe(userId);
+			expect(result.session.userId).toBe(user.id);
 			expect(typeof result.sessionToken).toBe("string");
 			expect(result.sessionToken.length).toBeGreaterThan(0);
 		}
 
 		// verify email verification session is deleted
-		expect(emailVerificationSessionMap.has(emailVerificationSessionId)).toBe(false);
+		expect(emailVerificationSessionMap.has(emailVerificationSession.id)).toBe(false);
 
 		// verify user email is verified
-		const updatedUser = userMap.get(userId);
+		const updatedUser = userMap.get(user.id);
 		expect(updatedUser?.emailVerified).toBe(true);
 	});
 
 	it("should return EMAIL_MISMATCH error when email addresses do not match", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "user@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: "different@example.com",
+			},
 		});
 
-		// create email verification session with different email
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "different@example.com",
-			code,
-			secretHash: hashSessionSecret(sessionSecret),
-		});
-
-		userMap.set(userId, user);
-
-		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
+		const result = await emailVerificationConfirmUseCase.execute(
+			emailVerificationSession.code,
+			user,
+			emailVerificationSession,
+		);
 
 		expect(isErr(result)).toBe(true);
 
@@ -148,30 +118,12 @@ describe("EmailVerificationConfirmUseCase", () => {
 	});
 
 	it("should return INVALID_VERIFICATION_CODE error when verification code is incorrect", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: user.email,
+			},
 		});
-
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const correctCode = "12345678";
-		const sessionSecret = generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "test@example.com",
-			code: correctCode,
-			secretHash: hashSessionSecret(sessionSecret),
-		});
-
-		userMap.set(userId, user);
 
 		const wrongCode = "87654321";
 		const result = await emailVerificationConfirmUseCase.execute(wrongCode, user, emailVerificationSession);
@@ -184,101 +136,69 @@ describe("EmailVerificationConfirmUseCase", () => {
 	});
 
 	it("should delete all existing sessions before creating new session", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
-		});
-
 		// create existing sessions
-		const existingSessionId1 = newSessionId(ulid());
-		const sessionSecret1 = generateSessionSecret();
-		const existingSession1 = createSession({
-			id: existingSessionId1,
-			userId: userId,
-			secretHash: hashSessionSecret(sessionSecret1),
+		const { session: existingSession1 } = createSessionFixture({
+			session: {
+				userId: user.id,
+			},
 		});
 
-		const existingSessionId2 = newSessionId(ulid());
-		const sessionSecret2 = generateSessionSecret();
-		const existingSession2 = createSession({
-			id: existingSessionId2,
-			userId: userId,
-			secretHash: hashSessionSecret(sessionSecret2),
+		const { session: existingSession2 } = createSessionFixture({
+			session: {
+				userId: user.id,
+			},
 		});
 
-		sessionMap.set(existingSessionId1, existingSession1);
-		sessionMap.set(existingSessionId2, existingSession2);
+		sessionMap.set(existingSession1.id, existingSession1);
+		sessionMap.set(existingSession2.id, existingSession2);
 
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "test@example.com",
-			code,
-			secretHash: hashSessionSecret(sessionSecret),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: user.email,
+			},
 		});
 
-		userMap.set(userId, user);
-
-		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
+		const result = await emailVerificationConfirmUseCase.execute(
+			emailVerificationSession.code,
+			user,
+			emailVerificationSession,
+		);
 
 		expect(isErr(result)).toBe(false);
 
 		// verify existing sessions are deleted
-		expect(sessionMap.has(existingSessionId1)).toBe(false);
-		expect(sessionMap.has(existingSessionId2)).toBe(false);
+		expect(sessionMap.has(existingSession1.id)).toBe(false);
+		expect(sessionMap.has(existingSession2.id)).toBe(false);
 
 		// verify new session is created
 		if (!isErr(result)) {
 			const newSession = sessionMap.get(result.session.id);
 			expect(newSession).toBeDefined();
-			expect(newSession?.userId).toBe(userId);
+			expect(newSession?.userId).toBe(user.id);
 		}
 	});
 
 	it("should create and save a new session on successful email verification", async () => {
-		// create user
-		const userId = newUserId(ulid());
-		const user = createUser({
-			id: userId,
-			name: "test_user",
-			email: "test@example.com",
-			emailVerified: false,
-			iconUrl: null,
-			gender: newGender("man"),
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: user.id,
+				email: user.email,
+			},
 		});
 
-		// create email verification session
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const code = "12345678";
-		const sessionSecret = generateSessionSecret();
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
-			userId: userId,
-			email: "test@example.com",
-			code,
-			secretHash: hashSessionSecret(sessionSecret),
-		});
-
-		userMap.set(userId, user);
-
-		const result = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
+		const result = await emailVerificationConfirmUseCase.execute(
+			emailVerificationSession.code,
+			user,
+			emailVerificationSession,
+		);
 
 		expect(isErr(result)).toBe(false);
 
 		if (!isErr(result)) {
 			const savedSession = sessionMap.get(result.session.id);
 			expect(savedSession).toBeDefined();
-			expect(savedSession?.userId).toBe(userId);
+			expect(savedSession?.userId).toBe(user.id);
 		}
 	});
 });

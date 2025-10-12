@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { createSignupSessionFixture, createUserFixture } from "../../../../tests/fixtures";
-import { SignupSessionRepositoryMock, UserRepositoryMock } from "../../../../tests/mocks";
+import {
+	RandomGeneratorMock,
+	SessionSecretHasherMock,
+	SignupSessionRepositoryMock,
+	UserRepositoryMock,
+} from "../../../../tests/mocks";
 import {
 	createSessionsMap,
 	createSignupSessionsMap,
@@ -16,18 +21,25 @@ const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const signupSessionMap = createSignupSessionsMap();
 
-// Repositories
-const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
+// Mocks
+const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
+const randomGenerator = new RandomGeneratorMock();
 
 // Use Case
-const signupRequestUseCase = new SignupRequestUseCase(signupSessionRepositoryMock, userRepositoryMock);
+const signupRequestUseCase = new SignupRequestUseCase(
+	signupSessionRepository,
+	userRepository,
+	sessionSecretHasher,
+	randomGenerator,
+);
 
 const { user } = createUserFixture({
 	user: {

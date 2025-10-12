@@ -3,6 +3,7 @@ import { newOAuthProvider, newOAuthProviderId } from "../../../../domain/value-o
 import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	OAuthAccountRepositoryMock,
+	PasswordHasherMock,
 	UserRepositoryMock,
 	createOAuthAccountKey,
 	createOAuthAccountsMap,
@@ -13,27 +14,31 @@ import {
 import type { IGetConnectionsUseCase } from "../../../ports/in";
 import { GetConnectionsUseCase } from "../get-connections.usecase";
 
+const sessionMap = createSessionsMap();
+const userMap = createUsersMap();
+const userPasswordHashMap = createUserPasswordHashMap();
+const oauthAccountMap = createOAuthAccountsMap();
+
+const passwordHasher = new PasswordHasherMock();
+
+const userRepositoryMock = new UserRepositoryMock({
+	userMap,
+	userPasswordHashMap,
+	sessionMap,
+});
+const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
+const getConnectionsUseCase: IGetConnectionsUseCase = new GetConnectionsUseCase(
+	oauthAccountRepositoryMock,
+	userRepositoryMock,
+);
+
+const { user } = createUserFixture();
+const password = "password123";
+const passwordHash = await passwordHasher.hash(password);
+const provider = newOAuthProvider("discord");
+const providerId = newOAuthProviderId("discord_user_id");
+
 describe("GetConnectionsUseCase", () => {
-	const sessionMap = createSessionsMap();
-	const userMap = createUsersMap();
-	const userPasswordHashMap = createUserPasswordHashMap();
-	const oauthAccountMap = createOAuthAccountsMap();
-
-	const userRepositoryMock = new UserRepositoryMock({
-		userMap,
-		userPasswordHashMap,
-		sessionMap,
-	});
-	const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
-	const getConnectionsUseCase: IGetConnectionsUseCase = new GetConnectionsUseCase(
-		oauthAccountRepositoryMock,
-		userRepositoryMock,
-	);
-
-	const { user, passwordHash } = createUserFixture();
-	const provider = newOAuthProvider("discord");
-	const providerId = newOAuthProviderId("discord_user_id");
-
 	beforeEach(() => {
 		sessionMap.clear();
 		userMap.clear();

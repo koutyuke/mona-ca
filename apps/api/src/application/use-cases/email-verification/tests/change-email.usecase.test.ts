@@ -8,6 +8,7 @@ import {
 import {
 	EmailVerificationSessionRepositoryMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
@@ -20,21 +21,25 @@ const userMap = createUsersMap();
 const sessionMap = createSessionsMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
-const userRepositoryMock = new UserRepositoryMock({
+
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const sessionRepositoryMock = new SessionRepositoryMock({
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const emailVerificationSessionRepositoryMock = new EmailVerificationSessionRepositoryMock({
+const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
 	emailVerificationSessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
+
 const changeEmailUseCase = new ChangeEmailUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	emailVerificationSessionRepositoryMock,
+	userRepository,
+	sessionRepository,
+	emailVerificationSessionRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture({

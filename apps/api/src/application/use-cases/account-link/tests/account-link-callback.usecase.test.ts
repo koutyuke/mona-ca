@@ -1,33 +1,35 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { newClientType, newOAuthProvider, newOAuthProviderId } from "../../../../domain/value-object";
-import { generateSignedState } from "../../../../interface-adapter/gateway/oauth-provider";
 import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	OAuthAccountRepositoryMock,
 	OAuthProviderGatewayMock,
+	OAuthStateSignerMock,
 	createOAuthAccountKey,
 	createOAuthAccountsMap,
 } from "../../../../tests/mocks";
 import type { IAccountLinkCallbackUseCase } from "../../../ports/in";
 import { AccountLinkCallbackUseCase } from "../account-link-callback.usecase";
+import type { accountLinkStateSchema } from "../schemas";
+
+const oauthAccountMap = createOAuthAccountsMap();
+
+const oauthProviderGateway = new OAuthProviderGatewayMock();
+const oauthAccountRepository = new OAuthAccountRepositoryMock({ oauthAccountMap });
+const oauthStateSigner = new OAuthStateSignerMock<typeof accountLinkStateSchema>();
+
+const accountLinkCallbackUseCase: IAccountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
+	oauthProviderGateway,
+	oauthAccountRepository,
+	oauthStateSigner,
+);
+
+const PRODUCTION = false;
+
+const { user } = createUserFixture();
 
 describe("AccountLinkCallbackUseCase", () => {
-	const mockEnv = {
-		APP_ENV: "development" as const,
-		OAUTH_STATE_HMAC_SECRET: "test_secret",
-	};
-
-	const oauthAccountMap = createOAuthAccountsMap();
-	const oauthProviderGatewayMock = new OAuthProviderGatewayMock();
-	const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
-	const accountLinkCallbackUseCase: IAccountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
-		mockEnv,
-		oauthProviderGatewayMock,
-		oauthAccountRepositoryMock,
-	);
-	const { user } = createUserFixture();
-
 	beforeEach(() => {
 		oauthAccountMap.clear();
 	});
@@ -37,6 +39,7 @@ describe("AccountLinkCallbackUseCase", () => {
 		const provider = newOAuthProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			provider,
@@ -53,13 +56,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", async () => {
 		const userId = user.id;
-		const signedState = generateSignedState(
-			{ client: newClientType("web"), uid: userId },
-			mockEnv.OAUTH_STATE_HMAC_SECRET,
-		);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newOAuthProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"https://malicious.com/redirect",
 			provider,
@@ -76,13 +77,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return OAUTH_CREDENTIALS_INVALID error when code is missing", async () => {
 		const userId = user.id;
-		const signedState = generateSignedState(
-			{ client: newClientType("web"), uid: userId },
-			mockEnv.OAUTH_STATE_HMAC_SECRET,
-		);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newOAuthProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			provider,
@@ -99,13 +98,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return OAUTH_ACCESS_DENIED error when user denies access", async () => {
 		const userId = user.id;
-		const signedState = generateSignedState(
-			{ client: newClientType("web"), uid: userId },
-			mockEnv.OAUTH_STATE_HMAC_SECRET,
-		);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newOAuthProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			"access_denied",
 			"/dashboard",
 			provider,
@@ -122,13 +119,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return OAUTH_PROVIDER_ERROR error for provider error", async () => {
 		const userId = user.id;
-		const signedState = generateSignedState(
-			{ client: newClientType("web"), uid: userId },
-			mockEnv.OAUTH_STATE_HMAC_SECRET,
-		);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newOAuthProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			"server_error",
 			"/dashboard",
 			provider,
@@ -158,12 +153,10 @@ describe("AccountLinkCallbackUseCase", () => {
 
 		oauthAccountMap.set(createOAuthAccountKey(provider, providerId), existingOAuthAccount);
 
-		const signedState = generateSignedState(
-			{ client: newClientType("web"), uid: userId },
-			mockEnv.OAUTH_STATE_HMAC_SECRET,
-		);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			provider,
@@ -194,12 +187,10 @@ describe("AccountLinkCallbackUseCase", () => {
 
 		oauthAccountMap.set(createOAuthAccountKey(provider, providerId), existingOAuthAccount);
 
-		const signedState = generateSignedState(
-			{ client: newClientType("web"), uid: userId },
-			mockEnv.OAUTH_STATE_HMAC_SECRET,
-		);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			provider,
@@ -217,12 +208,10 @@ describe("AccountLinkCallbackUseCase", () => {
 	it("should successfully link account when no conflicts", async () => {
 		const userId = user.id;
 		const provider = newOAuthProvider("discord");
-		const signedState = generateSignedState(
-			{ client: newClientType("web"), uid: userId },
-			mockEnv.OAUTH_STATE_HMAC_SECRET,
-		);
+		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 
 		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
 			undefined,
 			"/dashboard",
 			provider,

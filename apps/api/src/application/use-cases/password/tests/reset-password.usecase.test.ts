@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
-import { verifyPassword } from "../../../../infrastructure/crypt";
 import { createPasswordResetSessionFixture, createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
+	PasswordHasherMock,
 	PasswordResetSessionRepositoryMock,
 	SessionRepositoryMock,
 	UserRepositoryMock,
@@ -17,21 +17,25 @@ const passwordResetSessionMap = createPasswordResetSessionsMap();
 const sessionMap = createSessionsMap();
 const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
-const passwordResetSessionRepositoryMock = new PasswordResetSessionRepositoryMock({
+
+const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const sessionRepositoryMock = new SessionRepositoryMock({
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
+const passwordHasher = new PasswordHasherMock();
+
 const resetPasswordUseCase = new ResetPasswordUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	passwordResetSessionRepositoryMock,
+	userRepository,
+	sessionRepository,
+	passwordResetSessionRepository,
+	passwordHasher,
 );
 
 const { user } = createUserFixture({
@@ -110,7 +114,7 @@ describe("ResetPasswordUseCase", () => {
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe(newPassword);
 		if (savedPasswordHash) {
-			expect(await verifyPassword(newPassword, savedPasswordHash)).toBe(true);
+			expect(await passwordHasher.verify(newPassword, savedPasswordHash)).toBe(true);
 		}
 	});
 
@@ -190,7 +194,7 @@ describe("ResetPasswordUseCase", () => {
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe("new_password123");
 		if (savedPasswordHash) {
-			expect(await verifyPassword("new_password123", savedPasswordHash)).toBe(true);
+			expect(await passwordHasher.verify("new_password123", savedPasswordHash)).toBe(true);
 		}
 	});
 });

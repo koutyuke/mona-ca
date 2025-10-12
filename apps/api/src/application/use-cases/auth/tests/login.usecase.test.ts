@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { createUserFixture } from "../../../../tests/fixtures";
-import { SessionRepositoryMock, UserRepositoryMock } from "../../../../tests/mocks";
+import {
+	PasswordHasherMock,
+	SessionRepositoryMock,
+	SessionSecretHasherMock,
+	UserRepositoryMock,
+} from "../../../../tests/mocks";
 import { createSessionsMap, createUserPasswordHashMap, createUsersMap } from "../../../../tests/mocks";
 import { LoginUseCase } from "../login.usecase";
 
@@ -11,17 +16,24 @@ const userPasswordHashMap = createUserPasswordHashMap();
 const sessionRepositoryMock = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const loginUseCase = new LoginUseCase(sessionRepositoryMock, userRepositoryMock);
-const { user, passwordHash } = createUserFixture({
+const sessionSecretHasher = new SessionSecretHasherMock();
+const passwordHasher = new PasswordHasherMock();
+
+const loginUseCase = new LoginUseCase(sessionRepositoryMock, userRepository, sessionSecretHasher, passwordHasher);
+
+const password = "password123";
+const passwordHash = await passwordHasher.hash(password);
+
+const { user } = createUserFixture({
 	user: {
 		email: "test@example.com",
 	},
-	passwordHash: "hashed_password123",
 });
 
 describe("LoginUseCase", () => {

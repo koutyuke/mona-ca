@@ -13,11 +13,11 @@ const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzl
 const userTableHelper = new UserTableHelper(DB);
 const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("PasswordResetSessionRepository.deleteById", () => {
 	beforeAll(async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 	});
 
 	beforeEach(async () => {

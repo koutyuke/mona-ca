@@ -1,18 +1,27 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
-import { AccountAssociationSessionRepositoryMock } from "../../../../tests/mocks/repositories/account-association-session.repository.mock";
+import {
+	AccountAssociationSessionRepositoryMock,
+	RandomGeneratorMock,
+	SessionSecretHasherMock,
+} from "../../../../tests/mocks";
 import { createAccountAssociationSessionsMap } from "../../../../tests/mocks/repositories/table-maps";
 import { AccountAssociationChallengeUseCase } from "../account-association-challenge.usecase";
 
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
-const accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
+const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
 	accountAssociationSessionMap,
 });
 
+const sessionSecretHasher = new SessionSecretHasherMock();
+const randomGenerator = new RandomGeneratorMock();
+
 const accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
-	accountAssociationSessionRepositoryMock,
+	accountAssociationSessionRepository,
+	sessionSecretHasher,
+	randomGenerator,
 );
 
 const { user } = createUserFixture();
@@ -90,9 +99,7 @@ describe("AccountAssociationChallengeUseCase", () => {
 
 		if (!isErr(result)) {
 			const code = result.accountAssociationSession.code;
-			expect(code).toBeDefined();
-			expect(code?.length).toBe(8);
-			expect(/^\d{8}$/.test(code!)).toBe(true); // verify it's 8 digits
+			expect(code).toBe("01234567");
 		}
 	});
 

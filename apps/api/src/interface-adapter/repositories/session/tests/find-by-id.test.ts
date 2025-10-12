@@ -21,8 +21,8 @@ describe("SessionRepository.findById", () => {
 	});
 
 	test("should return session and user from sessionId", async () => {
-		const { user, passwordHash } = createUserFixture();
-		await userTableHelper.save(user, passwordHash);
+		const { user } = createUserFixture();
+		await userTableHelper.save(user, null);
 
 		const { session } = createSessionFixture({
 			session: {

@@ -2,14 +2,17 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { newSignupSessionToken } from "../../../../domain/value-object";
 import { createSignupSessionFixture } from "../../../../tests/fixtures";
-import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../tests/mocks";
+import { SessionSecretHasherMock, SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../tests/mocks";
 import { ValidateSignupSessionUseCase } from "../validate-signup-session.usecase";
 
 const signupSessionMap = createSignupSessionsMap();
-const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
+
+const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepositoryMock);
+const sessionSecretHasher = new SessionSecretHasherMock();
+
+const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository, sessionSecretHasher);
 
 const {
 	signupSession: baseSignupSession,

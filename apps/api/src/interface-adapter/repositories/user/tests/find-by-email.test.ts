@@ -12,7 +12,7 @@ const userRepository = new UserRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("UserRepository.findByEmail", async () => {
 	beforeEach(async () => {
@@ -20,14 +20,14 @@ describe("UserRepository.findByEmail", async () => {
 	});
 
 	test("should return User instance if user exists", async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 
 		const foundUser = await userRepository.findByEmail(user.email);
 
-		const expectedUser = userTableHelper.convertToRaw(user, passwordHash);
+		const expectedUser = userTableHelper.convertToRaw(user, null);
 
 		expect(foundUser).not.toBeNull();
-		expect(userTableHelper.convertToRaw(foundUser!, passwordHash)).toStrictEqual(expectedUser);
+		expect(userTableHelper.convertToRaw(foundUser!, null)).toStrictEqual(expectedUser);
 	});
 
 	test("should return null if user not found", async () => {
