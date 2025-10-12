@@ -33,6 +33,7 @@ export type OAuthSignupCallbackUseCaseResult = Result<Success, Error>;
 
 export interface IOAuthSignupCallbackUseCase {
 	execute(
+		production: boolean,
 		error: string | undefined,
 		redirectURI: string,
 		provider: OAuthProvider,

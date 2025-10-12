@@ -20,6 +20,7 @@ export type AccountLinkCallbackUseCaseResult = Result<Success, Error>;
 
 export interface IAccountLinkCallbackUseCase {
 	execute(
+		production: boolean,
 		error: string | undefined,
 		redirectURI: string,
 		provider: OAuthProvider,

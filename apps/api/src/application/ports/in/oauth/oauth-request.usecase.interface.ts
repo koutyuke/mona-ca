@@ -13,5 +13,5 @@ type Error = Err<"INVALID_REDIRECT_URL">;
 export type OAuthRequestUseCaseResult = Result<Success, Error>;
 
 export interface IOAuthRequestUseCase {
-	execute(clientType: ClientType, queryRedirectURI: string): OAuthRequestUseCaseResult;
+	execute(production: boolean, clientType: ClientType, queryRedirectURI: string): OAuthRequestUseCaseResult;
 }

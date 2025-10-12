@@ -4,7 +4,7 @@ import type { AccountAssociationSessionToken } from "../../../../domain/value-ob
 
 type Success = {
 	accountAssociationSessionToken: AccountAssociationSessionToken;
-	accountAssociationSession: AccountAssociationSession<string>;
+	accountAssociationSession: AccountAssociationSession;
 };
 
 type Error = never;

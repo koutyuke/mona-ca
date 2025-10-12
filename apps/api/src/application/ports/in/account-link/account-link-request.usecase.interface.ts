@@ -13,5 +13,10 @@ type Error = Err<"INVALID_REDIRECT_URL">;
 export type AccountLinkRequestUseCaseResult = Result<Success, Error>;
 
 export interface IAccountLinkRequestUseCase {
-	execute(clientType: ClientType, queryRedirectURI: string, userId: UserId): AccountLinkRequestUseCaseResult;
+	execute(
+		production: boolean,
+		clientType: ClientType,
+		queryRedirectURI: string,
+		userId: UserId,
+	): AccountLinkRequestUseCaseResult;
 }
