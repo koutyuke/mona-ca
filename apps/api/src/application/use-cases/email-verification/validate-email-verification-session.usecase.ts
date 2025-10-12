@@ -2,15 +2,18 @@ import { err } from "../../../common/utils";
 import { type User, isExpiredEmailVerificationSession } from "../../../domain/entities";
 import type { EmailVerificationSessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
-import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type {
 	IValidateEmailVerificationSessionUseCase,
 	ValidateEmailVerificationSessionUseCaseResult,
 } from "../../ports/in";
 import type { IEmailVerificationSessionRepository } from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVerificationSessionUseCase {
-	constructor(private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository) {}
+	constructor(
+		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+	) {}
 
 	public async execute(
 		emailVerificationSessionToken: EmailVerificationSessionToken,
@@ -40,7 +43,7 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 			return err("EMAIL_VERIFICATION_SESSION_EXPIRED");
 		}
 
-		if (!verifySessionSecret(emailVerificationSessionSecret, emailVerificationSession.secretHash)) {
+		if (!this.sessionSecretHasher.verify(emailVerificationSessionSecret, emailVerificationSession.secretHash)) {
 			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 
