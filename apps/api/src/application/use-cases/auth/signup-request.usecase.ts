@@ -2,15 +2,17 @@ import { err, ulid } from "../../../common/utils";
 import { type SignupSession, createSignupSession } from "../../../domain/entities";
 import { formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
 import type { SignupSessionToken } from "../../../domain/value-object";
-import { generateRandomString, generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "../../ports/in";
 import type { IUserRepository } from "../../ports/out/repositories";
 import type { ISignupSessionRepository } from "../../ports/out/repositories";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../ports/out/system";
 
 export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(
 		private readonly signupSessionRepository: ISignupSessionRepository,
 		private readonly userRepository: IUserRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly randomGenerator: IRandomGenerator,
 	) {}
 
 	async execute(email: string): Promise<SignupRequestUseCaseResult> {
@@ -33,12 +35,12 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 	}
 
 	private createSignupSession(email: string): { signupSessionToken: SignupSessionToken; signupSession: SignupSession } {
-		const code = generateRandomString(8, {
-			number: true,
+		const code = this.randomGenerator.string(8, {
+			digits: true,
 		});
 
-		const signupSessionSecret = generateSessionSecret();
-		const signupSessionSecretHash = hashSessionSecret(signupSessionSecret);
+		const signupSessionSecret = this.sessionSecretHasher.generate();
+		const signupSessionSecretHash = this.sessionSecretHasher.hash(signupSessionSecret);
 		const signupSessionId = newSignupSessionId(ulid());
 		const signupSession = createSignupSession({
 			id: signupSessionId,

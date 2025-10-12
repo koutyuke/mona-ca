@@ -2,12 +2,15 @@ import { err } from "../../../common/utils";
 import { isExpiredSignupSession } from "../../../domain/entities";
 import type { SignupSessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
-import { verifySessionSecret } from "../../../infrastructure/crypt";
 import type { IValidateSignupSessionUseCase, ValidateSignupSessionUseCaseResult } from "../../ports/in";
 import type { ISignupSessionRepository } from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 export class ValidateSignupSessionUseCase implements IValidateSignupSessionUseCase {
-	constructor(private readonly signupSessionRepository: ISignupSessionRepository) {}
+	constructor(
+		private readonly signupSessionRepository: ISignupSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+	) {}
 
 	async execute(signupSessionToken: SignupSessionToken): Promise<ValidateSignupSessionUseCaseResult> {
 		const signupSessionIdAndSecret = parseSessionToken(signupSessionToken);
@@ -24,7 +27,7 @@ export class ValidateSignupSessionUseCase implements IValidateSignupSessionUseCa
 			return err("SIGNUP_SESSION_INVALID");
 		}
 
-		if (!verifySessionSecret(signupSessionSecret, signupSession.secretHash)) {
+		if (!this.sessionSecretHasher.verify(signupSessionSecret, signupSession.secretHash)) {
 			return err("SIGNUP_SESSION_INVALID");
 		}
 

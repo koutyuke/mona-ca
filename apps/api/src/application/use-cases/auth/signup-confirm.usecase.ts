@@ -8,15 +8,17 @@ import {
 	newSessionId,
 	newUserId,
 } from "../../../domain/value-object";
-import { generateSessionSecret, hashPassword, hashSessionSecret } from "../../../infrastructure/crypt";
 import type { ISignupConfirmUseCase, SignupConfirmUseCaseResult } from "../../ports/in";
 import type { ISessionRepository, ISignupSessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { IPasswordHasher, ISessionSecretHasher } from "../../ports/out/system";
 
 export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly signupSessionRepository: ISignupSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly passwordHasher: IPasswordHasher,
 	) {}
 
 	async execute(
@@ -45,7 +47,7 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 			gender,
 		});
 
-		const passwordHash = await hashPassword(password);
+		const passwordHash = await this.passwordHasher.hash(password);
 
 		const { session, sessionToken } = this.createSession(userId);
 
@@ -65,8 +67,8 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 		session: Session;
 		sessionToken: SessionToken;
 	} {
-		const sessionSecret = generateSessionSecret();
-		const sessionSecretHash = hashSessionSecret(sessionSecret);
+		const sessionSecret = this.sessionSecretHasher.generate();
+		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
 		const sessionId = newSessionId(ulid());
 		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
