@@ -1,41 +1,47 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { err, isErr, ulid } from "../../../common/utils";
-import { createAccountAssociationSession, createSession } from "../../../domain/entities";
 import {
+	type AccountAssociationSession,
+	type Session,
+	createAccountAssociationSession,
+	createSession,
+} from "../../../domain/entities";
+import {
+	type AccountAssociationSessionToken,
 	type OAuthProvider,
+	type OAuthProviderId,
+	type SessionToken,
+	type UserId,
 	newAccountAssociationSessionId,
 	newClientType,
 	newOAuthProviderId,
 	newSessionId,
 } from "../../../domain/value-object";
 import { formatSessionToken } from "../../../domain/value-object";
-import { hashSessionSecret } from "../../../infrastructure/crypt";
-import { generateSessionSecret } from "../../../infrastructure/crypt";
-import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
-import type { AppEnv } from "../../../modules/env";
 import type { IOAuthLoginCallbackUseCase, OAuthLoginCallbackUseCaseResult } from "../../ports/in";
+import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type {
 	IAccountAssociationSessionRepository,
 	IOAuthAccountRepository,
 	ISessionRepository,
 	IUserRepository,
 } from "../../ports/out/repositories";
-import { oauthStateSchema } from "./schema";
+import type { IOAuthStateSigner, ISessionSecretHasher } from "../../ports/out/system";
+import type { oauthStateSchema } from "./schema";
 
 export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 	constructor(
-		private readonly env: {
-			APP_ENV: AppEnv["APP_ENV"];
-			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
-		},
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly oauthAccountRepository: IOAuthAccountRepository,
 		private readonly userRepository: IUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly oauthStateSigner: IOAuthStateSigner<typeof oauthStateSchema>,
 	) {}
 
 	public async execute(
+		production: boolean,
 		error: string | undefined,
 		redirectURI: string,
 		provider: OAuthProvider,
@@ -43,7 +49,7 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<OAuthLoginCallbackUseCaseResult> {
-		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
+		const validatedState = this.oauthStateSigner.validate(signedState);
 
 		if (isErr(validatedState)) {
 			return err("INVALID_OAUTH_STATE");
@@ -53,7 +59,7 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 
 		const clientType = newClientType(client);
 
-		const clientBaseURL = clientType === "web" ? getWebBaseURL(this.env.APP_ENV === "production") : getMobileScheme();
+		const clientBaseURL = clientType === "web" ? getWebBaseURL(production) : getMobileScheme();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 
@@ -104,24 +110,14 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		}
 
 		const providerAccount = accountInfoResult;
+		const providerId = newOAuthProviderId(providerAccount.id);
 
-		const existingOAuthAccount = await this.oauthAccountRepository.findByProviderAndProviderId(
-			provider,
-			newOAuthProviderId(providerAccount.id),
-		);
+		const existingOAuthAccount = await this.oauthAccountRepository.findByProviderAndProviderId(provider, providerId);
 
 		const existingUserForSameEmail = await this.userRepository.findByEmail(providerAccount.email);
 
 		if (existingOAuthAccount) {
-			const sessionSecret = generateSessionSecret();
-			const sessionSecretHash = hashSessionSecret(sessionSecret);
-			const sessionId = newSessionId(ulid());
-			const sessionToken = formatSessionToken(sessionId, sessionSecret);
-			const session = createSession({
-				id: sessionId,
-				userId: existingOAuthAccount.userId,
-				secretHash: sessionSecretHash,
-			});
+			const { session, sessionToken } = this.createSession(existingOAuthAccount.userId);
 
 			await this.sessionRepository.save(session);
 
@@ -134,22 +130,12 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 		}
 
 		if (existingUserForSameEmail) {
-			const accountAssociationSessionSecret = generateSessionSecret();
-			const accountAssociationSessionSecretHash = hashSessionSecret(accountAssociationSessionSecret);
-			const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-			const accountAssociationSessionToken = formatSessionToken(
-				accountAssociationSessionId,
-				accountAssociationSessionSecret,
-			);
-			const accountAssociationSession = createAccountAssociationSession({
-				id: accountAssociationSessionId,
-				userId: existingUserForSameEmail.id,
-				code: null,
-				secretHash: accountAssociationSessionSecretHash,
-				email: existingUserForSameEmail.email,
+			const { accountAssociationSession, accountAssociationSessionToken } = this.createAccountAssociationSession(
+				existingUserForSameEmail.id,
+				existingUserForSameEmail.email,
 				provider,
-				providerId: newOAuthProviderId(providerAccount.id),
-			});
+				providerId,
+			);
 
 			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
 			await this.accountAssociationSessionRepository.save(accountAssociationSession);
@@ -162,5 +148,49 @@ export class OAuthLoginCallbackUseCase implements IOAuthLoginCallbackUseCase {
 			});
 		}
 		return err("OAUTH_ACCOUNT_NOT_FOUND", { redirectURL: redirectToClientURL });
+	}
+
+	private createSession(userId: UserId): {
+		session: Session;
+		sessionToken: SessionToken;
+	} {
+		const sessionSecret = this.sessionSecretHasher.generate();
+		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const session = createSession({
+			id: sessionId,
+			userId,
+			secretHash: sessionSecretHash,
+		});
+		return { session, sessionToken };
+	}
+
+	private createAccountAssociationSession(
+		userId: UserId,
+		email: string,
+		provider: OAuthProvider,
+		providerId: OAuthProviderId,
+	): {
+		accountAssociationSession: AccountAssociationSession;
+		accountAssociationSessionToken: AccountAssociationSessionToken;
+	} {
+		const accountAssociationSessionSecret = this.sessionSecretHasher.generate();
+		const accountAssociationSessionSecretHash = this.sessionSecretHasher.hash(accountAssociationSessionSecret);
+		const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
+		const accountAssociationSessionToken = formatSessionToken(
+			accountAssociationSessionId,
+			accountAssociationSessionSecret,
+		);
+		const accountAssociationSession = createAccountAssociationSession({
+			id: accountAssociationSessionId,
+			userId,
+			code: null,
+			secretHash: accountAssociationSessionSecretHash,
+			email,
+			provider,
+			providerId,
+		});
+		return { accountAssociationSession, accountAssociationSessionToken };
 	}
 }
