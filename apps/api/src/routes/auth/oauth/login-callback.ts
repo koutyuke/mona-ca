@@ -1,6 +1,6 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { OAuthLoginCallbackUseCase } from "../../../application/use-cases/oauth";
+import { OAuthLoginCallbackUseCase, oauthStateSchema } from "../../../application/use-cases/oauth";
 import {
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -10,6 +10,7 @@ import {
 } from "../../../common/constants";
 import { convertRedirectableMobileScheme, isErr, timingSafeStringEqual } from "../../../common/utils";
 import { newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
+import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
@@ -85,13 +86,17 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 				providerRedirectURL.toString(),
 			);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
+
 			const oauthLoginCallbackUseCase = new OAuthLoginCallbackUseCase(
-				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
 				oauthProviderGateway,
 				sessionRepository,
 				oauthAccountRepository,
 				userRepository,
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
+				oauthStateSigner,
 			);
 			// === End of instances ===
 
@@ -107,6 +112,7 @@ export const OAuthLoginCallback = new ElysiaWithEnv()
 			}
 
 			const result = await oauthLoginCallbackUseCase.execute(
+				APP_ENV === "production",
 				error,
 				redirectURI,
 				provider,

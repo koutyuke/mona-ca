@@ -6,6 +6,7 @@ import { verificationEmailTemplate } from "../../../application/use-cases/email/
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { newAccountAssociationSessionToken } from "../../../domain/value-object";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -48,13 +49,19 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+			const randomGenerator = new RandomGenerator();
+
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
+				randomGenerator,
 			);
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
@@ -101,7 +108,10 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 			const { accountAssociationSessionToken, accountAssociationSession } =
 				await accountAssociationChallengeUseCase.execute(validateResult.user, validateResult.accountAssociationSession);
 
-			const mailContents = verificationEmailTemplate(accountAssociationSession.email, accountAssociationSession.code);
+			const mailContents = verificationEmailTemplate(
+				accountAssociationSession.email,
+				accountAssociationSession.code ?? "",
+			);
 
 			await sendEmailUseCase.execute({
 				from: mailContents.from,

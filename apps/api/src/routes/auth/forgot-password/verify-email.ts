@@ -6,6 +6,7 @@ import {
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { newPasswordResetSessionToken } from "../../../domain/value-object";
+import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -55,9 +56,12 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
 				userRepository,
+				sessionSecretHasher,
 			);
 			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
 			// === End of instances ===

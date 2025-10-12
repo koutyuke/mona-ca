@@ -6,6 +6,7 @@ import {
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { newEmailVerificationSessionToken } from "../../../domain/value-object";
+import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
@@ -57,13 +58,17 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
 				emailVerificationSessionRepository,
+				sessionSecretHasher,
 			);
 			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
 				userRepository,
 				sessionRepository,
 				emailVerificationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of Instances ===
 

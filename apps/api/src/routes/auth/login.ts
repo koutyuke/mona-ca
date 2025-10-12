@@ -1,8 +1,8 @@
 import { t } from "elysia";
-import { PasswordService } from "../../application/services/password";
 import { LoginUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { isErr } from "../../common/utils";
+import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypt";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
@@ -49,12 +49,14 @@ export const Login = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const passwordService = new PasswordService(PASSWORD_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, passwordService);
+			const sessionSecretHasher = new SessionSecretHasher();
+			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
+
+			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, sessionSecretHasher, passwordHasher);
 			// === End of instances ===
 
 			const result = await loginUseCase.execute(email, password);

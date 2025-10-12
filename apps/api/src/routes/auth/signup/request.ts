@@ -4,6 +4,7 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -49,8 +50,16 @@ export const SignupRequest = new ElysiaWithEnv()
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+			const randomGenerator = new RandomGenerator();
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
-			const signupRequestUseCase = new SignupRequestUseCase(signupSessionRepository, userRepository);
+
+			const signupRequestUseCase = new SignupRequestUseCase(
+				signupSessionRepository,
+				userRepository,
+				sessionSecretHasher,
+				randomGenerator,
+			);
 			// === End of instances ===
 
 			const result = await signupRequestUseCase.execute(email);

@@ -3,6 +3,7 @@ import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../..
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { newSignupSessionToken } from "../../../domain/value-object";
+import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { CookieManager } from "../../../modules/cookie";
@@ -50,7 +51,12 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository);
+			const sessionSecretHasher = new SessionSecretHasher();
+
+			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
+				signupSessionRepository,
+				sessionSecretHasher,
+			);
 			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository, async signupSessionId =>
 				rateLimit.consume(signupSessionId, 100),
 			);

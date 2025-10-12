@@ -1,6 +1,6 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { AccountLinkRequestUseCase } from "../../../application/use-cases/account-link";
+import { AccountLinkRequestUseCase, accountLinkStateSchema } from "../../../application/use-cases/account-link";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
@@ -8,6 +8,7 @@ import {
 } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieManager } from "../../../modules/cookie";
@@ -71,14 +72,12 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 				provider,
 				providerRedirectURL.toString(),
 			);
+			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
 
-			const accountLinkRequestUseCase = new AccountLinkRequestUseCase(
-				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
-				oauthProviderGateway,
-			);
+			const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, oauthStateSigner);
 			// === End of instances ===
 
-			const result = accountLinkRequestUseCase.execute(clientType, queryRedirectURI, user.id);
+			const result = accountLinkRequestUseCase.execute(APP_ENV === "production", clientType, queryRedirectURI, user.id);
 
 			if (isErr(result)) {
 				const { code } = result;

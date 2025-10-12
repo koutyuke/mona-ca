@@ -1,9 +1,9 @@
 import { t } from "elysia";
-import { PasswordService } from "../../../application/services/password";
 import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-object";
+import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
@@ -44,14 +44,19 @@ export const SignupConfirm = new ElysiaWithEnv()
 			const sessionRepository = new SessionRepository(drizzleService);
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
-			const passwordService = new PasswordService(PASSWORD_PEPPER);
+			const sessionSecretHasher = new SessionSecretHasher();
+			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
 
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository);
+			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
+				signupSessionRepository,
+				sessionSecretHasher,
+			);
 			const signupConfirmUseCase = new SignupConfirmUseCase(
 				userRepository,
 				sessionRepository,
 				signupSessionRepository,
-				passwordService,
+				sessionSecretHasher,
+				passwordHasher,
 			);
 			// === End of instances ===
 

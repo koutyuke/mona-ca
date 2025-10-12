@@ -4,6 +4,7 @@ import { EmailVerificationRequestUseCase } from "../../../application/use-cases/
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -53,10 +54,15 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const randomGenerator = new RandomGenerator();
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 				userRepository,
 				emailVerificationSessionRepository,
+				randomGenerator,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 

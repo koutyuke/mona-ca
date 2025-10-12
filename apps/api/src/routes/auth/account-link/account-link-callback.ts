@@ -1,6 +1,6 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { AccountLinkCallbackUseCase } from "../../../application/use-cases/account-link";
+import { AccountLinkCallbackUseCase, accountLinkStateSchema } from "../../../application/use-cases/account-link";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
@@ -9,6 +9,7 @@ import {
 } from "../../../common/constants";
 import { isErr, timingSafeStringEqual } from "../../../common/utils";
 import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
@@ -67,6 +68,8 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 
 			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
 
+			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
+
 			const oauthProviderGateway = OAuthProviderGateway(
 				{
 					DISCORD_CLIENT_ID,
@@ -79,9 +82,9 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			);
 
 			const accountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
-				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
 				oauthProviderGateway,
 				oauthAccountRepository,
+				oauthStateSigner,
 			);
 			// === End of instances ===
 
@@ -96,6 +99,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			}
 
 			const result = await accountLinkCallbackUseCase.execute(
+				APP_ENV === "production",
 				error,
 				redirectURI,
 				provider,

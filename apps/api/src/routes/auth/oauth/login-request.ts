@@ -1,6 +1,6 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { OAuthRequestUseCase } from "../../../application/use-cases/oauth";
+import { OAuthRequestUseCase, oauthStateSchema } from "../../../application/use-cases/oauth";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
@@ -8,6 +8,7 @@ import {
 } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { clientTypeSchema, newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
 import { CookieManager } from "../../../modules/cookie";
 import {
@@ -69,10 +70,13 @@ export const OAuthLoginRequest = new ElysiaWithEnv()
 				provider,
 				providerRedirectURL.toString(),
 			);
-			const oauthRequestUseCase = new OAuthRequestUseCase({ APP_ENV, OAUTH_STATE_HMAC_SECRET }, oauthProviderGateway);
+
+			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
+
+			const oauthRequestUseCase = new OAuthRequestUseCase(oauthProviderGateway, oauthStateSigner);
 			// === End of instances ===
 
-			const result = oauthRequestUseCase.execute(clientType, queryRedirectURI);
+			const result = oauthRequestUseCase.execute(APP_ENV === "production", clientType, queryRedirectURI);
 
 			if (isErr(result)) {
 				const { code } = result;

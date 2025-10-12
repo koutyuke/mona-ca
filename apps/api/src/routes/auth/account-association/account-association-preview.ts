@@ -1,8 +1,9 @@
 import { t } from "elysia";
-import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
+import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
 import { newAccountAssociationSessionToken } from "../../../domain/value-object";
+import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenter";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
@@ -33,9 +34,12 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 

@@ -4,6 +4,7 @@ import { verificationEmailTemplate } from "../../../application/use-cases/email/
 import { PasswordResetRequestUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -48,10 +49,15 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const randomGenerator = new RandomGenerator();
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const passwordResetRequestUseCase = new PasswordResetRequestUseCase(
 				passwordResetSessionRepository,
 				userRepository,
+				randomGenerator,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
