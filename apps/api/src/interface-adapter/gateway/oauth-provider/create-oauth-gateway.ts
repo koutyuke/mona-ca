@@ -1,12 +1,12 @@
 import type { IOAuthProviderGateway } from "../../../application/ports/out/gateways";
-import type { OAuthProvider } from "../../../domain/value-object";
+import type { ExternalIdentityProvider } from "../../../domain/value-object";
 import type { OAuthProviderEnv } from "../../../modules/env";
 import { DiscordOAuthGateway } from "./providers/discord.gateway";
 import { GoogleOAuthGateway } from "./providers/google.gateway";
 
-const OAuthProviderGateway = (
+export const createOAuthGateway = (
 	env: OAuthProviderEnv,
-	provider: OAuthProvider,
+	provider: ExternalIdentityProvider,
 	redirectURI: string,
 ): IOAuthProviderGateway => {
 	switch (provider) {
@@ -18,5 +18,3 @@ const OAuthProviderGateway = (
 			throw new Error(`Unsupported OAuth provider: ${provider}`);
 	}
 };
-
-export { OAuthProviderGateway };

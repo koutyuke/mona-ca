@@ -1,2 +1,3 @@
 export { DiscordOAuthGateway } from "./providers/discord.gateway";
-export { OAuthProviderGateway } from "./oauth-provider.gateway";
+export { GoogleOAuthGateway } from "./providers/google.gateway";
+export { createOAuthGateway } from "./create-oauth-gateway";
