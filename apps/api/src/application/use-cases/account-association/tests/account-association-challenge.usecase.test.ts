@@ -53,7 +53,7 @@ describe("AccountAssociationChallengeUseCase", () => {
 			expect(result.accountAssociationSession.userId).toBe(user.id);
 			expect(result.accountAssociationSession.email).toBe(user.email);
 			expect(result.accountAssociationSession.provider).toBe(existingAccountAssociationSession.provider);
-			expect(result.accountAssociationSession.providerId).toBe(existingAccountAssociationSession.providerId);
+			expect(result.accountAssociationSession.providerUserId).toBe(existingAccountAssociationSession.providerUserId);
 			expect(result.accountAssociationSession.code).toBeDefined();
 		}
 	});

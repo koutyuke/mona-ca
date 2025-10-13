@@ -2,8 +2,8 @@ import { ulid } from "../../../common/utils";
 import { type AccountAssociationSession, type User, createAccountAssociationSession } from "../../../domain/entities";
 import {
 	type AccountAssociationSessionToken,
-	type OAuthProvider,
-	type OAuthProviderId,
+	type ExternalIdentityProvider,
+	type ExternalIdentityProviderUserId,
 	type UserId,
 	formatSessionToken,
 	newAccountAssociationSessionId,
@@ -31,7 +31,7 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 			user.id,
 			user.email,
 			oldAccountAssociationSession.provider,
-			oldAccountAssociationSession.providerId,
+			oldAccountAssociationSession.providerUserId,
 		);
 
 		await this.accountAssociationSessionRepository.save(accountAssociationSession);
@@ -45,8 +45,8 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 	private createAccountAssociationSession(
 		userId: UserId,
 		email: string,
-		provider: OAuthProvider,
-		providerId: OAuthProviderId,
+		provider: ExternalIdentityProvider,
+		providerUserId: ExternalIdentityProviderUserId,
 	): {
 		accountAssociationSession: AccountAssociationSession;
 		accountAssociationSessionToken: AccountAssociationSessionToken;
@@ -69,7 +69,7 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 			code,
 			email,
 			provider,
-			providerId,
+			providerUserId,
 			secretHash: accountAssociationSessionSecretHash,
 		});
 		return { accountAssociationSession, accountAssociationSessionToken };

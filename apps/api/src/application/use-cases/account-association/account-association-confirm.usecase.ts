@@ -2,7 +2,7 @@ import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
 import {
 	type AccountAssociationSession,
 	type Session,
-	createOAuthAccount,
+	createExternalIdentity,
 	createSession,
 	updateUser,
 } from "../../../domain/entities";
@@ -10,7 +10,7 @@ import { type SessionToken, type UserId, formatSessionToken, newSessionId } from
 import type { AccountAssociationConfirmUseCaseResult, IAccountAssociationConfirmUseCase } from "../../ports/in";
 import type {
 	IAccountAssociationSessionRepository,
-	IOAuthAccountRepository,
+	IExternalIdentityRepository,
 	ISessionRepository,
 	IUserRepository,
 } from "../../ports/out/repositories";
@@ -22,7 +22,7 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
@@ -41,12 +41,12 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 
 		await this.accountAssociationSessionRepository.deleteById(accountAssociationSession.id);
 
-		const [existingOAuthAccount, existingUserLinkedAccount] = await Promise.all([
-			this.oauthAccountRepository.findByProviderAndProviderId(
+		const [existingExternalIdentity, existingUserLinkedAccount] = await Promise.all([
+			this.externalIdentityRepository.findByProviderAndProviderUserId(
 				accountAssociationSession.provider,
-				accountAssociationSession.providerId,
+				accountAssociationSession.providerUserId,
 			),
-			this.oauthAccountRepository.findByUserIdAndProvider(
+			this.externalIdentityRepository.findByUserIdAndProvider(
 				accountAssociationSession.userId,
 				accountAssociationSession.provider,
 			),
@@ -56,7 +56,7 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			return err("OAUTH_PROVIDER_ALREADY_LINKED");
 		}
 
-		if (existingOAuthAccount) {
+		if (existingExternalIdentity) {
 			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
 		}
 
@@ -71,14 +71,14 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 
 		const { session, sessionToken } = this.createSession(user.id);
 
-		const oauthAccount = createOAuthAccount({
+		const externalIdentity = createExternalIdentity({
 			provider: accountAssociationSession.provider,
-			providerId: accountAssociationSession.providerId,
+			providerUserId: accountAssociationSession.providerUserId,
 			userId: user.id,
 		});
 
 		await Promise.all([
-			this.oauthAccountRepository.save(oauthAccount),
+			this.externalIdentityRepository.save(externalIdentity),
 			this.sessionRepository.save(session),
 			this.userRepository.save(user),
 		]);
