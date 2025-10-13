@@ -123,13 +123,13 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 						message: "Invalid association code. Please check your email and try again.",
 					});
 				}
-				if (code === "EXTERNAL_IDENTITY_ALREADY_LINKED") {
+				if (code === "ACCOUNT_ALREADY_LINKED") {
 					throw new BadRequestException({
 						code,
 						message: "This OAuth provider is already linked to your account.",
 					});
 				}
-				if (code === "EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER") {
+				if (code === "ACCOUNT_LINKED_ELSEWHERE") {
 					throw new BadRequestException({
 						code,
 						message: "This OAuth account is already linked to another user.",
@@ -179,8 +179,8 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				400: ResponseTUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_ASSOCIATION_CODE"),
-					ErrorResponseSchema("EXTERNAL_IDENTITY_ALREADY_LINKED"),
-					ErrorResponseSchema("EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER"),
+					ErrorResponseSchema("ACCOUNT_ALREADY_LINKED"),
+					ErrorResponseSchema("ACCOUNT_LINKED_ELSEWHERE"),
 					ErrorResponseSchema("USER_NOT_FOUND"),
 				),
 				401: ResponseTUnion(

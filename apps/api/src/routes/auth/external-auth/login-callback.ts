@@ -153,7 +153,7 @@ export const ExternalAuthLoginCallback = new ElysiaWithEnv()
 					});
 				}
 
-				if (code === "EXTERNAL_IDENTITY_NOT_FOUND_BUT_LINKABLE") {
+				if (code === "ACCOUNT_ASSOCIATION_AVAILABLE") {
 					// Account Association Challenge Flow
 					const {
 						code: errorCode,
@@ -252,8 +252,8 @@ export const ExternalAuthLoginCallback = new ElysiaWithEnv()
 					"- **PROVIDER_ACCESS_DENIED**",
 					"- **PROVIDER_ERROR**",
 					"- **GET_IDENTITY_FAILED**",
-					"- **EXTERNAL_IDENTITY_NOT_FOUND**",
-					"- **EXTERNAL_IDENTITY_NOT_FOUND_BUT_LINKABLE**",
+					"- **ACCOUNT_ASSOCIATION_NOT_FOUND**",
+					"- **ACCOUNT_ASSOCIATION_AVAILABLE**",
 				],
 				tag: "Auth - External Auth",
 			}),

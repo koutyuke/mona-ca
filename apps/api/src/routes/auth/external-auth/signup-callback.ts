@@ -151,7 +151,7 @@ export const ExternalAuthSignupCallback = new ElysiaWithEnv()
 						message: "OAuth code is missing. Please try again.",
 					});
 				}
-				if (code === "EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE") {
+				if (code === "ACCOUNT_ASSOCIATION_AVAILABLE") {
 					// Account Association Challenge Flow
 					const {
 						code: errorCode,
@@ -250,8 +250,8 @@ export const ExternalAuthSignupCallback = new ElysiaWithEnv()
 					"- **PROVIDER_ACCESS_DENIED**",
 					"- **PROVIDER_ERROR**",
 					"- **GET_IDENTITY_FAILED**",
-					"- **EXTERNAL_IDENTITY_ALREADY_REGISTERED**",
-					"- **EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE**",
+					"- **ACCOUNT_ALREADY_REGISTERED**",
+					"- **ACCOUNT_ASSOCIATION_AVAILABLE**",
 				],
 				tag: "Auth - External Auth",
 			}),
