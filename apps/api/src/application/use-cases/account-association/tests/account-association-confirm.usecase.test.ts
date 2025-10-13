@@ -141,7 +141,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 		}
 	});
 
-	it("should return OAUTH_PROVIDER_ALREADY_LINKED error when user already has account for the provider", async () => {
+	it("should return ACCOUNT_ALREADY_LINKED error when user already has account for the provider", async () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
@@ -168,11 +168,11 @@ describe("AccountAssociationConfirmUseCase", () => {
 		expect(isErr(result)).toBe(true);
 
 		if (isErr(result)) {
-			expect(result.code).toBe("OAUTH_PROVIDER_ALREADY_LINKED");
+			expect(result.code).toBe("ACCOUNT_ALREADY_LINKED");
 		}
 	});
 
-	it("should return OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER error when OAuth account is linked to another user", async () => {
+	it("should return ACCOUNT_LINKED_ELSEWHERE error when OAuth account is linked to another user", async () => {
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
 				userId: user.id,
@@ -198,7 +198,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 		expect(isErr(result)).toBe(true);
 
 		if (isErr(result)) {
-			expect(result.code).toBe("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
+			expect(result.code).toBe("ACCOUNT_LINKED_ELSEWHERE");
 		}
 	});
 

@@ -88,17 +88,17 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 
 		const providerUserId = newExternalIdentityProviderUserId(identity.id);
 
-		const [existingExternalIdentity, existingUserLinkedAccount] = await Promise.all([
+		const [existingExternalIdentity, currentUserExternalIdentity] = await Promise.all([
 			this.externalIdentityRepository.findByProviderAndProviderUserId(provider, providerUserId),
 			this.externalIdentityRepository.findByUserIdAndProvider(userId, provider),
 		]);
 
-		if (existingUserLinkedAccount) {
-			return err("EXTERNAL_IDENTITY_ALREADY_LINKED", { redirectURL: redirectToClientURL });
+		if (currentUserExternalIdentity) {
+			return err("PROVIDER_ALREADY_LINKED", { redirectURL: redirectToClientURL });
 		}
 
 		if (existingExternalIdentity) {
-			return err("EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: redirectToClientURL });
+			return err("ACCOUNT_LINKED_ELSEWHERE", { redirectURL: redirectToClientURL });
 		}
 
 		const externalIdentity = createExternalIdentity({

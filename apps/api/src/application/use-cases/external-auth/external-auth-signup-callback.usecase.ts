@@ -117,7 +117,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 		const existingUserForSameEmail = await this.userRepository.findByEmail(identity.email);
 
 		if (existingExternalIdentity) {
-			return err("EXTERNAL_IDENTITY_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
+			return err("ACCOUNT_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
 		}
 
 		if (existingUserForSameEmail) {
@@ -131,7 +131,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
 			await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
-			return err("EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE", {
+			return err("ACCOUNT_ASSOCIATION_AVAILABLE", {
 				redirectURL: redirectToClientURL,
 				clientType,
 				accountAssociationSessionToken,

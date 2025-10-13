@@ -142,7 +142,7 @@ describe("AccountLinkCallbackUseCase", () => {
 		}
 	});
 
-	it("should return EXTERNAL_IDENTITY_ALREADY_LINKED error when user already has linked account for this provider", async () => {
+	it("should return PROVIDER_ALREADY_LINKED error when user already has linked account for this provider", async () => {
 		const userId = user.id;
 		const provider = newExternalIdentityProvider("discord");
 		const providerId = newExternalIdentityProviderUserId("different_provider_id");
@@ -171,11 +171,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("EXTERNAL_IDENTITY_ALREADY_LINKED");
+			expect(result.code).toBe("PROVIDER_ALREADY_LINKED");
 		}
 	});
 
-	it("should return EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER error when provider account is already linked to another user", async () => {
+	it("should return ACCOUNT_LINKED_ELSEWHERE error when provider account is already linked to another user", async () => {
 		const userId = user.id;
 		const { user: anotherUser } = createUserFixture();
 		const provider = newExternalIdentityProvider("discord");
@@ -205,7 +205,7 @@ describe("AccountLinkCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER");
+			expect(result.code).toBe("ACCOUNT_LINKED_ELSEWHERE");
 		}
 	});
 

@@ -41,7 +41,7 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 
 		await this.accountAssociationSessionRepository.deleteById(accountAssociationSession.id);
 
-		const [existingExternalIdentity, existingUserLinkedAccount] = await Promise.all([
+		const [existingExternalIdentity, currentUserExternalIdentity] = await Promise.all([
 			this.externalIdentityRepository.findByProviderAndProviderUserId(
 				accountAssociationSession.provider,
 				accountAssociationSession.providerUserId,
@@ -52,12 +52,12 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			),
 		]);
 
-		if (existingUserLinkedAccount) {
-			return err("OAUTH_PROVIDER_ALREADY_LINKED");
+		if (currentUserExternalIdentity) {
+			return err("ACCOUNT_ALREADY_LINKED");
 		}
 
 		if (existingExternalIdentity) {
-			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
+			return err("ACCOUNT_LINKED_ELSEWHERE");
 		}
 
 		const _user = await this.userRepository.findById(accountAssociationSession.userId);

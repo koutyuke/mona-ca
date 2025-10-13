@@ -187,7 +187,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 		}
 	});
 
-	it("should return EXTERNAL_IDENTITY_ALREADY_REGISTERED error when user is already registered", async () => {
+	it("should return ACCOUNT_ALREADY_REGISTERED error when user is already registered", async () => {
 		const { user: existingUser } = createUserFixture({
 			user: {
 				email: "test@example.com",
@@ -222,11 +222,11 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("EXTERNAL_IDENTITY_ALREADY_REGISTERED");
+			expect(result.code).toBe("ACCOUNT_ALREADY_REGISTERED");
 		}
 	});
 
-	it("should return EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE error when user is already registered", async () => {
+	it("should return ACCOUNT_ASSOCIATION_AVAILABLE error when user is already registered", async () => {
 		const { user: existingUser } = createUserFixture({
 			user: {
 				email: "test@example.com",
@@ -250,8 +250,8 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE");
-			if (result.code === "EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE") {
+			expect(result.code).toBe("ACCOUNT_ASSOCIATION_AVAILABLE");
+			if (result.code === "ACCOUNT_ASSOCIATION_AVAILABLE") {
 				expect(result.value.redirectURL).toBeInstanceOf(URL);
 				expect(result.value.clientType).toBe(newClientType("web"));
 				expect(result.value.accountAssociationSessionToken).toBeDefined();

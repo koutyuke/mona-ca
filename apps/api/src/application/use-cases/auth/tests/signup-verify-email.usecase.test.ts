@@ -1,6 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
-import { TooManyRequestsException } from "../../../../modules/error";
 import { createSignupSessionFixture } from "../../../../tests/fixtures";
 import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../tests/mocks";
 import { SignupVerifyEmailUseCase } from "../signup-verify-email.usecase";
@@ -9,8 +8,7 @@ const signupSessionMap = createSignupSessionsMap();
 const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-const rateLimit = vi.fn().mockResolvedValue(undefined);
-const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepositoryMock, rateLimit);
+const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepositoryMock);
 
 const { signupSession: baseSignupSession } = createSignupSessionFixture({
 	signupSession: {
@@ -22,7 +20,6 @@ const { signupSession: baseSignupSession } = createSignupSessionFixture({
 describe("SignupVerifyEmailUseCase", () => {
 	beforeEach(() => {
 		signupSessionMap.clear();
-		rateLimit.mockClear();
 
 		signupSessionMap.set(baseSignupSession.id, baseSignupSession);
 	});
@@ -31,7 +28,6 @@ describe("SignupVerifyEmailUseCase", () => {
 		const result = await signupVerifyEmailUseCase.execute("12345678", baseSignupSession);
 
 		expect(result).toBeUndefined();
-		expect(rateLimit).toHaveBeenCalledWith(baseSignupSession.id);
 		expect(signupSessionMap.get(baseSignupSession.id)?.emailVerified).toBe(true);
 	});
 
@@ -71,15 +67,5 @@ describe("SignupVerifyEmailUseCase", () => {
 		if (isErr(result)) {
 			expect(result.code).toBe("ALREADY_VERIFIED");
 		}
-	});
-
-	it("should propagate rate limit errors", async () => {
-		rateLimit.mockRejectedValue(new TooManyRequestsException(1));
-
-		await expect(signupVerifyEmailUseCase.execute("12345678", baseSignupSession)).rejects.toEqual(
-			new TooManyRequestsException(1),
-		);
-
-		expect(signupSessionMap.get(baseSignupSession.id)?.emailVerified).toBe(false);
 	});
 });

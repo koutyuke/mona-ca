@@ -109,7 +109,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 		}
 	});
 
-	it("should return EXTERNAL_IDENTITY_NOT_FOUND error when ExternalIdentity does not exist", async () => {
+	it("should return ACCOUNT_ASSOCIATION_NOT_FOUND error when ExternalIdentity does not exist", async () => {
 		const signedState = oauthStateSigner.generate({ client: "web" });
 
 		const result = await externalAuthLoginCallbackUseCase.execute(
@@ -124,7 +124,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("EXTERNAL_IDENTITY_NOT_FOUND");
+			expect(result.code).toBe("ACCOUNT_ASSOCIATION_NOT_FOUND");
 		}
 	});
 

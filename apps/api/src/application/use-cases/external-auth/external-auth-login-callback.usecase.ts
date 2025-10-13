@@ -135,14 +135,14 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
 			await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
-			return err("EXTERNAL_IDENTITY_NOT_FOUND_BUT_LINKABLE", {
+			return err("ACCOUNT_ASSOCIATION_AVAILABLE", {
 				redirectURL: redirectToClientURL,
 				clientType,
 				accountAssociationSessionToken,
 				accountAssociationSession,
 			});
 		}
-		return err("EXTERNAL_IDENTITY_NOT_FOUND", { redirectURL: redirectToClientURL });
+		return err("ACCOUNT_ASSOCIATION_NOT_FOUND", { redirectURL: redirectToClientURL });
 	}
 
 	private createSession(userId: UserId): {
