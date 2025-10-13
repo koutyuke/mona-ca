@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { newClientType } from "../../../../domain/value-object";
 import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
-import { OAuthRequestUseCase } from "../oauth-request.usecase";
+import { ExternalAuthRequestUseCase } from "../external-auth-request.usecase";
 import type { oauthStateSchema } from "../schema";
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
 const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
 
-const oauthRequestUseCase = new OAuthRequestUseCase(oauthProviderGateway, oauthStateSigner);
+const externalAuthRequestUseCase = new ExternalAuthRequestUseCase(oauthProviderGateway, oauthStateSigner);
 
 const PRODUCTION = false;
 
-describe("OAuthRequestUseCase", () => {
-	it("should generate OAuth request successfully for web client", () => {
-		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("web"), "/dashboard");
+describe("ExternalAuthRequestUseCase", () => {
+	it("should generate ExternalAuth request successfully for web client", () => {
+		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), "/dashboard");
 
 		expect(isErr(result)).toBe(false);
 		if (!isErr(result)) {
@@ -26,8 +26,8 @@ describe("OAuthRequestUseCase", () => {
 		}
 	});
 
-	it("should generate OAuth request successfully for mobile client", () => {
-		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("mobile"), "/home");
+	it("should generate ExternalAuth request successfully for mobile client", () => {
+		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("mobile"), "/home");
 
 		expect(isErr(result)).toBe(false);
 		if (!isErr(result)) {
@@ -39,17 +39,21 @@ describe("OAuthRequestUseCase", () => {
 		}
 	});
 
-	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", () => {
-		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("web"), "https://malicious.com/redirect");
+	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", () => {
+		const result = externalAuthRequestUseCase.execute(
+			PRODUCTION,
+			newClientType("web"),
+			"https://malicious.com/redirect",
+		);
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("INVALID_REDIRECT_URL");
+			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
 
 	it("should handle empty redirect URI with default path", () => {
-		const result = oauthRequestUseCase.execute(PRODUCTION, newClientType("web"), "");
+		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), "");
 
 		expect(isErr(result)).toBe(false);
 		if (!isErr(result)) {

@@ -1,35 +1,40 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { isErr } from "../../../../common/utils";
 import { DEFAULT_USER_GENDER } from "../../../../domain/entities";
-import { newClientType, newGender, newOAuthProvider, newOAuthProviderId } from "../../../../domain/value-object";
-import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
+import {
+	newClientType,
+	newExternalIdentityProvider,
+	newExternalIdentityProviderUserId,
+	newGender,
+} from "../../../../domain/value-object";
+import { createExternalIdentityFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,
-	OAuthAccountRepositoryMock,
+	ExternalIdentityRepositoryMock,
 	OAuthProviderGatewayMock,
 	OAuthStateSignerMock,
 	SessionRepositoryMock,
 	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createAccountAssociationSessionsMap,
-	createOAuthAccountKey,
-	createOAuthAccountsMap,
+	createExternalIdentitiesMap,
+	createExternalIdentityKey,
 	createSessionsMap,
 	createUserPasswordHashMap,
 	createUsersMap,
 } from "../../../../tests/mocks";
-import { OAuthLoginCallbackUseCase } from "../oauth-login-callback.usecase";
+import { ExternalAuthLoginCallbackUseCase } from "../external-auth-login-callback.usecase";
 import type { oauthStateSchema } from "../schema";
 
 const userMap = createUsersMap();
 const sessionMap = createSessionsMap();
 const userPasswordHashMap = createUserPasswordHashMap();
-const oauthAccountMap = createOAuthAccountsMap();
+const externalIdentityMap = createExternalIdentitiesMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
 const sessionRepository = new SessionRepositoryMock({ sessionMap });
-const oauthAccountRepository = new OAuthAccountRepositoryMock({ oauthAccountMap });
+const externalIdentityRepository = new ExternalIdentityRepositoryMock({ externalIdentityMap });
 const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
@@ -41,10 +46,10 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const sessionSecretHasher = new SessionSecretHasherMock();
 const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
 
-const oauthLoginCallbackUseCase = new OAuthLoginCallbackUseCase(
+const externalAuthLoginCallbackUseCase = new ExternalAuthLoginCallbackUseCase(
 	oauthProviderGateway,
 	sessionRepository,
-	oauthAccountRepository,
+	externalIdentityRepository,
 	userRepository,
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
@@ -59,21 +64,21 @@ const { user } = createUserFixture({
 
 const PRODUCTION = false;
 
-describe("OAuthLoginCallbackUseCase", () => {
+describe("ExternalAuthLoginCallbackUseCase", () => {
 	beforeEach(() => {
 		userMap.clear();
 		sessionMap.clear();
 		userPasswordHashMap.clear();
-		oauthAccountMap.clear();
+		externalIdentityMap.clear();
 		accountAssociationSessionMap.clear();
 	});
 
-	it("should return INVALID_OAUTH_STATE error for invalid state", async () => {
-		const result = await oauthLoginCallbackUseCase.execute(
+	it("should return INVALID_STATE error for invalid state", async () => {
+		const result = await externalAuthLoginCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newOAuthProvider("discord"),
+			newExternalIdentityProvider("discord"),
 			"invalid_state",
 			"auth_code",
 			"code_verifier",
@@ -81,18 +86,18 @@ describe("OAuthLoginCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("INVALID_OAUTH_STATE");
+			expect(result.code).toBe("INVALID_STATE");
 		}
 	});
 
-	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", async () => {
+	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", async () => {
 		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
-		const result = await oauthLoginCallbackUseCase.execute(
+		const result = await externalAuthLoginCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"https://malicious.com/redirect",
-			newOAuthProvider("discord"),
+			newExternalIdentityProvider("discord"),
 			signedState ?? "",
 			"auth_code",
 			"code_verifier",
@@ -100,18 +105,18 @@ describe("OAuthLoginCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("INVALID_REDIRECT_URL");
+			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
 
-	it("should return OAUTH_ACCOUNT_NOT_FOUND error when OAuth account does not exist", async () => {
+	it("should return EXTERNAL_IDENTITY_NOT_FOUND error when ExternalIdentity does not exist", async () => {
 		const signedState = oauthStateSigner.generate({ client: "web" });
 
-		const result = await oauthLoginCallbackUseCase.execute(
+		const result = await externalAuthLoginCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newOAuthProvider("discord"),
+			newExternalIdentityProvider("discord"),
 			signedState ?? "",
 			"auth_code",
 			"code_verifier",
@@ -119,32 +124,35 @@ describe("OAuthLoginCallbackUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("OAUTH_ACCOUNT_NOT_FOUND");
+			expect(result.code).toBe("EXTERNAL_IDENTITY_NOT_FOUND");
 		}
 	});
 
-	it("should process successful login when OAuth account exists", async () => {
-		const oauthAccountFixture = createOAuthAccountFixture({
-			oauthAccount: {
+	it("should process successful login when ExternalIdentity exists", async () => {
+		const externalIdentityFixture = createExternalIdentityFixture({
+			externalIdentity: {
 				userId: user.id,
-				provider: newOAuthProvider("discord"),
-				providerId: newOAuthProviderId("provider_user_id"),
+				provider: newExternalIdentityProvider("discord"),
+				providerUserId: newExternalIdentityProviderUserId("provider_user_id"),
 			},
 		});
 
 		userMap.set(user.id, user);
-		oauthAccountMap.set(
-			createOAuthAccountKey(oauthAccountFixture.oauthAccount.provider, oauthAccountFixture.oauthAccount.providerId),
-			oauthAccountFixture.oauthAccount,
+		externalIdentityMap.set(
+			createExternalIdentityKey(
+				externalIdentityFixture.externalIdentity.provider,
+				externalIdentityFixture.externalIdentity.providerUserId,
+			),
+			externalIdentityFixture.externalIdentity,
 		);
 
 		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 
-		const result = await oauthLoginCallbackUseCase.execute(
+		const result = await externalAuthLoginCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newOAuthProvider("discord"),
+			newExternalIdentityProvider("discord"),
 			signedState ?? "",
 			"auth_code",
 			"code_verifier",

@@ -5,40 +5,40 @@ import {
 	DEFAULT_USER_GENDER,
 	type Session,
 	createAccountAssociationSession,
-	createOAuthAccount,
+	createExternalIdentity,
 	createSession,
 	createUser,
 } from "../../../domain/entities";
 import {
 	type AccountAssociationSessionToken,
-	type OAuthProvider,
-	type OAuthProviderId,
+	type ExternalIdentityProvider,
+	type ExternalIdentityProviderUserId,
 	type SessionToken,
 	type UserId,
 	formatSessionToken,
 	newAccountAssociationSessionId,
 	newClientType,
+	newExternalIdentityProviderUserId,
 	newGender,
-	newOAuthProviderId,
 	newSessionId,
 	newUserId,
 } from "../../../domain/value-object";
-import type { IOAuthSignupCallbackUseCase, OAuthSignupCallbackUseCaseResult } from "../../ports/in";
+import type { ExternalAuthSignupCallbackUseCaseResult, IExternalAuthSignupCallbackUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type {
 	IAccountAssociationSessionRepository,
-	IOAuthAccountRepository,
+	IExternalIdentityRepository,
 	ISessionRepository,
 	IUserRepository,
 } from "../../ports/out/repositories";
 import type { IOAuthStateSigner, ISessionSecretHasher } from "../../ports/out/system";
 import type { oauthStateSchema } from "./schema";
 
-export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
+export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCallbackUseCase {
 	constructor(
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly userRepository: IUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
@@ -49,15 +49,15 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		production: boolean,
 		error: string | undefined,
 		redirectURI: string,
-		provider: OAuthProvider,
+		provider: ExternalIdentityProvider,
 		signedState: string,
 		code: string | undefined,
 		codeVerifier: string,
-	): Promise<OAuthSignupCallbackUseCaseResult> {
+	): Promise<ExternalAuthSignupCallbackUseCaseResult> {
 		const validatedState = this.oauthStateSigner.validate(signedState);
 
 		if (isErr(validatedState)) {
-			return err("INVALID_OAUTH_STATE");
+			return err("INVALID_STATE");
 		}
 
 		const { client } = validatedState;
@@ -69,61 +69,55 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 
 		if (!redirectToClientURL) {
-			return err("INVALID_REDIRECT_URL");
+			return err("INVALID_REDIRECT_URI");
 		}
 
 		if (error) {
 			if (error === "access_denied") {
-				return err("OAUTH_ACCESS_DENIED", { redirectURL: redirectToClientURL });
+				return err("PROVIDER_ACCESS_DENIED", { redirectURL: redirectToClientURL });
 			}
 
-			return err("OAUTH_PROVIDER_ERROR", { redirectURL: redirectToClientURL });
+			return err("PROVIDER_ERROR", { redirectURL: redirectToClientURL });
 		}
 
 		if (!code) {
-			return err("OAUTH_CREDENTIALS_INVALID");
+			return err("TOKEN_EXCHANGE_FAILED");
 		}
 
-		const tokensResult = await this.oauthProviderGateway.getTokens(code, codeVerifier);
+		const tokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
 		if (isErr(tokensResult)) {
-			switch (tokensResult.code) {
-				case "OAUTH_CREDENTIALS_INVALID":
-					return err("OAUTH_CREDENTIALS_INVALID");
-				case "FAILED_TO_FETCH_OAUTH_TOKENS":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				default:
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+			const { code } = tokensResult;
+
+			if (code === "CREDENTIALS_INVALID" || code === "FETCH_TOKENS_FAILED") {
+				return err("TOKEN_EXCHANGE_FAILED");
 			}
 		}
 
-		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(tokensResult);
+		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokensResult);
 
 		await this.oauthProviderGateway.revokeToken(tokensResult);
 
-		if (isErr(accountInfoResult)) {
-			switch (accountInfoResult.code) {
-				case "OAUTH_ACCOUNT_INFO_INVALID":
-					return err("OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: redirectToClientURL });
-				case "OAUTH_ACCESS_TOKEN_INVALID":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				case "FAILED_TO_GET_ACCOUNT_INFO":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				default:
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+		if (isErr(getIdentityResult)) {
+			const { code } = getIdentityResult;
+
+			if (code === "ACCESS_TOKEN_INVALID" || code === "IDENTITY_INVALID" || code === "FETCH_IDENTITY_FAILED") {
+				return err("GET_IDENTITY_FAILED", { redirectURL: redirectToClientURL });
 			}
 		}
 
-		const providerAccount = accountInfoResult;
+		const identity = getIdentityResult;
+		const identityUserId = newExternalIdentityProviderUserId(identity.id);
 
-		const providerId = newOAuthProviderId(providerAccount.id);
+		const existingExternalIdentity = await this.externalIdentityRepository.findByProviderAndProviderUserId(
+			provider,
+			identityUserId,
+		);
 
-		const existingOAuthAccount = await this.oauthAccountRepository.findByProviderAndProviderId(provider, providerId);
+		const existingUserForSameEmail = await this.userRepository.findByEmail(identity.email);
 
-		const existingUserForSameEmail = await this.userRepository.findByEmail(providerAccount.email);
-
-		if (existingOAuthAccount) {
-			return err("OAUTH_ACCOUNT_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
+		if (existingExternalIdentity) {
+			return err("EXTERNAL_IDENTITY_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
 		}
 
 		if (existingUserForSameEmail) {
@@ -131,13 +125,13 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 				existingUserForSameEmail.id,
 				existingUserForSameEmail.email,
 				provider,
-				providerId,
+				identityUserId,
 			);
 
 			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
 			await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
-			return err("OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE", {
+			return err("EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE", {
 				redirectURL: redirectToClientURL,
 				clientType,
 				accountAssociationSessionToken,
@@ -147,10 +141,10 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 
 		const user = createUser({
 			id: newUserId(ulid()),
-			name: providerAccount.name,
-			email: providerAccount.email,
-			emailVerified: providerAccount.emailVerified,
-			iconUrl: providerAccount.iconURL,
+			name: identity.name,
+			email: identity.email,
+			emailVerified: identity.emailVerified,
+			iconUrl: identity.iconURL,
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
 
@@ -158,13 +152,13 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 
 		const { session, sessionToken } = this.createSession(user.id);
 
-		const oauthAccount = createOAuthAccount({
+		const externalIdentity = createExternalIdentity({
 			provider,
-			providerId,
+			providerUserId: identityUserId,
 			userId: user.id,
 		});
 
-		await Promise.all([this.sessionRepository.save(session), this.oauthAccountRepository.save(oauthAccount)]);
+		await Promise.all([this.sessionRepository.save(session), this.externalIdentityRepository.save(externalIdentity)]);
 
 		return {
 			session,
@@ -193,8 +187,8 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 	private createAccountAssociationSession(
 		userId: UserId,
 		email: string,
-		provider: OAuthProvider,
-		providerId: OAuthProviderId,
+		provider: ExternalIdentityProvider,
+		providerUserId: ExternalIdentityProviderUserId,
 	): {
 		accountAssociationSession: AccountAssociationSession;
 		accountAssociationSessionToken: AccountAssociationSessionToken;
@@ -214,7 +208,7 @@ export class OAuthSignupCallbackUseCase implements IOAuthSignupCallbackUseCase {
 			secretHash: accountAssociationSessionSecretHash,
 			email,
 			provider,
-			providerId,
+			providerUserId,
 		});
 		return { accountAssociationSession, accountAssociationSessionToken };
 	}
