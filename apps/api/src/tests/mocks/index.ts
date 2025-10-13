@@ -4,7 +4,7 @@ export { PasswordResetSessionRepositoryMock } from "./repositories/password-rese
 export { EmailVerificationSessionRepositoryMock } from "./repositories/email-verification-session.repository.mock";
 export { AccountAssociationSessionRepositoryMock } from "./repositories/account-association-session.repository.mock";
 export { ExternalIdentityRepositoryMock } from "./repositories/external-identity.repository.mock";
-export { OAuthProviderGatewayMock } from "./gateway/oauth-provider.gateway.mock";
+export { OAuthProviderGatewayMock } from "./gateways/oauth-provider.gateway.mock";
 export { SignupSessionRepositoryMock } from "./repositories/signup-session.repository.mock";
 export { MacMock } from "./system/mac.mock";
 export { OAuthStateSignerMock } from "./system/oauth-state-signer.mock";

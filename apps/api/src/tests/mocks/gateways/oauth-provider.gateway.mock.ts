@@ -1,16 +1,16 @@
 import type { OAuth2Tokens } from "arctic";
 import type {
-	GetAccountInfoResult,
+	GetIdentityResult,
 	GetTokensResult,
 	IOAuthProviderGateway,
 } from "../../../application/ports/out/gateways";
 
 export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
-	public genAuthURL(state: string, codeVerifier: string): URL {
+	public createAuthorizationURL(state: string, codeVerifier: string): URL {
 		return new URL(`https://provider.example.com/auth?state=${state}&code_verifier=${codeVerifier}`);
 	}
 
-	public async getTokens(_code: string, _codeVerifier: string): Promise<GetTokensResult> {
+	public async exchangeCodeForTokens(_code: string, _codeVerifier: string): Promise<GetTokensResult> {
 		return {
 			accessToken: () => "test_access_token",
 			refreshToken: () => "test_refresh_token",
@@ -18,7 +18,7 @@ export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 		} as unknown as OAuth2Tokens;
 	}
 
-	public async getAccountInfo(_tokens: OAuth2Tokens): Promise<GetAccountInfoResult> {
+	public async getIdentity(_tokens: OAuth2Tokens): Promise<GetIdentityResult> {
 		return {
 			id: "provider_user_id",
 			email: "test@example.com",
