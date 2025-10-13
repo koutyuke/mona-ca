@@ -17,9 +17,9 @@ type Error =
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"TOKEN_EXCHANGE_FAILED">
 	| Err<"GET_IDENTITY_FAILED", { redirectURL: URL }>
-	| Err<"EXTERNAL_IDENTITY_ALREADY_REGISTERED", { redirectURL: URL }>
+	| Err<"ACCOUNT_ALREADY_REGISTERED", { redirectURL: URL }>
 	| Err<
-			"EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE",
+			"ACCOUNT_ASSOCIATION_AVAILABLE",
 			{
 				redirectURL: URL;
 				clientType: ClientType;

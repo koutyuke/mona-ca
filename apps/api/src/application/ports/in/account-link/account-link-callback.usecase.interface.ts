@@ -13,8 +13,8 @@ type Error =
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"TOKEN_EXCHANGE_FAILED">
 	| Err<"GET_IDENTITY_FAILED", { redirectURL: URL }>
-	| Err<"EXTERNAL_IDENTITY_ALREADY_LINKED", { redirectURL: URL }>
-	| Err<"EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: URL }>;
+	| Err<"PROVIDER_ALREADY_LINKED", { redirectURL: URL }>
+	| Err<"ACCOUNT_LINKED_ELSEWHERE", { redirectURL: URL }>;
 
 export type AccountLinkCallbackUseCaseResult = Result<Success, Error>;
 

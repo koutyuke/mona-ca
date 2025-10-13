@@ -9,8 +9,8 @@ type Success = {
 
 type Error =
 	| Err<"INVALID_ASSOCIATION_CODE">
-	| Err<"OAUTH_PROVIDER_ALREADY_LINKED">
-	| Err<"OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER">
+	| Err<"ACCOUNT_ALREADY_LINKED">
+	| Err<"ACCOUNT_LINKED_ELSEWHERE">
 	| Err<"USER_NOT_FOUND">;
 
 export type AccountAssociationConfirmUseCaseResult = Result<Success, Error>;
