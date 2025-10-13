@@ -1,6 +1,6 @@
 import { type Static, t } from "elysia";
 import type { ToPrimitive } from "../../common/utils";
-import type { OAuthProvider, OAuthProviderId } from "../../domain/value-object";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId } from "../../domain/value-object";
 
 export const AccountConnectionsPresenterResultSchema = t.Composite([
 	t.Object({
@@ -10,7 +10,7 @@ export const AccountConnectionsPresenterResultSchema = t.Composite([
 		t.Nullable(
 			t.Object({
 				provider: t.String(),
-				providerId: t.String(),
+				providerUserId: t.String(),
 				linkedAt: t.String({
 					format: "date-time",
 				}),
@@ -23,7 +23,7 @@ export type AccountConnectionsPresenterResult = Static<typeof AccountConnections
 
 type ProviderConnection = {
 	provider: string;
-	providerId: string;
+	providerUserId: string;
 	linkedAt: string;
 } | null;
 
@@ -31,9 +31,9 @@ export const AccountConnectionsPresenter = (
 	connections: {
 		password: boolean;
 	} & {
-		[key in ToPrimitive<OAuthProvider>]: {
-			provider: OAuthProvider;
-			providerId: OAuthProviderId;
+		[key in ToPrimitive<ExternalIdentityProvider>]: {
+			provider: ExternalIdentityProvider;
+			providerUserId: ExternalIdentityProviderUserId;
 			linkedAt: Date;
 		} | null;
 	},
@@ -46,7 +46,7 @@ export const AccountConnectionsPresenter = (
 		if (connection) {
 			formattedProviders[provider] = {
 				provider: connection.provider,
-				providerId: connection.providerId,
+				providerUserId: connection.providerUserId,
 				linkedAt: connection.linkedAt.toISOString(),
 			};
 		} else {
