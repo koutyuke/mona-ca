@@ -11,7 +11,7 @@ import type { AccountLinkCallbackUseCaseResult, IAccountLinkCallbackUseCase } fr
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type { IExternalIdentityRepository } from "../../ports/out/repositories";
 import type { IOAuthStateSigner } from "../../ports/out/system";
-import type { accountLinkStateSchema } from "./schemas";
+import type { accountLinkStateSchema } from "./schema";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	constructor(

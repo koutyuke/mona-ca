@@ -6,7 +6,7 @@ import type { UserId } from "../../../domain/value-object";
 import type { AccountLinkRequestUseCaseResult, IAccountLinkRequestUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type { IOAuthStateSigner } from "../../ports/out/system";
-import type { accountLinkStateSchema } from "./schemas";
+import type { accountLinkStateSchema } from "./schema";
 
 export class AccountLinkRequestUseCase implements IAccountLinkRequestUseCase {
 	constructor(

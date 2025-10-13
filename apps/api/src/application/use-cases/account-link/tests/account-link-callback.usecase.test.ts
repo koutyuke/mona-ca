@@ -15,7 +15,7 @@ import {
 } from "../../../../tests/mocks";
 import type { IAccountLinkCallbackUseCase } from "../../../ports/in";
 import { AccountLinkCallbackUseCase } from "../account-link-callback.usecase";
-import type { accountLinkStateSchema } from "../schemas";
+import type { accountLinkStateSchema } from "../schema";
 
 const externalIdentityMap = createExternalIdentitiesMap();
 

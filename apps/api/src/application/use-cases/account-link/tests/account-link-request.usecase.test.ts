@@ -3,7 +3,7 @@ import { isErr, ulid } from "../../../../common/utils";
 import { newClientType, newUserId } from "../../../../domain/value-object";
 import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
-import type { accountLinkStateSchema } from "../schemas";
+import type { accountLinkStateSchema } from "../schema";
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
 const oauthStateSigner = new OAuthStateSignerMock<typeof accountLinkStateSchema>();
