@@ -1,18 +1,12 @@
 import { err, timingSafeStringEqual } from "../../../common/utils";
 import { type SignupSession, completeEmailVerificationForSignupSession } from "../../../domain/entities";
-import type { SignupSessionId } from "../../../domain/value-object";
 import type { ISignupVerifyEmailUseCase, SignupVerifyEmailUseCaseResult } from "../../ports/in";
 import type { ISignupSessionRepository } from "../../ports/out/repositories";
 
 export class SignupVerifyEmailUseCase implements ISignupVerifyEmailUseCase {
-	constructor(
-		private readonly signupSessionRepository: ISignupSessionRepository,
-		private readonly rateLimit: (signupSessionId: SignupSessionId) => Promise<void>,
-	) {}
+	constructor(private readonly signupSessionRepository: ISignupSessionRepository) {}
 
 	async execute(code: string, signupSession: SignupSession): Promise<SignupVerifyEmailUseCaseResult> {
-		await this.rateLimit(signupSession.id);
-
 		if (signupSession.emailVerified) {
 			return err("ALREADY_VERIFIED");
 		}
