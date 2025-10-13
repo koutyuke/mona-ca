@@ -1,20 +1,23 @@
 import { err } from "../../../common/utils";
-import type { OAuthProvider, UserId } from "../../../domain/value-object";
+import type { ExternalIdentityProvider, UserId } from "../../../domain/value-object";
 import type { IUnlinkAccountConnectionUseCase, UnlinkAccountConnectionUseCaseResult } from "../../ports/in";
-import type { IOAuthAccountRepository, IUserRepository } from "../../ports/out/repositories";
+import type { IExternalIdentityRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionUseCase {
 	constructor(
-		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly userRepository: IUserRepository,
 	) {}
 
-	public async execute(provider: OAuthProvider, userId: UserId): Promise<UnlinkAccountConnectionUseCaseResult> {
-		const linkedAccount = await this.oauthAccountRepository.findByUserIdAndProvider(userId, provider);
+	public async execute(
+		provider: ExternalIdentityProvider,
+		userId: UserId,
+	): Promise<UnlinkAccountConnectionUseCaseResult> {
+		const linkedAccount = await this.externalIdentityRepository.findByUserIdAndProvider(userId, provider);
 		const passwordHashed = await this.userRepository.findPasswordHashById(userId);
 
 		if (!linkedAccount) {
-			return err("ACCOUNT_NOT_LINKED");
+			return err("PROVIDER_NOT_LINKED");
 		}
 
 		if (!passwordHashed) {
@@ -22,7 +25,7 @@ export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionU
 		}
 
 		try {
-			await this.oauthAccountRepository.deleteByUserIdAndProvider(userId, provider);
+			await this.externalIdentityRepository.deleteByUserIdAndProvider(userId, provider);
 			return;
 		} catch (error) {
 			console.error(`Failed to unlink account: ${error}`);

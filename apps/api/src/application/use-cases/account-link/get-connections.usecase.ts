@@ -1,11 +1,11 @@
 import type { ToPrimitive } from "../../../common/utils";
-import type { OAuthProvider, OAuthProviderId, UserId } from "../../../domain/value-object";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../domain/value-object";
 import type { GetConnectionsUseCaseResult, IGetConnectionsUseCase } from "../../ports/in";
-import type { IOAuthAccountRepository, IUserRepository } from "../../ports/out/repositories";
+import type { IExternalIdentityRepository, IUserRepository } from "../../ports/out/repositories";
 
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {
 	constructor(
-		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly userRepository: IUserRepository,
 	) {}
 
@@ -13,9 +13,9 @@ export class GetConnectionsUseCase implements IGetConnectionsUseCase {
 		const passwordHash = await this.userRepository.findPasswordHashById(userId);
 
 		const providerConnections: {
-			[key in ToPrimitive<OAuthProvider>]: {
-				provider: OAuthProvider;
-				providerId: OAuthProviderId;
+			[key in ToPrimitive<ExternalIdentityProvider>]: {
+				provider: ExternalIdentityProvider;
+				providerUserId: ExternalIdentityProviderUserId;
 				linkedAt: Date;
 			} | null;
 		} = {
@@ -23,13 +23,13 @@ export class GetConnectionsUseCase implements IGetConnectionsUseCase {
 			google: null,
 		};
 
-		const oauthAccounts = await this.oauthAccountRepository.findByUserId(userId);
+		const externalIdentities = await this.externalIdentityRepository.findByUserId(userId);
 
-		for (const oauthAccount of oauthAccounts) {
-			providerConnections[oauthAccount.provider as ToPrimitive<OAuthProvider>] = {
-				provider: oauthAccount.provider,
-				providerId: oauthAccount.providerId,
-				linkedAt: oauthAccount.linkedAt,
+		for (const externalIdentity of externalIdentities) {
+			providerConnections[externalIdentity.provider as ToPrimitive<ExternalIdentityProvider>] = {
+				provider: externalIdentity.provider,
+				providerUserId: externalIdentity.providerUserId,
+				linkedAt: externalIdentity.linkedAt,
 			};
 		}
 

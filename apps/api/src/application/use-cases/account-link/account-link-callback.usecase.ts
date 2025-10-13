@@ -1,17 +1,22 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { err, isErr } from "../../../common/utils";
-import { createOAuthAccount } from "../../../domain/entities";
-import { type OAuthProvider, newClientType, newOAuthProviderId, newUserId } from "../../../domain/value-object";
+import { createExternalIdentity } from "../../../domain/entities";
+import {
+	type ExternalIdentityProvider,
+	newClientType,
+	newExternalIdentityProviderUserId,
+	newUserId,
+} from "../../../domain/value-object";
 import type { AccountLinkCallbackUseCaseResult, IAccountLinkCallbackUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
-import type { IOAuthAccountRepository } from "../../ports/out/repositories";
+import type { IExternalIdentityRepository } from "../../ports/out/repositories";
 import type { IOAuthStateSigner } from "../../ports/out/system";
 import type { accountLinkStateSchema } from "./schemas";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	constructor(
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
-		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly oauthStateSigner: IOAuthStateSigner<typeof accountLinkStateSchema>,
 	) {}
 
@@ -19,7 +24,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		production: boolean,
 		error: string | undefined,
 		redirectURI: string,
-		provider: OAuthProvider,
+		provider: ExternalIdentityProvider,
 		signedState: string,
 		code: string | undefined,
 		codeVerifier: string,
@@ -27,7 +32,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		const validatedState = this.oauthStateSigner.validate(signedState);
 
 		if (isErr(validatedState)) {
-			return err("OAUTH_CREDENTIALS_INVALID");
+			return err("INVALID_STATE");
 		}
 
 		const { client, uid } = validatedState;
@@ -40,75 +45,69 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 
 		if (!redirectToClientURL) {
-			return err("INVALID_REDIRECT_URL");
+			return err("INVALID_REDIRECT_URI");
 		}
 
 		if (error) {
 			if (error === "access_denied") {
-				return err("OAUTH_ACCESS_DENIED", { redirectURL: redirectToClientURL });
+				return err("PROVIDER_ACCESS_DENIED", { redirectURL: redirectToClientURL });
 			}
 
-			return err("OAUTH_PROVIDER_ERROR", { redirectURL: redirectToClientURL });
+			return err("PROVIDER_ERROR", { redirectURL: redirectToClientURL });
 		}
 
 		if (!code) {
-			return err("OAUTH_CREDENTIALS_INVALID");
+			return err("TOKEN_EXCHANGE_FAILED");
 		}
 
-		const tokensResult = await this.oauthProviderGateway.getTokens(code, codeVerifier);
+		const tokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
 		if (isErr(tokensResult)) {
-			switch (tokensResult.code) {
-				case "OAUTH_CREDENTIALS_INVALID":
-					return err("OAUTH_CREDENTIALS_INVALID");
-				case "FAILED_TO_FETCH_OAUTH_TOKENS":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				default:
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+			const { code } = tokensResult;
+
+			if (code === "CREDENTIALS_INVALID" || code === "FETCH_TOKENS_FAILED") {
+				return err("TOKEN_EXCHANGE_FAILED");
 			}
 		}
 
-		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(tokensResult);
+		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokensResult);
 
 		await this.oauthProviderGateway.revokeToken(tokensResult);
 
-		if (isErr(accountInfoResult)) {
-			switch (accountInfoResult.code) {
-				case "OAUTH_ACCESS_TOKEN_INVALID":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				case "FAILED_TO_GET_ACCOUNT_INFO":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				case "OAUTH_ACCOUNT_INFO_INVALID":
-					return err("OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: redirectToClientURL });
-				default:
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+		if (isErr(getIdentityResult)) {
+			if (
+				getIdentityResult.code === "ACCESS_TOKEN_INVALID" ||
+				getIdentityResult.code === "IDENTITY_INVALID" ||
+				getIdentityResult.code === "FETCH_IDENTITY_FAILED"
+			) {
+				return err("GET_IDENTITY_FAILED", { redirectURL: redirectToClientURL });
 			}
 		}
 
-		const providerAccount = accountInfoResult;
+		const identity = getIdentityResult;
 
-		const providerId = newOAuthProviderId(providerAccount.id);
+		const providerUserId = newExternalIdentityProviderUserId(identity.id);
 
-		const [existingOAuthAccount, existingUserLinkedAccount] = await Promise.all([
-			this.oauthAccountRepository.findByProviderAndProviderId(provider, providerId),
-			this.oauthAccountRepository.findByUserIdAndProvider(userId, provider),
+		const [existingExternalIdentity, existingUserLinkedAccount] = await Promise.all([
+			this.externalIdentityRepository.findByProviderAndProviderUserId(provider, providerUserId),
+			this.externalIdentityRepository.findByUserIdAndProvider(userId, provider),
 		]);
 
 		if (existingUserLinkedAccount) {
-			return err("OAUTH_PROVIDER_ALREADY_LINKED", { redirectURL: redirectToClientURL });
+			return err("EXTERNAL_IDENTITY_ALREADY_LINKED", { redirectURL: redirectToClientURL });
 		}
 
-		if (existingOAuthAccount) {
-			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: redirectToClientURL });
+		if (existingExternalIdentity) {
+			return err("EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: redirectToClientURL });
 		}
 
-		const oauthAccount = createOAuthAccount({
+		const externalIdentity = createExternalIdentity({
 			provider,
-			providerId,
+			providerUserId,
 			userId,
 		});
 
-		await this.oauthAccountRepository.save(oauthAccount);
+		await this.externalIdentityRepository.save(externalIdentity);
 
 		return {
 			redirectURL: redirectToClientURL,

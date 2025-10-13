@@ -12,7 +12,7 @@ const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGat
 
 const PRODUCTION = false;
 
-describe("AccountLinkRequestUseCase", () => {
+describe("ExternalAuthRequestUseCase", () => {
 	it("should generate account link request successfully for web client", () => {
 		const clientType = newClientType("web");
 		const queryRedirectURI = "/settings/connections";
@@ -47,7 +47,7 @@ describe("AccountLinkRequestUseCase", () => {
 		}
 	});
 
-	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", () => {
+	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", () => {
 		const clientType = newClientType("web");
 		const invalidRedirectURI = "https://malicious.com/redirect";
 		const userId = newUserId(ulid());
@@ -56,7 +56,7 @@ describe("AccountLinkRequestUseCase", () => {
 
 		expect(isErr(result)).toBe(true);
 		if (isErr(result)) {
-			expect(result.code).toBe("INVALID_REDIRECT_URL");
+			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
 
