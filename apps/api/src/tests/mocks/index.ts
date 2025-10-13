@@ -3,7 +3,7 @@ export { SessionRepositoryMock } from "./repositories/session.repository.mock";
 export { PasswordResetSessionRepositoryMock } from "./repositories/password-reset-session.repository.mock";
 export { EmailVerificationSessionRepositoryMock } from "./repositories/email-verification-session.repository.mock";
 export { AccountAssociationSessionRepositoryMock } from "./repositories/account-association-session.repository.mock";
-export { OAuthAccountRepositoryMock } from "./repositories/oauth-account.repository.mock";
+export { ExternalIdentityRepositoryMock } from "./repositories/external-identity.repository.mock";
 export { OAuthProviderGatewayMock } from "./gateway/oauth-provider.gateway.mock";
 export { SignupSessionRepositoryMock } from "./repositories/signup-session.repository.mock";
 export { MacMock } from "./system/mac.mock";
@@ -18,7 +18,7 @@ export {
 	createPasswordResetSessionsMap,
 	createEmailVerificationSessionsMap,
 	createAccountAssociationSessionsMap,
-	createOAuthAccountsMap,
-	createOAuthAccountKey,
+	createExternalIdentitiesMap,
+	createExternalIdentityKey,
 	createSignupSessionsMap,
 } from "./repositories/table-maps";

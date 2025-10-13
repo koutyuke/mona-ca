@@ -48,15 +48,22 @@ export const createAccountAssociationSessionsMap = (
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createOAuthAccountsMap = (accounts: ExternalIdentity[] = []): Map<string, ExternalIdentity> => {
-	return new Map(accounts.map(account => [`${account.provider}-${account.providerUserId}`, account]));
+export const createExternalIdentitiesMap = (
+	externalIdentities: ExternalIdentity[] = [],
+): Map<string, ExternalIdentity> => {
+	return new Map(
+		externalIdentities.map(externalIdentity => [
+			`${externalIdentity.provider}-${externalIdentity.providerUserId}`,
+			externalIdentity,
+		]),
+	);
 };
 
-export const createOAuthAccountKey = (
+export const createExternalIdentityKey = (
 	provider: ExternalIdentityProvider,
-	providerId: ExternalIdentityProviderUserId,
+	providerUserId: ExternalIdentityProviderUserId,
 ): string => {
-	return `${provider}-${providerId}`;
+	return `${provider}-${providerUserId}`;
 };
 
 export const createSignupSessionsMap = (sessions: SignupSession[] = []): Map<SignupSessionId, SignupSession> => {
