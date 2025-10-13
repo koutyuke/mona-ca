@@ -93,22 +93,17 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			if (isErr(validationResult)) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "EMAIL_VERIFICATION_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid email verification session. Please request email verification again.",
-						});
-					case "EMAIL_VERIFICATION_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Email verification session has expired. Please request email verification again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification session validation failed. Please try again.",
-						});
+				if (code === "EMAIL_VERIFICATION_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid email verification session. Please request email verification again.",
+					});
+				}
+				if (code === "EMAIL_VERIFICATION_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Email verification session has expired. Please request email verification again.",
+					});
 				}
 			}
 
@@ -121,22 +116,17 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			if (isErr(confirmResult)) {
 				const { code } = confirmResult;
 
-				switch (code) {
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid verification code. Please check your email and try again.",
-						});
-					case "EMAIL_MISMATCH":
-						throw new BadRequestException({
-							code: code,
-							message: "Email mismatch. Please use the email address you requested verification for.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification failed. Please try again.",
-						});
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid verification code. Please check your email and try again.",
+					});
+				}
+				if (code === "EMAIL_MISMATCH") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email mismatch. Please use the email address you requested verification for.",
+					});
 				}
 			}
 

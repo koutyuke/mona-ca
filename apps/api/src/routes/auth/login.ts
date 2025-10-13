@@ -64,18 +64,16 @@ export const Login = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_CREDENTIALS":
-						throw new BadRequestException({
-							code: "INVALID_CREDENTIALS",
-							message: "Invalid email or password. Please check your credentials and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Login failed. Please try again.",
-						});
+				if (code === "INVALID_CREDENTIALS") {
+					throw new BadRequestException({
+						code: "INVALID_CREDENTIALS",
+						message: "Invalid email or password. Please check your credentials and try again.",
+					});
 				}
+				throw new BadRequestException({
+					code: code,
+					message: "Login failed. Please try again.",
+				});
 			}
 			const { session, sessionToken } = result;
 

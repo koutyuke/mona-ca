@@ -67,19 +67,17 @@ export const SignupRequest = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "EMAIL_ALREADY_USED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already used. Please use a different email address or try logging in.",
-						});
-
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Signup request failed. Please try again.",
-						});
+				if (code === "EMAIL_ALREADY_USED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already used. Please use a different email address or try logging in.",
+					});
 				}
+
+				throw new BadRequestException({
+					code: code,
+					message: "Signup request failed. Please try again.",
+				});
 			}
 
 			const { signupSessionToken, signupSession } = result;

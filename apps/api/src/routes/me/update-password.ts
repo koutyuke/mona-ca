@@ -57,18 +57,16 @@ export const UpdatePassword = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_CURRENT_PASSWORD":
-						throw new BadRequestException({
-							code: "INVALID_CURRENT_PASSWORD",
-							message: "Current password is incorrect. Please check your password and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Failed to update password. Please try again.",
-						});
+				if (code === "INVALID_CURRENT_PASSWORD") {
+					throw new BadRequestException({
+						code: "INVALID_CURRENT_PASSWORD",
+						message: "Current password is incorrect. Please check your password and try again.",
+					});
 				}
+				throw new BadRequestException({
+					code: code,
+					message: "Failed to update password. Please try again.",
+				});
 			}
 
 			const { session, sessionToken } = result;

@@ -93,22 +93,17 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 			if (isErr(validateResult)) {
 				const { code } = validateResult;
 
-				switch (code) {
-					case "ACCOUNT_ASSOCIATION_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid account association session. Please login again.",
-						});
-					case "ACCOUNT_ASSOCIATION_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Account association session has expired. Please login again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account association session validation failed. Please try again.",
-						});
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid account association session. Please login again.",
+					});
+				}
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Account association session has expired. Please login again.",
+					});
 				}
 			}
 
@@ -122,32 +117,29 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 			if (isErr(confirmResult)) {
 				const { code } = confirmResult;
 
-				switch (code) {
-					case "INVALID_ASSOCIATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid association code. Please check your email and try again.",
-						});
-					case "OAUTH_PROVIDER_ALREADY_LINKED":
-						throw new BadRequestException({
-							code: code,
-							message: "This OAuth provider is already linked to your account.",
-						});
-					case "OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER":
-						throw new BadRequestException({
-							code: code,
-							message: "This OAuth account is already linked to another user.",
-						});
-					case "USER_NOT_FOUND":
-						throw new BadRequestException({
-							code: code,
-							message: "User not found. Please try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account association failed. Please try again.",
-						});
+				if (code === "INVALID_ASSOCIATION_CODE") {
+					throw new BadRequestException({
+						code,
+						message: "Invalid association code. Please check your email and try again.",
+					});
+				}
+				if (code === "EXTERNAL_IDENTITY_ALREADY_LINKED") {
+					throw new BadRequestException({
+						code,
+						message: "This OAuth provider is already linked to your account.",
+					});
+				}
+				if (code === "EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER") {
+					throw new BadRequestException({
+						code,
+						message: "This OAuth account is already linked to another user.",
+					});
+				}
+				if (code === "USER_NOT_FOUND") {
+					throw new BadRequestException({
+						code,
+						message: "User not found. Please try again.",
+					});
 				}
 			}
 
@@ -187,8 +179,8 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				400: ResponseTUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_ASSOCIATION_CODE"),
-					ErrorResponseSchema("OAUTH_PROVIDER_ALREADY_LINKED"),
-					ErrorResponseSchema("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER"),
+					ErrorResponseSchema("EXTERNAL_IDENTITY_ALREADY_LINKED"),
+					ErrorResponseSchema("EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER"),
 					ErrorResponseSchema("USER_NOT_FOUND"),
 				),
 				401: ResponseTUnion(

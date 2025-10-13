@@ -76,22 +76,17 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "EMAIL_ALREADY_VERIFIED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already verified. Please use a different email address.",
-						});
-					case "EMAIL_ALREADY_REGISTERED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already registered by another user. Please use a different email address.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification request failed. Please try again.",
-						});
+				if (code === "EMAIL_ALREADY_VERIFIED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already verified. Please use a different email address.",
+					});
+				}
+				if (code === "EMAIL_ALREADY_REGISTERED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already registered by another user. Please use a different email address.",
+					});
 				}
 			}
 

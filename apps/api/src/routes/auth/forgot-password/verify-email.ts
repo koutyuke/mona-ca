@@ -85,22 +85,17 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			if (isErr(validationResult)) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "PASSWORD_RESET_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid password reset session. Please request password reset again.",
-						});
-					case "PASSWORD_RESET_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Password reset session has expired. Please request password reset again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset session validation failed. Please try again.",
-						});
+				if (code === "PASSWORD_RESET_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid password reset session. Please request password reset again.",
+					});
+				}
+				if (code === "PASSWORD_RESET_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Password reset session has expired. Please request password reset again.",
+					});
 				}
 			}
 
@@ -113,17 +108,11 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			if (isErr(verifyEmailResult)) {
 				const { code } = verifyEmailResult;
 
-				switch (code) {
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid verification code. Please check your email and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification failed. Please try again.",
-						});
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid verification code. Please check your email and try again.",
+					});
 				}
 			}
 

@@ -75,22 +75,17 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 			if (isErr(validationResult)) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "SIGNUP_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
-					case "SIGNUP_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token has expired. Please request signup again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
+				if (code === "SIGNUP_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token is invalid. Please request signup again.",
+					});
+				}
+				if (code === "SIGNUP_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token has expired. Please request signup again.",
+					});
 				}
 			}
 
@@ -103,23 +98,17 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 			if (isErr(verifyEmailResult)) {
 				const { code } = verifyEmailResult;
 
-				switch (code) {
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid verification code. Please check your email and try again.",
-						});
-					case "ALREADY_VERIFIED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already verified. Please login.",
-						});
-
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification failed. Please try again.",
-						});
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid verification code. Please check your email and try again.",
+					});
+				}
+				if (code === "ALREADY_VERIFIED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already verified. Please login.",
+					});
 				}
 			}
 

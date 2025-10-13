@@ -93,22 +93,17 @@ export const UpdateEmail = new ElysiaWithEnv()
 			if (isErr(validationResult)) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "EMAIL_VERIFICATION_SESSION_EXPIRED":
-						throw new BadRequestException({
-							code: "EMAIL_VERIFICATION_SESSION_EXPIRED",
-							message: "Email verification session has expired. Please request a new verification email.",
-						});
-					case "EMAIL_VERIFICATION_SESSION_INVALID":
-						throw new BadRequestException({
-							code: "EMAIL_VERIFICATION_SESSION_INVALID",
-							message: "Invalid email verification session. Please request a new verification email.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Failed to validate email verification session. Please try again.",
-						});
+				if (code === "EMAIL_VERIFICATION_SESSION_EXPIRED") {
+					throw new BadRequestException({
+						code: "EMAIL_VERIFICATION_SESSION_EXPIRED",
+						message: "Email verification session has expired. Please request a new verification email.",
+					});
+				}
+				if (code === "EMAIL_VERIFICATION_SESSION_INVALID") {
+					throw new BadRequestException({
+						code: "EMAIL_VERIFICATION_SESSION_INVALID",
+						message: "Invalid email verification session. Please request a new verification email.",
+					});
 				}
 			}
 
@@ -121,22 +116,17 @@ export const UpdateEmail = new ElysiaWithEnv()
 			if (isErr(updateResult)) {
 				const { code } = updateResult;
 
-				switch (code) {
-					case "EMAIL_ALREADY_REGISTERED":
-						throw new BadRequestException({
-							code: "EMAIL_ALREADY_REGISTERED",
-							message: "Email is already in use by another account. Please use a different email address.",
-						});
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: "INVALID_VERIFICATION_CODE",
-							message: "Invalid verification code. Please check the code and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Failed to update email. Please try again.",
-						});
+				if (code === "EMAIL_ALREADY_REGISTERED") {
+					throw new BadRequestException({
+						code: "EMAIL_ALREADY_REGISTERED",
+						message: "Email is already in use by another account. Please use a different email address.",
+					});
+				}
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: "INVALID_VERIFICATION_CODE",
+						message: "Invalid verification code. Please check the code and try again.",
+					});
 				}
 			}
 

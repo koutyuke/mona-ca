@@ -17,7 +17,7 @@ import {
 	ResponseTUnion,
 	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
-import { BadRequestException, ForbiddenException, UnauthorizedException } from "../../../modules/error";
+import { ForbiddenException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
@@ -78,22 +78,17 @@ export const ResetPassword = new ElysiaWithEnv()
 			if (isErr(validationResult)) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "PASSWORD_RESET_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid password reset session. Please request password reset again.",
-						});
-					case "PASSWORD_RESET_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Password reset session has expired. Please request password reset again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset session validation failed. Please try again.",
-						});
+				if (code === "PASSWORD_RESET_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid password reset session. Please request password reset again.",
+					});
+				}
+				if (code === "PASSWORD_RESET_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Password reset session has expired. Please request password reset again.",
+					});
 				}
 			}
 
@@ -104,17 +99,11 @@ export const ResetPassword = new ElysiaWithEnv()
 			if (isErr(resetResult)) {
 				const { code } = resetResult;
 
-				switch (code) {
-					case "REQUIRED_EMAIL_VERIFICATION":
-						throw new ForbiddenException({
-							code: code,
-							message: "Email verification is required before resetting password. Please verify your email first.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset failed. Please try again.",
-						});
+				if (code === "REQUIRED_EMAIL_VERIFICATION") {
+					throw new ForbiddenException({
+						code: code,
+						message: "Email verification is required before resetting password. Please verify your email first.",
+					});
 				}
 			}
 

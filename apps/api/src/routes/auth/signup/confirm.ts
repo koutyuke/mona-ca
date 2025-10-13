@@ -75,22 +75,17 @@ export const SignupConfirm = new ElysiaWithEnv()
 			if (isErr(validationResult)) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "SIGNUP_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
-					case "SIGNUP_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token has expired. Please request signup again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
+				if (code === "SIGNUP_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token is invalid. Please request signup again.",
+					});
+				}
+				if (code === "SIGNUP_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token has expired. Please request signup again.",
+					});
 				}
 			}
 
@@ -101,23 +96,17 @@ export const SignupConfirm = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "EMAIL_ALREADY_REGISTERED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already registered. Please use a different email address or try logging in.",
-						});
-					case "EMAIL_VERIFICATION_REQUIRED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification is required. Please verify your email address.",
-						});
-
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Signup failed. Please try again.",
-						});
+				if (code === "EMAIL_ALREADY_REGISTERED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already registered. Please use a different email address or try logging in.",
+					});
+				}
+				if (code === "EMAIL_VERIFICATION_REQUIRED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email verification is required. Please verify your email address.",
+					});
 				}
 			}
 

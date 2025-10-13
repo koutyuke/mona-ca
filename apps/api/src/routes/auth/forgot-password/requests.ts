@@ -66,18 +66,17 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "USER_NOT_FOUND":
-						throw new BadRequestException({
-							code: code,
-							message: "User not found with this email address. Please check your email and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset request failed. Please try again.",
-						});
+				if (code === "USER_NOT_FOUND") {
+					throw new BadRequestException({
+						code: code,
+						message: "User not found with this email address. Please check your email and try again.",
+					});
 				}
+
+				throw new BadRequestException({
+					code: code,
+					message: "Password reset request failed. Please try again.",
+				});
 			}
 
 			const { passwordResetSessionToken, passwordResetSession } = result;
