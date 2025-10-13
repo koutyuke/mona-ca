@@ -1,12 +1,12 @@
 import type { Result, ToPrimitive } from "../../../../common/utils";
-import type { OAuthProvider, OAuthProviderId, UserId } from "../../../../domain/value-object";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../../domain/value-object";
 
 export type GetConnectionsUseCaseSuccessResult = {
 	password: boolean;
 } & {
-	[key in ToPrimitive<OAuthProvider>]: {
-		provider: OAuthProvider;
-		providerId: OAuthProviderId;
+	[key in ToPrimitive<ExternalIdentityProvider>]: {
+		provider: ExternalIdentityProvider;
+		providerUserId: ExternalIdentityProviderUserId;
 		linkedAt: Date;
 	} | null;
 };

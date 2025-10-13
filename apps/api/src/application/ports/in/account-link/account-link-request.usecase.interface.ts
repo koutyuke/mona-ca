@@ -8,7 +8,7 @@ type Success = {
 	redirectToProviderURL: URL;
 };
 
-type Error = Err<"INVALID_REDIRECT_URL">;
+type Error = Err<"INVALID_REDIRECT_URI">;
 
 export type AccountLinkRequestUseCaseResult = Result<Success, Error>;
 
