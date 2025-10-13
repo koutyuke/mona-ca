@@ -14,7 +14,7 @@ export {
 	sessionExpiresSpan,
 	sessionRefreshSpan,
 } from "./session";
-export { createOAuthAccount } from "./oauth-account";
+export { createExternalIdentity } from "./external-identity";
 export {
 	createPasswordResetSession,
 	isExpiredPasswordResetSession,
@@ -41,7 +41,7 @@ export {
 export type { User } from "./user";
 export type { EmailVerificationSession } from "./email-verification-session";
 export type { Session } from "./session";
-export type { OAuthAccount } from "./oauth-account";
+export type { ExternalIdentity } from "./external-identity";
 export type { PasswordResetSession } from "./password-reset-session";
 export type { AccountAssociationSession } from "./account-association-session";
 export type { SignupSession } from "./signup-session";

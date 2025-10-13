@@ -1,5 +1,5 @@
 import { TimeSpan } from "../../common/utils";
-import type { OAuthProvider, OAuthProviderId, UserId } from "../value-object";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../value-object";
 import type { AccountAssociationSessionId } from "../value-object";
 
 export const ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
@@ -12,8 +12,8 @@ export interface AccountAssociationSession {
 	code: string | null;
 	secretHash: Uint8Array;
 	email: string;
-	provider: OAuthProvider;
-	providerId: OAuthProviderId;
+	provider: ExternalIdentityProvider;
+	providerUserId: ExternalIdentityProviderUserId;
 	expiresAt: Date;
 }
 
@@ -23,8 +23,8 @@ export const createAccountAssociationSession = (args: {
 	code: string | null;
 	secretHash: Uint8Array;
 	email: string;
-	provider: OAuthProvider;
-	providerId: OAuthProviderId;
+	provider: ExternalIdentityProvider;
+	providerUserId: ExternalIdentityProviderUserId;
 }): AccountAssociationSession => {
 	return {
 		id: args.id,
@@ -33,7 +33,7 @@ export const createAccountAssociationSession = (args: {
 		secretHash: args.secretHash,
 		email: args.email,
 		provider: args.provider,
-		providerId: args.providerId,
+		providerUserId: args.providerUserId,
 		expiresAt: new Date(Date.now() + accountAssociationSessionExpiresSpan.milliseconds()),
 	};
 };

@@ -9,10 +9,10 @@ export {
 	newSignupSessionId,
 } from "./ids";
 export {
-	newOAuthProvider,
-	oauthProviderSchema,
-	newOAuthProviderId,
-} from "./oauth-provider";
+	newExternalIdentityProvider,
+	externalIdentityProviderSchema,
+	newExternalIdentityProviderUserId,
+} from "./external-identity";
 export {
 	parseSessionToken,
 	formatSessionToken,
@@ -33,7 +33,10 @@ export type {
 	AccountAssociationSessionId,
 	SignupSessionId,
 } from "./ids";
-export type { OAuthProvider, OAuthProviderId } from "./oauth-provider";
+export type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+} from "./external-identity";
 export type {
 	SessionToken,
 	EmailVerificationSessionToken,
