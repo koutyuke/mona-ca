@@ -77,4 +77,24 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 		expect(updatedSession?.emailVerified).toBe(true);
 		expect(updatedSession?.id).toBe(session.id);
 	});
+
+	it("should update password reset session expires at if success", async () => {
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				code: "12345678",
+				email: "test@example.com",
+				emailVerified: false,
+			},
+		});
+
+		passwordResetSessionMap.set(session.id, session);
+
+		const result = await passwordResetVerifyEmailUseCase.execute("12345678", session);
+
+		expect(isErr(result)).toBe(false);
+
+		const updatedSession = passwordResetSessionMap.get(session.id);
+		expect(updatedSession).toBeDefined();
+		expect(updatedSession?.expiresAt.getTime()).toBeGreaterThan(session.expiresAt.getTime());
+	});
 });

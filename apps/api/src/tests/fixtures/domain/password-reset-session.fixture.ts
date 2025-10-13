@@ -1,5 +1,5 @@
 import { ulid } from "../../../common/utils";
-import { type PasswordResetSession, passwordResetSessionExpiresSpan } from "../../../domain/entities";
+import { type PasswordResetSession, passwordResetSessionEmailVerificationExpiresSpan } from "../../../domain/entities";
 import {
 	type PasswordResetSessionToken,
 	formatSessionToken,
@@ -25,7 +25,8 @@ export const createPasswordResetSessionFixture = (override?: {
 	const secretHash = override?.passwordResetSession?.secretHash ?? secretHasher(passwordResetSessionSecret);
 
 	const expiresAt = new Date(
-		override?.passwordResetSession?.expiresAt?.getTime() ?? Date.now() + passwordResetSessionExpiresSpan.milliseconds(),
+		override?.passwordResetSession?.expiresAt?.getTime() ??
+			Date.now() + passwordResetSessionEmailVerificationExpiresSpan.milliseconds(),
 	);
 	expiresAt.setMilliseconds(0);
 

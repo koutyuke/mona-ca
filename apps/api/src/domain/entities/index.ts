@@ -2,31 +2,33 @@ export { createUser, updateUser, DEFAULT_USER_GENDER } from "./user";
 export {
 	createEmailVerificationSession,
 	isExpiredEmailVerificationSession,
-	EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES,
 	emailVerificationSessionExpiresSpan,
+	EMAIL_VERIFICATION_SESSION_EXPIRES_SPAN_MINUTES,
 } from "./email-verification-session";
 export {
 	createSession,
 	isExpiredSession,
 	isRefreshableSession,
-	SESSION_EXPIRES_SPAN_DAYS,
-	SESSION_REFRESH_SPAN_DAYS,
 	sessionExpiresSpan,
 	sessionRefreshSpan,
+	SESSION_EXPIRES_SPAN_DAYS,
+	SESSION_REFRESH_SPAN_DAYS,
 } from "./session";
 export { createExternalIdentity } from "./external-identity";
 export {
 	createPasswordResetSession,
 	isExpiredPasswordResetSession,
-	updatePasswordResetSession,
-	PASSWORD_RESET_SESSION_EXPIRES_SPAN_MINUTES,
-	passwordResetSessionExpiresSpan,
+	completeEmailVerificationForPasswordResetSession,
+	passwordResetSessionEmailVerificationExpiresSpan,
+	passwordResetSessionResetExpiresSpan,
+	PASSWORD_RESET_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES,
+	PASSWORD_RESET_SESSION_RESET_EXPIRES_SPAN_MINUTES,
 } from "./password-reset-session";
 export {
 	createAccountAssociationSession,
 	isExpiredAccountAssociationSession,
-	ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES,
 	accountAssociationSessionExpiresSpan,
+	ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES,
 } from "./account-association-session";
 export {
 	createSignupSession,

@@ -1,5 +1,5 @@
 import { err, timingSafeStringEqual } from "../../../common/utils";
-import { type PasswordResetSession, updatePasswordResetSession } from "../../../domain/entities";
+import { type PasswordResetSession, completeEmailVerificationForPasswordResetSession } from "../../../domain/entities";
 import type { IPasswordResetVerifyEmailUseCase, PasswordResetVerifyEmailUseCaseResult } from "../../ports/in";
 import type { IPasswordResetSessionRepository } from "../../ports/out/repositories";
 
@@ -16,11 +16,9 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 			return err("INVALID_VERIFICATION_CODE");
 		}
 
-		const updatedSession = updatePasswordResetSession(passwordResetSession, {
-			emailVerified: true,
-		});
+		const completeSession = completeEmailVerificationForPasswordResetSession(passwordResetSession);
 
-		await this.passwordResetSessionRepository.save(updatedSession);
+		await this.passwordResetSessionRepository.save(completeSession);
 
 		return;
 	}
