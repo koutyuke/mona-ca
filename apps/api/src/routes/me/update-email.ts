@@ -1,6 +1,6 @@
 import { t } from "elysia";
 import {
-	ChangeEmailUseCase,
+	UpdateEmailUseCase,
 	ValidateEmailVerificationSessionUseCase,
 } from "../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
@@ -23,10 +23,21 @@ import {
 } from "../../modules/elysia-with-env";
 import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
+import { rateLimit } from "../../modules/rate-limit";
 
 export const UpdateEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
+	.use(
+		rateLimit("me-update-email", {
+			maxTokens: 1000,
+			refillRate: 500,
+			refillInterval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
 
 	// Route
 	.patch(
@@ -38,6 +49,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
 			user,
 			clientType,
+			rateLimit,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -53,7 +65,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				emailVerificationSessionRepository,
 				sessionSecretHasher,
 			);
-			const changeEmailUseCase = new ChangeEmailUseCase(
+			const updateEmailUseCase = new UpdateEmailUseCase(
 				userRepository,
 				sessionRepository,
 				emailVerificationSessionRepository,
@@ -102,10 +114,12 @@ export const UpdateEmail = new ElysiaWithEnv()
 
 			const { emailVerificationSession } = validationResult;
 
-			const changeResult = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+			await rateLimit.consume(emailVerificationSession.id, 100);
 
-			if (isErr(changeResult)) {
-				const { code } = changeResult;
+			const updateResult = await updateEmailUseCase.execute(code, user, emailVerificationSession);
+
+			if (isErr(updateResult)) {
+				const { code } = updateResult;
 
 				switch (code) {
 					case "EMAIL_ALREADY_REGISTERED":
@@ -121,12 +135,12 @@ export const UpdateEmail = new ElysiaWithEnv()
 					default:
 						throw new BadRequestException({
 							code: code,
-							message: "Failed to change email. Please try again.",
+							message: "Failed to update email. Please try again.",
 						});
 				}
 			}
 
-			const { session, sessionToken } = changeResult;
+			const { session, sessionToken } = updateResult;
 
 			if (clientType === "mobile") {
 				return {

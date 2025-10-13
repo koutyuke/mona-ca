@@ -44,9 +44,9 @@ export type {
 export type { ISendEmailUseCase } from "./email/send-email.usecase.interface.ts";
 
 export type {
-	IChangeEmailUseCase,
-	ChangeEmailUseCaseResult,
-} from "./email-verification/change-email.usecase.interface.ts";
+	IUpdateEmailUseCase,
+	UpdateEmailUseCaseResult,
+} from "./email-verification/update-email.usecase.interface.ts";
 export type {
 	IEmailVerificationConfirmUseCase,
 	EmailVerificationConfirmUseCaseResult,

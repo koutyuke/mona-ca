@@ -15,7 +15,7 @@ import {
 	createUserPasswordHashMap,
 	createUsersMap,
 } from "../../../../tests/mocks";
-import { ChangeEmailUseCase } from "../change-email.usecase";
+import { UpdateEmailUseCase } from "../update-email.usecase";
 
 const userMap = createUsersMap();
 const sessionMap = createSessionsMap();
@@ -35,7 +35,7 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
 
-const changeEmailUseCase = new ChangeEmailUseCase(
+const updateEmailUseCase = new UpdateEmailUseCase(
 	userRepository,
 	sessionRepository,
 	emailVerificationSessionRepository,
@@ -49,7 +49,7 @@ const { user } = createUserFixture({
 	},
 });
 
-describe("ChangeEmailUseCase", () => {
+describe("UpdateEmailUseCase", () => {
 	beforeEach(() => {
 		userMap.clear();
 		sessionMap.clear();
@@ -69,7 +69,7 @@ describe("ChangeEmailUseCase", () => {
 		userMap.set(user.id, user);
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
+		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 		expect(result).toHaveProperty("session");
@@ -106,7 +106,7 @@ describe("ChangeEmailUseCase", () => {
 		userMap.set(user.id, user);
 		userMap.set(anotherUser.id, anotherUser);
 
-		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
+		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(true);
 
@@ -126,7 +126,7 @@ describe("ChangeEmailUseCase", () => {
 
 		userMap.set(user.id, user);
 
-		const result = await changeEmailUseCase.execute("87654321", user, emailVerificationSession);
+		const result = await updateEmailUseCase.execute("87654321", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(true);
 
@@ -146,7 +146,7 @@ describe("ChangeEmailUseCase", () => {
 
 		userMap.set(user.id, { ...user, email: "same@example.com", emailVerified: false });
 
-		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
+		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 		expect(result).toHaveProperty("session");
@@ -168,7 +168,7 @@ describe("ChangeEmailUseCase", () => {
 
 		userMap.set(user.id, user);
 
-		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
+		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 
@@ -196,7 +196,7 @@ describe("ChangeEmailUseCase", () => {
 		userMap.set(user.id, user);
 		sessionMap.set(existingSession.id, existingSession);
 
-		const result = await changeEmailUseCase.execute("12345678", user, emailVerificationSession);
+		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
 		expect(isErr(result)).toBe(false);
 

@@ -2,7 +2,7 @@ import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
 import { createSession, updateUser } from "../../../domain/entities";
 import type { EmailVerificationSession, Session, User } from "../../../domain/entities";
 import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-object";
-import type { ChangeEmailUseCaseResult, IChangeEmailUseCase } from "../../ports/in";
+import type { IUpdateEmailUseCase, UpdateEmailUseCaseResult } from "../../ports/in";
 import type {
 	IEmailVerificationSessionRepository,
 	ISessionRepository,
@@ -12,7 +12,7 @@ import type { ISessionSecretHasher } from "../../ports/out/system";
 
 // this use case will be called after the validate email verification session use case.
 // so we don't need to check the expired email verification session.
-export class ChangeEmailUseCase implements IChangeEmailUseCase {
+export class UpdateEmailUseCase implements IUpdateEmailUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
@@ -24,7 +24,7 @@ export class ChangeEmailUseCase implements IChangeEmailUseCase {
 		code: string,
 		user: User,
 		emailVerificationSession: EmailVerificationSession,
-	): Promise<ChangeEmailUseCaseResult> {
+	): Promise<UpdateEmailUseCaseResult> {
 		const existingUserForNewEmail = await this.userRepository.findByEmail(emailVerificationSession.email);
 
 		if (existingUserForNewEmail && existingUserForNewEmail.id !== user.id) {
