@@ -28,11 +28,11 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(withClientType)
 	.use(
-		rateLimit("forgot-password-verify-email", {
-			maxTokens: 100,
-			refillRate: 50,
+		rateLimit("account-association-confirm", {
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -112,7 +112,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			await rateLimit.consume(validateResult.user.id, 10);
+			await rateLimit.consume(validateResult.accountAssociationSession.id, 100);
 
 			const confirmResult = await accountAssociationConfirmUseCase.execute(
 				code,

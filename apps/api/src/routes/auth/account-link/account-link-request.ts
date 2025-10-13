@@ -20,20 +20,9 @@ import {
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 export const AccountLinkRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
-	.use(
-		rateLimit("account-link-request", {
-			maxTokens: 100,
-			refillRate: 50,
-			refillInterval: {
-				value: 10,
-				unit: "m",
-			},
-		}),
-	)
 	.use(authGuard())
 
 	// Route
@@ -113,9 +102,6 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			};
 		},
 		{
-			beforeHandle: async ({ rateLimit, user }) => {
-				await rateLimit.consume(user.id, 1);
-			},
 			headers: AuthGuardSchema.headers,
 			query: t.Object({
 				"redirect-uri": t.Optional(t.String()),
@@ -129,7 +115,6 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 				}),
 				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URI"), AuthGuardSchema.response[400]),
 				401: AuthGuardSchema.response[401],
-				429: RateLimiterSchema.response[429],
 			}),
 			cookie: t.Cookie({
 				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),

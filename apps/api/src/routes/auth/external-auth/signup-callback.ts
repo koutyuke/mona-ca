@@ -37,11 +37,11 @@ import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 export const ExternalAuthSignupCallback = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
-		rateLimit("oauth-signup-callback", {
-			maxTokens: 100,
-			refillRate: 10,
+		rateLimit("external-auth-signup-callback", {
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 1,
+				value: 10,
 				unit: "m",
 			},
 		}),

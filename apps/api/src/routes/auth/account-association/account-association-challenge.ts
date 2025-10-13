@@ -28,10 +28,10 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
 		rateLimit("account-association-challenge", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -103,7 +103,7 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				}
 			}
 
-			await rateLimit.consume(validateResult.user.id, 10);
+			await rateLimit.consume(validateResult.user.id, 100);
 
 			const { accountAssociationSessionToken, accountAssociationSession } =
 				await accountAssociationChallengeUseCase.execute(validateResult.user, validateResult.accountAssociationSession);

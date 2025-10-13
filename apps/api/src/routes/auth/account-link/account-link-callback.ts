@@ -24,20 +24,8 @@ import {
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 export const AccountLinkCallback = new ElysiaWithEnv()
-	// Local Middleware & Plugin
-	.use(
-		rateLimit("account-link-callback", {
-			maxTokens: 100,
-			refillRate: 10,
-			refillInterval: {
-				value: 1,
-				unit: "m",
-			},
-		}),
-	)
 
 	// Route
 	.get(
@@ -147,9 +135,6 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			return RedirectResponse(redirectURL.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimit, ip }) => {
-				await rateLimit.consume(ip, 1);
-			},
 			query: t.Object(
 				{
 					code: t.Optional(
@@ -188,7 +173,6 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					ErrorResponseSchema("INVALID_REDIRECT_URI"),
 					ErrorResponseSchema("TOKEN_EXCHANGE_FAILED"),
 				),
-				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
 				operationId: "auth-account-link-callback",

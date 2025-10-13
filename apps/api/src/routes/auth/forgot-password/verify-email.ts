@@ -29,10 +29,10 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	.use(withClientType)
 	.use(
 		rateLimit("forgot-password-verify-email", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -106,7 +106,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 
 			const { passwordResetSession } = validationResult;
 
-			await rateLimit.consume(passwordResetSession.id, 10);
+			await rateLimit.consume(passwordResetSession.id, 100);
 
 			const verifyEmailResult = await passwordResetVerifyEmailUseCase.execute(code, passwordResetSession);
 

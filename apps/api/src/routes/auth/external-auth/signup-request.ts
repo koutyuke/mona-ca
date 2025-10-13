@@ -31,8 +31,8 @@ export const ExternalAuthSignupRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
 		rateLimit("external-auth-signup-request", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
 				value: 10,
 				unit: "m",

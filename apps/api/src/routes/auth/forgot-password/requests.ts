@@ -28,10 +28,10 @@ const PasswordResetRequest = new ElysiaWithEnv()
 	.use(withClientType)
 	.use(
 		rateLimit("forgot-password-request", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -106,7 +106,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 		{
 			beforeHandle: async ({ rateLimit, ip, captcha, body: { email, cfTurnstileResponse } }) => {
 				await captcha.verify(cfTurnstileResponse);
-				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 10)]);
+				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 100)]);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({

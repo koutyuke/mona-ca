@@ -27,10 +27,10 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimit("email-verification-request", {
-			maxTokens: 5,
-			refillRate: 5,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -46,6 +46,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			body: { email: bodyEmail },
 			user,
 			clientType,
+			rateLimit,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -67,6 +68,9 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			// === End of instances ===
 
 			const email = bodyEmail ?? user.email;
+
+			await rateLimit.consume(email, 100);
+
 			const result = await emailVerificationRequestUseCase.execute(email, user);
 
 			if (isErr(result)) {

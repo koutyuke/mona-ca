@@ -38,10 +38,10 @@ export const ExternalAuthLoginCallback = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
 		rateLimit("external-auth-login-callback", {
-			maxTokens: 100,
-			refillRate: 10,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 1,
+				value: 10,
 				unit: "m",
 			},
 		}),

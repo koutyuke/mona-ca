@@ -57,9 +57,7 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 				signupSessionRepository,
 				sessionSecretHasher,
 			);
-			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository, async signupSessionId =>
-				rateLimit.consume(signupSessionId, 100),
-			);
+			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository);
 			// === End of instances ===
 
 			const rawSignupSessionToken =
@@ -97,6 +95,8 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 			}
 
 			const { signupSession } = validationResult;
+
+			await rateLimit.consume(signupSession.id, 100);
 
 			const verifyEmailResult = await signupVerifyEmailUseCase.execute(code, signupSession);
 
