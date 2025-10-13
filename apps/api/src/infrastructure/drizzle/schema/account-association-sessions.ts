@@ -12,7 +12,7 @@ export const accountAssociationSessions = sqliteTable(
 		code: text("code"),
 		email: text("email").notNull(),
 		provider: text("provider", { enum: ["discord", "google"] }).notNull(),
-		providerId: text("provider_id").notNull(),
+		providerUserId: text("provider_user_id").notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
 	table => [
