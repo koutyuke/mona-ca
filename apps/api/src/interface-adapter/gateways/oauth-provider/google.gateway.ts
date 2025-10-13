@@ -10,11 +10,11 @@ import {
 } from "arctic";
 import { t } from "elysia";
 import type {
-	GetAccountInfoResult,
+	GetIdentityResult,
 	GetTokensResult,
 	IOAuthProviderGateway,
-} from "../../../../application/ports/out/gateways";
-import { err } from "../../../../common/utils";
+} from "../../../application/ports/out/gateways";
+import { err } from "../../../common/utils";
 
 const googleIdTokenClaimsSchema = t.Object({
 	sub: t.String(),
@@ -32,43 +32,43 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 		this.google = new GoogleProvider(clientId, clientSecret, redirectURI);
 	}
 
-	public genAuthURL(state: string, codeVerifier: string): URL {
+	public createAuthorizationURL(state: string, codeVerifier: string): URL {
 		const url = this.google.createAuthorizationURL(state, codeVerifier, this.scope);
 		return url;
 	}
 
-	public async getTokens(code: string, codeVerifier: string): Promise<GetTokensResult> {
+	public async exchangeCodeForTokens(code: string, codeVerifier: string): Promise<GetTokensResult> {
 		try {
 			const tokens = await this.google.validateAuthorizationCode(code, codeVerifier);
 			return tokens;
 		} catch (error) {
 			if (error instanceof OAuth2RequestError) {
 				console.error(error);
-				return err("OAUTH_CREDENTIALS_INVALID");
+				return err("CREDENTIALS_INVALID");
 			}
 			if (error instanceof ArcticFetchError) {
-				return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+				return err("FETCH_TOKENS_FAILED");
 			}
 			if (error instanceof UnexpectedResponseError) {
-				return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+				return err("FETCH_TOKENS_FAILED");
 			}
 			if (error instanceof UnexpectedErrorResponseBodyError) {
-				return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+				return err("FETCH_TOKENS_FAILED");
 			}
 
 			console.error("Unknown error in getTokens:", error);
-			return err("FAILED_TO_FETCH_OAUTH_TOKENS");
+			return err("FETCH_TOKENS_FAILED");
 		}
 	}
 
-	public async getAccountInfo(tokens: OAuth2Tokens): Promise<GetAccountInfoResult> {
+	public async getIdentity(tokens: OAuth2Tokens): Promise<GetIdentityResult> {
 		try {
 			const idToken = tokens.idToken();
 
 			const claims = decodeIdToken(idToken);
 
 			if (!Value.Check(googleIdTokenClaimsSchema, claims)) {
-				return err("OAUTH_ACCOUNT_INFO_INVALID");
+				return err("IDENTITY_INVALID");
 			}
 
 			return {
@@ -80,7 +80,7 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 			};
 		} catch (error) {
 			console.error("Error in getAccountInfo:", error);
-			return err("FAILED_TO_GET_ACCOUNT_INFO");
+			return err("FETCH_IDENTITY_FAILED");
 		}
 	}
 
