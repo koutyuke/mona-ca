@@ -61,14 +61,17 @@ export type {
 } from "./email-verification/validate-email-verification-session.usecase.interface.ts";
 
 export type {
-	IOAuthLoginCallbackUseCase,
-	OAuthLoginCallbackUseCaseResult,
-} from "./oauth/oauth-login-callback.usecase.interface.ts";
-export type { IOAuthRequestUseCase, OAuthRequestUseCaseResult } from "./oauth/oauth-request.usecase.interface.ts";
+	IExternalAuthLoginCallbackUseCase,
+	ExternalAuthLoginCallbackUseCaseResult,
+} from "./external-auth/external-auth-login-callback.usecase.interface.ts";
 export type {
-	IOAuthSignupCallbackUseCase,
-	OAuthSignupCallbackUseCaseResult,
-} from "./oauth/oauth-signup-callback.usecase.interface.ts";
+	IExternalAuthRequestUseCase,
+	ExternalAuthRequestUseCaseResult,
+} from "./external-auth/external-auth-request.usecase.interface.ts";
+export type {
+	IExternalAuthSignupCallbackUseCase,
+	ExternalAuthSignupCallbackUseCaseResult,
+} from "./external-auth/external-auth-signup-callback.usecase.interface.ts";
 
 export type {
 	IUpdateUserPasswordUseCase,
