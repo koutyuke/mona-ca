@@ -1,6 +1,6 @@
 import type { ToPrimitive } from "../../common/utils";
 import type { AccountAssociationSession } from "../../domain/entities";
-import type { OAuthProvider } from "../../domain/value-object";
+import type { ExternalIdentityProvider } from "../../domain/value-object";
 import { toRawDate, toRawSessionSecretHash } from "./utils";
 
 export type RawAccountAssociationSession = {
@@ -9,8 +9,8 @@ export type RawAccountAssociationSession = {
 	code: string | null;
 	secret_hash: Array<number>;
 	email: string;
-	provider: ToPrimitive<OAuthProvider>;
-	provider_id: string;
+	provider: ToPrimitive<ExternalIdentityProvider>;
+	provider_user_id: string;
 	expires_at: number;
 };
 
@@ -22,9 +22,18 @@ export class AccountAssociationSessionTableHelper {
 
 		await this.db
 			.prepare(
-				"INSERT INTO account_association_sessions (id, user_id, code, secret_hash, email, provider, provider_id, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+				"INSERT INTO account_association_sessions (id, user_id, code, secret_hash, email, provider, provider_user_id, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
 			)
-			.bind(raw.id, raw.user_id, raw.code, raw.secret_hash, raw.email, raw.provider, raw.provider_id, raw.expires_at)
+			.bind(
+				raw.id,
+				raw.user_id,
+				raw.code,
+				raw.secret_hash,
+				raw.email,
+				raw.provider,
+				raw.provider_user_id,
+				raw.expires_at,
+			)
 			.run();
 	}
 
@@ -58,7 +67,7 @@ export class AccountAssociationSessionTableHelper {
 			secret_hash: toRawSessionSecretHash(session.secretHash),
 			email: session.email,
 			provider: session.provider,
-			provider_id: session.providerId,
+			provider_user_id: session.providerUserId,
 			expires_at: toRawDate(session.expiresAt),
 		};
 	}

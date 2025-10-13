@@ -5,8 +5,8 @@ import {
 	type AccountAssociationSessionToken,
 	formatSessionToken,
 	newAccountAssociationSessionId,
-	newOAuthProvider,
-	newOAuthProviderId,
+	newExternalIdentityProvider,
+	newExternalIdentityProviderUserId,
 	newUserId,
 } from "../../../domain/value-object";
 import { SessionSecretHasherMock } from "../../mocks";
@@ -39,8 +39,8 @@ export const createAccountAssociationSessionFixture = (override?: {
 		code: override?.accountAssociationSession?.code ?? "testCode",
 		secretHash: override?.accountAssociationSession?.secretHash ?? secretHash,
 		email: override?.accountAssociationSession?.email ?? "test.email@example.com",
-		provider: override?.accountAssociationSession?.provider ?? newOAuthProvider("discord"),
-		providerId: override?.accountAssociationSession?.providerId ?? newOAuthProviderId(ulid()),
+		provider: override?.accountAssociationSession?.provider ?? newExternalIdentityProvider("discord"),
+		providerUserId: override?.accountAssociationSession?.providerUserId ?? newExternalIdentityProviderUserId(ulid()),
 		expiresAt,
 	};
 

@@ -1,7 +1,7 @@
 import type {
 	AccountAssociationSession,
 	EmailVerificationSession,
-	OAuthAccount,
+	ExternalIdentity,
 	PasswordResetSession,
 	Session,
 	SignupSession,
@@ -10,8 +10,8 @@ import type {
 import type {
 	AccountAssociationSessionId,
 	EmailVerificationSessionId,
-	OAuthProvider,
-	OAuthProviderId,
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
 	PasswordResetSessionId,
 	SessionId,
 	SignupSessionId,
@@ -48,11 +48,14 @@ export const createAccountAssociationSessionsMap = (
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createOAuthAccountsMap = (accounts: OAuthAccount[] = []): Map<string, OAuthAccount> => {
-	return new Map(accounts.map(account => [`${account.provider}-${account.providerId}`, account]));
+export const createOAuthAccountsMap = (accounts: ExternalIdentity[] = []): Map<string, ExternalIdentity> => {
+	return new Map(accounts.map(account => [`${account.provider}-${account.providerUserId}`, account]));
 };
 
-export const createOAuthAccountKey = (provider: OAuthProvider, providerId: OAuthProviderId): string => {
+export const createOAuthAccountKey = (
+	provider: ExternalIdentityProvider,
+	providerId: ExternalIdentityProviderUserId,
+): string => {
 	return `${provider}-${providerId}`;
 };
 
