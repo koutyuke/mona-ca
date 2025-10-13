@@ -84,7 +84,7 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			return {
 				user: UserPresenter(result.user),
 				provider: result.accountAssociationSession.provider,
-				providerId: result.accountAssociationSession.providerId,
+				providerId: result.accountAssociationSession.providerUserId,
 			};
 		},
 		{

@@ -7,7 +7,7 @@ import { newAccountAssociationSessionToken } from "../../../domain/value-object"
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
+import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
@@ -55,7 +55,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
-			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
 			const sessionSecretHasher = new SessionSecretHasher();
@@ -68,7 +68,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 			const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
 				userRepository,
 				sessionRepository,
-				oauthAccountRepository,
+				externalIdentityRepository,
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 			);

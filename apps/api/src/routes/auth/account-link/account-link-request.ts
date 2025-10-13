@@ -7,9 +7,9 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../common/constants";
 import { isErr } from "../../../common/utils";
-import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-object";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
-import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieManager } from "../../../modules/cookie";
 import {
@@ -55,14 +55,14 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			user,
 		}) => {
 			// === Instances ===
-			const provider = newOAuthProvider(_provider);
+			const provider = newExternalIdentityProvider(_provider);
 
 			const apiBaseURL = getAPIBaseURL(APP_ENV === "production");
 
 			const providerRedirectURL = new URL(`auth/${provider}/link/callback`, apiBaseURL);
 
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const oauthProviderGateway = OAuthProviderGateway(
+			const oauthProviderGateway = createOAuthGateway(
 				{
 					DISCORD_CLIENT_ID,
 					DISCORD_CLIENT_SECRET,
@@ -82,18 +82,16 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_REDIRECT_URL":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid redirect URL. Please check the URL and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account link request failed. Please try again.",
-						});
+				if (code === "INVALID_REDIRECT_URI") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid redirect URI. Please check the URI and try again.",
+					});
 				}
+				throw new BadRequestException({
+					code: code,
+					message: "Account link request failed. Please try again.",
+				});
 			}
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;
@@ -123,13 +121,13 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({
-				provider: oauthProviderSchema,
+				provider: externalIdentityProviderSchema,
 			}),
 			response: withBaseResponseSchema({
 				200: t.Object({
 					url: t.String(),
 				}),
-				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URL"), AuthGuardSchema.response[400]),
+				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URI"), AuthGuardSchema.response[400]),
 				401: AuthGuardSchema.response[401],
 				429: RateLimiterSchema.response[429],
 			}),

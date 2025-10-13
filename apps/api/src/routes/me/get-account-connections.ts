@@ -4,7 +4,7 @@ import {
 	AccountConnectionsPresenter,
 	AccountConnectionsPresenterResultSchema,
 } from "../../interface-adapter/presenter";
-import { OAuthAccountRepository } from "../../interface-adapter/repositories/oauth-account";
+import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
@@ -22,9 +22,9 @@ export const GetAccountConnections = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 
 			const userRepository = new UserRepository(drizzleService);
-			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
 
-			const getConnectionsUseCase = new GetConnectionsUseCase(oauthAccountRepository, userRepository);
+			const getConnectionsUseCase = new GetConnectionsUseCase(externalIdentityRepository, userRepository);
 
 			const result = await getConnectionsUseCase.execute(user.id);
 

@@ -8,11 +8,11 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
 import { isErr, timingSafeStringEqual } from "../../../common/utils";
-import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-object";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
-import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
+import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
+import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
 import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
@@ -57,7 +57,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			query: { code, state: queryState, error },
 		}) => {
 			// === Instances ===
-			const provider = newOAuthProvider(_provider);
+			const provider = newExternalIdentityProvider(_provider);
 
 			const apiBaseURL = getAPIBaseURL(APP_ENV === "production");
 
@@ -66,11 +66,11 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
 
 			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
 
-			const oauthProviderGateway = OAuthProviderGateway(
+			const oauthProviderGateway = createOAuthGateway(
 				{
 					DISCORD_CLIENT_ID,
 					DISCORD_CLIENT_SECRET,
@@ -83,7 +83,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 
 			const accountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
 				oauthProviderGateway,
-				oauthAccountRepository,
+				externalIdentityRepository,
 				oauthStateSigner,
 			);
 			// === End of instances ===
@@ -94,7 +94,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 
 			if (!queryState || !timingSafeStringEqual(queryState, signedState)) {
 				throw new BadRequestException({
-					code: "INVALID_OAUTH_STATE",
+					code: "INVALID_STATE",
 				});
 			}
 
@@ -115,26 +115,31 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_REDIRECT_URL":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid redirect URL. Please check the URL and try again.",
-						});
-					case "OAUTH_CREDENTIALS_INVALID":
-						throw new BadRequestException({
-							code: code,
-							message: "OAuth code is missing. Please try again.",
-						});
-					default: {
-						const {
-							code: errorCode,
-							value: { redirectURL },
-						} = result;
-						redirectURL.searchParams.set("error", errorCode);
-						return RedirectResponse(redirectURL.toString());
-					}
+				if (code === "INVALID_STATE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid OAuth state. Please try again.",
+					});
 				}
+				if (code === "INVALID_REDIRECT_URI") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid redirect URL. Please check the URL and try again.",
+					});
+				}
+				if (code === "TOKEN_EXCHANGE_FAILED") {
+					throw new BadRequestException({
+						code: code,
+						message: "OAuth code is missing. Please try again.",
+					});
+				}
+
+				const {
+					code: errorCode,
+					value: { redirectURL },
+				} = result;
+				redirectURL.searchParams.set("error", errorCode);
+				return RedirectResponse(redirectURL.toString());
 			}
 
 			const { redirectURL } = result;
@@ -162,7 +167,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 				{ additionalProperties: true },
 			),
 			params: t.Object({
-				provider: oauthProviderSchema,
+				provider: externalIdentityProviderSchema,
 			}),
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -179,8 +184,9 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			response: withBaseResponseSchema({
 				302: RedirectResponseSchema,
 				400: ResponseTUnion(
-					ErrorResponseSchema("INVALID_REDIRECT_URL"),
-					ErrorResponseSchema("OAUTH_CREDENTIALS_INVALID"),
+					ErrorResponseSchema("INVALID_STATE"),
+					ErrorResponseSchema("INVALID_REDIRECT_URI"),
+					ErrorResponseSchema("TOKEN_EXCHANGE_FAILED"),
 				),
 				429: RateLimiterSchema.response[429],
 			}),
@@ -191,12 +197,11 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 					"Account Link Callback for the provider",
 					"##### **Error Query**",
 					"---",
-					"- **FAILED_TO_FETCH_OAUTH_ACCOUNT**",
-					"- **OAUTH_ACCESS_DENIED**",
-					"- **OAUTH_PROVIDER_ERROR**",
-					"- **OAUTH_PROVIDER_ALREADY_LINKED**",
-					"- **OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER**",
-					"- **OAUTH_ACCOUNT_INFO_INVALID**",
+					"- **PROVIDER_ACCESS_DENIED**",
+					"- **PROVIDER_ERROR**",
+					"- **GET_IDENTITY_FAILED**",
+					"- **EXTERNAL_IDENTITY_ALREADY_LINKED**",
+					"- **EXTERNAL_IDENTITY_ALREADY_LINKED_TO_ANOTHER_USER**",
 				],
 				tag: "Auth - Account Link",
 				withAuth: true,

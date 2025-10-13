@@ -1,6 +1,6 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { OAuthSignupCallbackUseCase, oauthStateSchema } from "../../../application/use-cases/oauth";
+import { ExternalAuthSignupCallbackUseCase, oauthStateSchema } from "../../../application/use-cases/external-auth";
 import {
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -9,12 +9,16 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
 import { convertRedirectableMobileScheme, isErr, timingSafeStringEqual } from "../../../common/utils";
-import { newClientType, newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
+import {
+	externalIdentityProviderSchema,
+	newClientType,
+	newExternalIdentityProvider,
+} from "../../../domain/value-object";
 import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
+import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
@@ -30,7 +34,7 @@ import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
-export const OAuthSignupCallback = new ElysiaWithEnv()
+export const ExternalAuthSignupCallback = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
 		rateLimit("oauth-signup-callback", {
@@ -62,7 +66,7 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			set,
 		}) => {
 			// === Instances ===
-			const provider = newOAuthProvider(_provider);
+			const provider = newExternalIdentityProvider(_provider);
 
 			const apiBaseURL = getAPIBaseURL(APP_ENV === "production");
 
@@ -72,11 +76,11 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const sessionRepository = new SessionRepository(drizzleService);
-			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 
-			const oauthProviderGateway = OAuthProviderGateway(
+			const oauthProviderGateway = createOAuthGateway(
 				{
 					DISCORD_CLIENT_ID,
 					DISCORD_CLIENT_SECRET,
@@ -90,10 +94,10 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			const sessionSecretHasher = new SessionSecretHasher();
 			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
 
-			const oauthSignupCallbackUseCase = new OAuthSignupCallbackUseCase(
+			const externalAuthSignupCallbackUseCase = new ExternalAuthSignupCallbackUseCase(
 				oauthProviderGateway,
 				sessionRepository,
-				oauthAccountRepository,
+				externalIdentityRepository,
 				userRepository,
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
@@ -107,12 +111,12 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 
 			if (!queryState || !timingSafeStringEqual(queryState, signedState)) {
 				throw new BadRequestException({
-					code: "INVALID_OAUTH_STATE",
+					code: "INVALID_STATE",
 					message: "Invalid OAuth state. Please try again.",
 				});
 			}
 
-			const result = await oauthSignupCallbackUseCase.execute(
+			const result = await externalAuthSignupCallbackUseCase.execute(
 				APP_ENV === "production",
 				error,
 				redirectURI,
@@ -129,53 +133,52 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			if (isErr(result)) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_OAUTH_STATE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid OAuth state. Please try again.",
-						});
-					case "INVALID_REDIRECT_URL":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid redirect URL. Please check the URL and try again.",
-						});
-					case "OAUTH_CREDENTIALS_INVALID":
-						throw new BadRequestException({
-							code: code,
-							message: "OAuth code is missing. Please try again.",
-						});
-					case "OAUTH_EMAIL_ALREADY_REGISTERED_BUT_LINKABLE": {
-						// Account Association Challenge Flow
-						const {
-							code: errorCode,
-							value: { redirectURL, clientType, accountAssociationSessionToken, accountAssociationSession },
-						} = result;
-
-						if (clientType === newClientType("mobile")) {
-							redirectURL.searchParams.set("account-association-session-token", accountAssociationSessionToken);
-							redirectURL.searchParams.set("error", errorCode);
-							set.headers["referrer-policy"] = "strict-origin";
-							return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
-						}
-
-						cookieManager.setCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, accountAssociationSessionToken, {
-							expires: accountAssociationSession.expiresAt,
-						});
-
-						redirectURL.searchParams.set("error", errorCode);
-						return RedirectResponse(redirectURL.toString());
-					}
-					default: {
-						// If there is an error, add the error to the redirect URL and redirect
-						const {
-							code: errorCode,
-							value: { redirectURL },
-						} = result;
-						redirectURL.searchParams.set("error", errorCode);
-						return RedirectResponse(redirectURL.toString());
-					}
+				if (code === "INVALID_STATE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid OAuth state. Please try again.",
+					});
 				}
+				if (code === "INVALID_REDIRECT_URI") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid redirect URL. Please check the URL and try again.",
+					});
+				}
+				if (code === "TOKEN_EXCHANGE_FAILED") {
+					throw new BadRequestException({
+						code: code,
+						message: "OAuth code is missing. Please try again.",
+					});
+				}
+				if (code === "EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE") {
+					// Account Association Challenge Flow
+					const {
+						code: errorCode,
+						value: { redirectURL, clientType, accountAssociationSessionToken, accountAssociationSession },
+					} = result;
+
+					if (clientType === newClientType("mobile")) {
+						redirectURL.searchParams.set("account-association-session-token", accountAssociationSessionToken);
+						redirectURL.searchParams.set("error", errorCode);
+						set.headers["referrer-policy"] = "strict-origin";
+						return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
+					}
+
+					cookieManager.setCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, accountAssociationSessionToken, {
+						expires: accountAssociationSession.expiresAt,
+					});
+
+					redirectURL.searchParams.set("error", errorCode);
+					return RedirectResponse(redirectURL.toString());
+				}
+				// If there is an error, add the error to the redirect URL and redirect
+				const {
+					code: errorCode,
+					value: { redirectURL },
+				} = result;
+				redirectURL.searchParams.set("error", errorCode);
+				return RedirectResponse(redirectURL.toString());
 			}
 
 			const { session, sessionToken, redirectURL, clientType } = result;
@@ -213,7 +216,7 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 				{ additionalProperties: true },
 			),
 			params: t.Object({
-				provider: oauthProviderSchema,
+				provider: externalIdentityProviderSchema,
 			}),
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -231,27 +234,26 @@ export const OAuthSignupCallback = new ElysiaWithEnv()
 			response: withBaseResponseSchema({
 				302: RedirectResponseSchema,
 				400: ResponseTUnion(
-					ErrorResponseSchema("INVALID_OAUTH_STATE"),
-					ErrorResponseSchema("INVALID_REDIRECT_URL"),
-					ErrorResponseSchema("OAUTH_CREDENTIALS_INVALID"),
+					ErrorResponseSchema("INVALID_STATE"),
+					ErrorResponseSchema("INVALID_REDIRECT_URI"),
+					ErrorResponseSchema("TOKEN_EXCHANGE_FAILED"),
 				),
 				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
-				operationId: "auth-oauth-signup-callback",
-				summary: "OAuth Signup Callback",
+				operationId: "auth-external-auth-signup-callback",
+				summary: "External Auth Signup Callback",
 				description: [
-					"OAuth Signup Callback for the provider",
+					"External Auth Signup Callback for the provider",
 					"##### **Error Query**",
 					"---",
-					"- **FAILED_TO_FETCH_OAUTH_ACCOUNT**",
-					"- **OAUTH_ACCESS_DENIED**",
-					"- **OAUTH_PROVIDER_ERROR**",
-					"- **OAUTH_ACCOUNT_NOT_FOUND_BUT_LINKABLE**",
-					"- **OAUTH_ACCOUNT_ALREADY_REGISTERED**",
-					"- **OAUTH_ACCOUNT_INFO_INVALID**",
+					"- **PROVIDER_ACCESS_DENIED**",
+					"- **PROVIDER_ERROR**",
+					"- **GET_IDENTITY_FAILED**",
+					"- **EXTERNAL_IDENTITY_ALREADY_REGISTERED**",
+					"- **EXTERNAL_IDENTITY_ALREADY_REGISTERED_BUT_LINKABLE**",
 				],
-				tag: "Auth - OAuth",
+				tag: "Auth - External Auth",
 			}),
 		},
 	);
