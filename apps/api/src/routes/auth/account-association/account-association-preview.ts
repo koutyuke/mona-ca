@@ -5,7 +5,7 @@ import { isErr } from "../../../common/utils";
 import { newAccountAssociationSessionToken } from "../../../domain/value-object";
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenter";
+import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenters";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";

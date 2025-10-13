@@ -3,7 +3,7 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import {
 	AccountConnectionsPresenter,
 	AccountConnectionsPresenterResultSchema,
-} from "../../interface-adapter/presenter";
+} from "../../interface-adapter/presenters";
 import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
