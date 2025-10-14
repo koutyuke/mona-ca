@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createEmailVerificationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	EmailVerificationSessionRepositoryMock,
@@ -45,22 +44,22 @@ describe("ValidateEmailVerificationSessionUseCase", () => {
 
 		const result = await validateEmailVerificationSessionUseCase.execute(emailVerificationSessionToken, user);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("emailVerificationSession");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.emailVerificationSession.id).toBe(emailVerificationSession.id);
-			expect(result.emailVerificationSession.userId).toBe(user.id);
-			expect(result.emailVerificationSession.email).toBe(user.email);
+		if (!result.isErr) {
+			const { emailVerificationSession } = result.value;
+			expect(emailVerificationSession.id).toBe(emailVerificationSession.id);
+			expect(emailVerificationSession.userId).toBe(user.id);
+			expect(emailVerificationSession.email).toBe(user.email);
 		}
 	});
 
 	it("should return EMAIL_VERIFICATION_SESSION_INVALID error when token format is invalid", async () => {
 		const result = await validateEmailVerificationSessionUseCase.execute("invalid_token" as never, user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 	});
@@ -70,9 +69,9 @@ describe("ValidateEmailVerificationSessionUseCase", () => {
 
 		const result = await validateEmailVerificationSessionUseCase.execute(emailVerificationSessionToken, user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 	});
@@ -84,9 +83,9 @@ describe("ValidateEmailVerificationSessionUseCase", () => {
 
 		const result = await validateEmailVerificationSessionUseCase.execute(emailVerificationSessionToken, user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 	});
@@ -104,9 +103,9 @@ describe("ValidateEmailVerificationSessionUseCase", () => {
 
 		const result = await validateEmailVerificationSessionUseCase.execute(emailVerificationSessionToken, user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_VERIFICATION_SESSION_EXPIRED");
 		}
 
@@ -125,9 +124,9 @@ describe("ValidateEmailVerificationSessionUseCase", () => {
 
 		const result = await validateEmailVerificationSessionUseCase.execute("invalid.secret.token" as never, user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 	});

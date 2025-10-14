@@ -1,4 +1,5 @@
-import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { timingSafeStringEqual, ulid } from "../../../common/utils";
 import { createSession, updateUser } from "../../../domain/entities";
 import type { EmailVerificationSession, Session, User } from "../../../domain/entities";
 import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-object";
@@ -46,10 +47,10 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 
 		await Promise.all([this.userRepository.save(updatedUser), this.sessionRepository.save(session)]);
 
-		return {
+		return ok({
 			session,
 			sessionToken,
-		};
+		});
 	}
 
 	private createSession(userId: UserId): {

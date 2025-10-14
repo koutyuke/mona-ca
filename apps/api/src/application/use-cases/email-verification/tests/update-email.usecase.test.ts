@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import {
 	createEmailVerificationSessionFixture,
 	createSessionFixture,
@@ -71,14 +70,13 @@ describe("UpdateEmailUseCase", () => {
 
 		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
 		expect(emailVerificationSessionMap.has(emailVerificationSession.id)).toBe(false);
@@ -108,9 +106,9 @@ describe("UpdateEmailUseCase", () => {
 
 		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
 		}
 	});
@@ -128,9 +126,9 @@ describe("UpdateEmailUseCase", () => {
 
 		const result = await updateEmailUseCase.execute("87654321", user, emailVerificationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_VERIFICATION_CODE");
 		}
 	});
@@ -148,9 +146,7 @@ describe("UpdateEmailUseCase", () => {
 
 		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
 		const updatedUser = userMap.get(user.id);
 		expect(updatedUser?.email).toBe("same@example.com");
@@ -170,10 +166,11 @@ describe("UpdateEmailUseCase", () => {
 
 		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
 		}
@@ -198,12 +195,13 @@ describe("UpdateEmailUseCase", () => {
 
 		const result = await updateEmailUseCase.execute("12345678", user, emailVerificationSession);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		expect(sessionMap.has(existingSession.id)).toBe(false);
 
-		if (!isErr(result)) {
-			expect(sessionMap.get(result.session.id)).toBeDefined();
+		if (!result.isErr) {
+			const { session } = result.value;
+			expect(sessionMap.get(session.id)).toBeDefined();
 		}
 	});
 });

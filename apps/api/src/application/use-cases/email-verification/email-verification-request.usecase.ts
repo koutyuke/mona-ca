@@ -1,4 +1,5 @@
-import { err, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { createEmailVerificationSession } from "../../../domain/entities";
 import type { EmailVerificationSession, User } from "../../../domain/entities";
 import {
@@ -37,10 +38,10 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
 		await this.emailVerificationSessionRepository.save(emailVerificationSession);
 
-		return {
+		return ok({
 			emailVerificationSessionToken,
 			emailVerificationSession,
-		};
+		});
 	}
 
 	private createEmailVerificationSession(

@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import {
 	createEmailVerificationSessionFixture,
 	createSessionFixture,
@@ -60,17 +59,16 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("emailVerificationSession");
-		expect(result).toHaveProperty("emailVerificationSessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.emailVerificationSession.email).toBe("new@example.com");
-			expect(result.emailVerificationSession.userId).toBe(user.id);
-			expect(result.emailVerificationSession.code).toBeDefined();
-			expect(result.emailVerificationSession.code.length).toBe(8);
-			expect(typeof result.emailVerificationSessionToken).toBe("string");
-			expect(result.emailVerificationSessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { emailVerificationSession, emailVerificationSessionToken } = result.value;
+			expect(emailVerificationSession.email).toBe("new@example.com");
+			expect(emailVerificationSession.userId).toBe(user.id);
+			expect(emailVerificationSession.code).toBeDefined();
+			expect(emailVerificationSession.code.length).toBe(8);
+			expect(typeof emailVerificationSessionToken).toBe("string");
+			expect(emailVerificationSessionToken.length).toBeGreaterThan(0);
 		}
 	});
 
@@ -80,13 +78,12 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("test@example.com", updatedUser);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("emailVerificationSession");
-		expect(result).toHaveProperty("emailVerificationSessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.emailVerificationSession.email).toBe("test@example.com");
-			expect(result.emailVerificationSession.userId).toBe(updatedUser.id);
+		if (!result.isErr) {
+			const { emailVerificationSession } = result.value;
+			expect(emailVerificationSession.email).toBe("test@example.com");
+			expect(emailVerificationSession.userId).toBe(updatedUser.id);
 		}
 	});
 
@@ -95,9 +92,9 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("test@example.com", user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_ALREADY_VERIFIED");
 		}
 	});
@@ -116,9 +113,9 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("existing@example.com", user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
 		}
 	});
@@ -141,10 +138,11 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = emailVerificationSessionMap.get(result.emailVerificationSession.id);
+		if (!result.isErr) {
+			const { emailVerificationSession } = result.value;
+			const savedSession = emailVerificationSessionMap.get(emailVerificationSession.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
 			expect(savedSession?.email).toBe("new@example.com");
@@ -156,10 +154,11 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const code = result.emailVerificationSession.code;
+		if (!result.isErr) {
+			const { emailVerificationSession } = result.value;
+			const code = emailVerificationSession.code;
 			expect(code).toBeDefined();
 			expect(code.length).toBe(8);
 			expect(/^\d{8}$/.test(code)).toBe(true);
@@ -171,11 +170,12 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(typeof result.emailVerificationSessionToken).toBe("string");
-			expect(result.emailVerificationSessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { emailVerificationSessionToken } = result.value;
+			expect(typeof emailVerificationSessionToken).toBe("string");
+			expect(emailVerificationSessionToken.length).toBeGreaterThan(0);
 		}
 	});
 
@@ -192,10 +192,11 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = emailVerificationSessionMap.get(result.emailVerificationSession.id);
+		if (!result.isErr) {
+			const { emailVerificationSession } = result.value;
+			const savedSession = emailVerificationSessionMap.get(emailVerificationSession.id);
 			expect(savedSession).toBeDefined();
 		}
 	});

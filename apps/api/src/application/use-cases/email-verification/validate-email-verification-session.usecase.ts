@@ -1,4 +1,4 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { type User, isExpiredEmailVerificationSession } from "../../../domain/entities";
 import type { EmailVerificationSessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
@@ -47,6 +47,6 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 
-		return { emailVerificationSession };
+		return ok({ emailVerificationSession });
 	}
 }

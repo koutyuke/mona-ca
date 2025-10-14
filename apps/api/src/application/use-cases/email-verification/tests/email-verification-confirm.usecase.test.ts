@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import {
 	createEmailVerificationSessionFixture,
 	createSessionFixture,
@@ -78,14 +77,13 @@ describe("EmailVerificationConfirmUseCase", () => {
 			emailVerificationSession,
 		);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
 		// verify email verification session is deleted
@@ -110,9 +108,9 @@ describe("EmailVerificationConfirmUseCase", () => {
 			emailVerificationSession,
 		);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_MISMATCH");
 		}
 	});
@@ -128,9 +126,9 @@ describe("EmailVerificationConfirmUseCase", () => {
 		const wrongCode = "87654321";
 		const result = await emailVerificationConfirmUseCase.execute(wrongCode, user, emailVerificationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_VERIFICATION_CODE");
 		}
 	});
@@ -165,15 +163,16 @@ describe("EmailVerificationConfirmUseCase", () => {
 			emailVerificationSession,
 		);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		// verify existing sessions are deleted
 		expect(sessionMap.has(existingSession1.id)).toBe(false);
 		expect(sessionMap.has(existingSession2.id)).toBe(false);
 
 		// verify new session is created
-		if (!isErr(result)) {
-			const newSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const newSession = sessionMap.get(session.id);
 			expect(newSession).toBeDefined();
 			expect(newSession?.userId).toBe(user.id);
 		}
@@ -193,10 +192,11 @@ describe("EmailVerificationConfirmUseCase", () => {
 			emailVerificationSession,
 		);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
 		}
