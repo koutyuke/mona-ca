@@ -1,4 +1,4 @@
-import type { NewType } from "../../common/utils";
+import type { NewType } from "@mona-ca/core/utils";
 import type {
 	AccountAssociationSessionId,
 	EmailVerificationSessionId,
