@@ -1,3 +1,4 @@
+import { ok } from "@mona-ca/core/utils";
 import type { OAuth2Tokens } from "arctic";
 import type {
 	GetIdentityResult,
@@ -11,21 +12,21 @@ export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 	}
 
 	public async exchangeCodeForTokens(_code: string, _codeVerifier: string): Promise<GetTokensResult> {
-		return {
+		return ok({
 			accessToken: () => "test_access_token",
 			refreshToken: () => "test_refresh_token",
 			accessTokenExpiresAt: () => new Date(Date.now() + 3600 * 1000),
-		} as unknown as OAuth2Tokens;
+		} as unknown as OAuth2Tokens);
 	}
 
 	public async getIdentity(_tokens: OAuth2Tokens): Promise<GetIdentityResult> {
-		return {
+		return ok({
 			id: "provider_user_id",
 			email: "test@example.com",
 			name: "Test User",
 			iconURL: "https://example.com/icon.png",
 			emailVerified: true,
-		};
+		});
 	}
 
 	public async revokeToken(_tokens: OAuth2Tokens): Promise<void> {
