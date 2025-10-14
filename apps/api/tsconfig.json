@@ -1,7 +1,7 @@
 {
   "extends": "@mona-ca/tsconfig/elysiajs.json",
   "compilerOptions": {
-    "types": ["./src/types/worker-configuration.d.ts", "@cloudflare/vitest-pool-workers"]
+    "types": ["./types/worker-configuration.d.ts", "@cloudflare/vitest-pool-workers"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
