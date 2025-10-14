@@ -1,16 +1,10 @@
+import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/utils";
 import type { Static, TObject } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { generateState } from "arctic";
 import { t } from "elysia";
 import type { IOAuthStateSigner } from "../../application/ports/out/system";
-import {
-	type Err,
-	type Result,
-	decodeBase64URLSafe,
-	encodeBase64URLSafe,
-	err,
-	timingSafeStringEqual,
-} from "../../common/utils";
+import { decodeBase64URLSafe, encodeBase64URLSafe, timingSafeStringEqual } from "../../common/utils";
 import { HmacSha256 } from "./hmac-sha-256";
 
 export class HmacOAuthStateSigner<P extends TObject> implements IOAuthStateSigner<P> {
@@ -36,7 +30,9 @@ export class HmacOAuthStateSigner<P extends TObject> implements IOAuthStateSigne
 		return `${payloadBase64URL}.${signature}`;
 	}
 
-	validate(signedState: string): Result<Static<P>, Err<"INVALID_SIGNED_STATE"> | Err<"FAILED_TO_DECODE_SIGNED_STATE">> {
+	validate(
+		signedState: string,
+	): Result<Ok<Static<P>>, Err<"INVALID_SIGNED_STATE"> | Err<"FAILED_TO_DECODE_SIGNED_STATE">> {
 		try {
 			const [payloadBase64URL, signature] = signedState.split(".");
 
@@ -61,7 +57,7 @@ export class HmacOAuthStateSigner<P extends TObject> implements IOAuthStateSigne
 
 			const { nonce, ...rest } = payload;
 
-			return rest as Static<P>;
+			return ok(rest as Static<P>);
 		} catch (e) {
 			console.error(e);
 			return err("FAILED_TO_DECODE_SIGNED_STATE");

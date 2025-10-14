@@ -1,7 +1,7 @@
 import type { Static } from "@sinclair/typebox";
 import { t } from "elysia";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { decodeBase64URLSafe, encodeBase64URLSafe, isErr } from "../../../common/utils";
+import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../common/utils";
 import { HmacOAuthStateSigner } from "../hmac-oauth-state-signer";
 import { HmacSha256 } from "../hmac-sha-256";
 
@@ -51,12 +51,12 @@ describe("HmacOAuthStateSigner", () => {
 			const signedState = signer.generate(payload);
 			const result = signer.validate(signedState);
 
-			expect(isErr(result)).toBe(false);
-			if (isErr(result)) {
+			expect(result.isErr).toBe(false);
+			if (result.isErr) {
 				throw new Error("Expected a successful validation result");
 			}
 
-			expect(result).toEqual(payload);
+			expect(result.value).toEqual(payload);
 		});
 
 		it("returns INVALID_SIGNED_STATE when the signature is tampered", () => {
@@ -68,8 +68,8 @@ describe("HmacOAuthStateSigner", () => {
 
 			const result = signer.validate(tamperedState);
 
-			expect(isErr(result)).toBe(true);
-			if (!isErr(result)) {
+			expect(result.isErr).toBe(true);
+			if (!result.isErr) {
 				throw new Error("Expected tampered state to be rejected");
 			}
 
@@ -90,8 +90,8 @@ describe("HmacOAuthStateSigner", () => {
 
 			const result = signer.validate(invalidState);
 
-			expect(isErr(result)).toBe(true);
-			if (!isErr(result)) {
+			expect(result.isErr).toBe(true);
+			if (!result.isErr) {
 				throw new Error("Expected schema mismatch to be rejected");
 			}
 
@@ -108,8 +108,8 @@ describe("HmacOAuthStateSigner", () => {
 
 			const result = signer.validate(invalidState);
 
-			expect(isErr(result)).toBe(true);
-			if (!isErr(result)) {
+			expect(result.isErr).toBe(true);
+			if (!result.isErr) {
 				throw new Error("Expected invalid JSON to be rejected");
 			}
 
@@ -121,8 +121,8 @@ describe("HmacOAuthStateSigner", () => {
 			const signer = createSigner();
 			const result = signer.validate("malformed-state");
 
-			expect(isErr(result)).toBe(true);
-			if (!isErr(result)) {
+			expect(result.isErr).toBe(true);
+			if (!result.isErr) {
 				throw new Error("Expected malformed state to be rejected");
 			}
 
