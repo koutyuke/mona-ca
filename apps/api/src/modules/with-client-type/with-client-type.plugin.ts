@@ -1,7 +1,7 @@
 import { Value } from "@sinclair/typebox/value";
 import { Elysia, t } from "elysia";
 import { CLIENT_TYPE_HEADER_NAME } from "../../common/constants";
-import { type ClientType, clientTypeSchema, newClientType } from "../../domain/value-object";
+import { type ClientType, clientTypeSchema, newClientType } from "../../domain/value-objects";
 import { ErrorResponseSchema } from "../elysia-with-env";
 import { BadRequestException } from "../error";
 

@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { CLIENT_TYPE_HEADER_NAME } from "../../../common/constants";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { createSessionFixture, createUserFixture } from "../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
@@ -10,28 +11,30 @@ const { DB } = env;
 
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
+const sessionSecretHasher = new SessionSecretHasher();
 
-const { user: user1, passwordHash: passwordHash1 } = createUserFixture({
+const { user: user1 } = createUserFixture({
 	user: {
 		email: "test1.email@example.com",
 		emailVerified: false,
 	},
-	passwordHash: "passwordHash1",
 });
-const { user: user2, passwordHash: passwordHash2 } = createUserFixture({
+
+const { user: user2 } = createUserFixture({
 	user: {
 		email: "test2.email@example.com",
 		emailVerified: true,
 	},
-	passwordHash: "passwordHash2",
 });
 
 const { session: session1, sessionToken: sessionToken1 } = createSessionFixture({
+	secretHasher: sessionSecretHasher.hash,
 	session: {
 		userId: user1.id,
 	},
 });
 const { session: session2, sessionToken: sessionToken2 } = createSessionFixture({
+	secretHasher: sessionSecretHasher.hash,
 	session: {
 		userId: user2.id,
 	},
@@ -42,8 +45,8 @@ describe("AuthGuard Authorization Header Test", () => {
 		sessionTableHelper.deleteAll();
 		userTableHelper.deleteAll();
 
-		await userTableHelper.save(user1, passwordHash1);
-		await userTableHelper.save(user2, passwordHash2);
+		await userTableHelper.save(user1, null);
+		await userTableHelper.save(user2, null);
 
 		await sessionTableHelper.save(session1);
 		await sessionTableHelper.save(session2);

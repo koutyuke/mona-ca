@@ -1,16 +1,19 @@
-import { err, generateRandomString, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { type SignupSession, createSignupSession } from "../../../domain/entities";
-import { formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
-import type { SignupSessionToken } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { ISignupSessionRepository } from "../../../interface-adapter/repositories/signup-session/interfaces/signup-session.repository.interface";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "./interfaces/signup-request.usecase.interface";
+import { formatSessionToken, newSignupSessionId } from "../../../domain/value-objects";
+import type { SignupSessionToken } from "../../../domain/value-objects";
+import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "../../ports/in";
+import type { IUserRepository } from "../../ports/out/repositories";
+import type { ISignupSessionRepository } from "../../ports/out/repositories";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../ports/out/system";
 
 export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(
 		private readonly signupSessionRepository: ISignupSessionRepository,
 		private readonly userRepository: IUserRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly randomGenerator: IRandomGenerator,
 	) {}
 
 	async execute(email: string): Promise<SignupRequestUseCaseResult> {
@@ -26,19 +29,19 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 
 		await this.signupSessionRepository.save(signupSession);
 
-		return {
+		return ok({
 			signupSessionToken,
 			signupSession,
-		};
+		});
 	}
 
 	private createSignupSession(email: string): { signupSessionToken: SignupSessionToken; signupSession: SignupSession } {
-		const code = generateRandomString(8, {
-			number: true,
+		const code = this.randomGenerator.string(8, {
+			digits: true,
 		});
 
-		const signupSessionSecret = generateSessionSecret();
-		const signupSessionSecretHash = hashSessionSecret(signupSessionSecret);
+		const signupSessionSecret = this.sessionSecretHasher.generate();
+		const signupSessionSecretHash = this.sessionSecretHasher.hash(signupSessionSecret);
 		const signupSessionId = newSignupSessionId(ulid());
 		const signupSession = createSignupSession({
 			id: signupSessionId,

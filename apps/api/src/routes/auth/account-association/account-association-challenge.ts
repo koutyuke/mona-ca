@@ -4,8 +4,8 @@ import { ValidateAccountAssociationSessionUseCase } from "../../../application/u
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newAccountAssociationSessionToken } from "../../../domain/value-object";
+import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -18,7 +18,7 @@ import {
 	ResponseTUnion,
 	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../modules/error";
+import { UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api/path-detail";
 import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
@@ -27,10 +27,10 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(
 		rateLimit("account-association-challenge", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -48,13 +48,19 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+			const randomGenerator = new RandomGenerator();
+
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
+				randomGenerator,
 			);
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
@@ -74,34 +80,34 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
 			);
 
-			if (isErr(validateResult)) {
+			if (validateResult.isErr) {
 				const { code } = validateResult;
 
-				switch (code) {
-					case "ACCOUNT_ASSOCIATION_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid account association session. Please login again.",
-						});
-					case "ACCOUNT_ASSOCIATION_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Account association session has expired. Please login again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account association session validation failed. Please try again.",
-						});
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid account association session. Please login again.",
+					});
+				}
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Account association session has expired. Please login again.",
+					});
 				}
 			}
 
-			await rateLimit.consume(validateResult.user.id, 10);
+			const { accountAssociationSession: validateAccountAssociationSession, user } = validateResult.value;
+
+			await rateLimit.consume(user.id, 100);
 
 			const { accountAssociationSessionToken, accountAssociationSession } =
-				await accountAssociationChallengeUseCase.execute(validateResult.user, validateResult.accountAssociationSession);
+				await accountAssociationChallengeUseCase.execute(user, validateAccountAssociationSession);
 
-			const mailContents = verificationEmailTemplate(accountAssociationSession.email, accountAssociationSession.code);
+			const mailContents = verificationEmailTemplate(
+				accountAssociationSession.email,
+				accountAssociationSession.code ?? "",
+			);
 
 			await sendEmailUseCase.execute({
 				from: mailContents.from,

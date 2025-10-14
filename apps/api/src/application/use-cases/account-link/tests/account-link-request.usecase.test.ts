@@ -1,32 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
-import { newClientType, newUserId } from "../../../../domain/value-object";
-import { OAuthProviderGatewayMock } from "../../../../tests/mocks";
+import { ulid } from "../../../../common/utils";
+import { newClientType, newUserId } from "../../../../domain/value-objects";
+import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
+import type { accountLinkStateSchema } from "../schema";
 
-describe("AccountLinkRequestUseCase", () => {
-	const mockEnv = {
-		APP_ENV: "development" as const,
-		OAUTH_STATE_HMAC_SECRET: "test_secret",
-	};
+const oauthProviderGateway = new OAuthProviderGatewayMock();
+const oauthStateSigner = new OAuthStateSignerMock<typeof accountLinkStateSchema>();
 
-	const oauthProviderGatewayMock = new OAuthProviderGatewayMock();
-	const accountLinkRequestUseCase = new AccountLinkRequestUseCase(mockEnv, oauthProviderGatewayMock);
+const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, oauthStateSigner);
 
+const PRODUCTION = false;
+
+describe("ExternalAuthRequestUseCase", () => {
 	it("should generate account link request successfully for web client", () => {
 		const clientType = newClientType("web");
 		const queryRedirectURI = "/settings/connections";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(clientType, queryRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.state).toBeDefined();
-			expect(result.codeVerifier).toBeDefined();
-			expect(result.redirectToClientURL).toBeInstanceOf(URL);
-			expect(result.redirectToProviderURL).toBeInstanceOf(URL);
-			expect(result.redirectToClientURL.pathname).toBe("/settings/connections");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
+			expect(state).toBeDefined();
+			expect(codeVerifier).toBeDefined();
+			expect(redirectToClientURL).toBeInstanceOf(URL);
+			expect(redirectToProviderURL).toBeInstanceOf(URL);
+			expect(redirectToClientURL.pathname).toBe("/settings/connections");
 		}
 	});
 
@@ -35,28 +36,29 @@ describe("AccountLinkRequestUseCase", () => {
 		const queryRedirectURI = "/settings/connections";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(clientType, queryRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.state).toBeDefined();
-			expect(result.codeVerifier).toBeDefined();
-			expect(result.redirectToClientURL).toBeInstanceOf(URL);
-			expect(result.redirectToProviderURL).toBeInstanceOf(URL);
-			expect(result.redirectToClientURL.pathname).toBe("/settings/connections");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
+			expect(state).toBeDefined();
+			expect(codeVerifier).toBeDefined();
+			expect(redirectToClientURL).toBeInstanceOf(URL);
+			expect(redirectToProviderURL).toBeInstanceOf(URL);
+			expect(redirectToClientURL.pathname).toBe("/settings/connections");
 		}
 	});
 
-	it("should return INVALID_REDIRECT_URL error for invalid redirect URI", () => {
+	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", () => {
 		const clientType = newClientType("web");
 		const invalidRedirectURI = "https://malicious.com/redirect";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(clientType, invalidRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, invalidRedirectURI, userId);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
-			expect(result.code).toBe("INVALID_REDIRECT_URL");
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
+			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
 
@@ -65,11 +67,12 @@ describe("AccountLinkRequestUseCase", () => {
 		const emptyRedirectURI = "";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(clientType, emptyRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, emptyRedirectURI, userId);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.redirectToClientURL.pathname).toBe("/");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { redirectToClientURL } = result.value;
+			expect(redirectToClientURL.pathname).toBe("/");
 		}
 	});
 
@@ -79,13 +82,15 @@ describe("AccountLinkRequestUseCase", () => {
 		const userId1 = newUserId(ulid());
 		const userId2 = newUserId(ulid());
 
-		const result1 = accountLinkRequestUseCase.execute(clientType, queryRedirectURI, userId1);
-		const result2 = accountLinkRequestUseCase.execute(clientType, queryRedirectURI, userId2);
+		const result1 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId1);
+		const result2 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId2);
 
-		expect(isErr(result1)).toBe(false);
-		expect(isErr(result2)).toBe(false);
-		if (!isErr(result1) && !isErr(result2)) {
-			expect(result1.state).not.toBe(result2.state);
+		expect(result1.isErr).toBe(false);
+		expect(result2.isErr).toBe(false);
+		if (!result1.isErr && !result2.isErr) {
+			const { state: state1 } = result1.value;
+			const { state: state2 } = result2.value;
+			expect(state1).not.toBe(state2);
 		}
 	});
 });

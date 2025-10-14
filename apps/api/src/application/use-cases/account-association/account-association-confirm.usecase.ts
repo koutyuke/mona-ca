@@ -1,20 +1,21 @@
-import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { timingSafeStringEqual, ulid } from "../../../common/utils";
 import {
 	type AccountAssociationSession,
-	createOAuthAccount,
+	type Session,
+	createExternalIdentity,
 	createSession,
 	updateUser,
 } from "../../../domain/entities";
-import { formatSessionToken, newSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
+import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-objects";
+import type { AccountAssociationConfirmUseCaseResult, IAccountAssociationConfirmUseCase } from "../../ports/in";
 import type {
-	AccountAssociationConfirmUseCaseResult,
-	IAccountAssociationConfirmUseCase,
-} from "./interfaces/account-association-confirm.interface.usecase";
+	IAccountAssociationSessionRepository,
+	IExternalIdentityRepository,
+	ISessionRepository,
+	IUserRepository,
+} from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.
@@ -22,8 +23,9 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(
@@ -40,23 +42,23 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 
 		await this.accountAssociationSessionRepository.deleteById(accountAssociationSession.id);
 
-		const [existingOAuthAccount, existingUserLinkedAccount] = await Promise.all([
-			this.oauthAccountRepository.findByProviderAndProviderId(
+		const [existingExternalIdentity, currentUserExternalIdentity] = await Promise.all([
+			this.externalIdentityRepository.findByProviderAndProviderUserId(
 				accountAssociationSession.provider,
-				accountAssociationSession.providerId,
+				accountAssociationSession.providerUserId,
 			),
-			this.oauthAccountRepository.findByUserIdAndProvider(
+			this.externalIdentityRepository.findByUserIdAndProvider(
 				accountAssociationSession.userId,
 				accountAssociationSession.provider,
 			),
 		]);
 
-		if (existingUserLinkedAccount) {
-			return err("OAUTH_PROVIDER_ALREADY_LINKED");
+		if (currentUserExternalIdentity) {
+			return err("ACCOUNT_ALREADY_LINKED");
 		}
 
-		if (existingOAuthAccount) {
-			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
+		if (existingExternalIdentity) {
+			return err("ACCOUNT_LINKED_ELSEWHERE");
 		}
 
 		const _user = await this.userRepository.findById(accountAssociationSession.userId);
@@ -68,31 +70,39 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			emailVerified: true,
 		});
 
-		const sessionSecret = generateSessionSecret();
-		const sessionSecretHash = hashSessionSecret(sessionSecret);
-		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
-		const session = createSession({
-			id: sessionId,
-			userId: user.id,
-			secretHash: sessionSecretHash,
-		});
+		const { session, sessionToken } = this.createSession(user.id);
 
-		const oauthAccount = createOAuthAccount({
+		const externalIdentity = createExternalIdentity({
 			provider: accountAssociationSession.provider,
-			providerId: accountAssociationSession.providerId,
+			providerUserId: accountAssociationSession.providerUserId,
 			userId: user.id,
 		});
 
 		await Promise.all([
-			this.oauthAccountRepository.save(oauthAccount),
+			this.externalIdentityRepository.save(externalIdentity),
 			this.sessionRepository.save(session),
 			this.userRepository.save(user),
 		]);
 
-		return {
+		return ok({
 			session,
 			sessionToken,
-		};
+		});
+	}
+
+	private createSession(userId: UserId): {
+		session: Session;
+		sessionToken: SessionToken;
+	} {
+		const sessionSecret = this.sessionSecretHasher.generate();
+		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const session = createSession({
+			id: sessionId,
+			userId,
+			secretHash: sessionSecretHash,
+		});
+		return { session, sessionToken };
 	}
 }

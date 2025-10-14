@@ -1,12 +1,12 @@
 import { t } from "elysia";
 import { AccountAssociationConfirmUseCase } from "../../../application/use-cases/account-association";
-import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
+import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newAccountAssociationSessionToken } from "../../../domain/value-object";
+import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { OAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
+import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
@@ -27,11 +27,11 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(withClientType)
 	.use(
-		rateLimit("forgot-password-verify-email", {
-			maxTokens: 100,
-			refillRate: 50,
+		rateLimit("account-association-confirm", {
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -54,18 +54,22 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
-			const oauthAccountRepository = new OAuthAccountRepository(drizzleService);
+			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
+
+			const sessionSecretHasher = new SessionSecretHasher();
 
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
 			);
 			const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
 				userRepository,
 				sessionRepository,
-				oauthAccountRepository,
+				externalIdentityRepository,
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
@@ -85,68 +89,59 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
 			);
 
-			if (isErr(validateResult)) {
+			if (validateResult.isErr) {
 				const { code } = validateResult;
 
-				switch (code) {
-					case "ACCOUNT_ASSOCIATION_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid account association session. Please login again.",
-						});
-					case "ACCOUNT_ASSOCIATION_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Account association session has expired. Please login again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account association session validation failed. Please try again.",
-						});
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid account association session. Please login again.",
+					});
+				}
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Account association session has expired. Please login again.",
+					});
 				}
 			}
 
-			await rateLimit.consume(validateResult.user.id, 10);
+			const { accountAssociationSession } = validateResult.value;
 
-			const confirmResult = await accountAssociationConfirmUseCase.execute(
-				code,
-				validateResult.accountAssociationSession,
-			);
+			await rateLimit.consume(accountAssociationSession.id, 100);
 
-			if (isErr(confirmResult)) {
+			const confirmResult = await accountAssociationConfirmUseCase.execute(code, accountAssociationSession);
+
+			if (confirmResult.isErr) {
 				const { code } = confirmResult;
 
-				switch (code) {
-					case "INVALID_ASSOCIATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid association code. Please check your email and try again.",
-						});
-					case "OAUTH_PROVIDER_ALREADY_LINKED":
-						throw new BadRequestException({
-							code: code,
-							message: "This OAuth provider is already linked to your account.",
-						});
-					case "OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER":
-						throw new BadRequestException({
-							code: code,
-							message: "This OAuth account is already linked to another user.",
-						});
-					case "USER_NOT_FOUND":
-						throw new BadRequestException({
-							code: code,
-							message: "User not found. Please try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account association failed. Please try again.",
-						});
+				if (code === "INVALID_ASSOCIATION_CODE") {
+					throw new BadRequestException({
+						code,
+						message: "Invalid association code. Please check your email and try again.",
+					});
+				}
+				if (code === "ACCOUNT_ALREADY_LINKED") {
+					throw new BadRequestException({
+						code,
+						message: "This OAuth provider is already linked to your account.",
+					});
+				}
+				if (code === "ACCOUNT_LINKED_ELSEWHERE") {
+					throw new BadRequestException({
+						code,
+						message: "This OAuth account is already linked to another user.",
+					});
+				}
+				if (code === "USER_NOT_FOUND") {
+					throw new BadRequestException({
+						code,
+						message: "User not found. Please try again.",
+					});
 				}
 			}
 
-			const { sessionToken, session } = confirmResult;
+			const { sessionToken, session } = confirmResult.value;
 
 			if (clientType === "mobile") {
 				return {
@@ -182,8 +177,8 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				400: ResponseTUnion(
 					WithClientTypeSchema.response[400],
 					ErrorResponseSchema("INVALID_ASSOCIATION_CODE"),
-					ErrorResponseSchema("OAUTH_PROVIDER_ALREADY_LINKED"),
-					ErrorResponseSchema("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER"),
+					ErrorResponseSchema("ACCOUNT_ALREADY_LINKED"),
+					ErrorResponseSchema("ACCOUNT_LINKED_ELSEWHERE"),
 					ErrorResponseSchema("USER_NOT_FOUND"),
 				),
 				401: ResponseTUnion(

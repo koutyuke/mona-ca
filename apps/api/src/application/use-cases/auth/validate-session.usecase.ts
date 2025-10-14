@@ -1,16 +1,19 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities";
-import type { SessionToken } from "../../../domain/value-object";
-import { parseSessionToken } from "../../../domain/value-object";
-import { verifySessionSecret } from "../../../infrastructure/crypt";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IValidateSessionUseCase, ValidateSessionUseCaseResult } from "./interfaces/validate-session.usecase";
+import type { SessionToken } from "../../../domain/value-objects";
+import { parseSessionToken } from "../../../domain/value-objects";
+import type {
+	IValidateSessionUseCase,
+	ValidateSessionUseCaseResult,
+} from "../../ports/in/auth/validate-session.usecase";
+import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(
 		private readonly sessionRepository: ISessionRepository,
 		private readonly userRepository: IUserRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(sessionToken: SessionToken): Promise<ValidateSessionUseCaseResult> {
@@ -26,7 +29,7 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 			this.sessionRepository.findById(sessionId),
 		]);
 
-		if (!session || !user || !verifySessionSecret(sessionSecret, session.secretHash)) {
+		if (!session || !user || !this.sessionSecretHasher.verify(sessionSecret, session.secretHash)) {
 			return err("SESSION_INVALID");
 		}
 
@@ -41,6 +44,6 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 			await this.sessionRepository.save(session);
 		}
 
-		return { session, user };
+		return ok({ session, user });
 	}
 }

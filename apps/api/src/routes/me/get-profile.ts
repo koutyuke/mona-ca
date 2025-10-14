@@ -1,4 +1,4 @@
-import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenter";
+import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenters";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
 import { pathDetail } from "../../modules/open-api";

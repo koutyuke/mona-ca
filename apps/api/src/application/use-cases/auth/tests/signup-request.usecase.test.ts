@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createSignupSessionFixture, createUserFixture } from "../../../../tests/fixtures";
-import { SignupSessionRepositoryMock, UserRepositoryMock } from "../../../../tests/mocks";
+import {
+	RandomGeneratorMock,
+	SessionSecretHasherMock,
+	SignupSessionRepositoryMock,
+	UserRepositoryMock,
+} from "../../../../tests/mocks";
 import {
 	createSessionsMap,
 	createSignupSessionsMap,
@@ -16,18 +20,25 @@ const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const signupSessionMap = createSignupSessionsMap();
 
-// Repositories
-const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
+// Mocks
+const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
+const randomGenerator = new RandomGeneratorMock();
 
 // Use Case
-const signupRequestUseCase = new SignupRequestUseCase(signupSessionRepositoryMock, userRepositoryMock);
+const signupRequestUseCase = new SignupRequestUseCase(
+	signupSessionRepository,
+	userRepository,
+	sessionSecretHasher,
+	randomGenerator,
+);
 
 const { user } = createUserFixture({
 	user: {
@@ -49,17 +60,16 @@ describe("SignupRequestUseCase", () => {
 	it("should create signup session successfully when email is not used", async () => {
 		const result = await signupRequestUseCase.execute("new@example.com");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.signupSession.email).toBe("new@example.com");
-			expect(result.signupSession.emailVerified).toBe(false);
-			expect(result.signupSession.code).toHaveLength(8);
-			expect(result.signupSessionToken.length).toBeGreaterThan(0);
-		}
+		if (!result.isErr) {
+			const { signupSession, signupSessionToken } = result.value;
+			expect(signupSession.email).toBe("new@example.com");
+			expect(signupSession.emailVerified).toBe(false);
+			expect(signupSession.code).toHaveLength(8);
+			expect(signupSessionToken.length).toBeGreaterThan(0);
 
-		if (!isErr(result)) {
-			const savedSession = signupSessionMap.get(result.signupSession.id);
+			const savedSession = signupSessionMap.get(signupSession.id);
 			expect(savedSession).toBeDefined();
 		}
 	});
@@ -67,15 +77,15 @@ describe("SignupRequestUseCase", () => {
 	it("should return EMAIL_ALREADY_USED when email is already registered", async () => {
 		const result = await signupRequestUseCase.execute("existing@example.com");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_ALREADY_USED");
 		}
 	});
 
 	it("should delete existing sessions before creating new one", async () => {
-		const { signupSession } = createSignupSessionFixture({
+		const { signupSession: existingSignupSession } = createSignupSessionFixture({
 			signupSession: {
 				email: "new@example.com",
 				code: "87654321",
@@ -83,18 +93,19 @@ describe("SignupRequestUseCase", () => {
 			signupSessionSecret: "existingSecret",
 		});
 
-		signupSessionMap.set(signupSession.id, signupSession);
+		signupSessionMap.set(existingSignupSession.id, existingSignupSession);
 
 		expect(signupSessionMap.size).toBe(1);
 
 		const result = await signupRequestUseCase.execute("new@example.com");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
+		if (!result.isErr) {
+			const { signupSession } = result.value;
 			expect(signupSessionMap.size).toBe(1);
-			expect(result.signupSession.id).not.toBe(signupSession.id);
-			expect(signupSessionMap.has(signupSession.id)).toBe(false);
+			expect(signupSession.id).not.toBe(existingSignupSession.id);
+			expect(signupSessionMap.has(existingSignupSession.id)).toBe(false);
 		}
 	});
 });

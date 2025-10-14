@@ -1,9 +1,8 @@
 import { t } from "elysia";
-import { PasswordService } from "../../../application/services/password";
 import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-object";
+import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-objects";
+import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
@@ -44,14 +43,19 @@ export const SignupConfirm = new ElysiaWithEnv()
 			const sessionRepository = new SessionRepository(drizzleService);
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
-			const passwordService = new PasswordService(PASSWORD_PEPPER);
+			const sessionSecretHasher = new SessionSecretHasher();
+			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
 
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository);
+			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
+				signupSessionRepository,
+				sessionSecretHasher,
+			);
 			const signupConfirmUseCase = new SignupConfirmUseCase(
 				userRepository,
 				sessionRepository,
 				signupSessionRepository,
-				passwordService,
+				sessionSecretHasher,
+				passwordHasher,
 			);
 			// === End of instances ===
 
@@ -67,56 +71,45 @@ export const SignupConfirm = new ElysiaWithEnv()
 
 			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "SIGNUP_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
-					case "SIGNUP_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token has expired. Please request signup again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
+				if (code === "SIGNUP_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token is invalid. Please request signup again.",
+					});
+				}
+				if (code === "SIGNUP_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token has expired. Please request signup again.",
+					});
 				}
 			}
 
-			const { signupSession } = validationResult;
+			const { signupSession } = validationResult.value;
 
 			const result = await signupConfirmUseCase.execute(signupSession, name, password, newGender(gender));
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
-				switch (code) {
-					case "EMAIL_ALREADY_REGISTERED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already registered. Please use a different email address or try logging in.",
-						});
-					case "EMAIL_VERIFICATION_REQUIRED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification is required. Please verify your email address.",
-						});
-
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Signup failed. Please try again.",
-						});
+				if (code === "EMAIL_ALREADY_REGISTERED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already registered. Please use a different email address or try logging in.",
+					});
+				}
+				if (code === "EMAIL_VERIFICATION_REQUIRED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email verification is required. Please verify your email address.",
+					});
 				}
 			}
 
-			const { session, sessionToken } = result;
+			const { session, sessionToken } = result.value;
 
 			if (clientType === "mobile") {
 				return {

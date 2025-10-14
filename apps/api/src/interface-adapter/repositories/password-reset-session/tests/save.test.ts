@@ -16,11 +16,11 @@ const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
 const now = new Date();
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("PasswordResetSessionRepository.save", () => {
 	beforeAll(async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 	});
 
 	beforeEach(async () => {

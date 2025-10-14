@@ -4,8 +4,8 @@ import {
 	ValidateEmailVerificationSessionUseCase,
 } from "../../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newEmailVerificationSessionToken } from "../../../domain/value-object";
+import { newEmailVerificationSessionToken } from "../../../domain/value-objects";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
@@ -29,10 +29,10 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimit("email-verification-confirm", {
-			maxTokens: 10,
-			refillRate: 10,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -48,6 +48,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
 			user,
 			clientType,
+			rateLimit,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -57,13 +58,17 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
 				emailVerificationSessionRepository,
+				sessionSecretHasher,
 			);
 			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
 				userRepository,
 				sessionRepository,
 				emailVerificationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of Instances ===
 
@@ -84,55 +89,47 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				user,
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "EMAIL_VERIFICATION_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid email verification session. Please request email verification again.",
-						});
-					case "EMAIL_VERIFICATION_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Email verification session has expired. Please request email verification again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification session validation failed. Please try again.",
-						});
+				if (code === "EMAIL_VERIFICATION_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid email verification session. Please request email verification again.",
+					});
+				}
+				if (code === "EMAIL_VERIFICATION_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Email verification session has expired. Please request email verification again.",
+					});
 				}
 			}
 
-			const { emailVerificationSession } = validationResult;
+			const { emailVerificationSession } = validationResult.value;
+
+			await rateLimit.consume(emailVerificationSession.id, 100);
 
 			const confirmResult = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
 
-			if (isErr(confirmResult)) {
+			if (confirmResult.isErr) {
 				const { code } = confirmResult;
 
-				switch (code) {
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid verification code. Please check your email and try again.",
-						});
-					case "EMAIL_MISMATCH":
-						throw new BadRequestException({
-							code: code,
-							message: "Email mismatch. Please use the email address you requested verification for.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification failed. Please try again.",
-						});
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid verification code. Please check your email and try again.",
+					});
+				}
+				if (code === "EMAIL_MISMATCH") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email mismatch. Please use the email address you requested verification for.",
+					});
 				}
 			}
 
-			const { sessionToken, session } = confirmResult;
+			const { sessionToken, session } = confirmResult.value;
 
 			if (clientType === "mobile") {
 				return {

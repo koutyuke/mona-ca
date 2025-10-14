@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createPasswordResetSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordResetSessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createPasswordResetSessionsMap,
 	createSessionsMap,
@@ -15,17 +15,21 @@ const passwordResetSessionMap = createPasswordResetSessionsMap();
 const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const sessionMap = createSessionsMap();
-const passwordResetSessionRepositoryMock = new PasswordResetSessionRepositoryMock({
+
+const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
+
 const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
-	passwordResetSessionRepositoryMock,
-	userRepositoryMock,
+	passwordResetSessionRepository,
+	userRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture({
@@ -56,14 +60,13 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 
 		const result = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("passwordResetSession");
-		expect(result).toHaveProperty("user");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.passwordResetSession.id).toBe(passwordResetSession.id);
-			expect(result.passwordResetSession.userId).toBe(user.id);
-			expect(result.user.id).toBe(user.id);
+		if (!result.isErr) {
+			const { passwordResetSession, user } = result.value;
+			expect(passwordResetSession.id).toBe(passwordResetSession.id);
+			expect(passwordResetSession.userId).toBe(user.id);
+			expect(user.id).toBe(user.id);
 		}
 	});
 
@@ -72,9 +75,9 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 
 		const result = await validatePasswordResetSessionUseCase.execute(invalidToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
 		}
 	});
@@ -83,9 +86,9 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 		const { passwordResetSessionToken } = createPasswordResetSessionFixture();
 		const result = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
 		}
 	});
@@ -97,9 +100,9 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 
 		const result = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
 		}
 
@@ -119,9 +122,9 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 
 		const result = await validatePasswordResetSessionUseCase.execute("invalid.secret.token" as never);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
 		}
 	});
@@ -140,9 +143,9 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 
 		const result = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("PASSWORD_RESET_SESSION_EXPIRED");
 		}
 

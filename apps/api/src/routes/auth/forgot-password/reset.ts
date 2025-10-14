@@ -1,9 +1,8 @@
 import { t } from "elysia";
-import { PasswordService } from "../../../application/services/password";
 import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newPasswordResetSessionToken } from "../../../domain/value-object";
+import { newPasswordResetSessionToken } from "../../../domain/value-objects";
+import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
@@ -17,7 +16,7 @@ import {
 	ResponseTUnion,
 	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
-import { BadRequestException, ForbiddenException, UnauthorizedException } from "../../../modules/error";
+import { ForbiddenException, UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
@@ -37,22 +36,25 @@ export const ResetPassword = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const passwordService = new PasswordService(PASSWORD_PEPPER);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
+
 			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
 				userRepository,
+				sessionSecretHasher,
 			);
 			const resetPasswordUseCase = new ResetPasswordUseCase(
 				userRepository,
 				sessionRepository,
 				passwordResetSessionRepository,
-				passwordService,
+				passwordHasher,
 			);
 			// === End of instances ===
 
@@ -72,46 +74,35 @@ export const ResetPassword = new ElysiaWithEnv()
 				newPasswordResetSessionToken(rawPasswordResetSessionToken),
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "PASSWORD_RESET_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid password reset session. Please request password reset again.",
-						});
-					case "PASSWORD_RESET_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Password reset session has expired. Please request password reset again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset session validation failed. Please try again.",
-						});
+				if (code === "PASSWORD_RESET_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid password reset session. Please request password reset again.",
+					});
+				}
+				if (code === "PASSWORD_RESET_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Password reset session has expired. Please request password reset again.",
+					});
 				}
 			}
 
-			const { passwordResetSession, user } = validationResult;
+			const { passwordResetSession, user } = validationResult.value;
 
 			const resetResult = await resetPasswordUseCase.execute(newPassword, passwordResetSession, user);
 
-			if (isErr(resetResult)) {
+			if (resetResult.isErr) {
 				const { code } = resetResult;
 
-				switch (code) {
-					case "REQUIRED_EMAIL_VERIFICATION":
-						throw new ForbiddenException({
-							code: code,
-							message: "Email verification is required before resetting password. Please verify your email first.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset failed. Please try again.",
-						});
+				if (code === "REQUIRED_EMAIL_VERIFICATION") {
+					throw new ForbiddenException({
+						code: code,
+						message: "Email verification is required before resetting password. Please verify your email first.",
+					});
 				}
 			}
 

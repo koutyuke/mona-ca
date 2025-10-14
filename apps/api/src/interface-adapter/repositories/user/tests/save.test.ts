@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import type { User } from "../../../../domain/entities";
-import { newGender } from "../../../../domain/value-object";
+import { newGender } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createUserFixture } from "../../../../tests/fixtures";
 import { UserTableHelper, toRawDate } from "../../../../tests/helpers";
@@ -16,7 +16,7 @@ const userTableHelper = new UserTableHelper(DB);
 
 const now = new Date();
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("UserRepository.save", async () => {
 	beforeEach(async () => {
@@ -25,17 +25,17 @@ describe("UserRepository.save", async () => {
 
 	test("should set user in the database", async () => {
 		await userRepository.save(user, {
-			passwordHash,
+			passwordHash: null,
 		});
 
 		const results = await userTableHelper.findById(user.id);
 
 		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(userTableHelper.convertToRaw(user, passwordHash));
+		expect(results[0]).toStrictEqual(userTableHelper.convertToRaw(user, null));
 	});
 
 	test("should update user in the database if user already exists", async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 
 		const updatedUser = {
 			...user,

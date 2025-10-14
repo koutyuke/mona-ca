@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import type { User } from "../../../../domain/entities";
-import { newSessionId } from "../../../../domain/value-object";
+import { newSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -15,11 +15,11 @@ const userRepository = new UserRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("UserRepository.findBySessionId", async () => {
 	beforeAll(async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 	});
 
 	beforeEach(async () => {
@@ -36,10 +36,10 @@ describe("UserRepository.findBySessionId", async () => {
 
 		const foundUser = await userRepository.findBySessionId(session.id);
 
-		const expectedUser = userTableHelper.convertToRaw(user, passwordHash);
+		const expectedUser = userTableHelper.convertToRaw(user, null);
 
 		expect(foundUser).not.toBeNull();
-		const foundDatabaseUser = userTableHelper.convertToRaw(foundUser as User, passwordHash);
+		const foundDatabaseUser = userTableHelper.convertToRaw(foundUser as User, null);
 		expect(foundDatabaseUser).toStrictEqual({
 			...expectedUser,
 			created_at: foundDatabaseUser.created_at,

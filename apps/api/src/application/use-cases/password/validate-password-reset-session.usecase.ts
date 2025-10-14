@@ -1,18 +1,15 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredPasswordResetSession } from "../../../domain/entities";
-import { type PasswordResetSessionToken, parseSessionToken } from "../../../domain/value-object";
-import { verifySessionSecret } from "../../../infrastructure/crypt";
-import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	IValidatePasswordResetSessionUseCase,
-	ValidatePasswordResetSessionUseCaseResult,
-} from "./interfaces/validate-password-reset-session.usecase.interface";
+import { type PasswordResetSessionToken, parseSessionToken } from "../../../domain/value-objects";
+import type { IValidatePasswordResetSessionUseCase, ValidatePasswordResetSessionUseCaseResult } from "../../ports/in";
+import type { IPasswordResetSessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 export class ValidatePasswordResetSessionUseCase implements IValidatePasswordResetSessionUseCase {
 	constructor(
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly userRepository: IUserRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(
@@ -39,7 +36,7 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
-		if (!verifySessionSecret(passwordResetSessionSecret, passwordResetSession.secretHash)) {
+		if (!this.sessionSecretHasher.verify(passwordResetSessionSecret, passwordResetSession.secretHash)) {
 			return err("PASSWORD_RESET_SESSION_INVALID");
 		}
 
@@ -48,6 +45,6 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 			return err("PASSWORD_RESET_SESSION_EXPIRED");
 		}
 
-		return { passwordResetSession, user };
+		return ok({ passwordResetSession, user });
 	}
 }

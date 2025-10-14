@@ -1,8 +1,8 @@
 import { t } from "elysia";
 import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newSignupSessionToken } from "../../../domain/value-object";
+import { newSignupSessionToken } from "../../../domain/value-objects";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { CookieManager } from "../../../modules/cookie";
@@ -50,10 +50,13 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository);
-			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository, async signupSessionId =>
-				rateLimit.consume(signupSessionId, 100),
+			const sessionSecretHasher = new SessionSecretHasher();
+
+			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
+				signupSessionRepository,
+				sessionSecretHasher,
 			);
+			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository);
 			// === End of instances ===
 
 			const rawSignupSessionToken =
@@ -68,52 +71,43 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 
 			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "SIGNUP_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
-					case "SIGNUP_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Signup session token has expired. Please request signup again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Signup session token is invalid. Please request signup again.",
-						});
+				if (code === "SIGNUP_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token is invalid. Please request signup again.",
+					});
+				}
+				if (code === "SIGNUP_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Signup session token has expired. Please request signup again.",
+					});
 				}
 			}
 
-			const { signupSession } = validationResult;
+			const { signupSession } = validationResult.value;
+
+			await rateLimit.consume(signupSession.id, 100);
 
 			const verifyEmailResult = await signupVerifyEmailUseCase.execute(code, signupSession);
 
-			if (isErr(verifyEmailResult)) {
+			if (verifyEmailResult.isErr) {
 				const { code } = verifyEmailResult;
 
-				switch (code) {
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid verification code. Please check your email and try again.",
-						});
-					case "ALREADY_VERIFIED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already verified. Please login.",
-						});
-
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification failed. Please try again.",
-						});
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid verification code. Please check your email and try again.",
+					});
+				}
+				if (code === "ALREADY_VERIFIED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already verified. Please login.",
+					});
 				}
 			}
 

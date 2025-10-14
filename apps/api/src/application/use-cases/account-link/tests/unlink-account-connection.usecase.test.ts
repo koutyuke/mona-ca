@@ -1,45 +1,50 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
-import { newOAuthProvider, newOAuthProviderId } from "../../../../domain/value-object";
-import { createOAuthAccountFixture, createUserFixture } from "../../../../tests/fixtures";
+import { newExternalIdentityProvider, newExternalIdentityProviderUserId } from "../../../../domain/value-objects";
+import { createExternalIdentityFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
-	OAuthAccountRepositoryMock,
+	ExternalIdentityRepositoryMock,
+	PasswordHasherMock,
 	UserRepositoryMock,
-	createOAuthAccountKey,
-	createOAuthAccountsMap,
+	createExternalIdentitiesMap,
+	createExternalIdentityKey,
 	createSessionsMap,
 	createUserPasswordHashMap,
 	createUsersMap,
 } from "../../../../tests/mocks";
-import type { IUnlinkAccountConnectionUseCase } from "../interfaces/unlink-account-connection.usecase.interface";
+import type { IUnlinkAccountConnectionUseCase } from "../../../ports/in";
 import { UnlinkAccountConnectionUseCase } from "../unlink-account-connection.usecase";
 
+const sessionMap = createSessionsMap();
+const userMap = createUsersMap();
+const userPasswordHashMap = createUserPasswordHashMap();
+const externalIdentityMap = createExternalIdentitiesMap();
+
+const passwordHasher = new PasswordHasherMock();
+
+const userRepository = new UserRepositoryMock({
+	userMap,
+	userPasswordHashMap,
+	sessionMap,
+});
+const externalIdentityRepository = new ExternalIdentityRepositoryMock({ externalIdentityMap });
+
+const unlinkAccountConnectionUseCase: IUnlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(
+	externalIdentityRepository,
+	userRepository,
+);
+
+const { user } = createUserFixture();
+const password = "password123";
+const passwordHash = await passwordHasher.hash(password);
+const provider = newExternalIdentityProvider("discord");
+const providerUserId = newExternalIdentityProviderUserId("discord_user_id");
+
 describe("UnlinkAccountConnectionUseCase", () => {
-	const sessionMap = createSessionsMap();
-	const userMap = createUsersMap();
-	const userPasswordHashMap = createUserPasswordHashMap();
-	const oauthAccountMap = createOAuthAccountsMap();
-
-	const userRepositoryMock = new UserRepositoryMock({
-		userMap,
-		userPasswordHashMap,
-		sessionMap,
-	});
-	const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({ oauthAccountMap });
-	const unlinkAccountConnectionUseCase: IUnlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(
-		oauthAccountRepositoryMock,
-		userRepositoryMock,
-	);
-
-	const { user, passwordHash } = createUserFixture();
-	const provider = newOAuthProvider("discord");
-	const providerId = newOAuthProviderId("discord_user_id");
-
 	beforeEach(() => {
 		sessionMap.clear();
 		userMap.clear();
 		userPasswordHashMap.clear();
-		oauthAccountMap.clear();
+		externalIdentityMap.clear();
 
 		userMap.set(user.id, user);
 		if (passwordHash) {
@@ -47,79 +52,79 @@ describe("UnlinkAccountConnectionUseCase", () => {
 		}
 	});
 
-	it("should return ACCOUNT_NOT_LINKED error when user has no linked account for provider", async () => {
+	it("should return PROVIDER_NOT_LINKED error when user has no linked account for provider", async () => {
 		userPasswordHashMap.set(user.id, passwordHash ?? "passwordHash");
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
-			expect(result.code).toBe("ACCOUNT_NOT_LINKED");
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
+			expect(result.code).toBe("PROVIDER_NOT_LINKED");
 		}
 	});
 
 	it("should return PASSWORD_NOT_SET error when user has no password", async () => {
-		const { oauthAccount } = createOAuthAccountFixture({
-			oauthAccount: {
+		const { externalIdentity } = createExternalIdentityFixture({
+			externalIdentity: {
 				userId: user.id,
 				provider,
-				providerId,
+				providerUserId,
 			},
 		});
 
 		userPasswordHashMap.clear();
 
-		oauthAccountMap.set(createOAuthAccountKey(provider, providerId), oauthAccount);
+		externalIdentityMap.set(createExternalIdentityKey(provider, providerUserId), externalIdentity);
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("PASSWORD_NOT_SET");
 		}
 	});
 
 	it("should successfully unlink account when user has password and linked account", async () => {
-		const { oauthAccount } = createOAuthAccountFixture({
-			oauthAccount: {
+		const { externalIdentity } = createExternalIdentityFixture({
+			externalIdentity: {
 				userId: user.id,
 				provider,
-				providerId,
+				providerUserId,
 			},
 		});
 
 		userPasswordHashMap.set(user.id, passwordHash ?? "passwordHash");
-		oauthAccountMap.set(createOAuthAccountKey(provider, providerId), oauthAccount);
+		externalIdentityMap.set(createExternalIdentityKey(provider, providerUserId), externalIdentity);
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
-		expect(isErr(result)).toBe(false);
-		expect(oauthAccountMap.has(createOAuthAccountKey(provider, providerId))).toBe(false);
+		expect(result.isErr).toBe(false);
+		expect(externalIdentityMap.has(createExternalIdentityKey(provider, providerUserId))).toBe(false);
 	});
 
 	it("should return UNLINK_OPERATION_FAILED error when repository operation fails", async () => {
-		const { oauthAccount } = createOAuthAccountFixture({
-			oauthAccount: {
+		const { externalIdentity } = createExternalIdentityFixture({
+			externalIdentity: {
 				userId: user.id,
 				provider,
-				providerId,
+				providerUserId,
 			},
 		});
 
 		userPasswordHashMap.set(user.id, passwordHash ?? "passwordHash");
-		oauthAccountMap.set(createOAuthAccountKey(provider, providerId), oauthAccount);
+		externalIdentityMap.set(createExternalIdentityKey(provider, providerUserId), externalIdentity);
 
-		const originalDelete = oauthAccountRepositoryMock.deleteByUserIdAndProvider.bind(oauthAccountRepositoryMock);
-		oauthAccountRepositoryMock.deleteByUserIdAndProvider = async () => {
+		const originalDelete = externalIdentityRepository.deleteByUserIdAndProvider.bind(externalIdentityRepository);
+		externalIdentityRepository.deleteByUserIdAndProvider = async () => {
 			throw new Error("Database error");
 		};
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("UNLINK_OPERATION_FAILED");
 		}
 
-		oauthAccountRepositoryMock.deleteByUserIdAndProvider = originalDelete;
+		externalIdentityRepository.deleteByUserIdAndProvider = originalDelete;
 	});
 });

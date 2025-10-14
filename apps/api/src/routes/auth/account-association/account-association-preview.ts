@@ -1,10 +1,10 @@
 import { t } from "elysia";
-import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
+import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newAccountAssociationSessionToken } from "../../../domain/value-object";
+import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenter";
+import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenters";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
@@ -14,7 +14,7 @@ import {
 	ResponseTUnion,
 	withBaseResponseSchema,
 } from "../../../modules/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../modules/error";
+import { UnauthorizedException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
 
@@ -33,9 +33,12 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				userRepository,
 				accountAssociationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
@@ -55,32 +58,29 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
 			);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
-				switch (code) {
-					case "ACCOUNT_ASSOCIATION_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid account association session. Please login again.",
-						});
-					case "ACCOUNT_ASSOCIATION_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Account association session has expired. Please login again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account association session validation failed. Please try again.",
-						});
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid account association session. Please login again.",
+					});
+				}
+				if (code === "ACCOUNT_ASSOCIATION_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Account association session has expired. Please login again.",
+					});
 				}
 			}
 
+			const { user, accountAssociationSession } = result.value;
+
 			return {
-				user: UserPresenter(result.user),
-				provider: result.accountAssociationSession.provider,
-				providerId: result.accountAssociationSession.providerId,
+				user: UserPresenter(user),
+				provider: accountAssociationSession.provider,
+				providerId: accountAssociationSession.providerUserId,
 			};
 		},
 		{

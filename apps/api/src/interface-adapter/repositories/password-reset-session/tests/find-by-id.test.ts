@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newPasswordResetSessionId } from "../../../../domain/value-object";
+import { newPasswordResetSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createPasswordResetSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { PasswordResetSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -14,7 +14,7 @@ const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzl
 const userTableHelper = new UserTableHelper(DB);
 const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("PasswordResetSessionRepository.findById", () => {
 	beforeEach(async () => {
@@ -23,7 +23,7 @@ describe("PasswordResetSessionRepository.findById", () => {
 	});
 
 	test("should return PasswordResetSession instance if exists", async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 
 		const { passwordResetSession } = createPasswordResetSessionFixture({
 			passwordResetSession: {

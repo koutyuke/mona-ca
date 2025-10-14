@@ -3,7 +3,7 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -26,10 +26,10 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimit("email-verification-request", {
-			maxTokens: 5,
-			refillRate: 5,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -45,6 +45,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			body: { email: bodyEmail },
 			user,
 			clientType,
+			rateLimit,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -53,39 +54,42 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const randomGenerator = new RandomGenerator();
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 				userRepository,
 				emailVerificationSessionRepository,
+				randomGenerator,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
 			const email = bodyEmail ?? user.email;
+
+			await rateLimit.consume(email, 100);
+
 			const result = await emailVerificationRequestUseCase.execute(email, user);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
-				switch (code) {
-					case "EMAIL_ALREADY_VERIFIED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already verified. Please use a different email address.",
-						});
-					case "EMAIL_ALREADY_REGISTERED":
-						throw new BadRequestException({
-							code: code,
-							message: "Email is already registered by another user. Please use a different email address.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification request failed. Please try again.",
-						});
+				if (code === "EMAIL_ALREADY_VERIFIED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already verified. Please use a different email address.",
+					});
+				}
+				if (code === "EMAIL_ALREADY_REGISTERED") {
+					throw new BadRequestException({
+						code: code,
+						message: "Email is already registered by another user. Please use a different email address.",
+					});
 				}
 			}
 
-			const { emailVerificationSession, emailVerificationSessionToken } = result;
+			const { emailVerificationSession, emailVerificationSessionToken } = result.value;
 
 			const mailContents = verificationEmailTemplate(emailVerificationSession.email, emailVerificationSession.code);
 

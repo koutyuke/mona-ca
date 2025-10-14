@@ -1,9 +1,17 @@
 import { TimeSpan } from "../../common/utils";
-import type { PasswordResetSessionId, UserId } from "../value-object";
+import type { PasswordResetSessionId, UserId } from "../value-objects";
 
-export const PASSWORD_RESET_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
+export const PASSWORD_RESET_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES = 10 as const;
+export const PASSWORD_RESET_SESSION_RESET_EXPIRES_SPAN_MINUTES = 10 as const;
 
-export const passwordResetSessionExpiresSpan = new TimeSpan(PASSWORD_RESET_SESSION_EXPIRES_SPAN_MINUTES, "m");
+export const passwordResetSessionEmailVerificationExpiresSpan = new TimeSpan(
+	PASSWORD_RESET_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES,
+	"m",
+);
+export const passwordResetSessionResetExpiresSpan = new TimeSpan(
+	PASSWORD_RESET_SESSION_RESET_EXPIRES_SPAN_MINUTES,
+	"m",
+);
 
 export interface PasswordResetSession {
 	id: PasswordResetSessionId;
@@ -29,19 +37,17 @@ export const createPasswordResetSession = (args: {
 		secretHash: args.secretHash,
 		email: args.email,
 		emailVerified: false,
-		expiresAt: new Date(Date.now() + passwordResetSessionExpiresSpan.milliseconds()),
+		expiresAt: new Date(Date.now() + passwordResetSessionEmailVerificationExpiresSpan.milliseconds()),
 	};
 };
 
-export const updatePasswordResetSession = (
+export const completeEmailVerificationForPasswordResetSession = (
 	session: PasswordResetSession,
-	args: {
-		emailVerified?: boolean;
-	},
 ): PasswordResetSession => {
 	return {
 		...session,
-		...args,
+		emailVerified: true,
+		expiresAt: new Date(Date.now() + passwordResetSessionResetExpiresSpan.milliseconds()),
 	};
 };
 

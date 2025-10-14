@@ -1,7 +1,7 @@
 import type {
 	AccountAssociationSession,
 	EmailVerificationSession,
-	OAuthAccount,
+	ExternalIdentity,
 	PasswordResetSession,
 	Session,
 	SignupSession,
@@ -10,13 +10,13 @@ import type {
 import type {
 	AccountAssociationSessionId,
 	EmailVerificationSessionId,
-	OAuthProvider,
-	OAuthProviderId,
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
 	PasswordResetSessionId,
 	SessionId,
 	SignupSessionId,
 	UserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 
 export const createUsersMap = (users: User[] = []): Map<UserId, User> => {
 	return new Map(users.map(user => [user.id, user]));
@@ -48,12 +48,22 @@ export const createAccountAssociationSessionsMap = (
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createOAuthAccountsMap = (accounts: OAuthAccount[] = []): Map<string, OAuthAccount> => {
-	return new Map(accounts.map(account => [`${account.provider}-${account.providerId}`, account]));
+export const createExternalIdentitiesMap = (
+	externalIdentities: ExternalIdentity[] = [],
+): Map<string, ExternalIdentity> => {
+	return new Map(
+		externalIdentities.map(externalIdentity => [
+			`${externalIdentity.provider}-${externalIdentity.providerUserId}`,
+			externalIdentity,
+		]),
+	);
 };
 
-export const createOAuthAccountKey = (provider: OAuthProvider, providerId: OAuthProviderId): string => {
-	return `${provider}-${providerId}`;
+export const createExternalIdentityKey = (
+	provider: ExternalIdentityProvider,
+	providerUserId: ExternalIdentityProviderUserId,
+): string => {
+	return `${provider}-${providerUserId}`;
 };
 
 export const createSignupSessionsMap = (sessions: SignupSession[] = []): Map<SignupSessionId, SignupSession> => {

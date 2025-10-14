@@ -1,8 +1,7 @@
 import { t } from "elysia";
-import { PasswordService } from "../../application/services/password";
 import { UpdateUserPasswordUseCase } from "../../application/use-cases/password";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { isErr } from "../../common/utils";
+import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
@@ -36,39 +35,40 @@ export const UpdatePassword = new ElysiaWithEnv()
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
-			const passwordService = new PasswordService(PASSWORD_PEPPER);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
+			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
 				userRepository,
 				sessionRepository,
-				passwordService,
+				passwordHasher,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
 			const result = await updateUserPasswordUseCase.execute(user, currentPassword, newPassword);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_CURRENT_PASSWORD":
-						throw new BadRequestException({
-							code: "INVALID_CURRENT_PASSWORD",
-							message: "Current password is incorrect. Please check your password and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Failed to update password. Please try again.",
-						});
+				if (code === "INVALID_CURRENT_PASSWORD") {
+					throw new BadRequestException({
+						code: "INVALID_CURRENT_PASSWORD",
+						message: "Current password is incorrect. Please check your password and try again.",
+					});
 				}
+				throw new BadRequestException({
+					code: code,
+					message: "Failed to update password. Please try again.",
+				});
 			}
 
-			const { session, sessionToken } = result;
+			const { session, sessionToken } = result.value;
 
 			if (clientType === "mobile") {
 				return {

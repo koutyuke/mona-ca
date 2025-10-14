@@ -11,7 +11,7 @@
       ".tsup",
       "./apps/api/drizzle",
       "./apps/catalog/.storybook/mobile/storybook.requires.ts",
-      "./apps/api/src/types/worker-configuration.d.ts",
+      "./apps/api/types/worker-configuration.d.ts",
       "ios",
       "android"
     ],

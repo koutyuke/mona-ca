@@ -1,16 +1,12 @@
 import { ulid } from "../../../common/utils";
 import type { User } from "../../../domain/entities";
-import { newGender, newUserId } from "../../../domain/value-object";
+import { newGender, newUserId } from "../../../domain/value-objects";
 
 export const createUserFixture = (override?: {
 	user?: Partial<User>;
-	passwordHash?: string | null;
 }): {
 	user: User;
-	passwordHash: string | null;
 } => {
-	const passwordHash = override?.passwordHash ?? "passwordHash";
-
 	return {
 		user: {
 			id: override?.user?.id ?? newUserId(ulid()),
@@ -22,6 +18,5 @@ export const createUserFixture = (override?: {
 			createdAt: override?.user?.createdAt ?? new Date(1704067200 * 1000),
 			updatedAt: override?.user?.updatedAt ?? new Date(1704067200 * 1000),
 		},
-		passwordHash,
 	};
 };

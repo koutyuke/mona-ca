@@ -1,10 +1,12 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import type { PasswordResetSession, User } from "../../../domain/entities";
-import type { IPasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IPasswordService } from "../../services/password";
-import type { IResetPasswordUseCase, ResetPasswordUseCaseResult } from "./interfaces/reset-password.usecase.interface";
+import type { IResetPasswordUseCase, ResetPasswordUseCaseResult } from "../../ports/in";
+import type {
+	IPasswordResetSessionRepository,
+	ISessionRepository,
+	IUserRepository,
+} from "../../ports/out/repositories";
+import type { IPasswordHasher } from "../../ports/out/system";
 
 // this use case will be called after the validate password reset session use case.
 // so we don't need to check the expired password reset session.
@@ -13,7 +15,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
-		private readonly passwordService: IPasswordService,
+		private readonly passwordHasher: IPasswordHasher,
 	) {}
 
 	public async execute(
@@ -25,7 +27,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			return err("REQUIRED_EMAIL_VERIFICATION");
 		}
 
-		const passwordHash = await this.passwordService.hashPassword(newPassword);
+		const passwordHash = await this.passwordHasher.hash(newPassword);
 
 		await Promise.all([
 			this.userRepository.save(user, { passwordHash }),
@@ -35,6 +37,6 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			this.sessionRepository.deleteByUserId(user.id),
 		]);
 
-		return;
+		return ok();
 	}
 }

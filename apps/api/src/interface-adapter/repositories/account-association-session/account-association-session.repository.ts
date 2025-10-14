@@ -1,17 +1,17 @@
+import type { ToPrimitive } from "@mona-ca/core/utils";
 import { eq, lte } from "drizzle-orm";
-import type { ToPrimitive } from "../../../common/utils";
+import type { IAccountAssociationSessionRepository } from "../../../application/ports/out/repositories";
 import type { AccountAssociationSession } from "../../../domain/entities";
 import {
 	type AccountAssociationSessionId,
-	type OAuthProvider,
+	type ExternalIdentityProvider,
 	type UserId,
 	newAccountAssociationSessionId,
-	newOAuthProvider,
-	newOAuthProviderId,
+	newExternalIdentityProvider,
+	newExternalIdentityProviderUserId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { IAccountAssociationSessionRepository } from "./interfaces/account-association-session.repository.interface";
 
 interface FoundAccountAssociationSessionDto {
 	id: string;
@@ -19,8 +19,8 @@ interface FoundAccountAssociationSessionDto {
 	code: string | null;
 	secretHash: Buffer;
 	email: string;
-	provider: ToPrimitive<OAuthProvider>;
-	providerId: string;
+	provider: ToPrimitive<ExternalIdentityProvider>;
+	providerUserId: string;
 	expiresAt: Date;
 }
 
@@ -75,8 +75,8 @@ export class AccountAssociationSessionRepository implements IAccountAssociationS
 			code: dto.code,
 			secretHash: new Uint8Array(dto.secretHash),
 			email: dto.email,
-			provider: newOAuthProvider(dto.provider),
-			providerId: newOAuthProviderId(dto.providerId),
+			provider: newExternalIdentityProvider(dto.provider),
+			providerUserId: newExternalIdentityProviderUserId(dto.providerUserId),
 			expiresAt: dto.expiresAt,
 		};
 	}

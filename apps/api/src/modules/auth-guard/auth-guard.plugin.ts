@@ -3,10 +3,10 @@ import { t } from "elysia";
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
 import { readBearerToken } from "../../common/utils";
-import { isErr } from "../../common/utils";
 import type { Session, User } from "../../domain/entities";
-import { type ClientType, clientTypeSchema, newSessionToken } from "../../domain/value-object";
-import { newClientType } from "../../domain/value-object/client-type";
+import { type ClientType, clientTypeSchema, newSessionToken } from "../../domain/value-objects";
+import { newClientType } from "../../domain/value-objects/client-type";
+import { SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
@@ -50,8 +50,9 @@ export const authGuard = (options?: {
 			const drizzleService = new DrizzleService(DB);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
+			const sessionSecretHasher = new SessionSecretHasher();
 
-			const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, userRepository);
+			const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, userRepository, sessionSecretHasher);
 			// === End of instances ===
 
 			if (!clientType || !Value.Check(clientTypeSchema, clientType)) {
@@ -70,7 +71,7 @@ export const authGuard = (options?: {
 
 			const result = await validateSessionUseCase.execute(newSessionToken(sessionToken));
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				throw new UnauthorizedException({
@@ -78,7 +79,7 @@ export const authGuard = (options?: {
 				});
 			}
 
-			const { user, session } = result;
+			const { user, session } = result.value;
 
 			if (requireEmailVerification && !user.emailVerified) {
 				throw new UnauthorizedException({

@@ -2,14 +2,16 @@ import { describe, expect, it } from "vitest";
 import { createSessionFixture } from "../../../../tests/fixtures";
 import { SessionRepositoryMock } from "../../../../tests/mocks";
 import { createSessionsMap } from "../../../../tests/mocks";
-import type { ILogoutUseCase } from "../interfaces/logout.usecase.interface";
+import type { ILogoutUseCase } from "../../../ports/in";
 import { LogoutUseCase } from "../logout.usecase";
 
 const sessionMap = createSessionsMap();
-const sessionRepositoryMock = new SessionRepositoryMock({
+
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const logoutUseCase: ILogoutUseCase = new LogoutUseCase(sessionRepositoryMock);
+
+const logoutUseCase: ILogoutUseCase = new LogoutUseCase(sessionRepository);
 
 describe("LogoutUseCase", () => {
 	it("should delete the session on logout", async () => {

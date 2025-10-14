@@ -1,18 +1,18 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredAccountAssociationSession } from "../../../domain/entities";
-import { type AccountAssociationSessionToken, parseSessionToken } from "../../../domain/value-object";
-import { verifySessionSecret } from "../../../infrastructure/crypt";
-import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
+import { type AccountAssociationSessionToken, parseSessionToken } from "../../../domain/value-objects";
 import type {
 	IValidateAccountAssociationSessionUseCase,
 	ValidateAccountAssociationSessionUseCaseResult,
-} from "./interfaces/validate-account-association-session.interface.usecase";
+} from "../../ports/in";
+import type { IAccountAssociationSessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { ISessionSecretHasher } from "../../ports/out/system";
 
 export class ValidateAccountAssociationSessionUseCase implements IValidateAccountAssociationSessionUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(
@@ -39,7 +39,7 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 			return err("ACCOUNT_ASSOCIATION_SESSION_EXPIRED");
 		}
 
-		if (!verifySessionSecret(accountAssociationSessionSecret, accountAssociationSession.secretHash)) {
+		if (!this.sessionSecretHasher.verify(accountAssociationSessionSecret, accountAssociationSession.secretHash)) {
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 
@@ -50,6 +50,6 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 
-		return { accountAssociationSession, user };
+		return ok({ accountAssociationSession, user });
 	}
 }

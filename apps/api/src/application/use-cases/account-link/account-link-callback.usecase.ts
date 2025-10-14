@@ -1,123 +1,117 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
-import { err, isErr } from "../../../common/utils";
-import { createOAuthAccount } from "../../../domain/entities";
-import { type OAuthProvider, newClientType, newOAuthProviderId, newUserId } from "../../../domain/value-object";
-import { type IOAuthProviderGateway, validateSignedState } from "../../../interface-adapter/gateway/oauth-provider";
-import type { IOAuthAccountRepository } from "../../../interface-adapter/repositories/oauth-account";
-import type { AppEnv } from "../../../modules/env";
-import type {
-	AccountLinkCallbackUseCaseResult,
-	IAccountLinkCallbackUseCase,
-} from "./interfaces/account-link-callback.usecase.interface";
-import { accountLinkStateSchema } from "./schemas";
+import { err, ok } from "@mona-ca/core/utils";
+import { createExternalIdentity } from "../../../domain/entities";
+import {
+	type ExternalIdentityProvider,
+	newClientType,
+	newExternalIdentityProviderUserId,
+	newUserId,
+} from "../../../domain/value-objects";
+import type { AccountLinkCallbackUseCaseResult, IAccountLinkCallbackUseCase } from "../../ports/in";
+import type { IOAuthProviderGateway } from "../../ports/out/gateways";
+import type { IExternalIdentityRepository } from "../../ports/out/repositories";
+import type { IOAuthStateSigner } from "../../ports/out/system";
+import type { accountLinkStateSchema } from "./schema";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	constructor(
-		private readonly env: {
-			APP_ENV: AppEnv["APP_ENV"];
-			OAUTH_STATE_HMAC_SECRET: AppEnv["OAUTH_STATE_HMAC_SECRET"];
-		},
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
-		private readonly oauthAccountRepository: IOAuthAccountRepository,
+		private readonly externalIdentityRepository: IExternalIdentityRepository,
+		private readonly oauthStateSigner: IOAuthStateSigner<typeof accountLinkStateSchema>,
 	) {}
 
 	public async execute(
+		production: boolean,
 		error: string | undefined,
 		redirectURI: string,
-		provider: OAuthProvider,
+		provider: ExternalIdentityProvider,
 		signedState: string,
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<AccountLinkCallbackUseCaseResult> {
-		const validatedState = validateSignedState(signedState, this.env.OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
+		const validatedState = this.oauthStateSigner.validate(signedState);
 
-		if (isErr(validatedState)) {
-			return err("OAUTH_CREDENTIALS_INVALID");
+		if (validatedState.isErr) {
+			return err("INVALID_STATE");
 		}
 
-		const { client, uid } = validatedState;
+		const { client, uid } = validatedState.value;
 
 		const clientType = newClientType(client);
 		const userId = newUserId(uid);
 
-		const clientBaseURL = clientType === "web" ? getWebBaseURL(this.env.APP_ENV === "production") : getMobileScheme();
+		const clientBaseURL = clientType === "web" ? getWebBaseURL(production) : getMobileScheme();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 
 		if (!redirectToClientURL) {
-			return err("INVALID_REDIRECT_URL");
+			return err("INVALID_REDIRECT_URI");
 		}
 
 		if (error) {
 			if (error === "access_denied") {
-				return err("OAUTH_ACCESS_DENIED", { redirectURL: redirectToClientURL });
+				return err("PROVIDER_ACCESS_DENIED", { redirectURL: redirectToClientURL });
 			}
 
-			return err("OAUTH_PROVIDER_ERROR", { redirectURL: redirectToClientURL });
+			return err("PROVIDER_ERROR", { redirectURL: redirectToClientURL });
 		}
 
 		if (!code) {
-			return err("OAUTH_CREDENTIALS_INVALID");
+			return err("TOKEN_EXCHANGE_FAILED");
 		}
 
-		const tokensResult = await this.oauthProviderGateway.getTokens(code, codeVerifier);
+		const tokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
-		if (isErr(tokensResult)) {
-			switch (tokensResult.code) {
-				case "OAUTH_CREDENTIALS_INVALID":
-					return err("OAUTH_CREDENTIALS_INVALID");
-				case "FAILED_TO_FETCH_OAUTH_TOKENS":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				default:
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+		if (tokensResult.isErr) {
+			const { code } = tokensResult;
+
+			if (code === "CREDENTIALS_INVALID" || code === "FETCH_TOKENS_FAILED") {
+				return err("TOKEN_EXCHANGE_FAILED");
 			}
 		}
 
-		const accountInfoResult = await this.oauthProviderGateway.getAccountInfo(tokensResult);
+		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokensResult.value);
 
-		await this.oauthProviderGateway.revokeToken(tokensResult);
+		await this.oauthProviderGateway.revokeToken(tokensResult.value);
 
-		if (isErr(accountInfoResult)) {
-			switch (accountInfoResult.code) {
-				case "OAUTH_ACCESS_TOKEN_INVALID":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				case "FAILED_TO_GET_ACCOUNT_INFO":
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
-				case "OAUTH_ACCOUNT_INFO_INVALID":
-					return err("OAUTH_ACCOUNT_INFO_INVALID", { redirectURL: redirectToClientURL });
-				default:
-					return err("FAILED_TO_FETCH_OAUTH_ACCOUNT", { redirectURL: redirectToClientURL });
+		if (getIdentityResult.isErr) {
+			if (
+				getIdentityResult.code === "ACCESS_TOKEN_INVALID" ||
+				getIdentityResult.code === "IDENTITY_INVALID" ||
+				getIdentityResult.code === "FETCH_IDENTITY_FAILED"
+			) {
+				return err("GET_IDENTITY_FAILED", { redirectURL: redirectToClientURL });
 			}
 		}
 
-		const providerAccount = accountInfoResult;
+		const identity = getIdentityResult.value;
 
-		const providerId = newOAuthProviderId(providerAccount.id);
+		const providerUserId = newExternalIdentityProviderUserId(identity.id);
 
-		const [existingOAuthAccount, existingUserLinkedAccount] = await Promise.all([
-			this.oauthAccountRepository.findByProviderAndProviderId(provider, providerId),
-			this.oauthAccountRepository.findByUserIdAndProvider(userId, provider),
+		const [existingExternalIdentity, currentUserExternalIdentity] = await Promise.all([
+			this.externalIdentityRepository.findByProviderAndProviderUserId(provider, providerUserId),
+			this.externalIdentityRepository.findByUserIdAndProvider(userId, provider),
 		]);
 
-		if (existingUserLinkedAccount) {
-			return err("OAUTH_PROVIDER_ALREADY_LINKED", { redirectURL: redirectToClientURL });
+		if (currentUserExternalIdentity) {
+			return err("PROVIDER_ALREADY_LINKED", { redirectURL: redirectToClientURL });
 		}
 
-		if (existingOAuthAccount) {
-			return err("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER", { redirectURL: redirectToClientURL });
+		if (existingExternalIdentity) {
+			return err("ACCOUNT_LINKED_ELSEWHERE", { redirectURL: redirectToClientURL });
 		}
 
-		const oauthAccount = createOAuthAccount({
+		const externalIdentity = createExternalIdentity({
 			provider,
-			providerId,
+			providerUserId,
 			userId,
 		});
 
-		await this.oauthAccountRepository.save(oauthAccount);
+		await this.externalIdentityRepository.save(externalIdentity);
 
-		return {
+		return ok({
 			redirectURL: redirectToClientURL,
 			clientType,
-		};
+		});
 	}
 }

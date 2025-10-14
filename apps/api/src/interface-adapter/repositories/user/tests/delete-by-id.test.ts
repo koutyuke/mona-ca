@@ -12,7 +12,7 @@ const userRepository = new UserRepository(drizzleService);
 
 const userTableHelper = new UserTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("UserRepository.delete", async () => {
 	beforeEach(async () => {
@@ -20,7 +20,7 @@ describe("UserRepository.delete", async () => {
 	});
 
 	test("should deleted user from the database", async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 
 		await userRepository.deleteById(user.id);
 

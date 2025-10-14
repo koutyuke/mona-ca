@@ -1,16 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
-import { createOAuthAccount } from "../../../../domain/entities";
-import { newUserId } from "../../../../domain/value-object";
+import { ulid } from "../../../../common/utils";
+import { createExternalIdentity } from "../../../../domain/entities";
+import { newUserId } from "../../../../domain/value-objects";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,
-	OAuthAccountRepositoryMock,
+	ExternalIdentityRepositoryMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createAccountAssociationSessionsMap,
-	createOAuthAccountKey,
-	createOAuthAccountsMap,
+	createExternalIdentitiesMap,
+	createExternalIdentityKey,
 	createSessionsMap,
 	createUserPasswordHashMap,
 	createUsersMap,
@@ -20,29 +21,31 @@ import { AccountAssociationConfirmUseCase } from "../account-association-confirm
 const sessionMap = createSessionsMap();
 const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
-const oauthAccountMap = createOAuthAccountsMap();
+const externalIdentityMap = createExternalIdentitiesMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
-const sessionRepositoryMock = new SessionRepositoryMock({
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const oauthAccountRepositoryMock = new OAuthAccountRepositoryMock({
-	oauthAccountMap,
+const externalIdentityRepository = new ExternalIdentityRepositoryMock({
+	externalIdentityMap: externalIdentityMap,
 });
-const accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
+const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
 	accountAssociationSessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
 
 const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	oauthAccountRepositoryMock,
-	accountAssociationSessionRepositoryMock,
+	userRepository,
+	sessionRepository,
+	externalIdentityRepository,
+	accountAssociationSessionRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture();
@@ -50,7 +53,7 @@ const { user } = createUserFixture();
 describe("AccountAssociationConfirmUseCase", () => {
 	beforeEach(() => {
 		accountAssociationSessionMap.clear();
-		oauthAccountMap.clear();
+		externalIdentityMap.clear();
 		userMap.clear();
 		sessionMap.clear();
 		userPasswordHashMap.clear();
@@ -76,28 +79,27 @@ describe("AccountAssociationConfirmUseCase", () => {
 			accountAssociationSession,
 		);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
-			expect(result.sessionToken.includes(".")).toBe(true);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
+			expect(sessionToken.includes(".")).toBe(true);
 		}
 
 		// verify account association session is deleted
 		expect(accountAssociationSessionMap.has(accountAssociationSession.id)).toBe(false);
 
 		// verify OAuth account is created
-		const savedOAuthAccount = oauthAccountMap.get(
-			createOAuthAccountKey(accountAssociationSession.provider, accountAssociationSession.providerId),
+		const savedOAuthAccount = externalIdentityMap.get(
+			createExternalIdentityKey(accountAssociationSession.provider, accountAssociationSession.providerUserId),
 		);
 		expect(savedOAuthAccount).toBeDefined();
 		expect(savedOAuthAccount?.userId).toBe(user.id);
 		expect(savedOAuthAccount?.provider).toBe(accountAssociationSession.provider);
-		expect(savedOAuthAccount?.providerId).toBe(accountAssociationSession.providerId);
+		expect(savedOAuthAccount?.providerUserId).toBe(accountAssociationSession.providerUserId);
 	});
 
 	it("should return INVALID_ASSOCIATION_CODE error when code is null", async () => {
@@ -112,9 +114,9 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_ASSOCIATION_CODE");
 		}
 	});
@@ -131,14 +133,14 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("87654321", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_ASSOCIATION_CODE");
 		}
 	});
 
-	it("should return OAUTH_PROVIDER_ALREADY_LINKED error when user already has account for the provider", async () => {
+	it("should return ACCOUNT_ALREADY_LINKED error when user already has account for the provider", async () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
@@ -149,27 +151,27 @@ describe("AccountAssociationConfirmUseCase", () => {
 		});
 
 		// create existing OAuth account for the user and provider
-		const existingOAuthAccount = createOAuthAccount({
+		const existingOAuthAccount = createExternalIdentity({
 			provider: accountAssociationSession.provider,
-			providerId: accountAssociationSession.providerId,
+			providerUserId: accountAssociationSession.providerUserId,
 			userId: user.id,
 		});
 
-		oauthAccountMap.set(
-			createOAuthAccountKey(accountAssociationSession.provider, accountAssociationSession.providerId),
+		externalIdentityMap.set(
+			createExternalIdentityKey(accountAssociationSession.provider, accountAssociationSession.providerUserId),
 			existingOAuthAccount,
 		);
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
-			expect(result.code).toBe("OAUTH_PROVIDER_ALREADY_LINKED");
+		if (result.isErr) {
+			expect(result.code).toBe("ACCOUNT_ALREADY_LINKED");
 		}
 	});
 
-	it("should return OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER error when OAuth account is linked to another user", async () => {
+	it("should return ACCOUNT_LINKED_ELSEWHERE error when OAuth account is linked to another user", async () => {
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
 				userId: user.id,
@@ -179,23 +181,23 @@ describe("AccountAssociationConfirmUseCase", () => {
 		});
 
 		// create existing OAuth account linked to another user
-		const existingOAuthAccount = createOAuthAccount({
+		const existingOAuthAccount = createExternalIdentity({
 			provider: accountAssociationSession.provider,
-			providerId: accountAssociationSession.providerId,
+			providerUserId: accountAssociationSession.providerUserId,
 			userId: newUserId(ulid()),
 		});
 
-		oauthAccountMap.set(
-			createOAuthAccountKey(accountAssociationSession.provider, accountAssociationSession.providerId),
+		externalIdentityMap.set(
+			createExternalIdentityKey(accountAssociationSession.provider, accountAssociationSession.providerUserId),
 			existingOAuthAccount,
 		);
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
-			expect(result.code).toBe("OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER");
+		if (result.isErr) {
+			expect(result.code).toBe("ACCOUNT_LINKED_ELSEWHERE");
 		}
 	});
 
@@ -211,10 +213,11 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
 		}
@@ -232,15 +235,15 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		// verify OAuth account is saved
-		const savedOAuthAccount = oauthAccountMap.get(
-			createOAuthAccountKey(accountAssociationSession.provider, accountAssociationSession.providerId),
+		const savedOAuthAccount = externalIdentityMap.get(
+			createExternalIdentityKey(accountAssociationSession.provider, accountAssociationSession.providerUserId),
 		);
 		expect(savedOAuthAccount).toBeDefined();
 		expect(savedOAuthAccount?.userId).toBe(user.id);
 		expect(savedOAuthAccount?.provider).toBe(accountAssociationSession.provider);
-		expect(savedOAuthAccount?.providerId).toBe(accountAssociationSession.providerId);
+		expect(savedOAuthAccount?.providerUserId).toBe(accountAssociationSession.providerUserId);
 	});
 });

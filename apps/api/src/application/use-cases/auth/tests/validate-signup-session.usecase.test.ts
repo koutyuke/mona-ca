@@ -1,15 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
-import { newSignupSessionToken } from "../../../../domain/value-object";
+import { newSignupSessionToken } from "../../../../domain/value-objects";
 import { createSignupSessionFixture } from "../../../../tests/fixtures";
-import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../tests/mocks";
+import { SessionSecretHasherMock, SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../tests/mocks";
 import { ValidateSignupSessionUseCase } from "../validate-signup-session.usecase";
 
 const signupSessionMap = createSignupSessionsMap();
-const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
+
+const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepositoryMock);
+const sessionSecretHasher = new SessionSecretHasherMock();
+
+const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(signupSessionRepository, sessionSecretHasher);
 
 const {
 	signupSession: baseSignupSession,
@@ -31,21 +33,22 @@ describe("ValidateSignupSessionUseCase", () => {
 	it("should validate signup session successfully with valid token", async () => {
 		const result = await validateSignupSessionUseCase.execute(signupSessionToken);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.signupSession.id).toBe(baseSignupSession.id);
-			expect(result.signupSession.email).toBe("test@example.com");
-			expect(result.signupSession.emailVerified).toBe(false);
+		if (!result.isErr) {
+			const { signupSession } = result.value;
+			expect(signupSession.id).toBe(baseSignupSession.id);
+			expect(signupSession.email).toBe("test@example.com");
+			expect(signupSession.emailVerified).toBe(false);
 		}
 	});
 
 	it("should return SIGNUP_SESSION_INVALID when token format is invalid", async () => {
 		const result = await validateSignupSessionUseCase.execute(newSignupSessionToken("invalid_token"));
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SIGNUP_SESSION_INVALID");
 		}
 	});
@@ -56,9 +59,9 @@ describe("ValidateSignupSessionUseCase", () => {
 		const { signupSessionToken } = createSignupSessionFixture();
 		const result = await validateSignupSessionUseCase.execute(signupSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SIGNUP_SESSION_INVALID");
 		}
 	});
@@ -70,9 +73,9 @@ describe("ValidateSignupSessionUseCase", () => {
 		}).signupSessionToken;
 		const result = await validateSignupSessionUseCase.execute(invalidToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SIGNUP_SESSION_INVALID");
 		}
 	});
@@ -90,9 +93,9 @@ describe("ValidateSignupSessionUseCase", () => {
 		}).signupSessionToken;
 		const result = await validateSignupSessionUseCase.execute(token);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SIGNUP_SESSION_EXPIRED");
 		}
 

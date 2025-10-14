@@ -1,4 +1,4 @@
-export { oauthAccounts } from "./oauth-accounts";
+export { externalIdentities } from "./external-identities";
 export { sessions } from "./sessions";
 export { users } from "./users";
 export { emailVerificationSessions } from "./email-verification-sessions";

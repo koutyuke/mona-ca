@@ -1,51 +1,77 @@
-import { generateRandomString, ulid } from "../../../common/utils";
+import { ulid } from "../../../common/utils";
 import { type AccountAssociationSession, type User, createAccountAssociationSession } from "../../../domain/entities";
-import { formatSessionToken, newAccountAssociationSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { IAccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import type {
-	AccountAssociationChallengeUseCaseResult,
-	IAccountAssociationChallengeUseCase,
-} from "./interfaces/account-association-challenge.interface.usecase";
+import {
+	type AccountAssociationSessionToken,
+	type ExternalIdentityProvider,
+	type ExternalIdentityProviderUserId,
+	type UserId,
+	formatSessionToken,
+	newAccountAssociationSessionId,
+} from "../../../domain/value-objects";
+import type { AccountAssociationChallengeUseCaseResult, IAccountAssociationChallengeUseCase } from "../../ports/in";
+import type { IAccountAssociationSessionRepository } from "../../ports/out/repositories";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../ports/out/system";
 
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.
 export class AccountAssociationChallengeUseCase implements IAccountAssociationChallengeUseCase {
-	constructor(private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository) {}
+	constructor(
+		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly randomGenerator: IRandomGenerator,
+	) {}
 
 	public async execute(
 		user: User,
-		accountAssociationSession: AccountAssociationSession,
+		oldAccountAssociationSession: AccountAssociationSession,
 	): Promise<AccountAssociationChallengeUseCaseResult> {
-		await this.accountAssociationSessionRepository.deleteByUserId(accountAssociationSession.userId);
+		await this.accountAssociationSessionRepository.deleteByUserId(oldAccountAssociationSession.userId);
 
-		const accountAssociationSessionSecret = generateSessionSecret();
-		const accountAssociationSessionSecretHash = hashSessionSecret(accountAssociationSessionSecret);
+		const { accountAssociationSession, accountAssociationSessionToken } = this.createAccountAssociationSession(
+			user.id,
+			user.email,
+			oldAccountAssociationSession.provider,
+			oldAccountAssociationSession.providerUserId,
+		);
+
+		await this.accountAssociationSessionRepository.save(accountAssociationSession);
+
+		return {
+			accountAssociationSession,
+			accountAssociationSessionToken,
+		};
+	}
+
+	private createAccountAssociationSession(
+		userId: UserId,
+		email: string,
+		provider: ExternalIdentityProvider,
+		providerUserId: ExternalIdentityProviderUserId,
+	): {
+		accountAssociationSession: AccountAssociationSession;
+		accountAssociationSessionToken: AccountAssociationSessionToken;
+	} {
+		const accountAssociationSessionSecret = this.sessionSecretHasher.generate();
+		const accountAssociationSessionSecretHash = this.sessionSecretHasher.hash(accountAssociationSessionSecret);
 		const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
 		const accountAssociationSessionToken = formatSessionToken(
 			accountAssociationSessionId,
 			accountAssociationSessionSecret,
 		);
 
-		const code = generateRandomString(8, {
-			number: true,
+		const code = this.randomGenerator.string(8, {
+			digits: true,
 		});
 
-		const newAccountAssociationSession = createAccountAssociationSession({
+		const accountAssociationSession = createAccountAssociationSession({
 			id: accountAssociationSessionId,
-			userId: user.id,
+			userId,
 			code,
-			email: user.email,
-			provider: accountAssociationSession.provider,
-			providerId: accountAssociationSession.providerId,
+			email,
+			provider,
+			providerUserId,
 			secretHash: accountAssociationSessionSecretHash,
 		});
-
-		await this.accountAssociationSessionRepository.save(newAccountAssociationSession);
-
-		return {
-			accountAssociationSessionToken,
-			accountAssociationSession: newAccountAssociationSession,
-		};
+		return { accountAssociationSession, accountAssociationSessionToken };
 	}
 }

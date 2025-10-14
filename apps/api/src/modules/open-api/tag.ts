@@ -3,7 +3,7 @@ import type { OpenAPIV3 } from "@scalar/types";
 export const tags = [
 	{ name: "Hello", description: "Hello, mona-ca!" },
 	{ name: "Auth", description: "Endpoints for authentication and authorization" },
-	{ name: "Auth - OAuth", description: "Endpoints for authentication and authorization with OAuth 2.0" },
+	{ name: "Auth - External Auth", description: "Endpoints for authentication and authorization with External Auth" },
 	{ name: "Auth - Account Link", description: "Endpoints for account link" },
 	{ name: "Auth - Account Association", description: "Endpoints for account association" },
 	{ name: "Auth - Email Verification", description: "Endpoints for email verification" },

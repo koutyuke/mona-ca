@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { sessionRefreshSpan } from "../../../domain/entities";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { createSessionFixture, createUserFixture } from "../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
@@ -13,15 +14,16 @@ const sessionTokenRefreshExpires = new Date(Date.now() + sessionRefreshSpan.mill
 
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
+const sessionSecretHasher = new SessionSecretHasher();
 
-const { user, passwordHash } = createUserFixture({
+const { user } = createUserFixture({
 	user: {
 		email: "test1.email@example.com",
 	},
-	passwordHash: "passwordHash1",
 });
 
 const { session, sessionToken } = createSessionFixture({
+	secretHasher: sessionSecretHasher.hash,
 	session: {
 		userId: user.id,
 		expiresAt: sessionTokenRefreshExpires,
@@ -33,7 +35,7 @@ describe("AuthGuard enableSessionCookieRefresh option", () => {
 		sessionTableHelper.deleteAll();
 		userTableHelper.deleteAll();
 
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 		await sessionTableHelper.save(session);
 	});
 

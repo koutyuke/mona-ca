@@ -4,8 +4,8 @@ import {
 	ValidatePasswordResetSessionUseCase,
 } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newPasswordResetSessionToken } from "../../../domain/value-object";
+import { newPasswordResetSessionToken } from "../../../domain/value-objects";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -28,10 +28,10 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	.use(withClientType)
 	.use(
 		rateLimit("forgot-password-verify-email", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -55,9 +55,12 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
 				userRepository,
+				sessionSecretHasher,
 			);
 			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
 			// === End of instances ===
@@ -78,48 +81,37 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				newPasswordResetSessionToken(rawPasswordResetSessionToken),
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "PASSWORD_RESET_SESSION_INVALID":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Invalid password reset session. Please request password reset again.",
-						});
-					case "PASSWORD_RESET_SESSION_EXPIRED":
-						throw new UnauthorizedException({
-							code: code,
-							message: "Password reset session has expired. Please request password reset again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset session validation failed. Please try again.",
-						});
+				if (code === "PASSWORD_RESET_SESSION_INVALID") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Invalid password reset session. Please request password reset again.",
+					});
+				}
+				if (code === "PASSWORD_RESET_SESSION_EXPIRED") {
+					throw new UnauthorizedException({
+						code: code,
+						message: "Password reset session has expired. Please request password reset again.",
+					});
 				}
 			}
 
-			const { passwordResetSession } = validationResult;
+			const { passwordResetSession } = validationResult.value;
 
-			await rateLimit.consume(passwordResetSession.id, 10);
+			await rateLimit.consume(passwordResetSession.id, 100);
 
 			const verifyEmailResult = await passwordResetVerifyEmailUseCase.execute(code, passwordResetSession);
 
-			if (isErr(verifyEmailResult)) {
+			if (verifyEmailResult.isErr) {
 				const { code } = verifyEmailResult;
 
-				switch (code) {
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid verification code. Please check your email and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Email verification failed. Please try again.",
-						});
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid verification code. Please check your email and try again.",
+					});
 				}
 			}
 

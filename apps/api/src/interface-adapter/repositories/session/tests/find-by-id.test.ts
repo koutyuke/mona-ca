@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newSessionId } from "../../../../domain/value-object";
+import { newSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
@@ -21,8 +21,8 @@ describe("SessionRepository.findById", () => {
 	});
 
 	test("should return session and user from sessionId", async () => {
-		const { user, passwordHash } = createUserFixture();
-		await userTableHelper.save(user, passwordHash);
+		const { user } = createUserFixture();
+		await userTableHelper.save(user, null);
 
 		const { session } = createSessionFixture({
 			session: {

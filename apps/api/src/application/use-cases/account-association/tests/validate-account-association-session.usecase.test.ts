@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
-import { formatSessionToken, newAccountAssociationSessionToken, newUserId } from "../../../../domain/value-object";
-import { generateSessionSecret } from "../../../../infrastructure/crypt";
+import { ulid } from "../../../../common/utils";
+import { formatSessionToken, newAccountAssociationSessionToken, newUserId } from "../../../../domain/value-objects";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
+import { SessionSecretHasherMock } from "../../../../tests/mocks";
 import { AccountAssociationSessionRepositoryMock } from "../../../../tests/mocks/repositories/account-association-session.repository.mock";
 import {
 	createAccountAssociationSessionsMap,
@@ -17,18 +17,20 @@ const userPasswordHashMap = new Map();
 const sessionMap = createSessionsMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const accountAssociationSessionRepositoryMock = new AccountAssociationSessionRepositoryMock({
+const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
 	accountAssociationSessionMap,
 });
+const sessionSecretHasher = new SessionSecretHasherMock();
 
 const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-	userRepositoryMock,
-	accountAssociationSessionRepositoryMock,
+	userRepository,
+	accountAssociationSessionRepository,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture();
@@ -57,14 +59,13 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("accountAssociationSession");
-		expect(result).toHaveProperty("user");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.accountAssociationSession.id).toBe(accountAssociationSession.id);
-			expect(result.accountAssociationSession.userId).toBe(user.id);
-			expect(result.user.id).toBe(user.id);
+		if (!result.isErr) {
+			const { accountAssociationSession, user } = result.value;
+			expect(accountAssociationSession.id).toBe(accountAssociationSession.id);
+			expect(accountAssociationSession.userId).toBe(user.id);
+			expect(user.id).toBe(user.id);
 		}
 	});
 
@@ -73,9 +74,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 		const result = await validateAccountAssociationSessionUseCase.execute(invalidToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 	});
@@ -91,9 +92,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 	});
@@ -114,9 +115,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ASSOCIATION_SESSION_EXPIRED");
 		}
 
@@ -135,7 +136,7 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		});
 
 		// create token with different secret
-		const wrongSecret = generateSessionSecret();
+		const wrongSecret = "wrongSecret";
 		const invalidSessionToken = formatSessionToken(accountAssociationSession.id, wrongSecret);
 
 		// save session
@@ -143,9 +144,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 		const result = await validateAccountAssociationSessionUseCase.execute(invalidSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 	});
@@ -166,9 +167,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 
@@ -192,9 +193,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 
 		const result = await validateAccountAssociationSessionUseCase.execute(accountAssociationSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 

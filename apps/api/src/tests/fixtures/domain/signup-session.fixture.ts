@@ -1,9 +1,12 @@
 import { ulid } from "../../../common/utils";
 import { type SignupSession, signupSessionEmailVerificationExpiresSpan } from "../../../domain/entities";
-import { type SignupSessionToken, formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
-import { hashSessionSecret } from "../../../infrastructure/crypt";
+import { type SignupSessionToken, formatSessionToken, newSignupSessionId } from "../../../domain/value-objects";
+import { SessionSecretHasherMock } from "../../mocks";
+
+const sessionSecretHasher = new SessionSecretHasherMock();
 
 export const createSignupSessionFixture = (override?: {
+	secretHasher?: (secret: string) => Uint8Array;
 	signupSession?: Partial<SignupSession>;
 	signupSessionSecret?: string;
 }): {
@@ -11,8 +14,10 @@ export const createSignupSessionFixture = (override?: {
 	signupSessionSecret: string;
 	signupSessionToken: SignupSessionToken;
 } => {
+	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+
 	const signupSessionSecret = override?.signupSessionSecret ?? "signupSessionSecret";
-	const secretHash = override?.signupSession?.secretHash ?? hashSessionSecret(signupSessionSecret);
+	const secretHash = override?.signupSession?.secretHash ?? secretHasher(signupSessionSecret);
 
 	const expiresAt = new Date(
 		override?.signupSession?.expiresAt?.getTime() ??

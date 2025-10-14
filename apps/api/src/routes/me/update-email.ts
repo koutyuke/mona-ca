@@ -1,11 +1,11 @@
 import { t } from "elysia";
 import {
-	ChangeEmailUseCase,
+	UpdateEmailUseCase,
 	ValidateEmailVerificationSessionUseCase,
 } from "../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
-import { isErr } from "../../common/utils";
-import { newEmailVerificationSessionToken } from "../../domain/value-object";
+import { newEmailVerificationSessionToken } from "../../domain/value-objects";
+import { SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../interface-adapter/repositories/email-verification-session";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
@@ -22,10 +22,21 @@ import {
 } from "../../modules/elysia-with-env";
 import { BadRequestException } from "../../modules/error";
 import { pathDetail } from "../../modules/open-api";
+import { rateLimit } from "../../modules/rate-limit";
 
 export const UpdateEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
 	.use(authGuard({ requireEmailVerification: false }))
+	.use(
+		rateLimit("me-update-email", {
+			maxTokens: 1000,
+			refillRate: 500,
+			refillInterval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
 
 	// Route
 	.patch(
@@ -37,6 +48,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
 			user,
 			clientType,
+			rateLimit,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
@@ -46,13 +58,17 @@ export const UpdateEmail = new ElysiaWithEnv()
 			const userRepository = new UserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
 				emailVerificationSessionRepository,
+				sessionSecretHasher,
 			);
-			const changeEmailUseCase = new ChangeEmailUseCase(
+			const updateEmailUseCase = new UpdateEmailUseCase(
 				userRepository,
 				sessionRepository,
 				emailVerificationSessionRepository,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
@@ -73,55 +89,47 @@ export const UpdateEmail = new ElysiaWithEnv()
 				user,
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
-				switch (code) {
-					case "EMAIL_VERIFICATION_SESSION_EXPIRED":
-						throw new BadRequestException({
-							code: "EMAIL_VERIFICATION_SESSION_EXPIRED",
-							message: "Email verification session has expired. Please request a new verification email.",
-						});
-					case "EMAIL_VERIFICATION_SESSION_INVALID":
-						throw new BadRequestException({
-							code: "EMAIL_VERIFICATION_SESSION_INVALID",
-							message: "Invalid email verification session. Please request a new verification email.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Failed to validate email verification session. Please try again.",
-						});
+				if (code === "EMAIL_VERIFICATION_SESSION_EXPIRED") {
+					throw new BadRequestException({
+						code: "EMAIL_VERIFICATION_SESSION_EXPIRED",
+						message: "Email verification session has expired. Please request a new verification email.",
+					});
+				}
+				if (code === "EMAIL_VERIFICATION_SESSION_INVALID") {
+					throw new BadRequestException({
+						code: "EMAIL_VERIFICATION_SESSION_INVALID",
+						message: "Invalid email verification session. Please request a new verification email.",
+					});
 				}
 			}
 
-			const { emailVerificationSession } = validationResult;
+			const { emailVerificationSession } = validationResult.value;
 
-			const changeResult = await changeEmailUseCase.execute(code, user, emailVerificationSession);
+			await rateLimit.consume(emailVerificationSession.id, 100);
 
-			if (isErr(changeResult)) {
-				const { code } = changeResult;
+			const updateResult = await updateEmailUseCase.execute(code, user, emailVerificationSession);
 
-				switch (code) {
-					case "EMAIL_ALREADY_REGISTERED":
-						throw new BadRequestException({
-							code: "EMAIL_ALREADY_REGISTERED",
-							message: "Email is already in use by another account. Please use a different email address.",
-						});
-					case "INVALID_VERIFICATION_CODE":
-						throw new BadRequestException({
-							code: "INVALID_VERIFICATION_CODE",
-							message: "Invalid verification code. Please check the code and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Failed to change email. Please try again.",
-						});
+			if (updateResult.isErr) {
+				const { code } = updateResult;
+
+				if (code === "EMAIL_ALREADY_REGISTERED") {
+					throw new BadRequestException({
+						code: "EMAIL_ALREADY_REGISTERED",
+						message: "Email is already in use by another account. Please use a different email address.",
+					});
+				}
+				if (code === "INVALID_VERIFICATION_CODE") {
+					throw new BadRequestException({
+						code: "INVALID_VERIFICATION_CODE",
+						message: "Invalid verification code. Please check the code and try again.",
+					});
 				}
 			}
 
-			const { session, sessionToken } = changeResult;
+			const { session, sessionToken } = updateResult.value;
 
 			if (clientType === "mobile") {
 				return {

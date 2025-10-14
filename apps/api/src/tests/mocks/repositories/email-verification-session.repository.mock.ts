@@ -1,7 +1,7 @@
+import type { IEmailVerificationSessionRepository } from "../../../application/ports/out/repositories";
 import type { EmailVerificationSession } from "../../../domain/entities";
 import { isExpiredEmailVerificationSession } from "../../../domain/entities";
-import type { EmailVerificationSessionId, UserId } from "../../../domain/value-object";
-import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session/interfaces/email-verification-session.repository.interface";
+import type { EmailVerificationSessionId, UserId } from "../../../domain/value-objects";
 
 export class EmailVerificationSessionRepositoryMock implements IEmailVerificationSessionRepository {
 	private readonly emailVerificationSessionMap: Map<EmailVerificationSessionId, EmailVerificationSession>;

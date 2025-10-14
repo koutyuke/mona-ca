@@ -1,14 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createPasswordResetSessionFixture } from "../../../../tests/fixtures";
 import { PasswordResetSessionRepositoryMock, createPasswordResetSessionsMap } from "../../../../tests/mocks";
 import { PasswordResetVerifyEmailUseCase } from "../password-reset-verify-email.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
-const passwordResetSessionRepositoryMock = new PasswordResetSessionRepositoryMock({
+const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepositoryMock);
+const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
 
 describe("PasswordResetVerifyEmailUseCase", () => {
 	beforeEach(() => {
@@ -28,7 +27,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		const result = await passwordResetVerifyEmailUseCase.execute("12345678", session);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		const updatedSession = passwordResetSessionMap.get(session.id);
 		expect(updatedSession).toBeDefined();
@@ -48,9 +47,9 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		const result = await passwordResetVerifyEmailUseCase.execute("87654321", session);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_VERIFICATION_CODE");
 		}
 
@@ -70,11 +69,31 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		const result = await passwordResetVerifyEmailUseCase.execute("12345678", session);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		const updatedSession = passwordResetSessionMap.get(session.id);
 		expect(updatedSession).toBeDefined();
 		expect(updatedSession?.emailVerified).toBe(true);
 		expect(updatedSession?.id).toBe(session.id);
+	});
+
+	it("should update password reset session expires at if success", async () => {
+		const { passwordResetSession: session } = createPasswordResetSessionFixture({
+			passwordResetSession: {
+				code: "12345678",
+				email: "test@example.com",
+				emailVerified: false,
+			},
+		});
+
+		passwordResetSessionMap.set(session.id, session);
+
+		const result = await passwordResetVerifyEmailUseCase.execute("12345678", session);
+
+		expect(result.isErr).toBe(false);
+
+		const updatedSession = passwordResetSessionMap.get(session.id);
+		expect(updatedSession).toBeDefined();
+		expect(updatedSession?.expiresAt.getTime()).toBeGreaterThan(session.expiresAt.getTime());
 	});
 });

@@ -1,43 +1,51 @@
-import { err, ulid } from "../../../common/utils";
-import { createSession } from "../../../domain/entities";
-import { formatSessionToken, newSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IPasswordService } from "../../services/password";
-import type { ILoginUseCase, LoginUseCaseResult } from "./interfaces/login.usecase.interface";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
+import { type Session, createSession } from "../../../domain/entities";
+import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-objects";
+import type { ILoginUseCase, LoginUseCaseResult } from "../../ports/in";
+import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { IPasswordHasher, ISessionSecretHasher } from "../../ports/out/system";
 
 export class LoginUseCase implements ILoginUseCase {
 	constructor(
 		private readonly sessionRepository: ISessionRepository,
 		private readonly userRepository: IUserRepository,
-		private readonly passwordService: IPasswordService,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly passwordHasher: IPasswordHasher,
 	) {}
 
 	public async execute(email: string, password: string): Promise<LoginUseCaseResult> {
 		const user = await this.userRepository.findByEmail(email);
 		const passwordHash = user ? await this.userRepository.findPasswordHashById(user.id) : null;
-		const verifyPassword = passwordHash ? await this.passwordService.verifyPassword(password, passwordHash) : false;
+		const verifyPasswordResult = passwordHash ? await this.passwordHasher.verify(password, passwordHash) : false;
 
-		if (!(user && passwordHash && verifyPassword)) {
+		if (!(user && passwordHash && verifyPasswordResult)) {
 			return err("INVALID_CREDENTIALS");
 		}
 
-		const sessionSecret = generateSessionSecret();
-		const sessionSecretHash = hashSessionSecret(sessionSecret);
+		const { session, sessionToken } = this.createSession(user.id);
+
+		await this.sessionRepository.save(session);
+
+		return ok({
+			session,
+			sessionToken,
+		});
+	}
+
+	private createSession(userId: UserId): {
+		session: Session;
+		sessionToken: SessionToken;
+	} {
+		const sessionSecret = this.sessionSecretHasher.generate();
+		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
 		const sessionId = newSessionId(ulid());
 		const sessionToken = formatSessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
-			userId: user.id,
+			userId,
 			secretHash: sessionSecretHash,
 		});
-
-		await this.sessionRepository.save(session);
-
-		return {
-			session,
-			sessionToken,
-		};
+		return { session, sessionToken };
 	}
 }

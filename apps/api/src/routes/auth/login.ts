@@ -1,8 +1,7 @@
 import { t } from "elysia";
-import { PasswordService } from "../../application/services/password";
 import { LoginUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { isErr } from "../../common/utils";
+import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
@@ -26,8 +25,8 @@ export const Login = new ElysiaWithEnv()
 	.use(withClientType)
 	.use(
 		rateLimit("login", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
 				value: 30,
 				unit: "m",
@@ -49,33 +48,33 @@ export const Login = new ElysiaWithEnv()
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const passwordService = new PasswordService(PASSWORD_PEPPER);
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
-			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, passwordService);
+			const sessionSecretHasher = new SessionSecretHasher();
+			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
+
+			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, sessionSecretHasher, passwordHasher);
 			// === End of instances ===
 
 			const result = await loginUseCase.execute(email, password);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_CREDENTIALS":
-						throw new BadRequestException({
-							code: "INVALID_CREDENTIALS",
-							message: "Invalid email or password. Please check your credentials and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Login failed. Please try again.",
-						});
+				if (code === "INVALID_CREDENTIALS") {
+					throw new BadRequestException({
+						code: "INVALID_CREDENTIALS",
+						message: "Invalid email or password. Please check your credentials and try again.",
+					});
 				}
+				throw new BadRequestException({
+					code: code,
+					message: "Login failed. Please try again.",
+				});
 			}
-			const { session, sessionToken } = result;
+			const { session, sessionToken } = result.value;
 
 			if (clientType === "mobile") {
 				return {
@@ -92,7 +91,7 @@ export const Login = new ElysiaWithEnv()
 		{
 			beforeHandle: async ({ rateLimit, ip, captcha, body: { email, cfTurnstileResponse } }) => {
 				await captcha.verify(cfTurnstileResponse);
-				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 10)]);
+				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 100)]);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({

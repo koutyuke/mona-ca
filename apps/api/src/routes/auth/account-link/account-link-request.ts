@@ -1,14 +1,14 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { AccountLinkRequestUseCase } from "../../../application/use-cases/account-link";
+import { AccountLinkRequestUseCase, accountLinkStateSchema } from "../../../application/use-cases/account-link";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
-import { newOAuthProvider, oauthProviderSchema } from "../../../domain/value-object";
-import { OAuthProviderGateway } from "../../../interface-adapter/gateway/oauth-provider";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
+import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieManager } from "../../../modules/cookie";
 import {
@@ -19,20 +19,9 @@ import {
 } from "../../../modules/elysia-with-env";
 import { BadRequestException } from "../../../modules/error";
 import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
 
 export const AccountLinkRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
-	.use(
-		rateLimit("account-link-request", {
-			maxTokens: 100,
-			refillRate: 50,
-			refillInterval: {
-				value: 10,
-				unit: "m",
-			},
-		}),
-	)
 	.use(authGuard())
 
 	// Route
@@ -54,14 +43,14 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			user,
 		}) => {
 			// === Instances ===
-			const provider = newOAuthProvider(_provider);
+			const provider = newExternalIdentityProvider(_provider);
 
 			const apiBaseURL = getAPIBaseURL(APP_ENV === "production");
 
 			const providerRedirectURL = new URL(`auth/${provider}/link/callback`, apiBaseURL);
 
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const oauthProviderGateway = OAuthProviderGateway(
+			const oauthProviderGateway = createOAuthGateway(
 				{
 					DISCORD_CLIENT_ID,
 					DISCORD_CLIENT_SECRET,
@@ -71,33 +60,29 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 				provider,
 				providerRedirectURL.toString(),
 			);
+			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
 
-			const accountLinkRequestUseCase = new AccountLinkRequestUseCase(
-				{ APP_ENV, OAUTH_STATE_HMAC_SECRET },
-				oauthProviderGateway,
-			);
+			const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, oauthStateSigner);
 			// === End of instances ===
 
-			const result = accountLinkRequestUseCase.execute(clientType, queryRedirectURI, user.id);
+			const result = accountLinkRequestUseCase.execute(APP_ENV === "production", clientType, queryRedirectURI, user.id);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
-				switch (code) {
-					case "INVALID_REDIRECT_URL":
-						throw new BadRequestException({
-							code: code,
-							message: "Invalid redirect URL. Please check the URL and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Account link request failed. Please try again.",
-						});
+				if (code === "INVALID_REDIRECT_URI") {
+					throw new BadRequestException({
+						code: code,
+						message: "Invalid redirect URI. Please check the URI and try again.",
+					});
 				}
+				throw new BadRequestException({
+					code: code,
+					message: "Account link request failed. Please try again.",
+				});
 			}
 
-			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 			cookieManager.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
 				maxAge: 60 * 10,
@@ -116,23 +101,19 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			};
 		},
 		{
-			beforeHandle: async ({ rateLimit, user }) => {
-				await rateLimit.consume(user.id, 1);
-			},
 			headers: AuthGuardSchema.headers,
 			query: t.Object({
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({
-				provider: oauthProviderSchema,
+				provider: externalIdentityProviderSchema,
 			}),
 			response: withBaseResponseSchema({
 				200: t.Object({
 					url: t.String(),
 				}),
-				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URL"), AuthGuardSchema.response[400]),
+				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URI"), AuthGuardSchema.response[400]),
 				401: AuthGuardSchema.response[401],
-				429: RateLimiterSchema.response[429],
 			}),
 			cookie: t.Cookie({
 				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),

@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { sessionExpiresSpan, sessionRefreshSpan } from "../../../../domain/entities";
-import { formatSessionToken, newSessionToken } from "../../../../domain/value-object";
+import { formatSessionToken, newSessionToken } from "../../../../domain/value-objects";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
+	PasswordHasherMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createSessionsMap,
 	createUserPasswordHashMap,
@@ -15,23 +16,27 @@ import { ValidateSessionUseCase } from "../validate-session.usecase";
 const sessionMap = createSessionsMap();
 const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
-const sessionRepositoryMock = new SessionRepositoryMock({
+
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const validateSessionUseCase = new ValidateSessionUseCase(sessionRepositoryMock, userRepositoryMock);
+const sessionSecretHasher = new SessionSecretHasherMock();
+const passwordHasher = new PasswordHasherMock();
 
-const { user, passwordHash } = createUserFixture({
+const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, userRepository, sessionSecretHasher);
+
+const { user } = createUserFixture({
 	user: {
 		email: "test@example.com",
-		name: "test_user",
 	},
-	passwordHash: "hashed_password",
 });
+const password = "password123";
+const passwordHash = await passwordHasher.hash(password);
 
 describe("ValidateSessionUseCase", () => {
 	beforeEach(() => {
@@ -56,15 +61,14 @@ describe("ValidateSessionUseCase", () => {
 
 		const result = await validateSessionUseCase.execute(sessionToken);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("user");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.id).toBe(session.id);
-			expect(result.session.userId).toBe(user.id);
-			expect(result.user.id).toBe(user.id);
-			expect(result.user.email).toBe(user.email);
+		if (!result.isErr) {
+			const { session, user } = result.value;
+			expect(session.id).toBe(session.id);
+			expect(session.userId).toBe(user.id);
+			expect(user.id).toBe(user.id);
+			expect(user.email).toBe(user.email);
 		}
 	});
 
@@ -73,9 +77,9 @@ describe("ValidateSessionUseCase", () => {
 
 		const result = await validateSessionUseCase.execute(invalidToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SESSION_INVALID");
 		}
 	});
@@ -85,9 +89,9 @@ describe("ValidateSessionUseCase", () => {
 
 		const result = await validateSessionUseCase.execute(sessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SESSION_INVALID");
 		}
 	});
@@ -101,9 +105,9 @@ describe("ValidateSessionUseCase", () => {
 
 		const result = await validateSessionUseCase.execute(sessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SESSION_INVALID");
 		}
 	});
@@ -120,9 +124,9 @@ describe("ValidateSessionUseCase", () => {
 		const invalidSessionToken = formatSessionToken(session.id, "invalid_secret");
 		const result = await validateSessionUseCase.execute(invalidSessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SESSION_INVALID");
 		}
 	});
@@ -139,9 +143,9 @@ describe("ValidateSessionUseCase", () => {
 
 		const result = await validateSessionUseCase.execute(sessionToken);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("SESSION_EXPIRED");
 		}
 
@@ -163,11 +167,11 @@ describe("ValidateSessionUseCase", () => {
 
 		const result = await validateSessionUseCase.execute(sessionToken);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.id).toBe(session.id);
-			expect(result.user.id).toBe(user.id);
+		if (!result.isErr) {
+			expect(session.id).toBe(session.id);
+			expect(user.id).toBe(user.id);
 
 			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();

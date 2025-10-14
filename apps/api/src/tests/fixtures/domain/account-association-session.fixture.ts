@@ -5,13 +5,16 @@ import {
 	type AccountAssociationSessionToken,
 	formatSessionToken,
 	newAccountAssociationSessionId,
-	newOAuthProvider,
-	newOAuthProviderId,
+	newExternalIdentityProvider,
+	newExternalIdentityProviderUserId,
 	newUserId,
-} from "../../../domain/value-object";
-import { hashSessionSecret } from "../../../infrastructure/crypt";
+} from "../../../domain/value-objects";
+import { SessionSecretHasherMock } from "../../mocks";
+
+const sessionSecretHasher = new SessionSecretHasherMock();
 
 export const createAccountAssociationSessionFixture = (override?: {
+	secretHasher?: (secret: string) => Uint8Array;
 	accountAssociationSession?: Partial<AccountAssociationSession>;
 	accountAssociationSessionSecret?: string;
 }): {
@@ -19,8 +22,10 @@ export const createAccountAssociationSessionFixture = (override?: {
 	accountAssociationSessionSecret: string;
 	accountAssociationSessionToken: AccountAssociationSessionToken;
 } => {
+	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+
 	const sessionSecret = override?.accountAssociationSessionSecret ?? "accountAssociationSessionSecret";
-	const secretHash = hashSessionSecret(sessionSecret);
+	const secretHash = override?.accountAssociationSession?.secretHash ?? secretHasher(sessionSecret);
 
 	const expiresAt = new Date(
 		override?.accountAssociationSession?.expiresAt?.getTime() ??
@@ -34,8 +39,8 @@ export const createAccountAssociationSessionFixture = (override?: {
 		code: override?.accountAssociationSession?.code ?? "testCode",
 		secretHash: override?.accountAssociationSession?.secretHash ?? secretHash,
 		email: override?.accountAssociationSession?.email ?? "test.email@example.com",
-		provider: override?.accountAssociationSession?.provider ?? newOAuthProvider("discord"),
-		providerId: override?.accountAssociationSession?.providerId ?? newOAuthProviderId(ulid()),
+		provider: override?.accountAssociationSession?.provider ?? newExternalIdentityProvider("discord"),
+		providerUserId: override?.accountAssociationSession?.providerUserId ?? newExternalIdentityProviderUserId(ulid()),
 		expiresAt,
 	};
 

@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newEmailVerificationSessionId } from "../../../../domain/value-object";
+import { newEmailVerificationSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createUserFixture } from "../../../../tests/fixtures";
 import { createEmailVerificationSessionFixture } from "../../../../tests/fixtures";
@@ -15,7 +15,7 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 const userTableHelper = new UserTableHelper(DB);
 const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
+const { user } = createUserFixture();
 
 describe("EmailVerificationSessionRepository.findId", () => {
 	beforeEach(async () => {
@@ -24,7 +24,7 @@ describe("EmailVerificationSessionRepository.findId", () => {
 	});
 
 	test("should return EmailVerificationSession instance", async () => {
-		await userTableHelper.save(user, passwordHash);
+		await userTableHelper.save(user, null);
 
 		const { emailVerificationSession } = createEmailVerificationSessionFixture({
 			emailVerificationSession: {

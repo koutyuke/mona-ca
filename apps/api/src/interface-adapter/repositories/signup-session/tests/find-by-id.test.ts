@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newSignupSessionId } from "../../../../domain/value-object";
+import { newSignupSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createSignupSessionFixture } from "../../../../tests/fixtures";
 import { SignupSessionRepository } from "../signup-session.repository";

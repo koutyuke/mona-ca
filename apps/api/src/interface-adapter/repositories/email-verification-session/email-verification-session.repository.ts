@@ -1,13 +1,13 @@
 import { eq, lte } from "drizzle-orm";
+import type { IEmailVerificationSessionRepository } from "../../../application/ports/out/repositories";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import {
 	type EmailVerificationSessionId,
 	type UserId,
 	newEmailVerificationSessionId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { IEmailVerificationSessionRepository } from "./interfaces/email-verification-session.repository.interface";
 
 interface FoundEmailVerificationSessionDto {
 	id: string;

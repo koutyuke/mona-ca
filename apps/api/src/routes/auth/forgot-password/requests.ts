@@ -3,7 +3,7 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { PasswordResetRequestUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
@@ -27,10 +27,10 @@ const PasswordResetRequest = new ElysiaWithEnv()
 	.use(withClientType)
 	.use(
 		rateLimit("forgot-password-request", {
-			maxTokens: 100,
-			refillRate: 50,
+			maxTokens: 1000,
+			refillRate: 500,
 			refillInterval: {
-				value: 30,
+				value: 10,
 				unit: "m",
 			},
 		}),
@@ -48,33 +48,37 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 			const userRepository = new UserRepository(drizzleService);
 
+			const randomGenerator = new RandomGenerator();
+			const sessionSecretHasher = new SessionSecretHasher();
+
 			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const passwordResetRequestUseCase = new PasswordResetRequestUseCase(
 				passwordResetSessionRepository,
 				userRepository,
+				randomGenerator,
+				sessionSecretHasher,
 			);
 			// === End of instances ===
 
 			const result = await passwordResetRequestUseCase.execute(email);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
-				switch (code) {
-					case "USER_NOT_FOUND":
-						throw new BadRequestException({
-							code: code,
-							message: "User not found with this email address. Please check your email and try again.",
-						});
-					default:
-						throw new BadRequestException({
-							code: code,
-							message: "Password reset request failed. Please try again.",
-						});
+				if (code === "USER_NOT_FOUND") {
+					throw new BadRequestException({
+						code: code,
+						message: "User not found with this email address. Please check your email and try again.",
+					});
 				}
+
+				throw new BadRequestException({
+					code: code,
+					message: "Password reset request failed. Please try again.",
+				});
 			}
 
-			const { passwordResetSessionToken, passwordResetSession } = result;
+			const { passwordResetSessionToken, passwordResetSession } = result.value;
 
 			const mailContents = verificationEmailTemplate(passwordResetSession.email, passwordResetSession.code);
 
@@ -100,7 +104,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 		{
 			beforeHandle: async ({ rateLimit, ip, captcha, body: { email, cfTurnstileResponse } }) => {
 				await captcha.verify(cfTurnstileResponse);
-				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 10)]);
+				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 100)]);
 			},
 			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({

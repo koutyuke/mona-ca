@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";
+import { PasswordHasherMock } from "../../../../tests/mocks";
 import { AccountAssociationSessionRepository } from "../account-association-session.repository";
 
 const { DB } = env;
@@ -13,12 +14,16 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-const { user, passwordHash } = createUserFixture();
-const { user: user2, passwordHash: passwordHash2 } = createUserFixture({
+const passwordHasher = new PasswordHasherMock();
+
+const { user } = createUserFixture();
+const passwordHash = await passwordHasher.hash("password");
+const { user: user2 } = createUserFixture({
 	user: {
 		email: "user2@example.com",
 	},
 });
+const passwordHash2 = await passwordHasher.hash("password2");
 
 describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 	beforeAll(async () => {

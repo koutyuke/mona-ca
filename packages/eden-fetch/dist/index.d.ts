@@ -40,7 +40,7 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     code: "INVALID_COOKIE_SIGNATURE";
                     message: string;
                 } | {
-                    code: "INVALID_REDIRECT_URL";
+                    code: "INVALID_REDIRECT_URI";
                     message: string;
                 };
                 422: {
@@ -86,13 +86,13 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         code: "INVALID_COOKIE_SIGNATURE";
                         message: string;
                     } | {
-                        code: "INVALID_REDIRECT_URL";
+                        code: "INVALID_STATE";
                         message: string;
                     } | {
-                        code: "OAUTH_CREDENTIALS_INVALID";
+                        code: "INVALID_REDIRECT_URI";
                         message: string;
                     } | {
-                        code: "INVALID_OAUTH_STATE";
+                        code: "TOKEN_EXCHANGE_FAILED";
                         message: string;
                     };
                     422: {
@@ -139,7 +139,7 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     code: "INVALID_COOKIE_SIGNATURE";
                     message: string;
                 } | {
-                    code: "INVALID_REDIRECT_URL";
+                    code: "INVALID_REDIRECT_URI";
                     message: string;
                 };
                 422: {
@@ -185,13 +185,13 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         code: "INVALID_COOKIE_SIGNATURE";
                         message: string;
                     } | {
-                        code: "INVALID_REDIRECT_URL";
+                        code: "INVALID_STATE";
                         message: string;
                     } | {
-                        code: "OAUTH_CREDENTIALS_INVALID";
+                        code: "INVALID_REDIRECT_URI";
                         message: string;
                     } | {
-                        code: "INVALID_OAUTH_STATE";
+                        code: "TOKEN_EXCHANGE_FAILED";
                         message: string;
                     };
                     422: {
@@ -244,7 +244,7 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     code: "INVALID_CLIENT_TYPE";
                     message: string;
                 } | {
-                    code: "INVALID_REDIRECT_URL";
+                    code: "INVALID_REDIRECT_URI";
                     message: string;
                 };
                 401: {
@@ -268,10 +268,6 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     found?: unknown;
                     property?: string;
                     expected?: string;
-                };
-                429: {
-                    code: "TOO_MANY_REQUESTS";
-                    message: string;
                 };
                 500: {
                     code: "INTERNAL_SERVER_ERROR";
@@ -300,10 +296,13 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         code: "INVALID_COOKIE_SIGNATURE";
                         message: string;
                     } | {
-                        code: "INVALID_REDIRECT_URL";
+                        code: "INVALID_STATE";
                         message: string;
                     } | {
-                        code: "OAUTH_CREDENTIALS_INVALID";
+                        code: "INVALID_REDIRECT_URI";
+                        message: string;
+                    } | {
+                        code: "TOKEN_EXCHANGE_FAILED";
                         message: string;
                     };
                     422: {
@@ -317,10 +316,6 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         found?: unknown;
                         property?: string;
                         expected?: string;
-                    };
-                    429: {
-                        code: "TOO_MANY_REQUESTS";
-                        message: string;
                     };
                     500: {
                         code: "INTERNAL_SERVER_ERROR";
@@ -1019,10 +1014,10 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         code: "INVALID_ASSOCIATION_CODE";
                         message: string;
                     } | {
-                        code: "OAUTH_PROVIDER_ALREADY_LINKED";
+                        code: "ACCOUNT_ALREADY_LINKED";
                         message: string;
                     } | {
-                        code: "OAUTH_ACCOUNT_ALREADY_LINKED_TO_ANOTHER_USER";
+                        code: "ACCOUNT_LINKED_ELSEWHERE";
                         message: string;
                     } | {
                         code: "USER_NOT_FOUND";
@@ -1072,7 +1067,6 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 }) => Promise<Treaty.TreatyResponse<{
                     200: {
                         provider: string;
-                        providerId: string;
                         user: {
                             name: string;
                             gender: "man" | "woman";
@@ -1083,6 +1077,7 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                             createdAt: string;
                             updatedAt: string;
                         };
+                        providerId: string;
                     };
                     400: {
                         code: "PARSE_ERROR";
@@ -1400,7 +1395,7 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         code: "INVALID_CLIENT_TYPE";
                         message: string;
                     } | {
-                        code: "ACCOUNT_NOT_LINKED";
+                        code: "PROVIDER_NOT_LINKED";
                         message: string;
                     } | {
                         code: "UNLINK_OPERATION_FAILED";
@@ -1451,12 +1446,12 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     200: {
                         discord: {
                             provider: string;
-                            providerId: string;
+                            providerUserId: string;
                             linkedAt: string;
                         } | null;
                         google: {
                             provider: string;
-                            providerId: string;
+                            providerUserId: string;
                             linkedAt: string;
                         } | null;
                         password: boolean;

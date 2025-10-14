@@ -1,13 +1,13 @@
 import { eq } from "drizzle-orm";
+import type { IPasswordResetSessionRepository } from "../../../application/ports/out/repositories";
 import type { PasswordResetSession } from "../../../domain/entities";
 import {
 	type PasswordResetSessionId,
 	type UserId,
 	newPasswordResetSessionId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
-import type { IPasswordResetSessionRepository } from "./interfaces/password-reset-session.repository.interface";
 
 interface FoundPasswordResetSessionDto {
 	id: string;

@@ -1,19 +1,22 @@
-import { err, generateRandomString, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { createEmailVerificationSession } from "../../../domain/entities";
-import type { User } from "../../../domain/entities";
-import { formatSessionToken, newEmailVerificationSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { IEmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type {
-	EmailVerificationRequestUseCaseResult,
-	IEmailVerificationRequestUseCase,
-} from "./interfaces/email-verification-request.usecase.interface";
+import type { EmailVerificationSession, User } from "../../../domain/entities";
+import {
+	type EmailVerificationSessionToken,
+	formatSessionToken,
+	newEmailVerificationSessionId,
+} from "../../../domain/value-objects";
+import type { EmailVerificationRequestUseCaseResult, IEmailVerificationRequestUseCase } from "../../ports/in";
+import type { IEmailVerificationSessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../ports/out/system";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly randomGenerator: IRandomGenerator,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(email: string, user: User): Promise<EmailVerificationRequestUseCaseResult> {
@@ -27,12 +30,32 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
-		const code = generateRandomString(8, {
-			number: true,
-		});
+		const { emailVerificationSessionToken, emailVerificationSession } = this.createEmailVerificationSession(
+			email,
+			user,
+		);
 
-		const emailVerificationSessionSecret = generateSessionSecret();
-		const secretHash = hashSessionSecret(emailVerificationSessionSecret);
+		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
+		await this.emailVerificationSessionRepository.save(emailVerificationSession);
+
+		return ok({
+			emailVerificationSessionToken,
+			emailVerificationSession,
+		});
+	}
+
+	private createEmailVerificationSession(
+		email: string,
+		user: User,
+	): {
+		emailVerificationSessionToken: EmailVerificationSessionToken;
+		emailVerificationSession: EmailVerificationSession;
+	} {
+		const code = this.randomGenerator.string(8, {
+			digits: true,
+		});
+		const emailVerificationSessionSecret = this.sessionSecretHasher.generate();
+		const secretHash = this.sessionSecretHasher.hash(emailVerificationSessionSecret);
 		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
 		const emailVerificationSessionToken = formatSessionToken(
 			emailVerificationSessionId,
@@ -45,13 +68,6 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 			code,
 			secretHash,
 		});
-
-		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
-		await this.emailVerificationSessionRepository.save(emailVerificationSession);
-
-		return {
-			emailVerificationSessionToken,
-			emailVerificationSession,
-		};
+		return { emailVerificationSessionToken, emailVerificationSession };
 	}
 }

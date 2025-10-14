@@ -1,21 +1,18 @@
-import { err, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
-import type { User } from "../../../domain/entities";
-import { formatSessionToken, newSessionId } from "../../../domain/value-object";
-import { generateSessionSecret, hashSessionSecret } from "../../../infrastructure/crypt";
-import type { ISessionRepository } from "../../../interface-adapter/repositories/session";
-import type { IUserRepository } from "../../../interface-adapter/repositories/user";
-import type { IPasswordService } from "../../services/password";
-import type {
-	IUpdateUserPasswordUseCase,
-	UpdateUserPasswordUseCaseResult,
-} from "./interfaces/update-user-password.usecase.interface";
+import type { Session, User } from "../../../domain/entities";
+import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-objects";
+import type { IUpdateUserPasswordUseCase, UpdateUserPasswordUseCaseResult } from "../../ports/in";
+import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
+import type { IPasswordHasher, ISessionSecretHasher } from "../../ports/out/system";
 
 export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 	constructor(
 		private readonly userRepository: IUserRepository,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly passwordService: IPasswordService,
+		private readonly passwordHasher: IPasswordHasher,
+		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(
@@ -34,38 +31,46 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 				return err("INVALID_CURRENT_PASSWORD");
 			}
 
-			const verifyPassword = await this.passwordService.verifyPassword(currentPassword, passwordHash);
-			if (!verifyPassword) {
+			const verifyPasswordResult = await this.passwordHasher.verify(currentPassword, passwordHash);
+			if (!verifyPasswordResult) {
 				return err("INVALID_CURRENT_PASSWORD");
 			}
 		}
 
 		const [newPasswordHash] = await Promise.all([
-			this.passwordService.hashPassword(newPassword),
+			this.passwordHasher.hash(newPassword),
 
 			// Delete all sessions of the user.
 			this.sessionRepository.deleteByUserId(user.id),
 		]);
 
 		// Generate a new session.
-		const sessionSecret = generateSessionSecret();
-		const sessionSecretHash = hashSessionSecret(sessionSecret);
-		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
-		const session = createSession({
-			id: sessionId,
-			userId: user.id,
-			secretHash: sessionSecretHash,
-		});
+		const { session, sessionToken } = this.createSession(user.id);
 
 		await Promise.all([
 			this.userRepository.save(user, { passwordHash: newPasswordHash }),
 			this.sessionRepository.save(session),
 		]);
 
-		return {
+		return ok({
 			session,
 			sessionToken,
-		};
+		});
+	}
+
+	private createSession(userId: UserId): {
+		session: Session;
+		sessionToken: SessionToken;
+	} {
+		const sessionSecret = this.sessionSecretHasher.generate();
+		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
+		const sessionId = newSessionId(ulid());
+		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const session = createSession({
+			id: sessionId,
+			userId,
+			secretHash: sessionSecretHash,
+		});
+		return { session, sessionToken };
 	}
 }

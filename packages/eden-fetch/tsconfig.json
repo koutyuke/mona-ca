@@ -1,7 +1,7 @@
 {
   "extends": "@mona-ca/tsconfig/base.json",
   "compilerOptions": {
-    "types": ["../../apps/api/src/types/worker-configuration.d.ts"]
+    "types": ["../../apps/api/types/worker-configuration.d.ts"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"]

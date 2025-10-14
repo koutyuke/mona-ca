@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
-	PasswordServiceMock,
+	PasswordHasherMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	UserRepositoryMock,
 	createSessionsMap,
 	createUserPasswordHashMap,
@@ -14,19 +14,23 @@ import { UpdateUserPasswordUseCase } from "../update-user-password.usecase";
 const sessionMap = createSessionsMap();
 const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
-const sessionRepositoryMock = new SessionRepositoryMock({
+
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepositoryMock = new UserRepositoryMock({
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const passwordServiceMock = new PasswordServiceMock();
+const passwordHasher = new PasswordHasherMock();
+const sessionSecretHasher = new SessionSecretHasherMock();
+
 const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	passwordServiceMock,
+	userRepository,
+	sessionRepository,
+	passwordHasher,
+	sessionSecretHasher,
 );
 
 const { user } = createUserFixture({
@@ -47,30 +51,29 @@ describe("UpdateUserPasswordUseCase", () => {
 		const newPassword = "new_password123";
 		const result = await updateUserPasswordUseCase.execute(user, undefined, newPassword);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
 		const savedPasswordHash = userPasswordHashMap.get(user.id);
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe(newPassword);
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword(newPassword, savedPasswordHash)).toBe(true);
+			expect(await passwordHasher.verify(newPassword, savedPasswordHash)).toBe(true);
 		}
 	});
 
 	it("should return INVALID_CURRENT_PASSWORD error when no existing password but current password provided", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, "wrong_password", "new_password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CURRENT_PASSWORD");
 		}
 	});
@@ -80,43 +83,42 @@ describe("UpdateUserPasswordUseCase", () => {
 
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CURRENT_PASSWORD");
 		}
 	});
 
 	it("should return INVALID_CURRENT_PASSWORD error when current password is incorrect", async () => {
 		const existingPassword = "existing_password";
-		const existingPasswordHash = await passwordServiceMock.hashPassword(existingPassword);
+		const existingPasswordHash = await passwordHasher.hash(existingPassword);
 		userPasswordHashMap.set(user.id, existingPasswordHash);
 
 		const result = await updateUserPasswordUseCase.execute(user, "wrong_password", "new_password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CURRENT_PASSWORD");
 		}
 	});
 
 	it("should update password successfully when current password is correct", async () => {
 		const existingPassword = "existing_password";
-		const existingPasswordHash = await passwordServiceMock.hashPassword(existingPassword);
+		const existingPasswordHash = await passwordHasher.hash(existingPassword);
 		userPasswordHashMap.set(user.id, existingPasswordHash);
 
 		const newPassword = "new_password123";
 		const result = await updateUserPasswordUseCase.execute(user, existingPassword, newPassword);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
 		const savedPasswordHash = userPasswordHashMap.get(user.id);
@@ -124,7 +126,7 @@ describe("UpdateUserPasswordUseCase", () => {
 		expect(savedPasswordHash).not.toBe(newPassword);
 		expect(savedPasswordHash).not.toBe(existingPasswordHash);
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword(newPassword, savedPasswordHash)).toBe(true);
+			expect(await passwordHasher.verify(newPassword, savedPasswordHash)).toBe(true);
 		}
 	});
 
@@ -145,45 +147,48 @@ describe("UpdateUserPasswordUseCase", () => {
 
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
+		if (!result.isErr) {
+			const { session } = result.value;
 			expect(sessionMap.has(session1.id)).toBe(false);
 			expect(sessionMap.has(session2.id)).toBe(false);
 			expect(sessionMap.size).toBe(1);
-			expect(sessionMap.get(result.session.id)).toBeDefined();
+			expect(sessionMap.get(session.id)).toBeDefined();
 		}
 	});
 
 	it("should create and save new session after password update", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
-			expect(savedSession?.id).toBe(result.session.id);
+			expect(savedSession?.id).toBe(session.id);
 		}
 	});
 
 	it("should generate session token with correct format", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
-			expect(result.sessionToken.split(".").length).toBe(2);
+		if (!result.isErr) {
+			const { sessionToken } = result.value;
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
+			expect(sessionToken.split(".").length).toBe(2);
 		}
 	});
 
 	it("should save user with new password hash", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		const savedUser = userMap.get(user.id);
 		expect(savedUser).toBeDefined();
@@ -194,7 +199,7 @@ describe("UpdateUserPasswordUseCase", () => {
 		expect(savedPasswordHash).toBeDefined();
 		expect(savedPasswordHash).not.toBe("new_password123");
 		if (savedPasswordHash) {
-			expect(await passwordServiceMock.verifyPassword("new_password123", savedPasswordHash)).toBe(true);
+			expect(await passwordHasher.verify("new_password123", savedPasswordHash)).toBe(true);
 		}
 	});
 });

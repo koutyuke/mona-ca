@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createSignupSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
-	PasswordServiceMock,
+	PasswordHasherMock,
 	SessionRepositoryMock,
+	SessionSecretHasherMock,
 	SignupSessionRepositoryMock,
 	UserRepositoryMock,
 } from "../../../../tests/mocks";
@@ -21,28 +21,28 @@ const userMap = createUsersMap();
 const userPasswordHashMap = createUserPasswordHashMap();
 const signupSessionMap = createSignupSessionsMap();
 
-// Repositories
-const userRepositoryMock = new UserRepositoryMock({
+// Mocks
+const userRepository = new UserRepositoryMock({
 	userMap,
 	userPasswordHashMap,
 	sessionMap,
 });
-const sessionRepositoryMock = new SessionRepositoryMock({
+const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
+const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-
-// Services
-const passwordServiceMock = new PasswordServiceMock();
+const sessionSecretHasher = new SessionSecretHasherMock();
+const passwordHasher = new PasswordHasherMock();
 
 // Use Case
 const signupConfirmUseCase = new SignupConfirmUseCase(
-	userRepositoryMock,
-	sessionRepositoryMock,
-	signupSessionRepositoryMock,
-	passwordServiceMock,
+	userRepository,
+	sessionRepository,
+	signupSessionRepository,
+	sessionSecretHasher,
+	passwordHasher,
 );
 
 const { user: verifiedUserFixture } = createUserFixture({
@@ -79,19 +79,20 @@ describe("SignupConfirmUseCase", () => {
 
 		const result = await signupConfirmUseCase.execute(signupSession, "Test User", "password123", userGender);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.user.email).toBe("test@example.com");
-			expect(result.user.name).toBe("Test User");
-			expect(result.session.userId).toBe(result.user.id);
-			expect(result.sessionToken.length).toBeGreaterThan(0);
-			expect(result.user.emailVerified).toBe(true);
+		if (!result.isErr) {
+			const { user, session, sessionToken } = result.value;
+			expect(user.email).toBe("test@example.com");
+			expect(user.name).toBe("Test User");
+			expect(session.userId).toBe(user.id);
+			expect(sessionToken.length).toBeGreaterThan(0);
+			expect(user.emailVerified).toBe(true);
 
-			const savedUser = userMap.get(result.user.id);
+			const savedUser = userMap.get(user.id);
 			expect(savedUser).toBeDefined();
 
-			const savedSession = sessionMap.get(result.session.id);
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 		}
 
@@ -109,9 +110,9 @@ describe("SignupConfirmUseCase", () => {
 
 		const result = await signupConfirmUseCase.execute(signupSession, "Test User", "password123", userGender);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_VERIFICATION_REQUIRED");
 		}
 	});
@@ -129,9 +130,9 @@ describe("SignupConfirmUseCase", () => {
 
 		const result = await signupConfirmUseCase.execute(signupSession, "Another User", "password123", userGender);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
 		}
 
@@ -143,15 +144,16 @@ describe("SignupConfirmUseCase", () => {
 
 		const result = await signupConfirmUseCase.execute(signupSession, "Hashed User", "securePassword", userGender);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedPasswordHash = userPasswordHashMap.get(result.user.id);
-			expect(savedPasswordHash).toBe("hashed_securePassword");
+		if (!result.isErr) {
+			const { user, session, sessionToken } = result.value;
+			const savedPasswordHash = userPasswordHashMap.get(user.id);
+			expect(savedPasswordHash).toBe("__password-hashed:securePassword");
 
-			const savedSession = sessionMap.get(result.session.id);
-			expect(savedSession?.userId).toBe(result.user.id);
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+			const savedSession = sessionMap.get(session.id);
+			expect(savedSession?.userId).toBe(user.id);
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 	});
 });

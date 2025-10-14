@@ -1,5 +1,5 @@
-import type { Gender } from "../value-object/gender";
-import type { UserId } from "../value-object/ids";
+import type { Gender } from "../value-objects/gender";
+import type { UserId } from "../value-objects/ids";
 
 export const DEFAULT_USER_GENDER = "man";
 
