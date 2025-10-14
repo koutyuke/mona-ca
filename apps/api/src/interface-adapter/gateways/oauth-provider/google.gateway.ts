@@ -1,3 +1,4 @@
+import { err, ok } from "@mona-ca/core/utils";
 import { Value } from "@sinclair/typebox/value";
 import {
 	ArcticFetchError,
@@ -14,7 +15,6 @@ import type {
 	GetTokensResult,
 	IOAuthProviderGateway,
 } from "../../../application/ports/out/gateways";
-import { err } from "../../../common/utils";
 
 const googleIdTokenClaimsSchema = t.Object({
 	sub: t.String(),
@@ -40,7 +40,7 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 	public async exchangeCodeForTokens(code: string, codeVerifier: string): Promise<GetTokensResult> {
 		try {
 			const tokens = await this.google.validateAuthorizationCode(code, codeVerifier);
-			return tokens;
+			return ok(tokens);
 		} catch (error) {
 			if (error instanceof OAuth2RequestError) {
 				console.error(error);
@@ -71,13 +71,13 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 				return err("IDENTITY_INVALID");
 			}
 
-			return {
+			return ok({
 				id: claims.sub,
 				name: claims.name,
 				email: claims.email,
 				iconURL: claims.picture ?? null,
 				emailVerified: claims.email_verified ?? false,
-			};
+			});
 		} catch (error) {
 			console.error("Error in getAccountInfo:", error);
 			return err("FETCH_IDENTITY_FAILED");

@@ -1,3 +1,4 @@
+import { err, ok } from "@mona-ca/core/utils";
 import { Value } from "@sinclair/typebox/value";
 import {
 	ArcticFetchError,
@@ -13,7 +14,6 @@ import type {
 	GetTokensResult,
 	IOAuthProviderGateway,
 } from "../../../application/ports/out/gateways";
-import { err } from "../../../common/utils";
 
 const discordIdentifySchema = t.Object({
 	id: t.String(),
@@ -43,7 +43,7 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 	public async exchangeCodeForTokens(code: string, codeVerifier: string): Promise<GetTokensResult> {
 		try {
 			const tokens = await this.discord.validateAuthorizationCode(code, codeVerifier);
-			return tokens;
+			return ok(tokens);
 		} catch (error) {
 			if (error instanceof OAuth2RequestError) {
 				return err("CREDENTIALS_INVALID");
@@ -86,13 +86,13 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 				return err("IDENTITY_INVALID");
 			}
 
-			return {
+			return ok({
 				id: user.id,
 				name: user.username,
 				email: user.email,
 				iconURL: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
 				emailVerified: !!user.verified,
-			};
+			});
 		} catch (error) {
 			console.error("Error in getAccountInfo:", error);
 			return err("FETCH_IDENTITY_FAILED");
