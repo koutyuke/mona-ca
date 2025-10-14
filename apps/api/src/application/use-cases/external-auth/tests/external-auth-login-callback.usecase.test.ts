@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { DEFAULT_USER_GENDER } from "../../../../domain/entities";
 import {
 	newClientType,
@@ -84,8 +83,8 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_STATE");
 		}
 	});
@@ -103,8 +102,8 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
@@ -122,8 +121,8 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ASSOCIATION_NOT_FOUND");
 		}
 	});
@@ -158,13 +157,14 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(result.sessionToken).toBeDefined();
-			expect(result.redirectURL).toBeInstanceOf(URL);
-			expect(result.clientType).toBe("web");
-			const savedSession = sessionMap.get(result.session.id);
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { session, sessionToken, redirectURL, clientType } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(sessionToken).toBeDefined();
+			expect(redirectURL).toBeInstanceOf(URL);
+			expect(clientType).toBe("web");
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 		}
 	});

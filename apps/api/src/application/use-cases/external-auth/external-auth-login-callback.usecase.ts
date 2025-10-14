@@ -1,5 +1,5 @@
-import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
-import { err, isErr, ulid } from "../../../common/utils";
+import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import {
 	type AccountAssociationSession,
 	type Session,
@@ -51,11 +51,11 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 	): Promise<ExternalAuthLoginCallbackUseCaseResult> {
 		const validatedState = this.oauthStateSigner.validate(signedState);
 
-		if (isErr(validatedState)) {
+		if (validatedState.isErr) {
 			return err("INVALID_STATE");
 		}
 
-		const { client } = validatedState;
+		const { client } = validatedState.value;
 
 		const clientType = newClientType(client);
 
@@ -81,7 +81,7 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 
 		const exchangeCodeForTokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
-		if (isErr(exchangeCodeForTokensResult)) {
+		if (exchangeCodeForTokensResult.isErr) {
 			const { code } = exchangeCodeForTokensResult;
 
 			if (code === "CREDENTIALS_INVALID" || code === "FETCH_TOKENS_FAILED") {
@@ -89,11 +89,11 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 			}
 		}
 
-		const getIdentityResult = await this.oauthProviderGateway.getIdentity(exchangeCodeForTokensResult);
+		const getIdentityResult = await this.oauthProviderGateway.getIdentity(exchangeCodeForTokensResult.value);
 
-		await this.oauthProviderGateway.revokeToken(exchangeCodeForTokensResult);
+		await this.oauthProviderGateway.revokeToken(exchangeCodeForTokensResult.value);
 
-		if (isErr(getIdentityResult)) {
+		if (getIdentityResult.isErr) {
 			const { code } = getIdentityResult;
 
 			if (code === "ACCESS_TOKEN_INVALID" || code === "IDENTITY_INVALID" || code === "FETCH_IDENTITY_FAILED") {
@@ -101,7 +101,7 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 			}
 		}
 
-		const identity = getIdentityResult;
+		const identity = getIdentityResult.value;
 		const identityUserId = newExternalIdentityProviderUserId(identity.id);
 
 		const existingExternalIdentity = await this.externalIdentityRepository.findByProviderAndProviderUserId(
@@ -116,12 +116,12 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 
 			await this.sessionRepository.save(session);
 
-			return {
+			return ok({
 				session,
 				sessionToken,
 				redirectURL: redirectToClientURL,
 				clientType,
-			};
+			});
 		}
 
 		if (existingUserForSameEmail) {

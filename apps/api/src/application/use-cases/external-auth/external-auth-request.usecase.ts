@@ -1,6 +1,5 @@
-import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
+import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
-import { err } from "../../../common/utils";
 import type { ClientType } from "../../../domain/value-object";
 import type { ExternalAuthRequestUseCaseResult, IExternalAuthRequestUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
@@ -30,11 +29,11 @@ export class ExternalAuthRequestUseCase implements IExternalAuthRequestUseCase {
 		const codeVerifier = generateCodeVerifier();
 		const redirectToProviderURL = this.oauthProviderGateway.createAuthorizationURL(state, codeVerifier);
 
-		return {
+		return ok({
 			state,
 			codeVerifier,
 			redirectToClientURL,
 			redirectToProviderURL,
-		};
+		});
 	}
 }

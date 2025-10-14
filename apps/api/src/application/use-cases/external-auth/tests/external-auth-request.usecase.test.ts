@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { newClientType } from "../../../../domain/value-object";
 import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
 import { ExternalAuthRequestUseCase } from "../external-auth-request.usecase";
@@ -16,26 +15,28 @@ describe("ExternalAuthRequestUseCase", () => {
 	it("should generate ExternalAuth request successfully for web client", () => {
 		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), "/dashboard");
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.state).toBeDefined();
-			expect(result.codeVerifier).toBeDefined();
-			expect(result.redirectToClientURL).toBeInstanceOf(URL);
-			expect(result.redirectToProviderURL).toBeInstanceOf(URL);
-			expect(result.redirectToClientURL.pathname).toBe("/dashboard");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
+			expect(state).toBeDefined();
+			expect(codeVerifier).toBeDefined();
+			expect(redirectToClientURL).toBeInstanceOf(URL);
+			expect(redirectToProviderURL).toBeInstanceOf(URL);
+			expect(redirectToClientURL.pathname).toBe("/dashboard");
 		}
 	});
 
 	it("should generate ExternalAuth request successfully for mobile client", () => {
 		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("mobile"), "/home");
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.state).toBeDefined();
-			expect(result.codeVerifier).toBeDefined();
-			expect(result.redirectToClientURL).toBeInstanceOf(URL);
-			expect(result.redirectToProviderURL).toBeInstanceOf(URL);
-			expect(result.redirectToClientURL.pathname).toBe("/home");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
+			expect(state).toBeDefined();
+			expect(codeVerifier).toBeDefined();
+			expect(redirectToClientURL).toBeInstanceOf(URL);
+			expect(redirectToProviderURL).toBeInstanceOf(URL);
+			expect(redirectToClientURL.pathname).toBe("/home");
 		}
 	});
 
@@ -46,8 +47,8 @@ describe("ExternalAuthRequestUseCase", () => {
 			"https://malicious.com/redirect",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
@@ -55,9 +56,10 @@ describe("ExternalAuthRequestUseCase", () => {
 	it("should handle empty redirect URI with default path", () => {
 		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), "");
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.redirectToClientURL.pathname).toBe("/");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { redirectToClientURL } = result.value;
+			expect(redirectToClientURL.pathname).toBe("/");
 		}
 	});
 });
