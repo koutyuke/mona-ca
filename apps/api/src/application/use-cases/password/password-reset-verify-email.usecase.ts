@@ -1,4 +1,5 @@
-import { err, timingSafeStringEqual } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { timingSafeStringEqual } from "../../../common/utils";
 import { type PasswordResetSession, completeEmailVerificationForPasswordResetSession } from "../../../domain/entities";
 import type { IPasswordResetVerifyEmailUseCase, PasswordResetVerifyEmailUseCaseResult } from "../../ports/in";
 import type { IPasswordResetSessionRepository } from "../../ports/out/repositories";
@@ -20,6 +21,6 @@ export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmai
 
 		await this.passwordResetSessionRepository.save(completeSession);
 
-		return;
+		return ok();
 	}
 }

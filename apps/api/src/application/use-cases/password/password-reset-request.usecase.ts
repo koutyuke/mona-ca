@@ -1,4 +1,5 @@
-import { err, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { type PasswordResetSession, createPasswordResetSession } from "../../../domain/entities";
 import {
 	type PasswordResetSessionToken,
@@ -30,10 +31,10 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 		await this.passwordResetSessionRepository.deleteByUserId(user.id);
 		await this.passwordResetSessionRepository.save(passwordResetSession);
 
-		return {
+		return ok({
 			passwordResetSessionToken,
 			passwordResetSession,
-		};
+		});
 	}
 
 	private createPasswordResetSession(

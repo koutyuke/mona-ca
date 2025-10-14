@@ -1,4 +1,5 @@
-import { err, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { createSession } from "../../../domain/entities";
 import type { Session, User } from "../../../domain/entities";
 import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-object";
@@ -51,10 +52,10 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 			this.sessionRepository.save(session),
 		]);
 
-		return {
+		return ok({
 			session,
 			sessionToken,
-		};
+		});
 	}
 
 	private createSession(userId: UserId): {

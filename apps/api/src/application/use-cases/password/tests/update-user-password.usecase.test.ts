@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordHasherMock,
@@ -52,14 +51,13 @@ describe("UpdateUserPasswordUseCase", () => {
 		const newPassword = "new_password123";
 		const result = await updateUserPasswordUseCase.execute(user, undefined, newPassword);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
 		const savedPasswordHash = userPasswordHashMap.get(user.id);
@@ -73,9 +71,9 @@ describe("UpdateUserPasswordUseCase", () => {
 	it("should return INVALID_CURRENT_PASSWORD error when no existing password but current password provided", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, "wrong_password", "new_password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CURRENT_PASSWORD");
 		}
 	});
@@ -85,9 +83,9 @@ describe("UpdateUserPasswordUseCase", () => {
 
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CURRENT_PASSWORD");
 		}
 	});
@@ -99,9 +97,9 @@ describe("UpdateUserPasswordUseCase", () => {
 
 		const result = await updateUserPasswordUseCase.execute(user, "wrong_password", "new_password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CURRENT_PASSWORD");
 		}
 	});
@@ -114,14 +112,13 @@ describe("UpdateUserPasswordUseCase", () => {
 		const newPassword = "new_password123";
 		const result = await updateUserPasswordUseCase.execute(user, existingPassword, newPassword);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
 		const savedPasswordHash = userPasswordHashMap.get(user.id);
@@ -150,45 +147,48 @@ describe("UpdateUserPasswordUseCase", () => {
 
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
+		if (!result.isErr) {
+			const { session } = result.value;
 			expect(sessionMap.has(session1.id)).toBe(false);
 			expect(sessionMap.has(session2.id)).toBe(false);
 			expect(sessionMap.size).toBe(1);
-			expect(sessionMap.get(result.session.id)).toBeDefined();
+			expect(sessionMap.get(session.id)).toBeDefined();
 		}
 	});
 
 	it("should create and save new session after password update", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
-			expect(savedSession?.id).toBe(result.session.id);
+			expect(savedSession?.id).toBe(session.id);
 		}
 	});
 
 	it("should generate session token with correct format", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
-			expect(result.sessionToken.split(".").length).toBe(2);
+		if (!result.isErr) {
+			const { sessionToken } = result.value;
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
+			expect(sessionToken.split(".").length).toBe(2);
 		}
 	});
 
 	it("should save user with new password hash", async () => {
 		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		const savedUser = userMap.get(user.id);
 		expect(savedUser).toBeDefined();

@@ -1,4 +1,4 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import type { PasswordResetSession, User } from "../../../domain/entities";
 import type { IResetPasswordUseCase, ResetPasswordUseCaseResult } from "../../ports/in";
 import type {
@@ -37,6 +37,6 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			this.sessionRepository.deleteByUserId(user.id),
 		]);
 
-		return;
+		return ok();
 	}
 }

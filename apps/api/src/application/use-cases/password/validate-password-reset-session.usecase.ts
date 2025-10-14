@@ -1,4 +1,4 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredPasswordResetSession } from "../../../domain/entities";
 import { type PasswordResetSessionToken, parseSessionToken } from "../../../domain/value-object";
 import type { IValidatePasswordResetSessionUseCase, ValidatePasswordResetSessionUseCaseResult } from "../../ports/in";
@@ -45,6 +45,6 @@ export class ValidatePasswordResetSessionUseCase implements IValidatePasswordRes
 			return err("PASSWORD_RESET_SESSION_EXPIRED");
 		}
 
-		return { passwordResetSession, user };
+		return ok({ passwordResetSession, user });
 	}
 }

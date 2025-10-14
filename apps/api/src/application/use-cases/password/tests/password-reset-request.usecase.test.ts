@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createPasswordResetSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordResetSessionRepositoryMock,
@@ -56,18 +55,17 @@ describe("PasswordResetRequestUseCase", () => {
 	it("should create password reset session successfully for existing user", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("passwordResetSession");
-		expect(result).toHaveProperty("passwordResetSessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.passwordResetSession.userId).toBe(user.id);
-			expect(result.passwordResetSession.email).toBe(user.email);
-			expect(result.passwordResetSession.code).toBeDefined();
-			expect(result.passwordResetSession.code.length).toBe(8);
-			expect(/^\d{8}$/.test(result.passwordResetSession.code)).toBe(true);
-			expect(typeof result.passwordResetSessionToken).toBe("string");
-			expect(result.passwordResetSessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { passwordResetSession, passwordResetSessionToken } = result.value;
+			expect(passwordResetSession.userId).toBe(user.id);
+			expect(passwordResetSession.email).toBe(user.email);
+			expect(passwordResetSession.code).toBeDefined();
+			expect(passwordResetSession.code.length).toBe(8);
+			expect(/^\d{8}$/.test(passwordResetSession.code)).toBe(true);
+			expect(typeof passwordResetSessionToken).toBe("string");
+			expect(passwordResetSessionToken.length).toBeGreaterThan(0);
 		}
 	});
 
@@ -75,9 +73,9 @@ describe("PasswordResetRequestUseCase", () => {
 		userMap.clear();
 		const result = await passwordResetRequestUseCase.execute("nonexistent@example.com");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("USER_NOT_FOUND");
 		}
 	});
@@ -85,10 +83,11 @@ describe("PasswordResetRequestUseCase", () => {
 	it("should generate 8-digit numeric verification code", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const code = result.passwordResetSession.code;
+		if (!result.isErr) {
+			const { passwordResetSession } = result.value;
+			const code = passwordResetSession.code;
 			expect(code).toBeDefined();
 			expect(code.length).toBe(8);
 			expect(/^\d{8}$/.test(code)).toBe(true);
@@ -98,11 +97,12 @@ describe("PasswordResetRequestUseCase", () => {
 	it("should create session token with correct format", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(typeof result.passwordResetSessionToken).toBe("string");
-			expect(result.passwordResetSessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { passwordResetSessionToken } = result.value;
+			expect(typeof passwordResetSessionToken).toBe("string");
+			expect(passwordResetSessionToken.length).toBeGreaterThan(0);
 		}
 	});
 
@@ -127,13 +127,14 @@ describe("PasswordResetRequestUseCase", () => {
 
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		expect(passwordResetSessionMap.has(existingSession1.id)).toBe(false);
 		expect(passwordResetSessionMap.has(existingSession2.id)).toBe(false);
 
-		if (!isErr(result)) {
-			const newSession = passwordResetSessionMap.get(result.passwordResetSession.id);
+		if (!result.isErr) {
+			const { passwordResetSession } = result.value;
+			const newSession = passwordResetSessionMap.get(passwordResetSession.id);
 			expect(newSession).toBeDefined();
 			expect(newSession?.userId).toBe(user.id);
 		}
@@ -142,47 +143,52 @@ describe("PasswordResetRequestUseCase", () => {
 	it("should save new password reset session", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = passwordResetSessionMap.get(result.passwordResetSession.id);
+		if (!result.isErr) {
+			const { passwordResetSession } = result.value;
+			const savedSession = passwordResetSessionMap.get(passwordResetSession.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
 			expect(savedSession?.email).toBe(user.email);
 			expect(savedSession?.code).toBeDefined();
 			expect(savedSession?.code.length).toBe(8);
+			expect(savedSession?.email).toBe(user.email);
 		}
 	});
 
 	it("should generate session secret and hash it", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.passwordResetSession.secretHash).toBeDefined();
-			expect(result.passwordResetSession.secretHash).toBeInstanceOf(Uint8Array);
-			expect(result.passwordResetSession.secretHash.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { passwordResetSession } = result.value;
+			expect(passwordResetSession.secretHash).toBeDefined();
+			expect(passwordResetSession.secretHash).toBeInstanceOf(Uint8Array);
+			expect(passwordResetSession.secretHash.length).toBeGreaterThan(0);
 		}
 	});
 
 	it("should set session email to user email", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.passwordResetSession.email).toBe(user.email);
+		if (!result.isErr) {
+			const { passwordResetSession } = result.value;
+			expect(passwordResetSession.email).toBe(user.email);
 		}
 	});
 
 	it("should create password reset session with correct user id", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.passwordResetSession.userId).toBe(user.id);
+		if (!result.isErr) {
+			const { passwordResetSession } = result.value;
+			expect(passwordResetSession.userId).toBe(user.id);
 		}
 	});
 
@@ -190,9 +196,9 @@ describe("PasswordResetRequestUseCase", () => {
 		const uppercaseEmail = "TEST@EXAMPLE.COM";
 		const result = await passwordResetRequestUseCase.execute(uppercaseEmail);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("USER_NOT_FOUND");
 		}
 	});
@@ -200,13 +206,14 @@ describe("PasswordResetRequestUseCase", () => {
 	it("should return new session token that can be used for validation", async () => {
 		const result = await passwordResetRequestUseCase.execute(user.email);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.passwordResetSessionToken).toBeDefined();
-			expect(typeof result.passwordResetSessionToken).toBe("string");
-			expect(result.passwordResetSessionToken.length).toBeGreaterThan(0);
-			expect(result.passwordResetSessionToken.split(".")).toHaveLength(2);
+		if (!result.isErr) {
+			const { passwordResetSessionToken } = result.value;
+			expect(passwordResetSessionToken).toBeDefined();
+			expect(typeof passwordResetSessionToken).toBe("string");
+			expect(passwordResetSessionToken.length).toBeGreaterThan(0);
+			expect(passwordResetSessionToken.split(".")).toHaveLength(2);
 		}
 	});
 });

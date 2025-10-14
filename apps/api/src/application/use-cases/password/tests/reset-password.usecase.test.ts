@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createPasswordResetSessionFixture, createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordHasherMock,
@@ -67,7 +66,7 @@ describe("ResetPasswordUseCase", () => {
 		const newPassword = "new_password123";
 		const result = await resetPasswordUseCase.execute(newPassword, session, user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		const savedUser = userMap.get(user.id);
 		expect(savedUser).toBeDefined();
@@ -87,9 +86,9 @@ describe("ResetPasswordUseCase", () => {
 
 		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("REQUIRED_EMAIL_VERIFICATION");
 		}
 	});
@@ -108,7 +107,7 @@ describe("ResetPasswordUseCase", () => {
 		const newPassword = "new_password123";
 		const result = await resetPasswordUseCase.execute(newPassword, session, user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		const savedPasswordHash = userPasswordHashMap.get(user.id);
 		expect(savedPasswordHash).toBeDefined();
@@ -139,7 +138,7 @@ describe("ResetPasswordUseCase", () => {
 
 		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		expect(sessionMap.size).toBe(0);
 	});
@@ -165,7 +164,7 @@ describe("ResetPasswordUseCase", () => {
 
 		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		expect(passwordResetSessionMap.has(session.id)).toBe(false);
 		expect(passwordResetSessionMap.has(anotherSession.id)).toBe(false);
@@ -184,7 +183,7 @@ describe("ResetPasswordUseCase", () => {
 
 		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		const savedUser = userMap.get(user.id);
 		expect(savedUser).toBeDefined();
