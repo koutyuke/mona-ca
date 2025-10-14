@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { newExternalIdentityProvider, newExternalIdentityProviderUserId } from "../../../../domain/value-object";
 import { createExternalIdentityFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
@@ -58,8 +57,8 @@ describe("UnlinkAccountConnectionUseCase", () => {
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("PROVIDER_NOT_LINKED");
 		}
 	});
@@ -78,8 +77,8 @@ describe("UnlinkAccountConnectionUseCase", () => {
 		externalIdentityMap.set(createExternalIdentityKey(provider, providerUserId), externalIdentity);
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("PASSWORD_NOT_SET");
 		}
 	});
@@ -98,7 +97,7 @@ describe("UnlinkAccountConnectionUseCase", () => {
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 		expect(externalIdentityMap.has(createExternalIdentityKey(provider, providerUserId))).toBe(false);
 	});
 
@@ -121,8 +120,8 @@ describe("UnlinkAccountConnectionUseCase", () => {
 
 		const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("UNLINK_OPERATION_FAILED");
 		}
 

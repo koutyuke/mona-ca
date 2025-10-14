@@ -1,5 +1,5 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
-import { err, isErr } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { createExternalIdentity } from "../../../domain/entities";
 import {
 	type ExternalIdentityProvider,
@@ -31,11 +31,11 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	): Promise<AccountLinkCallbackUseCaseResult> {
 		const validatedState = this.oauthStateSigner.validate(signedState);
 
-		if (isErr(validatedState)) {
+		if (validatedState.isErr) {
 			return err("INVALID_STATE");
 		}
 
-		const { client, uid } = validatedState;
+		const { client, uid } = validatedState.value;
 
 		const clientType = newClientType(client);
 		const userId = newUserId(uid);
@@ -62,7 +62,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 
 		const tokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
-		if (isErr(tokensResult)) {
+		if (tokensResult.isErr) {
 			const { code } = tokensResult;
 
 			if (code === "CREDENTIALS_INVALID" || code === "FETCH_TOKENS_FAILED") {
@@ -70,11 +70,11 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 			}
 		}
 
-		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokensResult);
+		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokensResult.value);
 
-		await this.oauthProviderGateway.revokeToken(tokensResult);
+		await this.oauthProviderGateway.revokeToken(tokensResult.value);
 
-		if (isErr(getIdentityResult)) {
+		if (getIdentityResult.isErr) {
 			if (
 				getIdentityResult.code === "ACCESS_TOKEN_INVALID" ||
 				getIdentityResult.code === "IDENTITY_INVALID" ||
@@ -84,7 +84,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 			}
 		}
 
-		const identity = getIdentityResult;
+		const identity = getIdentityResult.value;
 
 		const providerUserId = newExternalIdentityProviderUserId(identity.id);
 
@@ -109,9 +109,9 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 
 		await this.externalIdentityRepository.save(externalIdentity);
 
-		return {
+		return ok({
 			redirectURL: redirectToClientURL,
 			clientType,
-		};
+		});
 	}
 }

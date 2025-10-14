@@ -55,8 +55,10 @@ describe("GetConnectionsUseCase", () => {
 	it("should return connections with password and no external identity connections for user with password only", async () => {
 		const result = await getConnectionsUseCase.execute(user.id);
 
-		expect(result.password).toBe(true);
-		expect(result.discord).toBeNull();
+		const { password, discord } = result;
+
+		expect(password).toBe(true);
+		expect(discord).toBeNull();
 	});
 
 	it("should return connections with no password and no external identity connections for external identity-only user", async () => {

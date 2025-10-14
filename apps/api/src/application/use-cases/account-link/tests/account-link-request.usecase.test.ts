@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
+import { ulid } from "../../../../common/utils";
 import { newClientType, newUserId } from "../../../../domain/value-object";
 import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
@@ -20,13 +20,14 @@ describe("ExternalAuthRequestUseCase", () => {
 
 		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.state).toBeDefined();
-			expect(result.codeVerifier).toBeDefined();
-			expect(result.redirectToClientURL).toBeInstanceOf(URL);
-			expect(result.redirectToProviderURL).toBeInstanceOf(URL);
-			expect(result.redirectToClientURL.pathname).toBe("/settings/connections");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
+			expect(state).toBeDefined();
+			expect(codeVerifier).toBeDefined();
+			expect(redirectToClientURL).toBeInstanceOf(URL);
+			expect(redirectToProviderURL).toBeInstanceOf(URL);
+			expect(redirectToClientURL.pathname).toBe("/settings/connections");
 		}
 	});
 
@@ -37,13 +38,14 @@ describe("ExternalAuthRequestUseCase", () => {
 
 		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.state).toBeDefined();
-			expect(result.codeVerifier).toBeDefined();
-			expect(result.redirectToClientURL).toBeInstanceOf(URL);
-			expect(result.redirectToProviderURL).toBeInstanceOf(URL);
-			expect(result.redirectToClientURL.pathname).toBe("/settings/connections");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
+			expect(state).toBeDefined();
+			expect(codeVerifier).toBeDefined();
+			expect(redirectToClientURL).toBeInstanceOf(URL);
+			expect(redirectToProviderURL).toBeInstanceOf(URL);
+			expect(redirectToClientURL.pathname).toBe("/settings/connections");
 		}
 	});
 
@@ -54,8 +56,8 @@ describe("ExternalAuthRequestUseCase", () => {
 
 		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, invalidRedirectURI, userId);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
@@ -67,9 +69,10 @@ describe("ExternalAuthRequestUseCase", () => {
 
 		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, emptyRedirectURI, userId);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.redirectToClientURL.pathname).toBe("/");
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { redirectToClientURL } = result.value;
+			expect(redirectToClientURL.pathname).toBe("/");
 		}
 	});
 
@@ -82,10 +85,12 @@ describe("ExternalAuthRequestUseCase", () => {
 		const result1 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId1);
 		const result2 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId2);
 
-		expect(isErr(result1)).toBe(false);
-		expect(isErr(result2)).toBe(false);
-		if (!isErr(result1) && !isErr(result2)) {
-			expect(result1.state).not.toBe(result2.state);
+		expect(result1.isErr).toBe(false);
+		expect(result2.isErr).toBe(false);
+		if (!result1.isErr && !result2.isErr) {
+			const { state: state1 } = result1.value;
+			const { state: state2 } = result2.value;
+			expect(state1).not.toBe(state2);
 		}
 	});
 });

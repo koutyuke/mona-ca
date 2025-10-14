@@ -1,4 +1,4 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import type { ExternalIdentityProvider, UserId } from "../../../domain/value-object";
 import type { IUnlinkAccountConnectionUseCase, UnlinkAccountConnectionUseCaseResult } from "../../ports/in";
 import type { IExternalIdentityRepository, IUserRepository } from "../../ports/out/repositories";
@@ -26,7 +26,7 @@ export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionU
 
 		try {
 			await this.externalIdentityRepository.deleteByUserIdAndProvider(userId, provider);
-			return;
+			return ok();
 		} catch (error) {
 			console.error(`Failed to unlink account: ${error}`);
 			return err("UNLINK_OPERATION_FAILED");

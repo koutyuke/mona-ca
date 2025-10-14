@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import {
 	newClientType,
 	newExternalIdentityProvider,
@@ -52,8 +51,8 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_STATE");
 		}
 	});
@@ -73,8 +72,8 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_REDIRECT_URI");
 		}
 	});
@@ -94,8 +93,8 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("TOKEN_EXCHANGE_FAILED");
 		}
 	});
@@ -115,8 +114,8 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("PROVIDER_ACCESS_DENIED");
 		}
 	});
@@ -136,8 +135,8 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("PROVIDER_ERROR");
 		}
 	});
@@ -169,8 +168,8 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("PROVIDER_ALREADY_LINKED");
 		}
 	});
@@ -203,8 +202,8 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(true);
-		if (isErr(result)) {
+		expect(result.isErr).toBe(true);
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_LINKED_ELSEWHERE");
 		}
 	});
@@ -224,10 +223,11 @@ describe("AccountLinkCallbackUseCase", () => {
 			"code_verifier",
 		);
 
-		expect(isErr(result)).toBe(false);
-		if (!isErr(result)) {
-			expect(result.redirectURL).toBeInstanceOf(URL);
-			expect(result.clientType).toBe(newClientType("web"));
+		expect(result.isErr).toBe(false);
+		if (!result.isErr) {
+			const { redirectURL, clientType } = result.value;
+			expect(redirectURL).toBeInstanceOf(URL);
+			expect(clientType).toBe(newClientType("web"));
 			expect(externalIdentityMap.size).toBe(1);
 		}
 	});
