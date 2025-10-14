@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import type { User } from "../../../../domain/entities";
-import { newGender } from "../../../../domain/value-object";
+import { newGender } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createUserFixture } from "../../../../tests/fixtures";
 import { UserTableHelper, toRawDate } from "../../../../tests/helpers";

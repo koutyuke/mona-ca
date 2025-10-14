@@ -1,6 +1,6 @@
 import { t } from "elysia";
 import { UnlinkAccountConnectionUseCase } from "../../application/use-cases/account-link";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../domain/value-object";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../domain/value-objects";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
 import { UserRepository } from "../../interface-adapter/repositories/user";

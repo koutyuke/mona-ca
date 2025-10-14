@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { IUserRepository } from "../../../application/ports/out/repositories";
 import type { User } from "../../../domain/entities";
-import { type Gender, type SessionId, type UserId, newGender, newUserId } from "../../../domain/value-object";
+import { type Gender, type SessionId, type UserId, newGender, newUserId } from "../../../domain/value-objects";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 
 interface FoundUserDto {

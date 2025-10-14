@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newSessionId } from "../../../../domain/value-object";
+import { newSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../../tests/helpers";

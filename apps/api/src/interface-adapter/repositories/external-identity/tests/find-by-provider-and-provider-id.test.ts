@@ -4,7 +4,7 @@ import {
 	type ExternalIdentityProvider,
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-} from "../../../../domain/value-object";
+} from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createUserFixture } from "../../../../tests/fixtures";
 import { createExternalIdentityFixture } from "../../../../tests/fixtures";

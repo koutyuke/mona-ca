@@ -1,5 +1,5 @@
 import { TimeSpan } from "../../common/utils";
-import type { SessionId, UserId } from "../value-object";
+import type { SessionId, UserId } from "../value-objects";
 
 export const SESSION_EXPIRES_SPAN_DAYS = 30 as const;
 export const SESSION_REFRESH_SPAN_DAYS = 15 as const;

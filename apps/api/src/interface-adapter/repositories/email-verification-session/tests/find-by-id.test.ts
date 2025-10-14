@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newEmailVerificationSessionId } from "../../../../domain/value-object";
+import { newEmailVerificationSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createUserFixture } from "../../../../tests/fixtures";
 import { createEmailVerificationSessionFixture } from "../../../../tests/fixtures";

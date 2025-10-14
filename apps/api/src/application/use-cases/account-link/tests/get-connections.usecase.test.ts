@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { newExternalIdentityProvider, newExternalIdentityProviderUserId } from "../../../../domain/value-object";
+import { newExternalIdentityProvider, newExternalIdentityProviderUserId } from "../../../../domain/value-objects";
 import { createExternalIdentityFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	ExternalIdentityRepositoryMock,

@@ -1,4 +1,4 @@
-import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../value-object";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../value-objects";
 
 export interface ExternalIdentity {
 	provider: ExternalIdentityProvider;

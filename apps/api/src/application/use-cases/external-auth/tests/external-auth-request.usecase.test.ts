@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newClientType } from "../../../../domain/value-object";
+import { newClientType } from "../../../../domain/value-objects";
 import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
 import { ExternalAuthRequestUseCase } from "../external-auth-request.usecase";
 import type { oauthStateSchema } from "../schema";

@@ -1,6 +1,6 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredPasswordResetSession } from "../../../domain/entities";
-import { type PasswordResetSessionToken, parseSessionToken } from "../../../domain/value-object";
+import { type PasswordResetSessionToken, parseSessionToken } from "../../../domain/value-objects";
 import type { IValidatePasswordResetSessionUseCase, ValidatePasswordResetSessionUseCaseResult } from "../../ports/in";
 import type { IPasswordResetSessionRepository, IUserRepository } from "../../ports/out/repositories";
 import type { ISessionSecretHasher } from "../../ports/out/system";

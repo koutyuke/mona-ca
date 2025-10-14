@@ -1,6 +1,6 @@
 import type { ToPrimitive } from "@mona-ca/core/utils";
 import type { AccountAssociationSession } from "../../domain/entities";
-import type { ExternalIdentityProvider } from "../../domain/value-object";
+import type { ExternalIdentityProvider } from "../../domain/value-objects";
 import { toRawDate, toRawSessionSecretHash } from "./utils";
 
 export type RawAccountAssociationSession = {

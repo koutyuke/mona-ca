@@ -3,7 +3,7 @@ import {
 	newClientType,
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-} from "../../../../domain/value-object";
+} from "../../../../domain/value-objects";
 import { createExternalIdentityFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	ExternalIdentityRepositoryMock,

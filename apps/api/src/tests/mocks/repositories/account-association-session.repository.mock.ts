@@ -1,7 +1,7 @@
 import type { IAccountAssociationSessionRepository } from "../../../application/ports/out/repositories";
 import type { AccountAssociationSession } from "../../../domain/entities";
 import { isExpiredAccountAssociationSession } from "../../../domain/entities";
-import type { AccountAssociationSessionId, UserId } from "../../../domain/value-object";
+import type { AccountAssociationSessionId, UserId } from "../../../domain/value-objects";
 
 export class AccountAssociationSessionRepositoryMock implements IAccountAssociationSessionRepository {
 	private readonly accountAssociationSessionMap: Map<AccountAssociationSessionId, AccountAssociationSession>;

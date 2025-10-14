@@ -1,5 +1,5 @@
 import type { User } from "../../../../domain/entities";
-import type { Gender } from "../../../../domain/value-object";
+import type { Gender } from "../../../../domain/value-objects";
 
 export type UpdateUserProfileUseCaseResult = User;
 

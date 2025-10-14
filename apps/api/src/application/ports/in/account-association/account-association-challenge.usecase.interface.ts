@@ -1,5 +1,5 @@
 import type { AccountAssociationSession, User } from "../../../../domain/entities";
-import type { AccountAssociationSessionToken } from "../../../../domain/value-object";
+import type { AccountAssociationSessionToken } from "../../../../domain/value-objects";
 
 export type AccountAssociationChallengeUseCaseResult = {
 	accountAssociationSessionToken: AccountAssociationSessionToken;

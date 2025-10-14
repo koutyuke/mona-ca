@@ -1,5 +1,5 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { ClientType, UserId } from "../../../../domain/value-object";
+import type { ClientType, UserId } from "../../../../domain/value-objects";
 
 type Success = Ok<{
 	state: string;

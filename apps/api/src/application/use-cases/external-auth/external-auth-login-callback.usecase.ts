@@ -16,8 +16,8 @@ import {
 	newClientType,
 	newExternalIdentityProviderUserId,
 	newSessionId,
-} from "../../../domain/value-object";
-import { formatSessionToken } from "../../../domain/value-object";
+} from "../../../domain/value-objects";
+import { formatSessionToken } from "../../../domain/value-objects";
 import type { ExternalAuthLoginCallbackUseCaseResult, IExternalAuthLoginCallbackUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type {

@@ -11,7 +11,7 @@ import {
 	externalIdentityProviderSchema,
 	newClientType,
 	newExternalIdentityProvider,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { CookieManager } from "../../../modules/cookie";

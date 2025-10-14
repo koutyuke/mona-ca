@@ -1,5 +1,5 @@
 import { TimeSpan } from "../../common/utils";
-import type { PasswordResetSessionId, UserId } from "../value-object";
+import type { PasswordResetSessionId, UserId } from "../value-objects";
 
 export const PASSWORD_RESET_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES = 10 as const;
 export const PASSWORD_RESET_SESSION_RESET_EXPIRES_SPAN_MINUTES = 10 as const;

@@ -6,7 +6,7 @@ import {
 	type UserId,
 	newPasswordResetSessionId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 
 interface FoundPasswordResetSessionDto {

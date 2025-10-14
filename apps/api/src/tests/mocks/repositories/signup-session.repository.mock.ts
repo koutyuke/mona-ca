@@ -1,6 +1,6 @@
 import type { ISignupSessionRepository } from "../../../application/ports/out/repositories";
 import type { SignupSession } from "../../../domain/entities";
-import type { SignupSessionId } from "../../../domain/value-object";
+import type { SignupSessionId } from "../../../domain/value-objects";
 
 export class SignupSessionRepositoryMock implements ISignupSessionRepository {
 	private readonly signupSessionMap: Map<SignupSessionId, SignupSession>;

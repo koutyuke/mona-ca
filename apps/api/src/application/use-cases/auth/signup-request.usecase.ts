@@ -1,8 +1,8 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { ulid } from "../../../common/utils";
 import { type SignupSession, createSignupSession } from "../../../domain/entities";
-import { formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
-import type { SignupSessionToken } from "../../../domain/value-object";
+import { formatSessionToken, newSignupSessionId } from "../../../domain/value-objects";
+import type { SignupSessionToken } from "../../../domain/value-objects";
 import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "../../ports/in";
 import type { IUserRepository } from "../../ports/out/repositories";
 import type { ISignupSessionRepository } from "../../ports/out/repositories";

@@ -6,7 +6,7 @@ import {
 	type UserId,
 	formatSessionToken,
 	newPasswordResetSessionId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { IPasswordResetRequestUseCase, PasswordResetRequestUseCaseResult } from "../../ports/in";
 import type { IPasswordResetSessionRepository, IUserRepository } from "../../ports/out/repositories";
 import type { IRandomGenerator, ISessionSecretHasher } from "../../ports/out/system";

@@ -1,5 +1,5 @@
 import type { ToPrimitive } from "@mona-ca/core/utils";
-import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../domain/value-object";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../domain/value-objects";
 import type { GetConnectionsUseCaseResult, IGetConnectionsUseCase } from "../../ports/in";
 import type { IExternalIdentityRepository, IUserRepository } from "../../ports/out/repositories";
 

@@ -1,5 +1,5 @@
 import type { EmailVerificationSession } from "../../../../domain/entities";
-import type { EmailVerificationSessionId, UserId } from "../../../../domain/value-object";
+import type { EmailVerificationSessionId, UserId } from "../../../../domain/value-objects";
 
 export interface IEmailVerificationSessionRepository {
 	findById(id: EmailVerificationSessionId): Promise<EmailVerificationSession | null>;

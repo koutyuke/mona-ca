@@ -1,6 +1,6 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { SignupSession } from "../../../../domain/entities";
-import type { SignupSessionToken } from "../../../../domain/value-object";
+import type { SignupSessionToken } from "../../../../domain/value-objects";
 
 type Success = Ok<{
 	signupSessionToken: SignupSessionToken;

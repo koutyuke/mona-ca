@@ -6,7 +6,7 @@ import {
 	type EmailVerificationSessionToken,
 	formatSessionToken,
 	newEmailVerificationSessionId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { EmailVerificationRequestUseCaseResult, IEmailVerificationRequestUseCase } from "../../ports/in";
 import type { IEmailVerificationSessionRepository, IUserRepository } from "../../ports/out/repositories";
 import type { IRandomGenerator, ISessionSecretHasher } from "../../ports/out/system";

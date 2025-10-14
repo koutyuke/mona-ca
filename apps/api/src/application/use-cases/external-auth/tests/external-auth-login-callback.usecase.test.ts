@@ -5,7 +5,7 @@ import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
 	newGender,
-} from "../../../../domain/value-object";
+} from "../../../../domain/value-objects";
 import { createExternalIdentityFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,

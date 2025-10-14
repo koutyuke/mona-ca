@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { sessionExpiresSpan, sessionRefreshSpan } from "../../../../domain/entities";
-import { formatSessionToken, newSessionToken } from "../../../../domain/value-object";
+import { formatSessionToken, newSessionToken } from "../../../../domain/value-objects";
 import { createSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordHasherMock,

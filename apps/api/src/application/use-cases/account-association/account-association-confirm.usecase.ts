@@ -7,7 +7,7 @@ import {
 	createSession,
 	updateUser,
 } from "../../../domain/entities";
-import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-object";
+import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-objects";
 import type { AccountAssociationConfirmUseCaseResult, IAccountAssociationConfirmUseCase } from "../../ports/in";
 import type {
 	IAccountAssociationSessionRepository,

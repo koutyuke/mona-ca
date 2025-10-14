@@ -1,7 +1,7 @@
 import { t } from "elysia";
 import type { UpdateUserProfileDto } from "../../application/ports/in";
 import { UpdateUserProfileUseCase } from "../../application/use-cases/user";
-import { genderSchema, newGender } from "../../domain/value-object";
+import { genderSchema, newGender } from "../../domain/value-objects";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenters";
 import { UserRepository } from "../../interface-adapter/repositories/user";

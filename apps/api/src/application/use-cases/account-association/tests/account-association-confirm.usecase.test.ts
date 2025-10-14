@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ulid } from "../../../../common/utils";
 import { createExternalIdentity } from "../../../../domain/entities";
-import { newUserId } from "../../../../domain/value-object";
+import { newUserId } from "../../../../domain/value-objects";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,

@@ -4,7 +4,7 @@ import {
 	ValidatePasswordResetSessionUseCase,
 } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newPasswordResetSessionToken } from "../../../domain/value-object";
+import { newPasswordResetSessionToken } from "../../../domain/value-objects";
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";

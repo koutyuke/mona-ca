@@ -6,7 +6,7 @@ import {
 	newClientType,
 	newExternalIdentityProviderUserId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { AccountLinkCallbackUseCaseResult, IAccountLinkCallbackUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type { IExternalIdentityRepository } from "../../ports/out/repositories";

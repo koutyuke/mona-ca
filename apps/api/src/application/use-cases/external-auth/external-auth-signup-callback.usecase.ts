@@ -22,7 +22,7 @@ import {
 	newGender,
 	newSessionId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { ExternalAuthSignupCallbackUseCaseResult, IExternalAuthSignupCallbackUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type {

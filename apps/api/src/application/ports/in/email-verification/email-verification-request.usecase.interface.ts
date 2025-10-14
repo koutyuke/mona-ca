@@ -1,6 +1,6 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { EmailVerificationSession, User } from "../../../../domain/entities";
-import type { EmailVerificationSessionToken } from "../../../../domain/value-object";
+import type { EmailVerificationSessionToken } from "../../../../domain/value-objects";
 
 export type Success = Ok<{
 	emailVerificationSessionToken: EmailVerificationSessionToken;

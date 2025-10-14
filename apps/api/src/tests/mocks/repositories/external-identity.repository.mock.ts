@@ -1,6 +1,6 @@
 import type { IExternalIdentityRepository } from "../../../application/ports/out/repositories";
 import type { ExternalIdentity } from "../../../domain/entities";
-import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../domain/value-object";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../domain/value-objects";
 
 export class ExternalIdentityRepositoryMock implements IExternalIdentityRepository {
 	private readonly externalIdentityMap: Map<string, ExternalIdentity>;

@@ -13,7 +13,7 @@ import {
 	externalIdentityProviderSchema,
 	newClientType,
 	newExternalIdentityProvider,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";

@@ -1,7 +1,7 @@
 import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
-import type { ClientType } from "../../../domain/value-object";
-import type { UserId } from "../../../domain/value-object";
+import type { ClientType } from "../../../domain/value-objects";
+import type { UserId } from "../../../domain/value-objects";
 import type { AccountLinkRequestUseCaseResult, IAccountLinkRequestUseCase } from "../../ports/in";
 import type { IOAuthProviderGateway } from "../../ports/out/gateways";
 import type { IOAuthStateSigner } from "../../ports/out/system";

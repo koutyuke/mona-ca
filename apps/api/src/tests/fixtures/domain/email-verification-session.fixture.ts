@@ -5,7 +5,7 @@ import {
 	formatSessionToken,
 	newEmailVerificationSessionId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import { SessionSecretHasherMock } from "../../mocks";
 
 const sessionSecretHasher = new SessionSecretHasherMock();

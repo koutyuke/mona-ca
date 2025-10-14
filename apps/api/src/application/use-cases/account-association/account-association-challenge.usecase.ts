@@ -7,7 +7,7 @@ import {
 	type UserId,
 	formatSessionToken,
 	newAccountAssociationSessionId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { AccountAssociationChallengeUseCaseResult, IAccountAssociationChallengeUseCase } from "../../ports/in";
 import type { IAccountAssociationSessionRepository } from "../../ports/out/repositories";
 import type { IRandomGenerator, ISessionSecretHasher } from "../../ports/out/system";

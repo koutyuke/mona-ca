@@ -1,5 +1,5 @@
 import type { Session } from "../../../../domain/entities";
-import type { SessionId, UserId } from "../../../../domain/value-object";
+import type { SessionId, UserId } from "../../../../domain/value-objects";
 
 export interface ISessionRepository {
 	findById(id: SessionId): Promise<Session | null>;

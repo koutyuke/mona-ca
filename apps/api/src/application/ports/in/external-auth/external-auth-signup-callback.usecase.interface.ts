@@ -1,7 +1,7 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { AccountAssociationSession, Session } from "../../../../domain/entities";
-import type { ClientType, ExternalIdentityProvider } from "../../../../domain/value-object";
-import type { AccountAssociationSessionToken, SessionToken } from "../../../../domain/value-object";
+import type { ClientType, ExternalIdentityProvider } from "../../../../domain/value-objects";
+import type { AccountAssociationSessionToken, SessionToken } from "../../../../domain/value-objects";
 
 type Success = Ok<{
 	session: Session;

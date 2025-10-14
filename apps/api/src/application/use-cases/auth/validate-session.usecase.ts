@@ -1,7 +1,7 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities";
-import type { SessionToken } from "../../../domain/value-object";
-import { parseSessionToken } from "../../../domain/value-object";
+import type { SessionToken } from "../../../domain/value-objects";
+import { parseSessionToken } from "../../../domain/value-objects";
 import type {
 	IValidateSessionUseCase,
 	ValidateSessionUseCaseResult,

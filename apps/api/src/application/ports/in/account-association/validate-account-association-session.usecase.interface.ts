@@ -1,6 +1,6 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { AccountAssociationSession, User } from "../../../../domain/entities";
-import type { AccountAssociationSessionToken } from "../../../../domain/value-object";
+import type { AccountAssociationSessionToken } from "../../../../domain/value-objects";
 
 type Success = Ok<{
 	accountAssociationSession: AccountAssociationSession;

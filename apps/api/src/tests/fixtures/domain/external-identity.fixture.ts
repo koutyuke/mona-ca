@@ -4,7 +4,7 @@ import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 
 export const createExternalIdentityFixture = (override?: {
 	externalIdentity?: Partial<ExternalIdentity>;

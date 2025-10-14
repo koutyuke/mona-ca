@@ -2,7 +2,7 @@ import { err, ok } from "@mona-ca/core/utils";
 import { timingSafeStringEqual, ulid } from "../../../common/utils";
 import { createSession, updateUser } from "../../../domain/entities";
 import type { EmailVerificationSession, Session, User } from "../../../domain/entities";
-import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-object";
+import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-objects";
 import type { EmailVerificationConfirmUseCaseResult, IEmailVerificationConfirmUseCase } from "../../ports/in";
 import type {
 	IEmailVerificationSessionRepository,

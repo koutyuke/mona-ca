@@ -6,7 +6,7 @@ import {
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../common/constants";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-object";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";

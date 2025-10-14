@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ulid } from "../../../../common/utils";
-import { formatSessionToken, newAccountAssociationSessionToken, newUserId } from "../../../../domain/value-object";
+import { formatSessionToken, newAccountAssociationSessionToken, newUserId } from "../../../../domain/value-objects";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { SessionSecretHasherMock } from "../../../../tests/mocks";
 import { AccountAssociationSessionRepositoryMock } from "../../../../tests/mocks/repositories/account-association-session.repository.mock";

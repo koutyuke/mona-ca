@@ -4,7 +4,7 @@ import {
 	ValidateEmailVerificationSessionUseCase,
 } from "../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
-import { newEmailVerificationSessionToken } from "../../domain/value-object";
+import { newEmailVerificationSessionToken } from "../../domain/value-objects";
 import { SessionSecretHasher } from "../../infrastructure/crypt";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../interface-adapter/repositories/email-verification-session";

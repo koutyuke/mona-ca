@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { newSignupSessionToken } from "../../../../domain/value-object";
+import { newSignupSessionToken } from "../../../../domain/value-objects";
 import { createSignupSessionFixture } from "../../../../tests/fixtures";
 import { SessionSecretHasherMock, SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../tests/mocks";
 import { ValidateSignupSessionUseCase } from "../validate-signup-session.usecase";

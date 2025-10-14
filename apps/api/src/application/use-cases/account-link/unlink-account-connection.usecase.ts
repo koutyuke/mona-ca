@@ -1,5 +1,5 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { ExternalIdentityProvider, UserId } from "../../../domain/value-object";
+import type { ExternalIdentityProvider, UserId } from "../../../domain/value-objects";
 import type { IUnlinkAccountConnectionUseCase, UnlinkAccountConnectionUseCaseResult } from "../../ports/in";
 import type { IExternalIdentityRepository, IUserRepository } from "../../ports/out/repositories";
 

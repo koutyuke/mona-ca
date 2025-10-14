@@ -8,7 +8,7 @@ import {
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
 import { timingSafeStringEqual } from "../../../common/utils";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-object";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";

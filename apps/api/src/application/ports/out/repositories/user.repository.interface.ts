@@ -1,5 +1,5 @@
 import type { User } from "../../../../domain/entities";
-import type { SessionId, UserId } from "../../../../domain/value-object";
+import type { SessionId, UserId } from "../../../../domain/value-objects";
 
 export interface IUserRepository {
 	// search for a user by id

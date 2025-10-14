@@ -1,5 +1,5 @@
 import type { AccountAssociationSession } from "../../../../domain/entities";
-import type { AccountAssociationSessionId, UserId } from "../../../../domain/value-object";
+import type { AccountAssociationSessionId, UserId } from "../../../../domain/value-objects";
 
 export interface IAccountAssociationSessionRepository {
 	findById(id: AccountAssociationSessionId): Promise<AccountAssociationSession | null>;

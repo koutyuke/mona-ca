@@ -1,7 +1,7 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { ulid } from "../../../common/utils";
 import { type Session, createSession } from "../../../domain/entities";
-import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-object";
+import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-objects";
 import type { ILoginUseCase, LoginUseCaseResult } from "../../ports/in";
 import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
 import type { IPasswordHasher, ISessionSecretHasher } from "../../ports/out/system";

@@ -1,5 +1,9 @@
 import type { ExternalIdentity } from "../../../../domain/entities";
-import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../../domain/value-object";
+import type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+	UserId,
+} from "../../../../domain/value-objects";
 
 export interface IExternalIdentityRepository {
 	findByUserId(userId: UserId): Promise<ExternalIdentity[]>;

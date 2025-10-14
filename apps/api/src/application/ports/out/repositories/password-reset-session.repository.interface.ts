@@ -1,5 +1,5 @@
 import type { PasswordResetSession } from "../../../../domain/entities";
-import type { PasswordResetSessionId, UserId } from "../../../../domain/value-object";
+import type { PasswordResetSessionId, UserId } from "../../../../domain/value-objects";
 
 export type IPasswordResetSessionRepository = {
 	findById: (id: PasswordResetSessionId) => Promise<PasswordResetSession | null>;

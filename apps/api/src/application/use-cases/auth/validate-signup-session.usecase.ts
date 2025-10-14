@@ -1,7 +1,7 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredSignupSession } from "../../../domain/entities";
-import type { SignupSessionToken } from "../../../domain/value-object";
-import { parseSessionToken } from "../../../domain/value-object";
+import type { SignupSessionToken } from "../../../domain/value-objects";
+import { parseSessionToken } from "../../../domain/value-objects";
 import type { IValidateSignupSessionUseCase, ValidateSignupSessionUseCaseResult } from "../../ports/in";
 import type { ISignupSessionRepository } from "../../ports/out/repositories";
 import type { ISessionSecretHasher } from "../../ports/out/system";

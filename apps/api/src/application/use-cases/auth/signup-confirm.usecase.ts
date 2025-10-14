@@ -8,7 +8,7 @@ import {
 	formatSessionToken,
 	newSessionId,
 	newUserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 import type { ISignupConfirmUseCase, SignupConfirmUseCaseResult } from "../../ports/in";
 import type { ISessionRepository, ISignupSessionRepository, IUserRepository } from "../../ports/out/repositories";
 import type { IPasswordHasher, ISessionSecretHasher } from "../../ports/out/system";

@@ -1,6 +1,6 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredAccountAssociationSession } from "../../../domain/entities";
-import { type AccountAssociationSessionToken, parseSessionToken } from "../../../domain/value-object";
+import { type AccountAssociationSessionToken, parseSessionToken } from "../../../domain/value-objects";
 import type {
 	IValidateAccountAssociationSessionUseCase,
 	ValidateAccountAssociationSessionUseCaseResult,

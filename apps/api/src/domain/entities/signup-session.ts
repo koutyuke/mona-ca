@@ -1,5 +1,5 @@
 import { TimeSpan } from "../../common/utils";
-import type { SignupSessionId } from "../value-object";
+import type { SignupSessionId } from "../value-objects";
 
 export const SIGNUP_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES = 10 as const;
 export const SIGNUP_SESSION_SIGNUP_EXPIRES_SPAN_MINUTES = 30 as const;

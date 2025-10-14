@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newPasswordResetSessionId } from "../../../../domain/value-object";
+import { newPasswordResetSessionId } from "../../../../domain/value-objects";
 import { DrizzleService } from "../../../../infrastructure/drizzle";
 import { createPasswordResetSessionFixture, createUserFixture } from "../../../../tests/fixtures";
 import { PasswordResetSessionTableHelper, UserTableHelper } from "../../../../tests/helpers";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ulid } from "../../../../common/utils";
-import { newClientType, newUserId } from "../../../../domain/value-object";
+import { newClientType, newUserId } from "../../../../domain/value-objects";
 import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../tests/mocks";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
 import type { accountLinkStateSchema } from "../schema";

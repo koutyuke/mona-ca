@@ -1,7 +1,7 @@
 import { eq, lte } from "drizzle-orm";
 import type { ISessionRepository } from "../../../application/ports/out/repositories";
 import type { Session } from "../../../domain/entities";
-import { type SessionId, type UserId, newSessionId, newUserId } from "../../../domain/value-object";
+import { type SessionId, type UserId, newSessionId, newUserId } from "../../../domain/value-objects";
 import type { DrizzleService } from "../../../infrastructure/drizzle";
 
 interface FoundSessionDto {

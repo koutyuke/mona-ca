@@ -1,7 +1,7 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { type User, isExpiredEmailVerificationSession } from "../../../domain/entities";
-import type { EmailVerificationSessionToken } from "../../../domain/value-object";
-import { parseSessionToken } from "../../../domain/value-object";
+import type { EmailVerificationSessionToken } from "../../../domain/value-objects";
+import { parseSessionToken } from "../../../domain/value-objects";
 import type {
 	IValidateEmailVerificationSessionUseCase,
 	ValidateEmailVerificationSessionUseCaseResult,

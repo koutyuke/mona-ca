@@ -1,4 +1,4 @@
-import type { SessionId } from "../../../domain/value-object";
+import type { SessionId } from "../../../domain/value-objects";
 import type { ILogoutUseCase } from "../../ports/in";
 import type { ISessionRepository } from "../../ports/out/repositories";
 

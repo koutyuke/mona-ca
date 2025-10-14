@@ -1,6 +1,6 @@
 import { ulid } from "../../../common/utils";
 import type { User } from "../../../domain/entities";
-import { newGender, newUserId } from "../../../domain/value-object";
+import { newGender, newUserId } from "../../../domain/value-objects";
 
 export const createUserFixture = (override?: {
 	user?: Partial<User>;

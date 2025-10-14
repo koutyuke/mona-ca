@@ -16,7 +16,7 @@ import type {
 	SessionId,
 	SignupSessionId,
 	UserId,
-} from "../../../domain/value-object";
+} from "../../../domain/value-objects";
 
 export const createUsersMap = (users: User[] = []): Map<UserId, User> => {
 	return new Map(users.map(user => [user.id, user]));
