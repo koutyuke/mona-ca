@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { newPasswordResetSessionToken } from "../../../domain/value-object";
 import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -75,7 +74,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				newPasswordResetSessionToken(rawPasswordResetSessionToken),
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
 				if (code === "PASSWORD_RESET_SESSION_INVALID") {
@@ -92,11 +91,11 @@ export const ResetPassword = new ElysiaWithEnv()
 				}
 			}
 
-			const { passwordResetSession, user } = validationResult;
+			const { passwordResetSession, user } = validationResult.value;
 
 			const resetResult = await resetPasswordUseCase.execute(newPassword, passwordResetSession, user);
 
-			if (isErr(resetResult)) {
+			if (resetResult.isErr) {
 				const { code } = resetResult;
 
 				if (code === "REQUIRED_EMAIL_VERIFICATION") {

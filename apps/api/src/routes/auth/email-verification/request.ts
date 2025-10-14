@@ -3,7 +3,6 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
@@ -73,7 +72,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 
 			const result = await emailVerificationRequestUseCase.execute(email, user);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "EMAIL_ALREADY_VERIFIED") {
@@ -90,7 +89,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 				}
 			}
 
-			const { emailVerificationSession, emailVerificationSessionToken } = result;
+			const { emailVerificationSession, emailVerificationSessionToken } = result.value;
 
 			const mailContents = verificationEmailTemplate(emailVerificationSession.email, emailVerificationSession.code);
 

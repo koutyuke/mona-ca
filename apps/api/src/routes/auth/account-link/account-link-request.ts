@@ -6,7 +6,6 @@ import {
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-object";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
@@ -68,7 +67,7 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 
 			const result = accountLinkRequestUseCase.execute(APP_ENV === "production", clientType, queryRedirectURI, user.id);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_REDIRECT_URI") {
@@ -83,7 +82,7 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 				});
 			}
 
-			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 			cookieManager.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
 				maxAge: 60 * 10,

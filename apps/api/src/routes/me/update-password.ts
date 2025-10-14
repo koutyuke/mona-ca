@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { UpdateUserPasswordUseCase } from "../../application/use-cases/password";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { isErr } from "../../common/utils";
 import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypt";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
@@ -54,7 +53,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 
 			const result = await updateUserPasswordUseCase.execute(user, currentPassword, newPassword);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_CURRENT_PASSWORD") {
@@ -69,7 +68,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 				});
 			}
 
-			const { session, sessionToken } = result;
+			const { session, sessionToken } = result.value;
 
 			if (clientType === "mobile") {
 				return {

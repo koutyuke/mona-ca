@@ -4,7 +4,6 @@ import {
 	ValidateEmailVerificationSessionUseCase,
 } from "../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
-import { isErr } from "../../common/utils";
 import { newEmailVerificationSessionToken } from "../../domain/value-object";
 import { SessionSecretHasher } from "../../infrastructure/crypt";
 import { DrizzleService } from "../../infrastructure/drizzle";
@@ -90,7 +89,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				user,
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
 				if (code === "EMAIL_VERIFICATION_SESSION_EXPIRED") {
@@ -107,13 +106,13 @@ export const UpdateEmail = new ElysiaWithEnv()
 				}
 			}
 
-			const { emailVerificationSession } = validationResult;
+			const { emailVerificationSession } = validationResult.value;
 
 			await rateLimit.consume(emailVerificationSession.id, 100);
 
 			const updateResult = await updateEmailUseCase.execute(code, user, emailVerificationSession);
 
-			if (isErr(updateResult)) {
+			if (updateResult.isErr) {
 				const { code } = updateResult;
 
 				if (code === "EMAIL_ALREADY_REGISTERED") {
@@ -130,7 +129,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				}
 			}
 
-			const { session, sessionToken } = updateResult;
+			const { session, sessionToken } = updateResult.value;
 
 			if (clientType === "mobile") {
 				return {

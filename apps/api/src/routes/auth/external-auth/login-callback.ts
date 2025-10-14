@@ -8,7 +8,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
-import { convertRedirectableMobileScheme, isErr, timingSafeStringEqual } from "../../../common/utils";
+import { convertRedirectableMobileScheme, timingSafeStringEqual } from "../../../common/utils";
 import {
 	externalIdentityProviderSchema,
 	newClientType,
@@ -129,7 +129,7 @@ export const ExternalAuthLoginCallback = new ElysiaWithEnv()
 			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_STATE") {
@@ -157,7 +157,7 @@ export const ExternalAuthLoginCallback = new ElysiaWithEnv()
 					// Account Association Challenge Flow
 					const {
 						code: errorCode,
-						value: { redirectURL, clientType, accountAssociationSessionToken, accountAssociationSession },
+						context: { redirectURL, clientType, accountAssociationSessionToken, accountAssociationSession },
 					} = result;
 
 					if (clientType === newClientType("mobile")) {
@@ -177,13 +177,14 @@ export const ExternalAuthLoginCallback = new ElysiaWithEnv()
 				// エラーがある場合はリダイレクトURLにエラーを追加してリダイレクト
 				const {
 					code: errorCode,
-					value: { redirectURL },
+					context: { redirectURL },
 				} = result;
+
 				redirectURL.searchParams.set("error", errorCode);
 				return RedirectResponse(redirectURL.toString());
 			}
 
-			const { session, sessionToken, redirectURL, clientType } = result;
+			const { session, sessionToken, redirectURL, clientType } = result.value;
 
 			if (clientType === newClientType("mobile")) {
 				redirectURL.searchParams.set("access-token", sessionToken);

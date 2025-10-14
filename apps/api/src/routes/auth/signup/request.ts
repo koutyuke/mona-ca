@@ -3,7 +3,6 @@ import { SignupRequestUseCase } from "../../../application/use-cases/auth";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
@@ -64,7 +63,7 @@ export const SignupRequest = new ElysiaWithEnv()
 
 			const result = await signupRequestUseCase.execute(email);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "EMAIL_ALREADY_USED") {
@@ -80,7 +79,7 @@ export const SignupRequest = new ElysiaWithEnv()
 				});
 			}
 
-			const { signupSessionToken, signupSession } = result;
+			const { signupSessionToken, signupSession } = result.value;
 
 			const mailContents = verificationEmailTemplate(signupSession.email, signupSession.code);
 

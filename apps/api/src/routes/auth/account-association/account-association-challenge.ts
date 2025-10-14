@@ -4,7 +4,6 @@ import { ValidateAccountAssociationSessionUseCase } from "../../../application/u
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { newAccountAssociationSessionToken } from "../../../domain/value-object";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -81,7 +80,7 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
 			);
 
-			if (isErr(validateResult)) {
+			if (validateResult.isErr) {
 				const { code } = validateResult;
 
 				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
@@ -98,10 +97,12 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				}
 			}
 
-			await rateLimit.consume(validateResult.user.id, 100);
+			const { accountAssociationSession: validateAccountAssociationSession, user } = validateResult.value;
+
+			await rateLimit.consume(user.id, 100);
 
 			const { accountAssociationSessionToken, accountAssociationSession } =
-				await accountAssociationChallengeUseCase.execute(validateResult.user, validateResult.accountAssociationSession);
+				await accountAssociationChallengeUseCase.execute(user, validateAccountAssociationSession);
 
 			const mailContents = verificationEmailTemplate(
 				accountAssociationSession.email,

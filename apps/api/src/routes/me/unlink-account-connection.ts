@@ -1,6 +1,5 @@
 import { t } from "elysia";
 import { UnlinkAccountConnectionUseCase } from "../../application/use-cases/account-link";
-import { isErr } from "../../common/utils";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../domain/value-object";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
@@ -41,7 +40,7 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 
 			const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "PROVIDER_NOT_LINKED") {

@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { LoginUseCase } from "../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { isErr } from "../../common/utils";
 import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypt";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
@@ -61,7 +60,7 @@ export const Login = new ElysiaWithEnv()
 
 			const result = await loginUseCase.execute(email, password);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_CREDENTIALS") {
@@ -75,7 +74,7 @@ export const Login = new ElysiaWithEnv()
 					message: "Login failed. Please try again.",
 				});
 			}
-			const { session, sessionToken } = result;
+			const { session, sessionToken } = result.value;
 
 			if (clientType === "mobile") {
 				return {

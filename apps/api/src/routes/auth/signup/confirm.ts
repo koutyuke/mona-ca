@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-object";
 import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -72,7 +71,7 @@ export const SignupConfirm = new ElysiaWithEnv()
 
 			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
 				if (code === "SIGNUP_SESSION_INVALID") {
@@ -89,11 +88,11 @@ export const SignupConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			const { signupSession } = validationResult;
+			const { signupSession } = validationResult.value;
 
 			const result = await signupConfirmUseCase.execute(signupSession, name, password, newGender(gender));
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "EMAIL_ALREADY_REGISTERED") {
@@ -110,7 +109,7 @@ export const SignupConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			const { session, sessionToken } = result;
+			const { session, sessionToken } = result.value;
 
 			if (clientType === "mobile") {
 				return {

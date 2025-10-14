@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { newAccountAssociationSessionToken } from "../../../domain/value-object";
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -59,7 +58,7 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
 			);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
@@ -76,10 +75,12 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 				}
 			}
 
+			const { user, accountAssociationSession } = result.value;
+
 			return {
-				user: UserPresenter(result.user),
-				provider: result.accountAssociationSession.provider,
-				providerId: result.accountAssociationSession.providerUserId,
+				user: UserPresenter(user),
+				provider: accountAssociationSession.provider,
+				providerId: accountAssociationSession.providerUserId,
 			};
 		},
 		{

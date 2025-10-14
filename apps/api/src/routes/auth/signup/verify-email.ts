@@ -1,7 +1,6 @@
 import { t } from "elysia";
 import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { newSignupSessionToken } from "../../../domain/value-object";
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -72,7 +71,7 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 
 			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
 				if (code === "SIGNUP_SESSION_INVALID") {
@@ -89,13 +88,13 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 				}
 			}
 
-			const { signupSession } = validationResult;
+			const { signupSession } = validationResult.value;
 
 			await rateLimit.consume(signupSession.id, 100);
 
 			const verifyEmailResult = await signupVerifyEmailUseCase.execute(code, signupSession);
 
-			if (isErr(verifyEmailResult)) {
+			if (verifyEmailResult.isErr) {
 				const { code } = verifyEmailResult;
 
 				if (code === "INVALID_VERIFICATION_CODE") {

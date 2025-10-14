@@ -4,7 +4,6 @@ import {
 	ValidateEmailVerificationSessionUseCase,
 } from "../../../application/use-cases/email-verification";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { newEmailVerificationSessionToken } from "../../../domain/value-object";
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -90,7 +89,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				user,
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
 				if (code === "EMAIL_VERIFICATION_SESSION_INVALID") {
@@ -107,13 +106,13 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			const { emailVerificationSession } = validationResult;
+			const { emailVerificationSession } = validationResult.value;
 
 			await rateLimit.consume(emailVerificationSession.id, 100);
 
 			const confirmResult = await emailVerificationConfirmUseCase.execute(code, user, emailVerificationSession);
 
-			if (isErr(confirmResult)) {
+			if (confirmResult.isErr) {
 				const { code } = confirmResult;
 
 				if (code === "INVALID_VERIFICATION_CODE") {
@@ -130,7 +129,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			const { sessionToken, session } = confirmResult;
+			const { sessionToken, session } = confirmResult.value;
 
 			if (clientType === "mobile") {
 				return {

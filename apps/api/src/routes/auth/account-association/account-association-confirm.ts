@@ -2,7 +2,6 @@ import { t } from "elysia";
 import { AccountAssociationConfirmUseCase } from "../../../application/use-cases/account-association";
 import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { newAccountAssociationSessionToken } from "../../../domain/value-object";
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -90,7 +89,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				newAccountAssociationSessionToken(rawAccountAssociationSessionToken),
 			);
 
-			if (isErr(validateResult)) {
+			if (validateResult.isErr) {
 				const { code } = validateResult;
 
 				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
@@ -107,14 +106,13 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			await rateLimit.consume(validateResult.accountAssociationSession.id, 100);
+			const { accountAssociationSession } = validateResult.value;
 
-			const confirmResult = await accountAssociationConfirmUseCase.execute(
-				code,
-				validateResult.accountAssociationSession,
-			);
+			await rateLimit.consume(accountAssociationSession.id, 100);
 
-			if (isErr(confirmResult)) {
+			const confirmResult = await accountAssociationConfirmUseCase.execute(code, accountAssociationSession);
+
+			if (confirmResult.isErr) {
 				const { code } = confirmResult;
 
 				if (code === "INVALID_ASSOCIATION_CODE") {
@@ -143,7 +141,7 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			const { sessionToken, session } = confirmResult;
+			const { sessionToken, session } = confirmResult.value;
 
 			if (clientType === "mobile") {
 				return {

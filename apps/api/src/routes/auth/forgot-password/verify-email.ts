@@ -4,7 +4,6 @@ import {
 	ValidatePasswordResetSessionUseCase,
 } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { newPasswordResetSessionToken } from "../../../domain/value-object";
 import { SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -82,7 +81,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				newPasswordResetSessionToken(rawPasswordResetSessionToken),
 			);
 
-			if (isErr(validationResult)) {
+			if (validationResult.isErr) {
 				const { code } = validationResult;
 
 				if (code === "PASSWORD_RESET_SESSION_INVALID") {
@@ -99,13 +98,13 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				}
 			}
 
-			const { passwordResetSession } = validationResult;
+			const { passwordResetSession } = validationResult.value;
 
 			await rateLimit.consume(passwordResetSession.id, 100);
 
 			const verifyEmailResult = await passwordResetVerifyEmailUseCase.execute(code, passwordResetSession);
 
-			if (isErr(verifyEmailResult)) {
+			if (verifyEmailResult.isErr) {
 				const { code } = verifyEmailResult;
 
 				if (code === "INVALID_VERIFICATION_CODE") {

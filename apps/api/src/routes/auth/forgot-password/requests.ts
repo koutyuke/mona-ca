@@ -3,7 +3,6 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { PasswordResetRequestUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
@@ -63,7 +62,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 
 			const result = await passwordResetRequestUseCase.execute(email);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "USER_NOT_FOUND") {
@@ -79,7 +78,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 				});
 			}
 
-			const { passwordResetSessionToken, passwordResetSession } = result;
+			const { passwordResetSessionToken, passwordResetSession } = result.value;
 
 			const mailContents = verificationEmailTemplate(passwordResetSession.email, passwordResetSession.code);
 

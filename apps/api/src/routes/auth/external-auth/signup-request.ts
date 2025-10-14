@@ -6,7 +6,6 @@ import {
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../common/constants";
-import { isErr } from "../../../common/utils";
 import {
 	clientTypeSchema,
 	externalIdentityProviderSchema,
@@ -83,7 +82,7 @@ export const ExternalAuthSignupRequest = new ElysiaWithEnv()
 
 			const result = externalAuthRequestUseCase.execute(APP_ENV === "production", clientType, queryRedirectURI);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_REDIRECT_URI") {
@@ -99,7 +98,7 @@ export const ExternalAuthSignupRequest = new ElysiaWithEnv()
 				});
 			}
 
-			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result;
+			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 			cookieManager.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
 				maxAge: 60 * 10,

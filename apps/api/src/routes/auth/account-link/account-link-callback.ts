@@ -7,7 +7,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 } from "../../../common/constants";
-import { isErr, timingSafeStringEqual } from "../../../common/utils";
+import { timingSafeStringEqual } from "../../../common/utils";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-object";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
 import { DrizzleService } from "../../../infrastructure/drizzle";
@@ -100,7 +100,7 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
 			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_STATE") {
@@ -124,13 +124,14 @@ export const AccountLinkCallback = new ElysiaWithEnv()
 
 				const {
 					code: errorCode,
-					value: { redirectURL },
+					context: { redirectURL },
 				} = result;
+
 				redirectURL.searchParams.set("error", errorCode);
 				return RedirectResponse(redirectURL.toString());
 			}
 
-			const { redirectURL } = result;
+			const { redirectURL } = result.value;
 
 			return RedirectResponse(redirectURL.toString());
 		},
