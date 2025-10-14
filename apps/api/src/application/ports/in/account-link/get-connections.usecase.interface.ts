@@ -1,7 +1,7 @@
-import type { Result, ToPrimitive } from "../../../../common/utils";
+import type { ToPrimitive } from "@mona-ca/core/utils";
 import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../../../../domain/value-object";
 
-export type GetConnectionsUseCaseSuccessResult = {
+export type GetConnectionsUseCaseResult = {
 	password: boolean;
 } & {
 	[key in ToPrimitive<ExternalIdentityProvider>]: {
@@ -10,10 +10,6 @@ export type GetConnectionsUseCaseSuccessResult = {
 		linkedAt: Date;
 	} | null;
 };
-
-export type GetConnectionsUseCaseError = never;
-
-export type GetConnectionsUseCaseResult = Result<GetConnectionsUseCaseSuccessResult, GetConnectionsUseCaseError>;
 
 export interface IGetConnectionsUseCase {
 	execute: (userId: UserId) => Promise<GetConnectionsUseCaseResult>;

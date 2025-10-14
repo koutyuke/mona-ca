@@ -1,11 +1,11 @@
-import type { Err, Result } from "../../../../common/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { PasswordResetSession } from "../../../../domain/entities";
 import type { PasswordResetSessionToken } from "../../../../domain/value-object";
 
-type Success = {
+type Success = Ok<{
 	passwordResetSessionToken: PasswordResetSessionToken;
 	passwordResetSession: PasswordResetSession;
-};
+}>;
 
 type Error = Err<"USER_NOT_FOUND">;
 

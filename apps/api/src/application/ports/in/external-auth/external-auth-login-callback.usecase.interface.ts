@@ -1,14 +1,14 @@
-import type { Err, Result } from "../../../../common/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { AccountAssociationSession, Session } from "../../../../domain/entities";
 import type { ClientType, ExternalIdentityProvider } from "../../../../domain/value-object";
 import type { AccountAssociationSessionToken, SessionToken } from "../../../../domain/value-object";
 
-type Success = {
+type Success = Ok<{
 	session: Session;
 	sessionToken: SessionToken;
 	redirectURL: URL;
 	clientType: ClientType;
-};
+}>;
 
 type Error =
 	| Err<"INVALID_STATE">

@@ -1,5 +1,5 @@
+import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { OAuth2Tokens } from "arctic";
-import type { Err, Result } from "../../../../common/utils";
 
 export type Identity = {
 	id: string;
@@ -9,16 +9,16 @@ export type Identity = {
 	emailVerified: boolean;
 };
 
-export type GetTokensResult = Result<OAuth2Tokens, Err<"FETCH_TOKENS_FAILED"> | Err<"CREDENTIALS_INVALID">>;
+export type GetTokensResult = Result<Ok<OAuth2Tokens>, Err<"FETCH_TOKENS_FAILED"> | Err<"CREDENTIALS_INVALID">>;
 
 export type GetIdentityResult = Result<
-	Identity,
+	Ok<Identity>,
 	Err<"FETCH_IDENTITY_FAILED"> | Err<"ACCESS_TOKEN_INVALID"> | Err<"IDENTITY_INVALID">
 >;
 
 export interface IOAuthProviderGateway {
 	createAuthorizationURL(state: string, codeVerifier: string): URL;
 	exchangeCodeForTokens(code: string, codeVerifier: string): Promise<GetTokensResult>;
-	getIdentity(tokens: GetTokensResult): Promise<GetIdentityResult>;
+	getIdentity(tokens: OAuth2Tokens): Promise<GetIdentityResult>;
 	revokeToken(tokens: OAuth2Tokens): Promise<void>;
 }

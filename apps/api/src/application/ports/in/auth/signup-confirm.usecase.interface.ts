@@ -1,12 +1,12 @@
-import type { Err, Result } from "../../../../common/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { Session, SignupSession, User } from "../../../../domain/entities";
 import type { Gender, SessionToken } from "../../../../domain/value-object";
 
-type Success = {
+type Success = Ok<{
 	user: User;
 	session: Session;
 	sessionToken: SessionToken;
-};
+}>;
 
 type Error = Err<"EMAIL_ALREADY_REGISTERED"> | Err<"EMAIL_VERIFICATION_REQUIRED">;
 

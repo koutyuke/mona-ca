@@ -1,11 +1,11 @@
-import type { Err, Result } from "../../../../common/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { Session } from "../../../../domain/entities";
 import type { SessionToken } from "../../../../domain/value-object";
 
-type Success = {
+type Success = Ok<{
 	session: Session;
 	sessionToken: SessionToken;
-};
+}>;
 
 type Error = Err<"INVALID_CREDENTIALS">;
 
