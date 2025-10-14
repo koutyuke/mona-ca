@@ -5,7 +5,7 @@ import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
-import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";

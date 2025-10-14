@@ -6,7 +6,7 @@ import { readBearerToken } from "../../common/utils";
 import type { Session, User } from "../../domain/entities";
 import { type ClientType, clientTypeSchema, newSessionToken } from "../../domain/value-objects";
 import { newClientType } from "../../domain/value-objects/client-type";
-import { SessionSecretHasher } from "../../infrastructure/crypt";
+import { SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";

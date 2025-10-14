@@ -14,7 +14,7 @@ import {
 	newClientType,
 	newExternalIdentityProvider,
 } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../infrastructure/crypt";
+import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";

@@ -7,7 +7,7 @@ import {
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../common/constants";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
 import { CookieManager } from "../../../modules/cookie";

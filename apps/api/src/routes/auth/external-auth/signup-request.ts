@@ -12,7 +12,7 @@ import {
 	newClientType,
 	newExternalIdentityProvider,
 } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { CookieManager } from "../../../modules/cookie";
 import {

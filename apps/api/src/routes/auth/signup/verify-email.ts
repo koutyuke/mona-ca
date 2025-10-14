@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { newSignupSessionToken } from "../../../domain/value-objects";
-import { SessionSecretHasher } from "../../../infrastructure/crypt";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { CookieManager } from "../../../modules/cookie";

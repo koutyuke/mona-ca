@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { newPasswordResetSessionToken } from "../../../domain/value-objects";
-import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypt";
+import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";

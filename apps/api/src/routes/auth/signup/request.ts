@@ -3,7 +3,7 @@ import { SignupRequestUseCase } from "../../../application/use-cases/auth";
 import { SendEmailUseCase } from "../../../application/use-cases/email";
 import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypt";
+import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";

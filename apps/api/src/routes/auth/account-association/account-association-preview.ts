@@ -2,7 +2,7 @@ import { t } from "elysia";
 import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
-import { SessionSecretHasher } from "../../../infrastructure/crypt";
+import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenters";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";

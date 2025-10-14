@@ -9,7 +9,7 @@ import {
 } from "../../../common/constants";
 import { timingSafeStringEqual } from "../../../common/utils";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypt";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
