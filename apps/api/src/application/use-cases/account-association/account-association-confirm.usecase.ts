@@ -1,4 +1,5 @@
-import { err, timingSafeStringEqual, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { timingSafeStringEqual, ulid } from "../../../common/utils";
 import {
 	type AccountAssociationSession,
 	type Session,
@@ -83,10 +84,10 @@ export class AccountAssociationConfirmUseCase implements IAccountAssociationConf
 			this.userRepository.save(user),
 		]);
 
-		return {
+		return ok({
 			session,
 			sessionToken,
-		};
+		});
 	}
 
 	private createSession(userId: UserId): {

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr, ulid } from "../../../../common/utils";
+import { ulid } from "../../../../common/utils";
 import { createExternalIdentity } from "../../../../domain/entities";
 import { newUserId } from "../../../../domain/value-object";
 import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../tests/fixtures";
@@ -79,15 +79,14 @@ describe("AccountAssociationConfirmUseCase", () => {
 			accountAssociationSession,
 		);
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
-			expect(result.sessionToken.includes(".")).toBe(true);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
+			expect(sessionToken.includes(".")).toBe(true);
 		}
 
 		// verify account association session is deleted
@@ -115,9 +114,9 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_ASSOCIATION_CODE");
 		}
 	});
@@ -134,9 +133,9 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("87654321", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_ASSOCIATION_CODE");
 		}
 	});
@@ -165,9 +164,9 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_ALREADY_LINKED");
 		}
 	});
@@ -195,9 +194,9 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ACCOUNT_LINKED_ELSEWHERE");
 		}
 	});
@@ -214,10 +213,11 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
 		}
@@ -235,7 +235,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		// verify OAuth account is saved
 		const savedOAuthAccount = externalIdentityMap.get(
