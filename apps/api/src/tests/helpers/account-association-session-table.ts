@@ -1,4 +1,4 @@
-import type { ToPrimitive } from "../../common/utils";
+import type { ToPrimitive } from "@mona-ca/core/utils";
 import type { AccountAssociationSession } from "../../domain/entities";
 import type { ExternalIdentityProvider } from "../../domain/value-object";
 import { toRawDate, toRawSessionSecretHash } from "./utils";

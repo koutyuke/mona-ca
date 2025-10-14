@@ -1,6 +1,6 @@
+import type { ToPrimitive } from "@mona-ca/core/utils";
 import { and, eq } from "drizzle-orm";
 import type { IExternalIdentityRepository } from "../../../application/ports/out/repositories";
-import type { ToPrimitive } from "../../../common/utils";
 import type { ExternalIdentity } from "../../../domain/entities";
 import {
 	type ExternalIdentityProvider,

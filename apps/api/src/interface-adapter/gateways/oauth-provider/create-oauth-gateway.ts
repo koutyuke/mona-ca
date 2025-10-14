@@ -1,5 +1,5 @@
+import type { ToPrimitive } from "@mona-ca/core/utils";
 import type { IOAuthProviderGateway } from "../../../application/ports/out/gateways";
-import type { ToPrimitive } from "../../../common/utils";
 import type { ExternalIdentityProvider } from "../../../domain/value-object";
 import type { OAuthProviderEnv } from "../../../modules/env";
 import { DiscordOAuthGateway } from "./discord.gateway";

@@ -1,6 +1,6 @@
+import type { ToPrimitive } from "@mona-ca/core/utils";
 import { eq, lte } from "drizzle-orm";
 import type { IAccountAssociationSessionRepository } from "../../../application/ports/out/repositories";
-import type { ToPrimitive } from "../../../common/utils";
 import type { AccountAssociationSession } from "../../../domain/entities";
 import {
 	type AccountAssociationSessionId,
