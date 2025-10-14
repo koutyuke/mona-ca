@@ -3,7 +3,6 @@ import { t } from "elysia";
 import { ValidateSessionUseCase } from "../../application/use-cases/auth";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
 import { readBearerToken } from "../../common/utils";
-import { isErr } from "../../common/utils";
 import type { Session, User } from "../../domain/entities";
 import { type ClientType, clientTypeSchema, newSessionToken } from "../../domain/value-object";
 import { newClientType } from "../../domain/value-object/client-type";
@@ -72,7 +71,7 @@ export const authGuard = (options?: {
 
 			const result = await validateSessionUseCase.execute(newSessionToken(sessionToken));
 
-			if (isErr(result)) {
+			if (result.isErr) {
 				const { code } = result;
 
 				throw new UnauthorizedException({
@@ -80,7 +79,7 @@ export const authGuard = (options?: {
 				});
 			}
 
-			const { user, session } = result;
+			const { user, session } = result.value;
 
 			if (requireEmailVerification && !user.emailVerified) {
 				throw new UnauthorizedException({
