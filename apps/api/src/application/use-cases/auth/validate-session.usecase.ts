@@ -1,4 +1,4 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities";
 import type { SessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
@@ -44,6 +44,6 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 			await this.sessionRepository.save(session);
 		}
 
-		return { session, user };
+		return ok({ session, user });
 	}
 }

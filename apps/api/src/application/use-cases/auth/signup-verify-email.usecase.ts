@@ -1,4 +1,5 @@
-import { err, timingSafeStringEqual } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { timingSafeStringEqual } from "../../../common/utils";
 import { type SignupSession, completeEmailVerificationForSignupSession } from "../../../domain/entities";
 import type { ISignupVerifyEmailUseCase, SignupVerifyEmailUseCaseResult } from "../../ports/in";
 import type { ISignupSessionRepository } from "../../ports/out/repositories";
@@ -19,6 +20,6 @@ export class SignupVerifyEmailUseCase implements ISignupVerifyEmailUseCase {
 
 		await this.signupSessionRepository.save(updatedSession);
 
-		return;
+		return ok();
 	}
 }

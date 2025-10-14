@@ -1,4 +1,5 @@
-import { err, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { type Session, type SignupSession, createSession, createUser } from "../../../domain/entities";
 import {
 	type Gender,
@@ -56,11 +57,11 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 
 		await this.signupSessionRepository.deleteById(signupSession.id);
 
-		return {
+		return ok({
 			user,
 			session,
 			sessionToken,
-		};
+		});
 	}
 
 	private createSession(userId: UserId): {

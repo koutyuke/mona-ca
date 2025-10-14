@@ -1,4 +1,5 @@
-import { err, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { type SignupSession, createSignupSession } from "../../../domain/entities";
 import { formatSessionToken, newSignupSessionId } from "../../../domain/value-object";
 import type { SignupSessionToken } from "../../../domain/value-object";
@@ -28,10 +29,10 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 
 		await this.signupSessionRepository.save(signupSession);
 
-		return {
+		return ok({
 			signupSessionToken,
 			signupSession,
-		};
+		});
 	}
 
 	private createSignupSession(email: string): { signupSessionToken: SignupSessionToken; signupSession: SignupSession } {

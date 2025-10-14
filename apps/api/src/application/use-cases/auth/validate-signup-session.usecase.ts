@@ -1,4 +1,4 @@
-import { err } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredSignupSession } from "../../../domain/entities";
 import type { SignupSessionToken } from "../../../domain/value-object";
 import { parseSessionToken } from "../../../domain/value-object";
@@ -36,6 +36,6 @@ export class ValidateSignupSessionUseCase implements IValidateSignupSessionUseCa
 			return err("SIGNUP_SESSION_EXPIRED");
 		}
 
-		return { signupSession };
+		return ok({ signupSession });
 	}
 }

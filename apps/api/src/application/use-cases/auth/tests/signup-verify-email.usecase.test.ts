@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createSignupSessionFixture } from "../../../../tests/fixtures";
 import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../tests/mocks";
 import { SignupVerifyEmailUseCase } from "../signup-verify-email.usecase";
@@ -27,14 +26,14 @@ describe("SignupVerifyEmailUseCase", () => {
 	it("should verify email when code matches", async () => {
 		const result = await signupVerifyEmailUseCase.execute("12345678", baseSignupSession);
 
-		expect(result).toBeUndefined();
+		expect(result.isOk).toBe(true);
 		expect(signupSessionMap.get(baseSignupSession.id)?.emailVerified).toBe(true);
 	});
 
 	it("should update signup session expires at if success", async () => {
 		const result = await signupVerifyEmailUseCase.execute("12345678", baseSignupSession);
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
 		expect(signupSessionMap.get(baseSignupSession.id)?.expiresAt.getTime()).toBeGreaterThan(
 			baseSignupSession.expiresAt.getTime(),
@@ -44,9 +43,9 @@ describe("SignupVerifyEmailUseCase", () => {
 	it("should return INVALID_VERIFICATION_CODE when code does not match", async () => {
 		const result = await signupVerifyEmailUseCase.execute("87654321", baseSignupSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_VERIFICATION_CODE");
 		}
 
@@ -62,9 +61,9 @@ describe("SignupVerifyEmailUseCase", () => {
 
 		const result = await signupVerifyEmailUseCase.execute("12345678", updatedSignupSession);
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("ALREADY_VERIFIED");
 		}
 	});

@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { isErr } from "../../../../common/utils";
 import { createUserFixture } from "../../../../tests/fixtures";
 import {
 	PasswordHasherMock,
@@ -51,14 +50,13 @@ describe("LoginUseCase", () => {
 	it("should be able to login with valid credentials", async () => {
 		const result = await loginUseCase.execute(user.email, "password123");
 
-		expect(isErr(result)).toBe(false);
-		expect(result).toHaveProperty("session");
-		expect(result).toHaveProperty("sessionToken");
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			expect(result.session.userId).toBe(user.id);
-			expect(typeof result.sessionToken).toBe("string");
-			expect(result.sessionToken.length).toBeGreaterThan(0);
+		if (!result.isErr) {
+			const { session, sessionToken } = result.value;
+			expect(session.userId).toBe(user.id);
+			expect(typeof sessionToken).toBe("string");
+			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 	});
 
@@ -69,9 +67,9 @@ describe("LoginUseCase", () => {
 
 		const result = await loginUseCase.execute("nonexistent@example.com", "password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CREDENTIALS");
 		}
 	});
@@ -79,9 +77,9 @@ describe("LoginUseCase", () => {
 	it("should return INVALID_CREDENTIALS error when password is incorrect", async () => {
 		const result = await loginUseCase.execute(user.email, "wrong_password");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CREDENTIALS");
 		}
 	});
@@ -89,9 +87,9 @@ describe("LoginUseCase", () => {
 	it("should return INVALID_CREDENTIALS error when email is incorrect", async () => {
 		const result = await loginUseCase.execute("incorrect@example.com", "password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CREDENTIALS");
 		}
 	});
@@ -101,9 +99,9 @@ describe("LoginUseCase", () => {
 
 		const result = await loginUseCase.execute(user.email, "password123");
 
-		expect(isErr(result)).toBe(true);
+		expect(result.isErr).toBe(true);
 
-		if (isErr(result)) {
+		if (result.isErr) {
 			expect(result.code).toBe("INVALID_CREDENTIALS");
 		}
 	});
@@ -111,10 +109,11 @@ describe("LoginUseCase", () => {
 	it("should create and save a new session on successful login", async () => {
 		const result = await loginUseCase.execute(user.email, "password123");
 
-		expect(isErr(result)).toBe(false);
+		expect(result.isErr).toBe(false);
 
-		if (!isErr(result)) {
-			const savedSession = sessionMap.get(result.session.id);
+		if (!result.isErr) {
+			const { session } = result.value;
+			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
 			expect(savedSession?.userId).toBe(user.id);
 		}

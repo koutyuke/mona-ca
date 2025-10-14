@@ -1,4 +1,5 @@
-import { err, ulid } from "../../../common/utils";
+import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../common/utils";
 import { type Session, createSession } from "../../../domain/entities";
 import { type SessionToken, type UserId, formatSessionToken, newSessionId } from "../../../domain/value-object";
 import type { ILoginUseCase, LoginUseCaseResult } from "../../ports/in";
@@ -26,10 +27,10 @@ export class LoginUseCase implements ILoginUseCase {
 
 		await this.sessionRepository.save(session);
 
-		return {
+		return ok({
 			session,
 			sessionToken,
-		};
+		});
 	}
 
 	private createSession(userId: UserId): {
