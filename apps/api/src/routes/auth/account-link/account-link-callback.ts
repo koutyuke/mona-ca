@@ -21,9 +21,9 @@ import {
 	RedirectResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
 
 export const AccountLinkCallback = new ElysiaWithEnv()
 

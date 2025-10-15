@@ -13,11 +13,11 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const SignupVerifyEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin

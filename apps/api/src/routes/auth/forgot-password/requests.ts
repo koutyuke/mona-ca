@@ -8,7 +8,7 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CaptchaSchema, captcha } from "../../../modules/captcha";
+import { CaptchaSchema, captcha } from "../../../plugins/captcha";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -16,11 +16,11 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 const PasswordResetRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin

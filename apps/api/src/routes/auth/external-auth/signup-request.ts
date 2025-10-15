@@ -21,10 +21,10 @@ import {
 	RedirectResponse,
 	RedirectResponseSchema,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 
 export const ExternalAuthSignupRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin

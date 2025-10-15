@@ -8,7 +8,7 @@ import { DrizzleService } from "../../../infrastructure/drizzle";
 import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
+import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -16,10 +16,10 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 
 const EmailVerificationRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin

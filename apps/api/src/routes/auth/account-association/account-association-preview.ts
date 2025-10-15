@@ -13,10 +13,10 @@ import {
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const AccountAssociationPreview = new ElysiaWithEnv()
 	// Local Middleware & Plugin

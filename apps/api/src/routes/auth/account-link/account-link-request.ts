@@ -10,15 +10,15 @@ import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
 import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
+import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
 
 export const AccountLinkRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin

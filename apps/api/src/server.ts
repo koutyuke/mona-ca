@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import type { AppEnv } from "./modules/env";
+import type { AppEnv } from "./plugins/env";
 import { root } from "./routes";
 
 globalThis.Buffer = Buffer;

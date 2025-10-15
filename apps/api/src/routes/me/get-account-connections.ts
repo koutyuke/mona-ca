@@ -3,9 +3,9 @@ import { DrizzleService } from "../../infrastructure/drizzle";
 import { AccountConnectionsResponseSchema, toAccountConnectionsResponse } from "../../interface-adapter/presenters";
 import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
 import { UserRepository } from "../../interface-adapter/repositories/user";
-import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
-import { pathDetail } from "../../modules/open-api";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
+import { pathDetail } from "../../plugins/open-api";
 
 export const GetAccountConnections = new ElysiaWithEnv()
 	// Local Middleware & Plugin

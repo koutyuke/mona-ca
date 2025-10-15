@@ -4,7 +4,7 @@ import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../
 import { DrizzleService } from "../../infrastructure/drizzle";
 import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
 import { UserRepository } from "../../interface-adapter/repositories/user";
-import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -12,9 +12,9 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../modules/elysia-with-env";
-import { BadRequestException } from "../../modules/error";
-import { pathDetail } from "../../modules/open-api";
+} from "../../plugins/elysia-with-env";
+import { BadRequestException } from "../../plugins/error";
+import { pathDetail } from "../../plugins/open-api";
 
 export const UnlinkAccountConnection = new ElysiaWithEnv()
 	// Local Middleware & Plugin

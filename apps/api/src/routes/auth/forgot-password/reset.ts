@@ -15,10 +15,10 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { ForbiddenException, UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { ForbiddenException, UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const ResetPassword = new ElysiaWithEnv()
 	// Local Middleware & Plugin

@@ -1,4 +1,4 @@
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv } from "../../../plugins/elysia-with-env";
 import { SignupConfirm } from "./confirm";
 import { SignupRequest } from "./request";
 import { SignupVerifyEmail } from "./verify-email";

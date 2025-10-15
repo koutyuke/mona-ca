@@ -1,8 +1,8 @@
-import { cors } from "../modules/cors";
-import { ElysiaWithEnv } from "../modules/elysia-with-env";
-import { error } from "../modules/error";
-import { openAPI } from "../modules/open-api";
-import { pathDetail } from "../modules/open-api";
+import { cors } from "../plugins/cors";
+import { ElysiaWithEnv } from "../plugins/elysia-with-env";
+import { error } from "../plugins/error";
+import { openAPI } from "../plugins/open-api";
+import { pathDetail } from "../plugins/open-api";
 import { Auth } from "./auth";
 import { Me } from "./me";
 

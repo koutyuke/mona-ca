@@ -1,7 +1,7 @@
 import { UserResponseSchema, toUserResponse } from "../../interface-adapter/presenters";
-import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
-import { pathDetail } from "../../modules/open-api";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
+import { pathDetail } from "../../plugins/open-api";
 
 export const GetProfile = new ElysiaWithEnv()
 	// Local Middleware & Plugin
