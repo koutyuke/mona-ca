@@ -5,11 +5,11 @@ import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "..
 import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
+import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

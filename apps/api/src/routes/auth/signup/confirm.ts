@@ -4,10 +4,10 @@ import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../common
 import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-objects";
 import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
+import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { SessionRepository } from "../../../interface-adapter/repositories/session";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

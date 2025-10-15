@@ -5,10 +5,10 @@ import { PasswordResetRequestUseCase } from "../../../application/use-cases/pass
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
+import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../../modules/captcha";
-import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

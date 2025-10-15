@@ -3,10 +3,10 @@ import { UpdateUserPasswordUseCase } from "../../application/use-cases/password"
 import { SESSION_COOKIE_NAME } from "../../common/constants";
 import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
+import { CookieManager } from "../../interface-adapter/http/cookie";
 import { SessionRepository } from "../../interface-adapter/repositories/session";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { CookieManager } from "../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

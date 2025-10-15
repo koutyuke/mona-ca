@@ -9,3 +9,4 @@ export {
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 } from "./cookie";
 export { CLIENT_TYPE_HEADER_NAME } from "./header";
+export { PRODUCTION_BASE_DOMAIN } from "./domain";

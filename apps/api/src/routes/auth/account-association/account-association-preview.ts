@@ -4,10 +4,10 @@ import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constan
 import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
+import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { UserResponseSchema, toUserResponse } from "../../../interface-adapter/presenters";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

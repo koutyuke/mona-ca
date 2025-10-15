@@ -4,8 +4,8 @@ import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { newSignupSessionToken } from "../../../domain/value-objects";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
+import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
-import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

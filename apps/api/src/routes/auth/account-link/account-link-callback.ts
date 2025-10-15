@@ -12,8 +12,8 @@ import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
 import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
+import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
-import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

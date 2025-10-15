@@ -5,10 +5,10 @@ import { verificationEmailTemplate } from "../../../application/use-cases/email/
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
+import { CookieManager } from "../../../interface-adapter/http/cookie";
 import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CaptchaSchema, captcha } from "../../../modules/captcha";
-import { CookieManager } from "../../../modules/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
