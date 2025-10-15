@@ -4,7 +4,7 @@ import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constan
 import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenters";
+import { UserResponseSchema, toUserResponse } from "../../../interface-adapter/presenters";
 import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
 import { UserRepository } from "../../../interface-adapter/repositories/user";
 import { CookieManager } from "../../../modules/cookie";
@@ -78,7 +78,7 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			const { user, accountAssociationSession } = result.value;
 
 			return {
-				user: UserPresenter(user),
+				user: toUserResponse(user),
 				provider: accountAssociationSession.provider,
 				providerId: accountAssociationSession.providerUserId,
 			};
@@ -93,7 +93,7 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			}),
 			response: withBaseResponseSchema({
 				200: t.Object({
-					user: UserPresenterResultSchema,
+					user: UserResponseSchema,
 					provider: t.String(),
 					providerId: t.String(),
 				}),

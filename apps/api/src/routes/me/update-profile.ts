@@ -3,7 +3,7 @@ import type { UpdateUserProfileDto } from "../../application/ports/in";
 import { UpdateUserProfileUseCase } from "../../application/use-cases/user";
 import { genderSchema, newGender } from "../../domain/value-objects";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { UserPresenter, UserPresenterResultSchema } from "../../interface-adapter/presenters";
+import { UserResponseSchema, toUserResponse } from "../../interface-adapter/presenters";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
 import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
@@ -41,7 +41,7 @@ export const UpdateProfile = new ElysiaWithEnv()
 
 			const updatedUser = await updateUserProfileUseCase.execute(user, updateProfile);
 
-			return UserPresenter(updatedUser);
+			return toUserResponse(updatedUser);
 		},
 		{
 			headers: AuthGuardSchema.headers,
@@ -56,7 +56,7 @@ export const UpdateProfile = new ElysiaWithEnv()
 				iconUrl: t.Optional(t.String()),
 			}),
 			response: withBaseResponseSchema({
-				200: UserPresenterResultSchema,
+				200: UserResponseSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 			}),

@@ -1,9 +1,6 @@
 import { GetConnectionsUseCase } from "../../application/use-cases/account-link";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import {
-	AccountConnectionsPresenter,
-	AccountConnectionsPresenterResultSchema,
-} from "../../interface-adapter/presenters";
+import { AccountConnectionsResponseSchema, toAccountConnectionsResponse } from "../../interface-adapter/presenters";
 import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
 import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
@@ -28,12 +25,12 @@ export const GetAccountConnections = new ElysiaWithEnv()
 
 			const result = await getConnectionsUseCase.execute(user.id);
 
-			return AccountConnectionsPresenter(result);
+			return toAccountConnectionsResponse(result);
 		},
 		{
 			headers: AuthGuardSchema.headers,
 			response: withBaseResponseSchema({
-				200: AccountConnectionsPresenterResultSchema,
+				200: AccountConnectionsResponseSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 			}),

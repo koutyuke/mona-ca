@@ -2,7 +2,7 @@ import type { ToPrimitive } from "@mona-ca/core/utils";
 import { type Static, t } from "elysia";
 import type { ExternalIdentityProvider, ExternalIdentityProviderUserId } from "../../domain/value-objects";
 
-export const AccountConnectionsPresenterResultSchema = t.Composite([
+export const AccountConnectionsResponseSchema = t.Composite([
 	t.Object({
 		password: t.Boolean(),
 	}),
@@ -19,7 +19,7 @@ export const AccountConnectionsPresenterResultSchema = t.Composite([
 	),
 ]);
 
-export type AccountConnectionsPresenterResult = Static<typeof AccountConnectionsPresenterResultSchema>;
+export type AccountConnectionsResponse = Static<typeof AccountConnectionsResponseSchema>;
 
 type ProviderConnection = {
 	provider: string;
@@ -27,7 +27,7 @@ type ProviderConnection = {
 	linkedAt: string;
 } | null;
 
-export const AccountConnectionsPresenter = (
+export const toAccountConnectionsResponse = (
 	connections: {
 		password: boolean;
 	} & {
@@ -37,7 +37,7 @@ export const AccountConnectionsPresenter = (
 			linkedAt: Date;
 		} | null;
 	},
-): AccountConnectionsPresenterResult => {
+): AccountConnectionsResponse => {
 	const { password, ...providers } = connections;
 
 	const formattedProviders: Record<string, ProviderConnection> = {};

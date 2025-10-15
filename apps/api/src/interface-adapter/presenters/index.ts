@@ -1,8 +1,8 @@
-export { UserPresenter, UserPresenterResultSchema } from "./user.presenter";
+export { toUserResponse, UserResponseSchema } from "./user.presenter";
 export {
-	AccountConnectionsPresenter,
-	AccountConnectionsPresenterResultSchema,
+	toAccountConnectionsResponse,
+	AccountConnectionsResponseSchema,
 } from "./account-connections.presenter";
 
-export type { UserPresenterResult } from "./user.presenter";
-export type { AccountConnectionsPresenterResult } from "./account-connections.presenter";
+export type { UserResponse } from "./user.presenter";
+export type { AccountConnectionsResponse } from "./account-connections.presenter";
