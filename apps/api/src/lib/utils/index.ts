@@ -8,5 +8,6 @@ export { getIP } from "./get-ip";
 export { readBearerToken } from "./read-bearer-token";
 export { TimeSpan } from "./time-span";
 export { ulid } from "./ulid";
+export { StringEnum } from "./schema";
 
 export type { TimeSpanUnit } from "./time-span";
