@@ -1,10 +1,10 @@
 import { t } from "elysia";
 import type { UpdateUserProfileDto } from "../../application/ports/in";
-import { UpdateUserProfileUseCase } from "../../application/use-cases/user";
-import { genderSchema, newGender } from "../../domain/value-objects";
+import { genderSchema, newGender } from "../../common/domain/value-objects";
+import { UserResponseSchema, toUserResponse } from "../../features/auth/adapters/presenters";
+import { UserRepository } from "../../features/user/adapters/repositories/user";
+import { UpdateUserProfileUseCase } from "../../features/user/application/use-cases/user";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { UserResponseSchema, toUserResponse } from "../../interface-adapter/presenters";
-import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
 import { pathDetail } from "../../plugins/open-api";

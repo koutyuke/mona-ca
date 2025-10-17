@@ -1,15 +1,15 @@
 import { t } from "elysia";
-import { AccountAssociationConfirmUseCase } from "../../../application/use-cases/account-association";
-import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
-import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
+import { newAccountAssociationSessionToken } from "../../../common/domain/value-objects";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session";
+import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity";
+import { SessionRepository } from "../../../features/auth/adapters/repositories/session";
+import { AccountAssociationConfirmUseCase } from "../../../features/auth/application/use-cases/account-association";
+import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association";
+import { UserRepository } from "../../../features/user/adapters/repositories/user";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
-import { SessionRepository } from "../../../interface-adapter/repositories/session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../lib/constants";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

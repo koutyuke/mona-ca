@@ -1,4 +1,4 @@
-import type { IMac, MacOptions } from "../../../application/ports/out/system";
+import type { IMac, MacOptions } from "../../../common/ports/system";
 
 export class MacMock implements IMac {
 	sign(plaintext: string, _opts?: MacOptions): string {

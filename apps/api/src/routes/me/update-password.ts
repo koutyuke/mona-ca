@@ -1,11 +1,11 @@
 import { t } from "elysia";
-import { UpdateUserPasswordUseCase } from "../../application/use-cases/password";
-import { SESSION_COOKIE_NAME } from "../../common/constants";
+import { CookieManager } from "../../features/auth/adapters/http/cookie";
+import { SessionRepository } from "../../features/auth/adapters/repositories/session";
+import { UpdateUserPasswordUseCase } from "../../features/auth/application/use-cases/password";
+import { UserRepository } from "../../features/user/adapters/repositories/user";
 import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { CookieManager } from "../../interface-adapter/http/cookie";
-import { SessionRepository } from "../../interface-adapter/repositories/session";
-import { UserRepository } from "../../interface-adapter/repositories/user";
+import { SESSION_COOKIE_NAME } from "../../lib/constants";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,

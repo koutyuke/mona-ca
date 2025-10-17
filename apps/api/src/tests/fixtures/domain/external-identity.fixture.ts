@@ -1,10 +1,10 @@
-import { ulid } from "../../../common/utils";
-import type { ExternalIdentity } from "../../../domain/entities";
 import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
 	newUserId,
-} from "../../../domain/value-objects";
+} from "../../../common/domain/value-objects";
+import type { ExternalIdentity } from "../../../domain/entities";
+import { ulid } from "../../../lib/utils";
 
 export const createExternalIdentityFixture = (override?: {
 	externalIdentity?: Partial<ExternalIdentity>;

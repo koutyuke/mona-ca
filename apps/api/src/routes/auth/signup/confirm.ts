@@ -1,13 +1,13 @@
 import { t } from "elysia";
-import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
-import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-objects";
+import { genderSchema, newGender, newSignupSessionToken } from "../../../common/domain/value-objects";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { SessionRepository } from "../../../features/auth/adapters/repositories/session";
+import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session";
+import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../features/auth/application/use-cases/auth";
+import { UserRepository } from "../../../features/user/adapters/repositories/user";
 import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { SessionRepository } from "../../../interface-adapter/repositories/session";
-import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
+import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../lib/constants";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

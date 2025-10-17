@@ -1,6 +1,6 @@
 import type { ISessionRepository } from "../../../application/ports/out/repositories";
+import type { SessionId, UserId } from "../../../common/domain/value-objects";
 import type { Session } from "../../../domain/entities";
-import type { SessionId, UserId } from "../../../domain/value-objects";
 
 export class SessionRepositoryMock implements ISessionRepository {
 	private readonly sessionMap: Map<SessionId, Session>;

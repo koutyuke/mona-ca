@@ -1,8 +1,11 @@
-import { GetConnectionsUseCase } from "../../application/use-cases/account-link";
+import {
+	AccountConnectionsResponseSchema,
+	toAccountConnectionsResponse,
+} from "../../features/auth/adapters/presenters";
+import { ExternalIdentityRepository } from "../../features/auth/adapters/repositories/external-identity";
+import { GetConnectionsUseCase } from "../../features/auth/application/use-cases/account-link";
+import { UserRepository } from "../../features/user/adapters/repositories/user";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { AccountConnectionsResponseSchema, toAccountConnectionsResponse } from "../../interface-adapter/presenters";
-import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
-import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
 import { pathDetail } from "../../plugins/open-api";

@@ -1,4 +1,4 @@
-import { UserResponseSchema, toUserResponse } from "../../interface-adapter/presenters";
+import { UserResponseSchema, toUserResponse } from "../../features/auth/adapters/presenters";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
 import { pathDetail } from "../../plugins/open-api";

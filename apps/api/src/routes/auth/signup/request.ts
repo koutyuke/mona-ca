@@ -1,13 +1,13 @@
 import { t } from "elysia";
-import { SignupRequestUseCase } from "../../../application/use-cases/auth";
-import { SendEmailUseCase } from "../../../application/use-cases/email";
-import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
-import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
+import { SendEmailUseCase } from "../../../common/adapters/gateways/email";
+import { verificationEmailTemplate } from "../../../common/adapters/gateways/email/mail-context";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session";
+import { SignupRequestUseCase } from "../../../features/auth/application/use-cases/auth";
+import { UserRepository } from "../../../features/user/adapters/repositories/user";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
+import { SIGNUP_SESSION_COOKIE_NAME } from "../../../lib/constants";
 import { CaptchaSchema, captcha } from "../../../plugins/captcha";
 import {
 	ElysiaWithEnv,
@@ -83,7 +83,7 @@ export const SignupRequest = new ElysiaWithEnv()
 
 			const mailContents = verificationEmailTemplate(signupSession.email, signupSession.code);
 
-			await sendEmailUseCase.execute({
+			await sendEmailUseCase.sendEmail({
 				from: mailContents.from,
 				to: mailContents.to,
 				subject: mailContents.subject,

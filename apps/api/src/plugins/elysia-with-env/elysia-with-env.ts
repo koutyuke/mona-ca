@@ -1,6 +1,11 @@
 import { Value } from "@sinclair/typebox/value";
 import { Elysia, type ElysiaConfig } from "elysia";
-import { type AppEnv, type AppEnvWithoutCFModule, AppEnvWithoutCFModuleSchema, type CFModuleEnv } from "../env";
+import {
+	type AppEnv,
+	type AppEnvWithoutCFModule,
+	AppEnvWithoutCFModuleSchema,
+	type CFModuleEnv,
+} from "../../common/infra/config/env";
 
 type CustomSingleton = {
 	decorator: {

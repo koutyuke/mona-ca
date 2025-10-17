@@ -1,15 +1,15 @@
 import { t } from "elysia";
+import { newPasswordResetSessionToken } from "../../../common/domain/value-objects";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session";
 import {
 	PasswordResetVerifyEmailUseCase,
 	ValidatePasswordResetSessionUseCase,
-} from "../../../application/use-cases/password";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newPasswordResetSessionToken } from "../../../domain/value-objects";
+} from "../../../features/auth/application/use-cases/password";
+import { UserRepository } from "../../../features/user/adapters/repositories/user";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../lib/constants";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

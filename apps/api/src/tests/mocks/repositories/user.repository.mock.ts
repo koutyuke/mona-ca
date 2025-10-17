@@ -1,6 +1,6 @@
 import type { IUserRepository } from "../../../application/ports/out/repositories";
+import type { SessionId, UserId } from "../../../common/domain/value-objects";
 import type { Session, User } from "../../../domain/entities";
-import type { SessionId, UserId } from "../../../domain/value-objects";
 
 export class UserRepositoryMock implements IUserRepository {
 	private readonly userMap: Map<UserId, User>;

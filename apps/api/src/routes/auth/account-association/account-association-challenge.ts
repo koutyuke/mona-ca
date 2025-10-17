@@ -1,15 +1,15 @@
 import { t } from "elysia";
-import { AccountAssociationChallengeUseCase } from "../../../application/use-cases/account-association";
-import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
-import { SendEmailUseCase } from "../../../application/use-cases/email";
-import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
-import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
+import { SendEmailUseCase } from "../../../common/adapters/gateways/email";
+import { verificationEmailTemplate } from "../../../common/adapters/gateways/email/mail-context";
+import { newAccountAssociationSessionToken } from "../../../common/domain/value-objects";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session";
+import { AccountAssociationChallengeUseCase } from "../../../features/auth/application/use-cases/account-association";
+import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association/validate-account-association-session.usecase";
+import { UserRepository } from "../../../features/user/adapters/repositories/user";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../lib/constants";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -109,7 +109,7 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				accountAssociationSession.code ?? "",
 			);
 
-			await sendEmailUseCase.execute({
+			await sendEmailUseCase.sendEmail({
 				from: mailContents.from,
 				to: mailContents.to,
 				subject: mailContents.subject,

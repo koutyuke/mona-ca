@@ -1,20 +1,23 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { ExternalAuthRequestUseCase, oauthStateSchema } from "../../../application/use-cases/external-auth";
-import {
-	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
-	OAUTH_STATE_COOKIE_NAME,
-} from "../../../common/constants";
 import {
 	clientTypeSchema,
 	externalIdentityProviderSchema,
 	newClientType,
 	newExternalIdentityProvider,
-} from "../../../domain/value-objects";
+} from "../../../common/domain/value-objects";
+import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import {
+	ExternalAuthRequestUseCase,
+	oauthStateSchema,
+} from "../../../features/auth/application/use-cases/external-auth";
 import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
+import {
+	OAUTH_CODE_VERIFIER_COOKIE_NAME,
+	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_STATE_COOKIE_NAME,
+} from "../../../lib/constants";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

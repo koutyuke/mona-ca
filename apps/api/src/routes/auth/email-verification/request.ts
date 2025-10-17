@@ -1,13 +1,13 @@
 import { t } from "elysia";
-import { SendEmailUseCase } from "../../../application/use-cases/email";
-import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
-import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
+import { SendEmailUseCase } from "../../../common/adapters/gateways/email";
+import { verificationEmailTemplate } from "../../../common/adapters/gateways/email/mail-context";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { EmailVerificationSessionRepository } from "../../../features/auth/adapters/repositories/email-verification-session";
+import { EmailVerificationRequestUseCase } from "../../../features/auth/application/use-cases/email-verification";
+import { UserRepository } from "../../../features/user/adapters/repositories/user";
 import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../lib/constants";
 import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
@@ -93,7 +93,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 
 			const mailContents = verificationEmailTemplate(emailVerificationSession.email, emailVerificationSession.code);
 
-			await sendEmailUseCase.execute({
+			await sendEmailUseCase.sendEmail({
 				from: mailContents.from,
 				to: mailContents.to,
 				subject: mailContents.subject,

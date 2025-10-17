@@ -1,19 +1,22 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { AccountLinkCallbackUseCase, accountLinkStateSchema } from "../../../application/use-cases/account-link";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../common/domain/value-objects";
+import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity";
+import {
+	AccountLinkCallbackUseCase,
+	accountLinkStateSchema,
+} from "../../../features/auth/application/use-cases/account-link";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
+import { DrizzleService } from "../../../infrastructure/drizzle";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
-} from "../../../common/constants";
-import { timingSafeStringEqual } from "../../../common/utils";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
+} from "../../../lib/constants";
+import { timingSafeStringEqual } from "../../../lib/utils";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { Value } from "@sinclair/typebox/value";
 import { beforeAll, describe, expect, test } from "vitest";
-import { AppEnvWithoutCFModuleSchema } from "../../env";
+import { AppEnvWithoutCFModuleSchema } from "../../../common/infra/config/env";
 import { ElysiaWithEnv } from "../elysia-with-env";
 
 const { DB } = env;

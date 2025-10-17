@@ -1,9 +1,9 @@
 import { t } from "elysia";
-import { LogoutUseCase } from "../../application/use-cases/auth";
-import { SESSION_COOKIE_NAME } from "../../common/constants";
+import { CookieManager } from "../../features/auth/adapters/http/cookie";
+import { SessionRepository } from "../../features/auth/adapters/repositories/session";
+import { LogoutUseCase } from "../../features/auth/application/use-cases/auth";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { CookieManager } from "../../interface-adapter/http/cookie";
-import { SessionRepository } from "../../interface-adapter/repositories/session";
+import { SESSION_COOKIE_NAME } from "../../lib/constants";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,

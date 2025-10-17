@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../lib/constants";
 import { createSessionFixture, createUserFixture } from "../../../tests/fixtures";
 import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";

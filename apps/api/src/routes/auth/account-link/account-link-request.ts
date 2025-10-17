@@ -1,15 +1,18 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { AccountLinkRequestUseCase, accountLinkStateSchema } from "../../../application/use-cases/account-link";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../common/domain/value-objects";
+import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import {
+	AccountLinkRequestUseCase,
+	accountLinkStateSchema,
+} from "../../../features/auth/application/use-cases/account-link";
+import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
-} from "../../../common/constants";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
+} from "../../../lib/constants";
 import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,

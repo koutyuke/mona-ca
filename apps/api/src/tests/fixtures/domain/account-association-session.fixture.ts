@@ -1,6 +1,3 @@
-import { ulid } from "../../../common/utils";
-import { accountAssociationSessionExpiresSpan } from "../../../domain/entities";
-import type { AccountAssociationSession } from "../../../domain/entities";
 import {
 	type AccountAssociationSessionToken,
 	formatSessionToken,
@@ -8,7 +5,10 @@ import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
 	newUserId,
-} from "../../../domain/value-objects";
+} from "../../../common/domain/value-objects";
+import { accountAssociationSessionExpiresSpan } from "../../../domain/entities";
+import type { AccountAssociationSession } from "../../../domain/entities";
+import { ulid } from "../../../lib/utils";
 import { SessionSecretHasherMock } from "../../mocks";
 
 const sessionSecretHasher = new SessionSecretHasherMock();

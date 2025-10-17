@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import type { ISessionSecretHasher } from "../../../application/ports/out/system";
+import type { ISessionSecretHasher } from "../../../common/ports/system";
 
 export class SessionSecretHasherMock implements ISessionSecretHasher {
 	generate(): string {

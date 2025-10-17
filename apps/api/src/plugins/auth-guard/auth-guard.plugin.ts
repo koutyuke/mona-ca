@@ -1,15 +1,15 @@
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
-import { ValidateSessionUseCase } from "../../application/use-cases/auth";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../common/constants";
-import { readBearerToken } from "../../common/utils";
+import { type ClientType, clientTypeSchema, newSessionToken } from "../../common/domain/value-objects";
 import type { Session, User } from "../../domain/entities";
-import { type ClientType, clientTypeSchema, newSessionToken } from "../../domain/value-objects";
 import { newClientType } from "../../domain/value-objects/client-type";
+import { SessionRepository } from "../../features/auth/adapters/repositories/session";
+import { ValidateSessionUseCase } from "../../features/auth/application/use-cases/auth";
+import { UserRepository } from "../../features/user/adapters/repositories/user";
 import { SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { SessionRepository } from "../../interface-adapter/repositories/session";
-import { UserRepository } from "../../interface-adapter/repositories/user";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../lib/constants";
+import { readBearerToken } from "../../lib/utils";
 import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
 import { BadRequestException, UnauthorizedException } from "../error";
 

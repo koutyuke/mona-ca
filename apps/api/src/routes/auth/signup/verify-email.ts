@@ -1,11 +1,14 @@
 import { t } from "elysia";
-import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
-import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newSignupSessionToken } from "../../../domain/value-objects";
+import { newSignupSessionToken } from "../../../common/domain/value-objects";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session";
+import {
+	SignupVerifyEmailUseCase,
+	ValidateSignupSessionUseCase,
+} from "../../../features/auth/application/use-cases/auth";
 import { SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
+import { SIGNUP_SESSION_COOKIE_NAME } from "../../../lib/constants";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

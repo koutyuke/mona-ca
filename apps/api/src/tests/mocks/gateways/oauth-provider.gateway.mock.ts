@@ -1,10 +1,6 @@
 import { ok } from "@mona-ca/core/utils";
 import type { OAuth2Tokens } from "arctic";
-import type {
-	GetIdentityResult,
-	GetTokensResult,
-	IOAuthProviderGateway,
-} from "../../../application/ports/out/gateways";
+import type { GetIdentityResult, GetTokensResult, IOAuthProviderGateway } from "../../../common/ports/gateways";
 
 export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 	public createAuthorizationURL(state: string, codeVerifier: string): URL {

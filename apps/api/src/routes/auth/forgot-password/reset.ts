@@ -1,13 +1,16 @@
 import { t } from "elysia";
-import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../application/use-cases/password";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newPasswordResetSessionToken } from "../../../domain/value-objects";
+import { newPasswordResetSessionToken } from "../../../common/domain/value-objects";
+import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session";
+import { SessionRepository } from "../../../features/auth/adapters/repositories/session";
+import {
+	ResetPasswordUseCase,
+	ValidatePasswordResetSessionUseCase,
+} from "../../../features/auth/application/use-cases/password";
+import { UserRepository } from "../../../features/user/adapters/repositories/user";
 import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
 import { DrizzleService } from "../../../infrastructure/drizzle";
-import { CookieManager } from "../../../interface-adapter/http/cookie";
-import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import { SessionRepository } from "../../../interface-adapter/repositories/session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../lib/constants";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,

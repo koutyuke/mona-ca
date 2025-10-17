@@ -1,9 +1,9 @@
 import { t } from "elysia";
-import { UnlinkAccountConnectionUseCase } from "../../application/use-cases/account-link";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../domain/value-objects";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../common/domain/value-objects";
+import { ExternalIdentityRepository } from "../../features/auth/adapters/repositories/external-identity";
+import { UnlinkAccountConnectionUseCase } from "../../features/auth/application/use-cases/account-link";
+import { UserRepository } from "../../features/user/adapters/repositories/user";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
-import { UserRepository } from "../../interface-adapter/repositories/user";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,

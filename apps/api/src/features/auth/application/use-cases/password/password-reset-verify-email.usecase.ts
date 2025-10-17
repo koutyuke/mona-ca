@@ -1,0 +1,29 @@
+import { err, ok } from "@mona-ca/core/utils";
+import type {
+	IPasswordResetVerifyEmailUseCase,
+	PasswordResetVerifyEmailUseCaseResult,
+} from "../../../../../application/ports/in";
+import { timingSafeStringEqual } from "../../../../../lib/utils";
+import { type PasswordResetSession, completeEmailVerificationForPasswordResetSession } from "../../../domain/entities";
+import type { IPasswordResetSessionRepository } from "../../ports/out/repositories";
+
+// this use case will be called after the validate password reset session use case.
+// so we don't need to check the expired password reset session.
+export class PasswordResetVerifyEmailUseCase implements IPasswordResetVerifyEmailUseCase {
+	constructor(private readonly passwordResetSessionRepository: IPasswordResetSessionRepository) {}
+
+	public async execute(
+		code: string,
+		passwordResetSession: PasswordResetSession,
+	): Promise<PasswordResetVerifyEmailUseCaseResult> {
+		if (!timingSafeStringEqual(passwordResetSession.code, code)) {
+			return err("INVALID_VERIFICATION_CODE");
+		}
+
+		const completeSession = completeEmailVerificationForPasswordResetSession(passwordResetSession);
+
+		await this.passwordResetSessionRepository.save(completeSession);
+
+		return ok();
+	}
+}
