@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { timingSafeStringEqual } from "../timing-safe-string-equal";
+import { timingSafeStringEqual } from "./timing-safe-string-equal";
 
 describe("constantTimeCompare", () => {
 	test("should return true when strings are equal", () => {
