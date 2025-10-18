@@ -3,7 +3,7 @@ import type { Static, TObject } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { generateState } from "arctic";
 import { t } from "elysia";
-import { decodeBase64URLSafe, encodeBase64URLSafe, timingSafeStringEqual } from "../../../lib/utils";
+import { decodeBase64URLSafe, encodeBase64URLSafe, timingSafeStringEqual } from "../../lib/utils";
 import type { IOAuthStateSigner } from "../../ports/system";
 import { HmacSha256 } from "./hmac-sha-256";
 

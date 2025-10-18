@@ -1,6 +1,7 @@
-import { TimeSpan } from "../../common/utils";
-import type { ExternalIdentityProvider, ExternalIdentityProviderUserId, UserId } from "../value-objects";
-import type { AccountAssociationSessionId } from "../value-objects";
+import type { UserId } from "../../../../shared/domain/value-objects";
+import { TimeSpan } from "../../../../shared/lib/utils";
+import type { ExternalIdentityProvider, ExternalIdentityProviderUserId } from "../value-objects/external-identity";
+import type { AccountAssociationSessionId } from "../value-objects/ids";
 
 export const ACCOUNT_ASSOCIATION_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
 

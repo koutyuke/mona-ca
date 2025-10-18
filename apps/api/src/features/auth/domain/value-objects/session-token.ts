@@ -5,7 +5,7 @@ import type {
 	PasswordResetSessionId,
 	SessionId,
 	SignupSessionId,
-} from "../../../../common/domain/value-objects/ids";
+} from "./ids";
 
 export type SessionToken = NewType<"SessionToken", string>;
 export type EmailVerificationSessionToken = NewType<"EmailVerificationSessionToken", string>;

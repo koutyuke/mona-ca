@@ -1,9 +1,10 @@
-import type { ToPrimitive } from "@mona-ca/core/utils";
-import type { ExternalIdentityProvider } from "../../../../../common/domain/value-objects";
-import type { OAuthProviderEnv } from "../../../../../common/infra/config/env";
-import type { IOAuthProviderGateway } from "../../../../../common/ports/gateways";
 import { DiscordOAuthGateway } from "./discord.gateway";
 import { GoogleOAuthGateway } from "./google.gateway";
+
+import type { ToPrimitive } from "@mona-ca/core/utils";
+import type { OAuthProviderEnv } from "../../../../../shared/infra/config/env";
+import type { IOAuthProviderGateway } from "../../../application/ports/gateways/oauth-provider.gateway.interface";
+import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 
 const oauthProviderMap: Record<
 	ToPrimitive<ExternalIdentityProvider>,

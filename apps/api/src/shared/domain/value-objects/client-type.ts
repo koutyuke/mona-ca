@@ -1,5 +1,5 @@
 import type { NewType } from "@mona-ca/core/utils";
-import { StringEnum } from "../../../lib/utils";
+import { StringEnum } from "../../lib/utils";
 
 export type ClientType = NewType<"clientType", "web" | "mobile">;
 

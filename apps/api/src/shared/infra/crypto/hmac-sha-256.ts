@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { timingSafeStringEqual } from "../../../lib/utils";
+import { timingSafeStringEqual } from "../../lib/utils";
 import type { IMac, MacEncoding, MacOptions } from "../../ports/system";
 
 export class HmacSha256 implements IMac {

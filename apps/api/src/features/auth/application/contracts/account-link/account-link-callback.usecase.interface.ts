@@ -1,5 +1,5 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { ClientType } from "../../../../../common/domain/value-objects";
+import type { ClientType } from "../../../../../shared/domain/value-objects";
 import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 
 type Success = Ok<{

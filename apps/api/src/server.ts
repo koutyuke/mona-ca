@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
-import { type AppEnv, validateEnv } from "./common/infra/config/env";
 import { root } from "./routes";
+import { type AppEnv, validateEnv } from "./shared/infra/config/env";
 
 globalThis.Buffer = Buffer;
 

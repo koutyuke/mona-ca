@@ -1,4 +1,4 @@
-import type { AppEnv } from "../src/common/infra/config/env";
+import type { AppEnv } from "../src/shared/infra/config/env";
 
 declare module "cloudflare:test" {
 	interface ProvidedEnv extends AppEnv {

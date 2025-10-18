@@ -1,6 +1,9 @@
 import type { ToPrimitive } from "@mona-ca/core/utils";
 import { type Static, t } from "elysia";
-import type { ExternalIdentityProvider, ExternalIdentityProviderUserId } from "../../../../common/domain/value-objects";
+import type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+} from "../../domain/value-objects/external-identity";
 
 export const AccountConnectionsResponseSchema = t.Composite([
 	t.Object({

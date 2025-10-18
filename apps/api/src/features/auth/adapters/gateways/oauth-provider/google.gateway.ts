@@ -10,7 +10,12 @@ import {
 	decodeIdToken,
 } from "arctic";
 import { t } from "elysia";
-import type { GetIdentityResult, GetTokensResult, IOAuthProviderGateway } from "../../../../../common/ports/gateways";
+
+import type {
+	GetIdentityResult,
+	GetTokensResult,
+	IOAuthProviderGateway,
+} from "../../../application/ports/gateways/oauth-provider.gateway.interface";
 
 const googleIdTokenClaimsSchema = t.Object({
 	sub: t.String(),

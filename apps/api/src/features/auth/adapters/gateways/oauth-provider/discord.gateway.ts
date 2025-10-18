@@ -9,7 +9,12 @@ import {
 	UnexpectedResponseError,
 } from "arctic";
 import { t } from "elysia";
-import type { GetIdentityResult, GetTokensResult, IOAuthProviderGateway } from "../../../../../common/ports/gateways";
+
+import type {
+	GetIdentityResult,
+	GetTokensResult,
+	IOAuthProviderGateway,
+} from "../../../application/ports/gateways/oauth-provider.gateway.interface";
 
 const discordIdentifySchema = t.Object({
 	id: t.String(),
