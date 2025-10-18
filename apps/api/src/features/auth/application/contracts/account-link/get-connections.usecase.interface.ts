@@ -1,9 +1,9 @@
 import type { ToPrimitive } from "@mona-ca/core/utils";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type {
 	ExternalIdentityProvider,
 	ExternalIdentityProviderUserId,
-	UserId,
-} from "../../../../../../common/domain/value-objects";
+} from "../../../domain/value-objects/external-identity";
 
 export type GetConnectionsUseCaseResult = {
 	password: boolean;
@@ -16,5 +16,5 @@ export type GetConnectionsUseCaseResult = {
 };
 
 export interface IGetConnectionsUseCase {
-	execute: (userId: UserId) => Promise<GetConnectionsUseCaseResult>;
+	execute(userIdentity: UserIdentity): Promise<GetConnectionsUseCaseResult>;
 }

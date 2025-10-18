@@ -1,5 +1,6 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { PasswordResetSession, User } from "../../../../domain/entities";
+import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
 
 type Success = Ok;
 
@@ -11,6 +12,6 @@ export interface IResetPasswordUseCase {
 	execute(
 		newPassword: string,
 		passwordResetSession: PasswordResetSession,
-		user: User,
+		userIdentity: UserIdentity,
 	): Promise<ResetPasswordUseCaseResult>;
 }

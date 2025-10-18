@@ -1,5 +1,5 @@
-import type { AccountAssociationSessionToken } from "../../../../../../common/domain/value-objects";
-import type { AccountAssociationSession, User } from "../../../../domain/entities";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { AccountAssociationSessionToken } from "../../../domain/value-objects/session-token";
 
 export type AccountAssociationChallengeUseCaseResult = {
 	accountAssociationSessionToken: AccountAssociationSessionToken;
@@ -7,8 +7,5 @@ export type AccountAssociationChallengeUseCaseResult = {
 };
 
 export interface IAccountAssociationChallengeUseCase {
-	execute(
-		user: User,
-		accountAssociationSession: AccountAssociationSession,
-	): Promise<AccountAssociationChallengeUseCaseResult>;
+	execute(oldAccountAssociationSession: AccountAssociationSession): Promise<AccountAssociationChallengeUseCaseResult>;
 }

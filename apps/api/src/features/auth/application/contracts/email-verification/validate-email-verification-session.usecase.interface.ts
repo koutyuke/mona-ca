@@ -1,6 +1,7 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { EmailVerificationSessionToken } from "../../../../../../common/domain/value-objects";
-import type { EmailVerificationSession, User } from "../../../../domain/entities";
+import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { EmailVerificationSessionToken } from "../../../domain/value-objects/session-token";
 
 type Success = Ok<{
 	emailVerificationSession: EmailVerificationSession;
@@ -12,7 +13,7 @@ export type ValidateEmailVerificationSessionUseCaseResult = Result<Success, Erro
 
 export interface IValidateEmailVerificationSessionUseCase {
 	execute(
+		userIdentity: UserIdentity,
 		emailVerificationSessionToken: EmailVerificationSessionToken,
-		user: User,
 	): Promise<ValidateEmailVerificationSessionUseCaseResult>;
 }

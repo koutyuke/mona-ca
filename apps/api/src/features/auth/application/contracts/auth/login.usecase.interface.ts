@@ -1,6 +1,6 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { SessionToken } from "../../../../../../common/domain/value-objects";
-import type { Session } from "../../../../domain/entities";
+import type { Session } from "../../../domain/entities/session";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
 
 type Success = Ok<{
 	session: Session;

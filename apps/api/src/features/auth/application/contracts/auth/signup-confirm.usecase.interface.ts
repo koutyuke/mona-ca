@@ -1,9 +1,10 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { Gender, SessionToken } from "../../../../../../common/domain/value-objects";
-import type { Session, SignupSession, User } from "../../../../domain/entities";
+import type { Gender } from "../../../../../common/domain/value-objects";
+import type { Session } from "../../../domain/entities/session";
+import type { SignupSession } from "../../../domain/entities/signup-session";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
 
 type Success = Ok<{
-	user: User;
 	session: Session;
 	sessionToken: SessionToken;
 }>;

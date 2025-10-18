@@ -1,12 +1,16 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { ExternalIdentityProvider, UserId } from "../../../../../../common/domain/value-objects";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 
 type Success = Ok;
 
-type Error = Err<"PROVIDER_NOT_LINKED"> | Err<"UNLINK_OPERATION_FAILED"> | Err<"PASSWORD_NOT_SET">;
+type Error = Err<"PROVIDER_NOT_LINKED"> | Err<"PASSWORD_NOT_SET">;
 
 export type UnlinkAccountConnectionUseCaseResult = Result<Success, Error>;
 
 export interface IUnlinkAccountConnectionUseCase {
-	execute(provider: ExternalIdentityProvider, userId: UserId): Promise<UnlinkAccountConnectionUseCaseResult>;
+	execute(
+		provider: ExternalIdentityProvider,
+		userIdentity: UserIdentity,
+	): Promise<UnlinkAccountConnectionUseCaseResult>;
 }

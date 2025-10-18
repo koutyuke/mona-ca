@@ -1,6 +1,7 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { SessionToken } from "../../../../../../common/domain/value-objects";
-import type { Session, User } from "../../../../domain/entities";
+import type { UserId } from "../../../../../common/domain/value-objects";
+import type { Session } from "../../../domain/entities/session";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
 
 type Success = Ok<{
 	session: Session;
@@ -13,7 +14,7 @@ export type UpdateUserPasswordUseCaseResult = Result<Success, Error>;
 
 export interface IUpdateUserPasswordUseCase {
 	execute(
-		user: User,
+		userId: UserId,
 		currentPassword: string | undefined,
 		newPassword: string,
 	): Promise<UpdateUserPasswordUseCaseResult>;

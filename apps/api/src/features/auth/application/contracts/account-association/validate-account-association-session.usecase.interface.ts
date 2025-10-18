@@ -1,10 +1,11 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { AccountAssociationSessionToken } from "../../../../../../common/domain/value-objects";
-import type { AccountAssociationSession, User } from "../../../../domain/entities";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { AccountAssociationSessionToken } from "../../../domain/value-objects/session-token";
 
 type Success = Ok<{
 	accountAssociationSession: AccountAssociationSession;
-	user: User;
+	userIdentity: UserIdentity;
 }>;
 
 type Error = Err<"ACCOUNT_ASSOCIATION_SESSION_INVALID"> | Err<"ACCOUNT_ASSOCIATION_SESSION_EXPIRED">;

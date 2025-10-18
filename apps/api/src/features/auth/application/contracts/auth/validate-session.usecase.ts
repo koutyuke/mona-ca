@@ -1,10 +1,11 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { SessionToken } from "../../../../../../common/domain/value-objects";
-import type { Session, User } from "../../../../domain/entities";
+import type { Session } from "../../../domain/entities/session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
 
 type Success = Ok<{
+	userIdentity: UserIdentity;
 	session: Session;
-	user: User;
 }>;
 
 type Error = Err<"SESSION_EXPIRED"> | Err<"SESSION_INVALID">;

@@ -1,23 +1,22 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { SessionToken } from "../../../../../../common/domain/value-objects";
-import type { AccountAssociationSession, Session } from "../../../../domain/entities";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { Session } from "../../../domain/entities/session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
 
 type Success = Ok<{
-	sessionToken: SessionToken;
 	session: Session;
+	sessionToken: SessionToken;
 }>;
 
-type Error =
-	| Err<"INVALID_ASSOCIATION_CODE">
-	| Err<"ACCOUNT_ALREADY_LINKED">
-	| Err<"ACCOUNT_LINKED_ELSEWHERE">
-	| Err<"USER_NOT_FOUND">;
+type Error = Err<"INVALID_ASSOCIATION_CODE"> | Err<"ACCOUNT_ALREADY_LINKED"> | Err<"ACCOUNT_LINKED_ELSEWHERE">;
 
 export type AccountAssociationConfirmUseCaseResult = Result<Success, Error>;
 
 export interface IAccountAssociationConfirmUseCase {
 	execute(
 		code: string,
+		userIdentity: UserIdentity,
 		accountAssociationSession: AccountAssociationSession,
 	): Promise<AccountAssociationConfirmUseCaseResult>;
 }
