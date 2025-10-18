@@ -1,7 +1,7 @@
 import type { Static } from "@sinclair/typebox";
 import { t } from "elysia";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../shared/utils";
+import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../lib/utils";
 import { HmacOAuthStateSigner } from "../hmac-oauth-state-signer";
 import { HmacSha256 } from "../hmac-sha-256";
 
