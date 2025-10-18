@@ -1,5 +1,5 @@
 import type { NewType } from "@mona-ca/core/utils";
-import { StringEnum } from "../../lib/utils";
+import { StringEnum } from "../../lib/types";
 
 export type Gender = NewType<"gender", "man" | "woman">;
 

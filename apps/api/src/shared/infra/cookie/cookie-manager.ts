@@ -1,4 +1,4 @@
-import { PRODUCTION_BASE_DOMAIN } from "../../../lib/constants";
+import { PRODUCTION_BASE_DOMAIN } from "../../lib/http";
 import type { CookieAttributes, CookieObject, ExtractPureCookieType, RemoveIndexSignature } from "./types";
 
 export class CookieManager<C extends CookieObject, E extends ExtractPureCookieType<RemoveIndexSignature<C>>> {
