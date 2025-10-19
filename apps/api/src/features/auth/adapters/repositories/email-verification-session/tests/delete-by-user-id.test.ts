@@ -1,9 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { createUserFixture } from "../../../../../../tests/fixtures";
-import { createEmailVerificationSessionFixture } from "../../../../../../tests/fixtures";
-import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { createAuthUserFixture, createEmailVerificationSessionFixture } from "../../../../testing/fixtures";
+import { convertEmailVerificationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
 
 const { DB } = env;
@@ -14,28 +14,26 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 const userTableHelper = new UserTableHelper(DB);
 const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("EmailVerificationSessionRepository.deleteByUserId", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
-	});
-
 	beforeEach(async () => {
-		await DB.exec("DELETE FROM email_verification_sessions");
+		await emailVerificationSessionTableHelper.deleteAll();
+
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should delete data in database", async () => {
 		const { emailVerificationSession } = createEmailVerificationSessionFixture({
 			emailVerificationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await emailVerificationSessionTableHelper.save(emailVerificationSession);
+		await emailVerificationSessionTableHelper.save(convertEmailVerificationSessionToRaw(emailVerificationSession));
 
 		await emailVerificationSessionRepository.deleteByUserId(emailVerificationSession.userId);
 
-		const results = await emailVerificationSessionTableHelper.findByUserId(user.id);
+		const results = await emailVerificationSessionTableHelper.findByUserId(userRegistration.id);
 
 		expect(results.length).toBe(0);
 	});

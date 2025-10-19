@@ -31,7 +31,7 @@ export class AuthUserRepository implements IAuthUserRepository {
 			throw new Error("Multiple users found for the same id");
 		}
 
-		return users.length === 1 ? this.convertToUser(users[0]!) : null;
+		return users.length === 1 ? this.convertToUserIdentity(users[0]!) : null;
 	}
 
 	public async findByEmail(email: string): Promise<UserIdentity | null> {
@@ -43,7 +43,7 @@ export class AuthUserRepository implements IAuthUserRepository {
 		if (users.length > 1) {
 			throw new Error("Multiple users found for the same email");
 		}
-		return users.length === 1 ? this.convertToUser(users[0]!) : null;
+		return users.length === 1 ? this.convertToUserIdentity(users[0]!) : null;
 	}
 
 	public async findBySessionId(sessionId: SessionId): Promise<UserIdentity | null> {
@@ -60,7 +60,7 @@ export class AuthUserRepository implements IAuthUserRepository {
 			throw new Error("Multiple users found for the same session");
 		}
 
-		return result.length === 1 ? this.convertToUser(result[0]!.users) : null;
+		return result.length === 1 ? this.convertToUserIdentity(result[0]!.users) : null;
 	}
 
 	public async create(registration: UserRegistration): Promise<void> {
@@ -94,7 +94,7 @@ export class AuthUserRepository implements IAuthUserRepository {
 			.where(eq(this.drizzleService.schema.users.id, identity.id));
 	}
 
-	private convertToUser(dto: FoundUserDto): UserIdentity {
+	private convertToUserIdentity(dto: FoundUserDto): UserIdentity {
 		return {
 			id: newUserId(dto.id),
 			email: dto.email,

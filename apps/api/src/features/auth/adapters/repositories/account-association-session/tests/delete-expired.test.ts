@@ -1,9 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { PasswordHasherMock } from "../../../../../../tests/mocks";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { createAccountAssociationSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
+import { convertAccountAssociationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { AccountAssociationSessionRepository } from "../account-association-session.repository";
 
 const { DB } = env;
@@ -14,43 +14,41 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-const passwordHasher = new PasswordHasherMock();
-
-const { user } = createUserFixture();
-const passwordHash = await passwordHasher.hash("password");
-const { user: user2 } = createUserFixture({
-	user: {
+const { userRegistration } = createAuthUserFixture();
+const { userRegistration: userRegistration2 } = createAuthUserFixture({
+	userRegistration: {
 		email: "user2@example.com",
 	},
 });
-const passwordHash2 = await passwordHasher.hash("password2");
 
 describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, passwordHash);
-		await userTableHelper.save(user2, passwordHash2);
-	});
-
 	beforeEach(async () => {
-		await DB.exec("DELETE FROM account_association_sessions");
+		await accountAssociationSessionTableHelper.deleteAll();
+
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration2));
 	});
 
 	test("should delete expired sessions but keep valid ones", async () => {
 		const expiredSession = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				expiresAt: new Date(0),
 			},
 		});
 
 		const validSession = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user2.id,
+				userId: userRegistration2.id,
 			},
 		});
 
-		await accountAssociationSessionTableHelper.save(expiredSession.accountAssociationSession);
-		await accountAssociationSessionTableHelper.save(validSession.accountAssociationSession);
+		await accountAssociationSessionTableHelper.save(
+			convertAccountAssociationSessionToRaw(expiredSession.accountAssociationSession),
+		);
+		await accountAssociationSessionTableHelper.save(
+			convertAccountAssociationSessionToRaw(validSession.accountAssociationSession),
+		);
 
 		await accountAssociationSessionRepository.deleteExpiredSessions();
 
@@ -65,18 +63,20 @@ describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 
 		expect(validSessionAfterDelete).toHaveLength(1);
 		expect(validSessionAfterDelete[0]).toStrictEqual(
-			accountAssociationSessionTableHelper.convertToRaw(validSession.accountAssociationSession),
+			convertAccountAssociationSessionToRaw(validSession.accountAssociationSession),
 		);
 	});
 
 	test("should do nothing when there are no expired sessions", async () => {
 		const validSession = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user2.id,
+				userId: userRegistration2.id,
 			},
 		});
 
-		await accountAssociationSessionTableHelper.save(validSession.accountAssociationSession);
+		await accountAssociationSessionTableHelper.save(
+			convertAccountAssociationSessionToRaw(validSession.accountAssociationSession),
+		);
 
 		await accountAssociationSessionRepository.deleteExpiredSessions();
 
@@ -86,7 +86,7 @@ describe("AccountAssociationSessionRepository.deleteExpiredSessions", () => {
 
 		expect(validSessionAfterDelete).toHaveLength(1);
 		expect(validSessionAfterDelete[0]).toStrictEqual(
-			accountAssociationSessionTableHelper.convertToRaw(validSession.accountAssociationSession),
+			convertAccountAssociationSessionToRaw(validSession.accountAssociationSession),
 		);
 	});
 });

@@ -1,8 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeEach, describe, expect, test } from "vitest";
-import { newSignupSessionId } from "../../../../../../common/domain/value-objects";
-import { createSignupSessionFixture } from "../../../../../../tests/fixtures";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { SignupSessionTableHelper } from "../../../../../../shared/testing/helpers";
+import { newSignupSessionId } from "../../../../domain/value-objects/ids";
+import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import { SignupSessionRepository } from "../signup-session.repository";
 
 const { DB } = env;
@@ -10,9 +11,11 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
+const signupSessionTableHelper = new SignupSessionTableHelper(DB);
+
 describe("SignupSessionRepository.findById", () => {
-	beforeEach(async () => {
-		await DB.exec("DELETE FROM signup_sessions");
+	afterEach(async () => {
+		await signupSessionTableHelper.deleteAll();
 	});
 
 	test("should return SignupSession instance if exists", async () => {

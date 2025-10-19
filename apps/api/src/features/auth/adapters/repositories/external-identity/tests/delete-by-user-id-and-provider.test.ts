@@ -1,8 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { createExternalIdentityFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { ExternalIdentityTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { ExternalIdentityTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
+import { convertExternalIdentityToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { ExternalIdentityRepository } from "../external-identity.repository";
 
 const { DB } = env;
@@ -13,24 +14,29 @@ const externalIdentityRepository = new ExternalIdentityRepository(drizzleService
 const userTableHelper = new UserTableHelper(DB);
 const externalIdentityTableHelper = new ExternalIdentityTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("ExternalIdentityRepository.deleteByUserIdAndProvider", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
+	beforeEach(async () => {
+		await externalIdentityTableHelper.deleteAll();
 	});
 
-	beforeEach(async () => {
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
 		await externalIdentityTableHelper.deleteAll();
 	});
 
 	test("should delete date in database", async () => {
 		const { externalIdentity } = createExternalIdentityFixture({
 			externalIdentity: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await externalIdentityTableHelper.save(externalIdentity);
+		await externalIdentityTableHelper.save(convertExternalIdentityToRaw(externalIdentity));
 
 		await externalIdentityRepository.deleteByUserIdAndProvider(externalIdentity.userId, externalIdentity.provider);
 		const results = await externalIdentityTableHelper.findByUserIdAndProvider(

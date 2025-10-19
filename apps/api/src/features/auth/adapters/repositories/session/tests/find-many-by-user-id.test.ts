@@ -1,9 +1,10 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { newUserId } from "../../../../../../common/domain/value-objects";
-import { createSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { newUserId } from "../../../../../../shared/domain/value-objects";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { SessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -14,38 +15,43 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("SessionRepository.findManyByUserId", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
+	beforeEach(async () => {
+		await sessionTableHelper.deleteAll();
 	});
 
-	beforeEach(async () => {
-		await DB.exec("DELETE FROM sessions");
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
+		await sessionTableHelper.deleteAll();
 	});
 
 	test("should return sessions", async () => {
 		const firstSession = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 		const secondSession = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 
-		await sessionTableHelper.save(firstSession.session);
-		await sessionTableHelper.save(secondSession.session);
+		await sessionTableHelper.save(convertSessionToRaw(firstSession.session));
+		await sessionTableHelper.save(convertSessionToRaw(secondSession.session));
 
-		const sessions = await sessionRepository.findManyByUserId(user.id);
+		const sessions = await sessionRepository.findManyByUserId(userRegistration.id);
 
 		expect(sessions).toHaveLength(2);
-		expect(sessions.map(sessionTableHelper.convertToRaw)).toStrictEqual([
-			sessionTableHelper.convertToRaw(firstSession.session),
-			sessionTableHelper.convertToRaw(secondSession.session),
+		expect(sessions.map(convertSessionToRaw)).toStrictEqual([
+			convertSessionToRaw(firstSession.session),
+			convertSessionToRaw(secondSession.session),
 		]);
 	});
 

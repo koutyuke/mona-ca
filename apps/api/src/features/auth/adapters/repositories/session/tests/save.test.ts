@@ -1,10 +1,10 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { createUserFixture } from "../../../../../../tests/fixtures";
-import { createSessionFixture } from "../../../../../../tests/fixtures";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { sessionExpiresSpan } from "../../../../domain/entities";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { SessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { sessionExpiresSpan } from "../../../../domain/entities/session";
+import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -15,21 +15,26 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("SessionRepository.save", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
+	beforeEach(async () => {
+		await sessionTableHelper.deleteAll();
 	});
 
-	beforeEach(async () => {
-		await DB.exec("DELETE FROM sessions");
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
+		await sessionTableHelper.deleteAll();
 	});
 
 	test("should insert a session", async () => {
 		const { session } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 				expiresAt: new Date(Date.now() + sessionExpiresSpan.milliseconds()),
 			},
 		});
@@ -38,16 +43,16 @@ describe("SessionRepository.save", () => {
 
 		const databaseSessions = await sessionTableHelper.find(session.id);
 		expect(databaseSessions).toHaveLength(1);
-		expect(databaseSessions[0]).toStrictEqual(sessionTableHelper.convertToRaw(session));
+		expect(databaseSessions[0]).toStrictEqual(convertSessionToRaw(session));
 	});
 
 	test("should update session if it already exists", async () => {
 		const { session } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await sessionTableHelper.save(session);
+		await sessionTableHelper.save(convertSessionToRaw(session));
 
 		const updatedSession = {
 			...session,
@@ -58,6 +63,6 @@ describe("SessionRepository.save", () => {
 
 		const databaseSessions = await sessionTableHelper.find(session.id);
 		expect(databaseSessions).toHaveLength(1);
-		expect(databaseSessions[0]).toStrictEqual(sessionTableHelper.convertToRaw(updatedSession));
+		expect(databaseSessions[0]).toStrictEqual(convertSessionToRaw(updatedSession));
 	});
 });

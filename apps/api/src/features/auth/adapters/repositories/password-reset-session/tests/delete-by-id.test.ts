@@ -1,8 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { createPasswordResetSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { PasswordResetSessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { PasswordResetSessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
+import { convertPasswordResetSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { PasswordResetSessionRepository } from "../password-reset-session.repository";
 
 const { DB } = env;
@@ -13,24 +14,29 @@ const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzl
 const userTableHelper = new UserTableHelper(DB);
 const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("PasswordResetSessionRepository.deleteById", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
+	beforeEach(async () => {
+		await passwordResetSessionTableHelper.deleteAll();
 	});
 
-	beforeEach(async () => {
-		await DB.exec("DELETE FROM password_reset_sessions");
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
+		await passwordResetSessionTableHelper.deleteAll();
 	});
 
 	test("should delete password reset session from database if exists", async () => {
 		const { passwordResetSession } = createPasswordResetSessionFixture({
 			passwordResetSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await passwordResetSessionTableHelper.save(passwordResetSession);
+		await passwordResetSessionTableHelper.save(convertPasswordResetSessionToRaw(passwordResetSession));
 
 		await passwordResetSessionRepository.deleteById(passwordResetSession.id);
 

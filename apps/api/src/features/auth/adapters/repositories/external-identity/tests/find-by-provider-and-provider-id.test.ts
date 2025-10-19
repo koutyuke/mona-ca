@@ -1,14 +1,14 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { ExternalIdentityTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import type { ExternalIdentityProvider } from "../../../../domain/value-objects/external-identity";
 import {
-	type ExternalIdentityProvider,
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-} from "../../../../../../common/domain/value-objects";
-import { createUserFixture } from "../../../../../../tests/fixtures";
-import { createExternalIdentityFixture } from "../../../../../../tests/fixtures";
-import { ExternalIdentityTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+} from "../../../../domain/value-objects/external-identity";
+import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
+import { convertExternalIdentityToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { ExternalIdentityRepository } from "../external-identity.repository";
 
 const { DB } = env;
@@ -19,24 +19,29 @@ const externalIdentityRepository = new ExternalIdentityRepository(drizzleService
 const userTableHelper = new UserTableHelper(DB);
 const externalIdentityTableHelper = new ExternalIdentityTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("ExternalIdentityRepository.findByProviderAndProviderId", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
+	beforeEach(async () => {
+		await externalIdentityTableHelper.deleteAll();
 	});
 
-	beforeEach(async () => {
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
 		await externalIdentityTableHelper.deleteAll();
 	});
 
 	test("should return ExternalIdentity instance", async () => {
 		const { externalIdentity } = createExternalIdentityFixture({
 			externalIdentity: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await externalIdentityTableHelper.save(externalIdentity);
+		await externalIdentityTableHelper.save(convertExternalIdentityToRaw(externalIdentity));
 
 		const foundExternalIdentity = await externalIdentityRepository.findByProviderAndProviderUserId(
 			externalIdentity.provider,
@@ -44,8 +49,8 @@ describe("ExternalIdentityRepository.findByProviderAndProviderId", () => {
 		);
 
 		expect(foundExternalIdentity).not.toBeNull();
-		expect(externalIdentityTableHelper.convertToRaw(foundExternalIdentity!)).toStrictEqual(
-			externalIdentityTableHelper.convertToRaw(externalIdentity),
+		expect(convertExternalIdentityToRaw(foundExternalIdentity!)).toStrictEqual(
+			convertExternalIdentityToRaw(externalIdentity),
 		);
 	});
 

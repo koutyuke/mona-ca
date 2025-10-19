@@ -1,8 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { createSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { SessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -13,32 +14,37 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("SessionRepository.deleteByExpired", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
+	beforeEach(async () => {
+		await sessionTableHelper.deleteAll();
 	});
 
-	beforeEach(async () => {
-		await DB.exec("DELETE FROM sessions");
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
+		await sessionTableHelper.deleteAll();
 	});
 
 	test("should delete if session is expired", async () => {
 		const expiredSession = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 				expiresAt: new Date(0),
 			},
 		});
 		const validSession = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 
-		await sessionTableHelper.save(expiredSession.session);
-		await sessionTableHelper.save(validSession.session);
+		await sessionTableHelper.save(convertSessionToRaw(expiredSession.session));
+		await sessionTableHelper.save(convertSessionToRaw(validSession.session));
 
 		await sessionRepository.deleteExpiredSessions();
 
@@ -47,6 +53,6 @@ describe("SessionRepository.deleteByExpired", () => {
 
 		const validSessions = await sessionTableHelper.find(validSession.session.id);
 		expect(validSessions).toHaveLength(1);
-		expect(validSessions[0]).toStrictEqual(sessionTableHelper.convertToRaw(validSession.session));
+		expect(validSessions[0]).toStrictEqual(convertSessionToRaw(validSession.session));
 	});
 });

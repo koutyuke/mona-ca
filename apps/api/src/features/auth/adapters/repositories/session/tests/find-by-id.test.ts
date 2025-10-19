@@ -1,9 +1,10 @@
 import { env } from "cloudflare:test";
-import { beforeEach, describe, expect, test } from "vitest";
-import { newSessionId } from "../../../../../../common/domain/value-objects";
-import { createSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { SessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { newSessionId } from "../../../../domain/value-objects/ids";
+import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -14,28 +15,35 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
+const { userRegistration } = createAuthUserFixture();
+
 describe("SessionRepository.findById", () => {
 	beforeEach(async () => {
-		await DB.exec("DELETE FROM sessions");
-		await DB.exec("DELETE FROM users");
+		await sessionTableHelper.deleteAll();
+	});
+
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
+		await sessionTableHelper.deleteAll();
 	});
 
 	test("should return session and user from sessionId", async () => {
-		const { user } = createUserFixture();
-		await userTableHelper.save(user, null);
-
 		const { session } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await sessionTableHelper.save(session);
+		await sessionTableHelper.save(convertSessionToRaw(session));
 
 		const foundSession = await sessionRepository.findById(session.id);
-		const expectedSession = sessionTableHelper.convertToRaw(session);
+		const expectedSession = convertSessionToRaw(session);
 
 		expect(foundSession).not.toBeNull();
-		expect(sessionTableHelper.convertToRaw(foundSession!)).toStrictEqual(expectedSession);
+		expect(convertSessionToRaw(foundSession!)).toStrictEqual(expectedSession);
 	});
 
 	test("should return null if session not found", async () => {

@@ -1,8 +1,9 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { createSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { SessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -13,28 +14,33 @@ const sessionRepository = new SessionRepository(drizzleService);
 const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("SessionRepository.deleteByUserId", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
+	beforeEach(async () => {
+		await sessionTableHelper.deleteAll();
 	});
 
-	beforeEach(async () => {
-		await DB.exec("DELETE FROM sessions");
+	beforeAll(async () => {
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+	});
+
+	afterAll(async () => {
+		await userTableHelper.deleteAll();
+		await sessionTableHelper.deleteAll();
 	});
 
 	test("should delete session from user if exists", async () => {
 		const { session } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await sessionTableHelper.save(session);
+		await sessionTableHelper.save(convertSessionToRaw(session));
 
-		await sessionRepository.deleteByUserId(user.id);
+		await sessionRepository.deleteByUserId(userRegistration.id);
 
-		const databaseSessions = await sessionTableHelper.findByUserId(user.id);
+		const databaseSessions = await sessionTableHelper.findByUserId(userRegistration.id);
 		expect(databaseSessions).toHaveLength(0);
 	});
 });

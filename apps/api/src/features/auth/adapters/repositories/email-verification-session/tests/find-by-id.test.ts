@@ -1,10 +1,10 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newEmailVerificationSessionId } from "../../../../../../common/domain/value-objects";
-import { createUserFixture } from "../../../../../../tests/fixtures";
-import { createEmailVerificationSessionFixture } from "../../../../../../tests/fixtures";
-import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { newEmailVerificationSessionId } from "../../../../domain/value-objects/ids";
+import { createAuthUserFixture, createEmailVerificationSessionFixture } from "../../../../testing/fixtures";
+import { convertEmailVerificationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
 
 const { DB } = env;
@@ -15,31 +15,31 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 const userTableHelper = new UserTableHelper(DB);
 const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("EmailVerificationSessionRepository.findId", () => {
 	beforeEach(async () => {
-		await DB.exec("DELETE FROM email_verification_sessions");
-		await DB.exec("DELETE FROM users");
+		await emailVerificationSessionTableHelper.deleteAll();
+		await userTableHelper.deleteAll();
 	});
 
 	test("should return EmailVerificationSession instance", async () => {
-		await userTableHelper.save(user, null);
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
 
 		const { emailVerificationSession } = createEmailVerificationSessionFixture({
 			emailVerificationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await emailVerificationSessionTableHelper.save(emailVerificationSession);
+		await emailVerificationSessionTableHelper.save(convertEmailVerificationSessionToRaw(emailVerificationSession));
 
 		const foundEmailVerificationSession = await emailVerificationSessionRepository.findById(
 			emailVerificationSession.id,
 		);
 
 		expect(foundEmailVerificationSession).not.toBeNull();
-		expect(emailVerificationSessionTableHelper.convertToRaw(foundEmailVerificationSession!)).toStrictEqual(
-			emailVerificationSessionTableHelper.convertToRaw(emailVerificationSession),
+		expect(convertEmailVerificationSessionToRaw(foundEmailVerificationSession!)).toStrictEqual(
+			convertEmailVerificationSessionToRaw(emailVerificationSession),
 		);
 	});
 

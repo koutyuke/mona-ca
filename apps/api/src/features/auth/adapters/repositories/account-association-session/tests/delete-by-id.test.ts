@@ -1,9 +1,10 @@
 import { env } from "cloudflare:test";
-import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { newAccountAssociationSessionId } from "../../../../../../common/domain/value-objects";
-import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
-import { DrizzleService } from "../../../../infrastructure/drizzle";
+import { beforeEach, describe, expect, test } from "vitest";
+import { DrizzleService } from "../../../../../../shared/infra/drizzle";
+import { AccountAssociationSessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { newAccountAssociationSessionId } from "../../../../domain/value-objects/ids";
+import { createAccountAssociationSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
+import { convertAccountAssociationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { AccountAssociationSessionRepository } from "../account-association-session.repository";
 
 const { DB } = env;
@@ -14,24 +15,22 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const userTableHelper = new UserTableHelper(DB);
 const accountAssociationSessionTableHelper = new AccountAssociationSessionTableHelper(DB);
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("AccountAssociationSessionRepository.delete", () => {
-	beforeAll(async () => {
-		await userTableHelper.save(user, null);
-	});
-
 	beforeEach(async () => {
-		await DB.exec("DELETE FROM account_association_sessions");
+		await accountAssociationSessionTableHelper.deleteAll();
+
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should delete session by id", async () => {
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
-		await accountAssociationSessionTableHelper.save(accountAssociationSession);
+		await accountAssociationSessionTableHelper.save(convertAccountAssociationSessionToRaw(accountAssociationSession));
 
 		await accountAssociationSessionRepository.deleteById(accountAssociationSession.id);
 
