@@ -12,4 +12,5 @@ export type { RawEmailVerificationSession } from "./email-verification-session-t
 export type { RawExternalIdentity } from "./external-identity-table";
 export type { RawPasswordResetSession } from "./password-reset-session-table";
 export type { RawSession } from "./session-table";
+export type { RawSignupSession } from "./signup-session-table";
 export type { RawUser } from "./user-table";

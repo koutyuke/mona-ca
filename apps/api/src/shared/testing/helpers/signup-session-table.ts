@@ -1,6 +1,3 @@
-import type { SignupSession } from "../../domain/entities";
-import { toRawBoolean, toRawDate, toRawSessionSecretHash } from "./utils";
-
 export type RawSignupSession = {
 	id: string;
 	email: string;
@@ -13,19 +10,7 @@ export type RawSignupSession = {
 export class SignupSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
 
-	public convertToRaw(signupSession: SignupSession): RawSignupSession {
-		return {
-			id: signupSession.id,
-			email: signupSession.email,
-			email_verified: toRawBoolean(signupSession.emailVerified),
-			code: signupSession.code,
-			secret_hash: toRawSessionSecretHash(signupSession.secretHash),
-			expires_at: toRawDate(signupSession.expiresAt),
-		};
-	}
-
-	public async save(signupSession: SignupSession): Promise<void> {
-		const raw = this.convertToRaw(signupSession);
+	public async save(raw: RawSignupSession): Promise<void> {
 		await this.db
 			.prepare(
 				"INSERT INTO signup_sessions (id, email, email_verified, code, secret_hash, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",

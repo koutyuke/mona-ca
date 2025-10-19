@@ -1,10 +1,5 @@
-import type { ToPrimitive } from "@mona-ca/core/utils";
-import type { ExternalIdentity } from "../../domain/entities";
-import type { ExternalIdentityProvider } from "../../shared/domain/value-objects";
-import { toRawDate } from "./utils";
-
 export type RawExternalIdentity = {
-	provider: ToPrimitive<ExternalIdentityProvider>;
+	provider: "google" | "discord";
 	provider_user_id: string;
 	user_id: string;
 	linked_at: number;
@@ -13,17 +8,7 @@ export type RawExternalIdentity = {
 export class ExternalIdentityTableHelper {
 	constructor(private readonly db: D1Database) {}
 
-	public convertToRaw(externalIdentity: ExternalIdentity): RawExternalIdentity {
-		return {
-			provider: externalIdentity.provider,
-			provider_user_id: externalIdentity.providerUserId,
-			user_id: externalIdentity.userId,
-			linked_at: toRawDate(externalIdentity.linkedAt),
-		};
-	}
-
-	public async save(externalIdentity: ExternalIdentity): Promise<void> {
-		const raw = this.convertToRaw(externalIdentity);
+	public async save(raw: RawExternalIdentity): Promise<void> {
 		await this.db
 			.prepare(
 				"INSERT INTO external_identities (provider, provider_user_id, user_id, linked_at) VALUES (?1, ?2, ?3, ?4)",
@@ -33,7 +18,7 @@ export class ExternalIdentityTableHelper {
 	}
 
 	public async findByProviderAndProviderUserId(
-		provider: ExternalIdentityProvider,
+		provider: string,
 		providerUserId: string,
 	): Promise<RawExternalIdentity[]> {
 		const { results } = await this.db
@@ -44,10 +29,7 @@ export class ExternalIdentityTableHelper {
 		return results;
 	}
 
-	public async findByUserIdAndProvider(
-		userId: string,
-		provider: ExternalIdentityProvider,
-	): Promise<RawExternalIdentity[]> {
+	public async findByUserIdAndProvider(userId: string, provider: string): Promise<RawExternalIdentity[]> {
 		const { results } = await this.db
 			.prepare("SELECT * FROM external_identities WHERE user_id = ?1 AND provider = ?2")
 			.bind(userId, provider)

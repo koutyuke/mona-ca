@@ -1,6 +1,3 @@
-import type { PasswordResetSession } from "../../domain/entities";
-import { toRawBoolean, toRawDate, toRawSessionSecretHash } from "./utils";
-
 export type RawPasswordResetSession = {
 	id: string;
 	user_id: string;
@@ -14,21 +11,7 @@ export type RawPasswordResetSession = {
 export class PasswordResetSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
 
-	public convertToRaw(session: PasswordResetSession): RawPasswordResetSession {
-		return {
-			id: session.id,
-			user_id: session.userId,
-			code: session.code,
-			secret_hash: toRawSessionSecretHash(session.secretHash),
-			email: session.email,
-			email_verified: toRawBoolean(session.emailVerified),
-			expires_at: toRawDate(session.expiresAt),
-		};
-	}
-
-	public async save(session: PasswordResetSession): Promise<void> {
-		const raw = this.convertToRaw(session);
-
+	public async save(raw: RawPasswordResetSession): Promise<void> {
 		await this.db
 			.prepare(
 				"INSERT INTO password_reset_sessions (id, user_id, code, secret_hash, email, email_verified, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",

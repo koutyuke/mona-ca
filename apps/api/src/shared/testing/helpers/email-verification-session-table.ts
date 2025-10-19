@@ -1,6 +1,3 @@
-import type { EmailVerificationSession } from "../../domain/entities";
-import { toRawDate, toRawSessionSecretHash } from "./utils";
-
 export type RawEmailVerificationSession = {
 	id: string;
 	email: string;
@@ -13,20 +10,7 @@ export type RawEmailVerificationSession = {
 export class EmailVerificationSessionTableHelper {
 	constructor(private readonly db: D1Database) {}
 
-	public convertToRaw(session: EmailVerificationSession): RawEmailVerificationSession {
-		return {
-			id: session.id,
-			email: session.email,
-			user_id: session.userId,
-			code: session.code,
-			secret_hash: toRawSessionSecretHash(session.secretHash),
-			expires_at: toRawDate(session.expiresAt),
-		};
-	}
-
-	public async save(session: EmailVerificationSession): Promise<void> {
-		const raw = this.convertToRaw(session);
-
+	public async save(raw: RawEmailVerificationSession): Promise<void> {
 		await this.db
 			.prepare(
 				"INSERT INTO email_verification_sessions (id, email, user_id, code, secret_hash, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
