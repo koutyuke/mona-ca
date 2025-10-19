@@ -1,5 +1,5 @@
 import type { OpenAPIV3 } from "openapi-types";
-import { SESSION_COOKIE_NAME } from "../../lib/constants";
+import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
 export const securitySchemes = {
 	BearerAuth: {

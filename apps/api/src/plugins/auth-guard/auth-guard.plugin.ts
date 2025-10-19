@@ -1,6 +1,5 @@
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
-import { type ClientType, clientTypeSchema, newSessionToken } from "../../common/domain/value-objects";
 import type { Session, User } from "../../domain/entities";
 import { newClientType } from "../../domain/value-objects/client-type";
 import { SessionRepository } from "../../features/auth/adapters/repositories/session";
@@ -8,8 +7,9 @@ import { ValidateSessionUseCase } from "../../features/auth/application/use-case
 import { UserRepository } from "../../features/user/adapters/repositories/user";
 import { SessionSecretHasher } from "../../infrastructure/crypto";
 import { DrizzleService } from "../../infrastructure/drizzle";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../lib/constants";
-import { readBearerToken } from "../../lib/utils";
+import { type ClientType, clientTypeSchema, newSessionToken } from "../../shared/domain/value-objects";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../shared/lib/constants";
+import { readBearerToken } from "../../shared/lib/types";
 import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
 import { BadRequestException, UnauthorizedException } from "../error";
 

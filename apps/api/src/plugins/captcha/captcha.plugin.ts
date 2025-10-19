@@ -1,6 +1,6 @@
 import { t } from "elysia";
-import { TurnstileGateway } from "../../common/adapters/gateways/turnstile";
-import { getIP } from "../../lib/utils";
+import { TurnstileGateway } from "../../shared/adapters/gateways/turnstile";
+import { getIP } from "../../shared/lib/http";
 import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
 import { BadRequestException } from "../error";
 

@@ -5,7 +5,7 @@ import {
 	type AppEnvWithoutCFModule,
 	AppEnvWithoutCFModuleSchema,
 	type CFModuleEnv,
-} from "../../common/infra/config/env";
+} from "../../shared/infra/config/env";
 
 type CustomSingleton = {
 	decorator: {

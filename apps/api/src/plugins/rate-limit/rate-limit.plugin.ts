@@ -1,6 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
-import { getIP } from "../../lib/utils";
+import { getIP } from "../../shared/lib/http";
 import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
 import { BadRequestException, TooManyRequestsException } from "../error";
 
