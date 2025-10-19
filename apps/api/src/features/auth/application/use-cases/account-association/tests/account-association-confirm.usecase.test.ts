@@ -1,35 +1,32 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { newUserId } from "../../../../../../common/domain/value-objects";
-import { ulid } from "../../../../../../lib/utils";
-import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
+import { newUserId } from "../../../../../../shared/domain/value-objects";
+import { ulid } from "../../../../../../shared/lib/id";
+import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { createExternalIdentity } from "../../../../domain/entities/external-identity";
+import { createAccountAssociationSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,
+	AuthUserRepositoryMock,
 	ExternalIdentityRepositoryMock,
 	SessionRepositoryMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
 	createAccountAssociationSessionsMap,
+	createAuthUserMap,
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
-import { createExternalIdentity } from "../../../../domain/entities";
+} from "../../../../testing/mocks/repositories";
 import { AccountAssociationConfirmUseCase } from "../account-association-confirm.usecase";
 
 const sessionMap = createSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 const externalIdentityMap = createExternalIdentitiesMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const externalIdentityRepository = new ExternalIdentityRepositoryMock({
@@ -41,41 +38,41 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const sessionSecretHasher = new SessionSecretHasherMock();
 
 const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
-	userRepository,
+	authUserRepository,
 	sessionRepository,
 	externalIdentityRepository,
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
 );
 
-const { user } = createUserFixture();
+const { userRegistration, userIdentity } = createAuthUserFixture();
 
 describe("AccountAssociationConfirmUseCase", () => {
 	beforeEach(() => {
 		accountAssociationSessionMap.clear();
 		externalIdentityMap.clear();
-		userMap.clear();
+		authUserMap.clear();
 		sessionMap.clear();
-		userPasswordHashMap.clear();
 
-		userMap.set(user.id, user);
+		authUserMap.set(userRegistration.id, userRegistration);
 	});
 
 	it("should confirm account association successfully with valid code", async () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(userRegistration.id, userRegistration);
 		accountAssociationSessionMap.set(accountAssociationSession.id, accountAssociationSession);
 
 		const result = await accountAssociationConfirmUseCase.execute(
 			accountAssociationSession.code!,
+			userIdentity,
 			accountAssociationSession,
 		);
 
@@ -83,7 +80,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 
 		if (!result.isErr) {
 			const { session, sessionToken } = result.value;
-			expect(session.userId).toBe(user.id);
+			expect(session.userId).toBe(userRegistration.id);
 			expect(typeof sessionToken).toBe("string");
 			expect(sessionToken.length).toBeGreaterThan(0);
 			expect(sessionToken.includes(".")).toBe(true);
@@ -97,7 +94,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 			createExternalIdentityKey(accountAssociationSession.provider, accountAssociationSession.providerUserId),
 		);
 		expect(savedOAuthAccount).toBeDefined();
-		expect(savedOAuthAccount?.userId).toBe(user.id);
+		expect(savedOAuthAccount?.userId).toBe(userRegistration.id);
 		expect(savedOAuthAccount?.provider).toBe(accountAssociationSession.provider);
 		expect(savedOAuthAccount?.providerUserId).toBe(accountAssociationSession.providerUserId);
 	});
@@ -106,13 +103,13 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session without code
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: null,
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
-		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
+		const result = await accountAssociationConfirmUseCase.execute("12345678", userIdentity, accountAssociationSession);
 
 		expect(result.isErr).toBe(true);
 
@@ -125,13 +122,13 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
-		const result = await accountAssociationConfirmUseCase.execute("87654321", accountAssociationSession);
+		const result = await accountAssociationConfirmUseCase.execute("87654321", userIdentity, accountAssociationSession);
 
 		expect(result.isErr).toBe(true);
 
@@ -144,9 +141,9 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
@@ -154,7 +151,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 		const existingOAuthAccount = createExternalIdentity({
 			provider: accountAssociationSession.provider,
 			providerUserId: accountAssociationSession.providerUserId,
-			userId: user.id,
+			userId: userRegistration.id,
 		});
 
 		externalIdentityMap.set(
@@ -162,7 +159,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 			existingOAuthAccount,
 		);
 
-		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
+		const result = await accountAssociationConfirmUseCase.execute("12345678", userIdentity, accountAssociationSession);
 
 		expect(result.isErr).toBe(true);
 
@@ -174,9 +171,9 @@ describe("AccountAssociationConfirmUseCase", () => {
 	it("should return ACCOUNT_LINKED_ELSEWHERE error when OAuth account is linked to another user", async () => {
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
@@ -192,7 +189,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 			existingOAuthAccount,
 		);
 
-		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
+		const result = await accountAssociationConfirmUseCase.execute("12345678", userIdentity, accountAssociationSession);
 
 		expect(result.isErr).toBe(true);
 
@@ -205,13 +202,13 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
-		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
+		const result = await accountAssociationConfirmUseCase.execute("12345678", userIdentity, accountAssociationSession);
 
 		expect(result.isErr).toBe(false);
 
@@ -219,7 +216,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 			const { session } = result.value;
 			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
-			expect(savedSession?.userId).toBe(user.id);
+			expect(savedSession?.userId).toBe(userRegistration.id);
 		}
 	});
 
@@ -227,13 +224,13 @@ describe("AccountAssociationConfirmUseCase", () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
-		const result = await accountAssociationConfirmUseCase.execute("12345678", accountAssociationSession);
+		const result = await accountAssociationConfirmUseCase.execute("12345678", userIdentity, accountAssociationSession);
 
 		expect(result.isErr).toBe(false);
 
@@ -242,7 +239,7 @@ describe("AccountAssociationConfirmUseCase", () => {
 			createExternalIdentityKey(accountAssociationSession.provider, accountAssociationSession.providerUserId),
 		);
 		expect(savedOAuthAccount).toBeDefined();
-		expect(savedOAuthAccount?.userId).toBe(user.id);
+		expect(savedOAuthAccount?.userId).toBe(userRegistration.id);
 		expect(savedOAuthAccount?.provider).toBe(accountAssociationSession.provider);
 		expect(savedOAuthAccount?.providerUserId).toBe(accountAssociationSession.providerUserId);
 	});

@@ -1,29 +1,27 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { newUserId } from "../../../../../../shared/domain/value-objects";
+import { ulid } from "../../../../../../shared/lib/id";
+import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
 import {
-	formatSessionToken,
+	formatAnySessionToken,
 	newAccountAssociationSessionToken,
-	newUserId,
-} from "../../../../../../common/domain/value-objects";
-import { ulid } from "../../../../../../lib/utils";
-import { createAccountAssociationSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
-import { SessionSecretHasherMock } from "../../../../../../tests/mocks";
-import { AccountAssociationSessionRepositoryMock } from "../../../../../../tests/mocks/repositories/account-association-session.repository.mock";
+} from "../../../../domain/value-objects/session-token";
+import { createAccountAssociationSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
 import {
+	AccountAssociationSessionRepositoryMock,
+	AuthUserRepositoryMock,
 	createAccountAssociationSessionsMap,
+	createAuthUserMap,
 	createSessionsMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks/repositories/table-maps";
-import { UserRepositoryMock } from "../../../../../../tests/mocks/repositories/user.repository.mock";
+} from "../../../../testing/mocks/repositories";
 import { ValidateAccountAssociationSessionUseCase } from "../validate-account-association-session.usecase";
 
-const userMap = createUsersMap();
-const userPasswordHashMap = new Map();
+const authUserMap = createAuthUserMap();
 const sessionMap = createSessionsMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
@@ -32,30 +30,29 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 const sessionSecretHasher = new SessionSecretHasherMock();
 
 const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-	userRepository,
+	authUserRepository,
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
 );
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("ValidateAccountAssociationSessionUseCase", () => {
 	beforeEach(() => {
-		userMap.clear();
+		authUserMap.clear();
 		accountAssociationSessionMap.clear();
-		userPasswordHashMap.clear();
 		sessionMap.clear();
 
-		userMap.set(user.id, user);
+		authUserMap.set(userRegistration.id, userRegistration);
 	});
 
 	it("should validate account association session successfully with valid token", async () => {
 		// create account association session
 		const { accountAssociationSession, accountAssociationSessionToken } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
@@ -66,10 +63,10 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
-			const { accountAssociationSession, user } = result.value;
-			expect(accountAssociationSession.id).toBe(accountAssociationSession.id);
-			expect(accountAssociationSession.userId).toBe(user.id);
-			expect(user.id).toBe(user.id);
+			const { accountAssociationSession: validatedSession, userIdentity } = result.value;
+			expect(validatedSession.id).toBe(accountAssociationSession.id);
+			expect(validatedSession.userId).toBe(userIdentity.id);
+			expect(userIdentity.id).toBe(userRegistration.id);
 		}
 	});
 
@@ -88,9 +85,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 	it("should return ACCOUNT_ASSOCIATION_SESSION_INVALID error for non-existent session", async () => {
 		const { accountAssociationSessionToken } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
@@ -107,9 +104,9 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		// create account association session that is expired
 		const { accountAssociationSession, accountAssociationSessionToken } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 				expiresAt: new Date(0),
 			},
 		});
@@ -133,15 +130,15 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		// create account association session
 		const { accountAssociationSession } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
 		// create token with different secret
 		const wrongSecret = "wrongSecret";
-		const invalidSessionToken = formatSessionToken(accountAssociationSession.id, wrongSecret);
+		const invalidSessionToken = formatAnySessionToken(accountAssociationSession.id, wrongSecret);
 
 		// save session
 		accountAssociationSessionMap.set(accountAssociationSession.id, accountAssociationSession);
@@ -162,7 +159,7 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 			accountAssociationSession: {
 				userId: differentUserId,
 				code: "12345678",
-				email: user.email,
+				email: userRegistration.email,
 			},
 		});
 
@@ -186,7 +183,7 @@ describe("ValidateAccountAssociationSessionUseCase", () => {
 		const differentEmail = "different@example.com";
 		const { accountAssociationSession, accountAssociationSessionToken } = createAccountAssociationSessionFixture({
 			accountAssociationSession: {
-				userId: user.id,
+				userId: userRegistration.id,
 				code: "12345678",
 				email: differentEmail,
 			},
