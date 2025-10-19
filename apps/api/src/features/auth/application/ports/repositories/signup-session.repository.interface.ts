@@ -1,5 +1,5 @@
-import type { SignupSessionId } from "../../../../common/domain/value-objects";
-import type { SignupSession } from "../../../../domain/entities";
+import type { SignupSession } from "../../../domain/entities/signup-session";
+import type { SignupSessionId } from "../../../domain/value-objects/ids";
 
 export type ISignupSessionRepository = {
 	findById: (id: SignupSessionId) => Promise<SignupSession | null>;

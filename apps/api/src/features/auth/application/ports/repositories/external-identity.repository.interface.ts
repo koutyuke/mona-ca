@@ -1,9 +1,9 @@
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { ExternalIdentity } from "../../../domain/entities/external-identity";
 import type {
 	ExternalIdentityProvider,
 	ExternalIdentityProviderUserId,
-	UserId,
-} from "../../../../common/domain/value-objects";
-import type { ExternalIdentity } from "../../../../domain/entities";
+} from "../../../domain/value-objects/external-identity";
 
 export interface IExternalIdentityRepository {
 	findByUserId(userId: UserId): Promise<ExternalIdentity[]>;
@@ -18,9 +18,4 @@ export interface IExternalIdentityRepository {
 	save(externalIdentity: ExternalIdentity): Promise<void>;
 
 	deleteByUserIdAndProvider(userId: UserId, provider: ExternalIdentityProvider): Promise<void>;
-
-	deleteByProviderAndProviderUserId(
-		provider: ExternalIdentityProvider,
-		providerUserId: ExternalIdentityProviderUserId,
-	): Promise<void>;
 }
