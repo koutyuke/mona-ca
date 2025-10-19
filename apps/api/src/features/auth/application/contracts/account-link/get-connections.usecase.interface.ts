@@ -5,9 +5,11 @@ import type {
 	ExternalIdentityProviderUserId,
 } from "../../../domain/value-objects/external-identity";
 
-export type GetConnectionsUseCaseResult = {
+export type BasicAuthConnection = {
 	password: boolean;
-} & {
+};
+
+export type ProviderConnections = {
 	[key in ToPrimitive<ExternalIdentityProvider>]: {
 		provider: ExternalIdentityProvider;
 		providerUserId: ExternalIdentityProviderUserId;
@@ -15,6 +17,8 @@ export type GetConnectionsUseCaseResult = {
 	} | null;
 };
 
+export type AccountConnections = BasicAuthConnection & ProviderConnections;
+
 export interface IGetConnectionsUseCase {
-	execute(userIdentity: UserIdentity): Promise<GetConnectionsUseCaseResult>;
+	execute(userIdentity: UserIdentity): Promise<AccountConnections>;
 }

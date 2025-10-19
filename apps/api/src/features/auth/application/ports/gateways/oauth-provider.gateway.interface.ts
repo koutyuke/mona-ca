@@ -12,7 +12,9 @@ export type Identity = {
 export type GetTokensResult = Result<Ok<OAuth2Tokens>, Err<"FETCH_TOKENS_FAILED"> | Err<"CREDENTIALS_INVALID">>;
 
 export type GetIdentityResult = Result<
-	Ok<Identity>,
+	Ok<{
+		providerIdentity: Identity;
+	}>,
 	Err<"FETCH_IDENTITY_FAILED"> | Err<"ACCESS_TOKEN_INVALID"> | Err<"IDENTITY_INVALID">
 >;
 
