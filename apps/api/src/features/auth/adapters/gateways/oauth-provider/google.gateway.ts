@@ -15,6 +15,7 @@ import type {
 	GetIdentityResult,
 	GetTokensResult,
 	IOAuthProviderGateway,
+	Identity,
 } from "../../../application/ports/gateways/oauth-provider.gateway.interface";
 
 const googleIdTokenClaimsSchema = t.Object({
@@ -72,12 +73,16 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 				return err("IDENTITY_INVALID");
 			}
 
-			return ok({
+			const providerIdentity: Identity = {
 				id: claims.sub,
 				name: claims.name,
 				email: claims.email,
 				iconURL: claims.picture ?? null,
 				emailVerified: claims.email_verified ?? false,
+			};
+
+			return ok({
+				providerIdentity,
 			});
 		} catch (error) {
 			console.error("Error in getAccountInfo:", error);

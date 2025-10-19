@@ -14,6 +14,7 @@ import type {
 	GetIdentityResult,
 	GetTokensResult,
 	IOAuthProviderGateway,
+	Identity,
 } from "../../../application/ports/gateways/oauth-provider.gateway.interface";
 
 const discordIdentifySchema = t.Object({
@@ -87,12 +88,16 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 				return err("IDENTITY_INVALID");
 			}
 
-			return ok({
+			const providerIdentity: Identity = {
 				id: user.id,
 				name: user.username,
 				email: user.email,
 				iconURL: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
 				emailVerified: !!user.verified,
+			};
+
+			return ok({
+				providerIdentity,
 			});
 		} catch (error) {
 			console.error("Error in getAccountInfo:", error);
