@@ -1,9 +1,6 @@
-import type { Gender } from "../value-objects/gender";
-import type { UserId } from "../value-objects/ids";
+import type { Gender, UserId } from "../../../../shared/domain/value-objects";
 
-export const DEFAULT_USER_GENDER = "man";
-
-export interface User {
+export interface Profile {
 	id: UserId;
 	email: string;
 	emailVerified: boolean;
@@ -14,14 +11,14 @@ export interface User {
 	updatedAt: Date;
 }
 
-export const createUser = (args: {
+export const createProfile = (args: {
 	id: UserId;
 	email: string;
 	emailVerified: boolean;
 	name: string;
 	iconUrl: string | null;
 	gender: Gender;
-}): User => {
+}): Profile => {
 	const now = new Date();
 
 	return {
@@ -36,16 +33,14 @@ export const createUser = (args: {
 	};
 };
 
-export const updateUser = (
-	user: User,
+export const updateProfile = (
+	user: Profile,
 	args: {
 		name?: string;
 		iconUrl?: string | null;
 		gender?: Gender;
-		email?: string;
-		emailVerified?: boolean;
 	},
-): User => {
+): Profile => {
 	const now = new Date();
 
 	return {
