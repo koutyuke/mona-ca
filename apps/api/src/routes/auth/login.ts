@@ -1,12 +1,8 @@
 import { t } from "elysia";
-import { LoginUseCase } from "../../application/use-cases/auth";
-import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypto";
-import { DrizzleService } from "../../infrastructure/drizzle";
-import { SessionRepository } from "../../interface-adapter/repositories/session";
-import { UserRepository } from "../../interface-adapter/repositories/user";
-import { CaptchaSchema, captcha } from "../../modules/captcha";
-import { CookieManager } from "../../modules/cookie";
+import { LoginUseCase } from "../../features/auth";
+import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
+import { CaptchaSchema, captcha } from "../../plugins/captcha";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -14,11 +10,15 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../modules/elysia-with-env";
-import { BadRequestException } from "../../modules/error";
-import { pathDetail } from "../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../modules/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../modules/with-client-type";
+} from "../../plugins/elysia-with-env";
+import { BadRequestException } from "../../plugins/error";
+import { pathDetail } from "../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../plugins/with-client-type";
+import { PasswordHasher, SessionSecretHasher } from "../../shared/infra/crypto";
+import { DrizzleService } from "../../shared/infra/drizzle";
+import { CookieManager } from "../../shared/infra/elysia/cookie";
+import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
 export const Login = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -50,12 +50,12 @@ export const Login = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const sessionRepository = new SessionRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 
 			const sessionSecretHasher = new SessionSecretHasher();
 			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
 
-			const loginUseCase = new LoginUseCase(sessionRepository, userRepository, sessionSecretHasher, passwordHasher);
+			const loginUseCase = new LoginUseCase(sessionRepository, authUserRepository, sessionSecretHasher, passwordHasher);
 			// === End of instances ===
 
 			const result = await loginUseCase.execute(email, password);

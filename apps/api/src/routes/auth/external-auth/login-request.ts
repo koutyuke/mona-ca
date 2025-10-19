@@ -1,30 +1,30 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { ExternalAuthRequestUseCase, oauthStateSchema } from "../../../application/use-cases/external-auth";
+import { ExternalAuthRequestUseCase } from "../../../features/auth";
+import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
+import { oauthStateSchema } from "../../../features/auth/application/use-cases/external-auth/schema";
 import {
-	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
-	OAUTH_STATE_COOKIE_NAME,
-} from "../../../common/constants";
-import {
-	clientTypeSchema,
 	externalIdentityProviderSchema,
-	newClientType,
 	newExternalIdentityProvider,
-} from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
-import { CookieManager } from "../../../modules/cookie";
+} from "../../../features/auth/domain/value-objects/external-identity";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
 	RedirectResponse,
 	RedirectResponseSchema,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { clientTypeSchema, newClientType } from "../../../shared/domain/value-objects";
+import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import {
+	OAUTH_CODE_VERIFIER_COOKIE_NAME,
+	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_STATE_COOKIE_NAME,
+} from "../../../shared/lib/http";
 
 export const ExternalAuthLoginRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin

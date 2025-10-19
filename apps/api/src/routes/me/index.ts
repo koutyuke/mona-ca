@@ -1,4 +1,4 @@
-import { ElysiaWithEnv } from "../../modules/elysia-with-env";
+import { ElysiaWithEnv } from "../../plugins/elysia-with-env";
 import { GetAccountConnections } from "./get-account-connections";
 import { GetProfile } from "./get-profile";
 import { UnlinkAccountConnection } from "./unlink-account-connection";

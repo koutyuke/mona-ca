@@ -1,19 +1,13 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { AccountLinkCallbackUseCase, accountLinkStateSchema } from "../../../application/use-cases/account-link";
+import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
+import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import { AccountLinkCallbackUseCase } from "../../../features/auth/application/use-cases/account-link/account-link-callback.usecase";
+import { accountLinkStateSchema } from "../../../features/auth/application/use-cases/account-link/schema";
 import {
-	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
-	OAUTH_STATE_COOKIE_NAME,
-	SESSION_COOKIE_NAME,
-} from "../../../common/constants";
-import { timingSafeStringEqual } from "../../../common/utils";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
-import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
-import { CookieManager } from "../../../modules/cookie";
+	externalIdentityProviderSchema,
+	newExternalIdentityProvider,
+} from "../../../features/auth/domain/value-objects/external-identity";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -21,9 +15,19 @@ import {
 	RedirectResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import {
+	OAUTH_CODE_VERIFIER_COOKIE_NAME,
+	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_STATE_COOKIE_NAME,
+	SESSION_COOKIE_NAME,
+} from "../../../shared/lib/http";
+import { timingSafeStringEqual } from "../../../shared/lib/security";
 
 export const AccountLinkCallback = new ElysiaWithEnv()
 

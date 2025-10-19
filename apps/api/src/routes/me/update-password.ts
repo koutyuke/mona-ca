@@ -1,12 +1,8 @@
 import { t } from "elysia";
-import { UpdateUserPasswordUseCase } from "../../application/use-cases/password";
-import { SESSION_COOKIE_NAME } from "../../common/constants";
-import { PasswordHasher, SessionSecretHasher } from "../../infrastructure/crypto";
-import { DrizzleService } from "../../infrastructure/drizzle";
-import { SessionRepository } from "../../interface-adapter/repositories/session";
-import { UserRepository } from "../../interface-adapter/repositories/user";
-import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { CookieManager } from "../../modules/cookie";
+import { UpdateUserPasswordUseCase } from "../../features/auth";
+import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -14,9 +10,13 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../modules/elysia-with-env";
-import { BadRequestException } from "../../modules/error";
-import { pathDetail } from "../../modules/open-api";
+} from "../../plugins/elysia-with-env";
+import { BadRequestException } from "../../plugins/error";
+import { pathDetail } from "../../plugins/open-api";
+import { PasswordHasher, SessionSecretHasher } from "../../shared/infra/crypto";
+import { DrizzleService } from "../../shared/infra/drizzle";
+import { CookieManager } from "../../shared/infra/elysia/cookie";
+import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
 export const UpdatePassword = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -30,28 +30,28 @@ export const UpdatePassword = new ElysiaWithEnv()
 			cfModuleEnv: { DB },
 			cookie,
 			body: { currentPassword, newPassword },
-			user,
+			userIdentity,
 			clientType,
 		}) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 
 			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
 			const sessionSecretHasher = new SessionSecretHasher();
 
 			const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
-				userRepository,
+				authUserRepository,
 				sessionRepository,
 				passwordHasher,
 				sessionSecretHasher,
 			);
 			// === End of instances ===
 
-			const result = await updateUserPasswordUseCase.execute(user, currentPassword, newPassword);
+			const result = await updateUserPasswordUseCase.execute(userIdentity, currentPassword ?? null, newPassword);
 
 			if (result.isErr) {
 				const { code } = result;

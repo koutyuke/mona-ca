@@ -1,10 +1,11 @@
 import { t } from "elysia";
-import { UnlinkAccountConnectionUseCase } from "../../application/use-cases/account-link";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../domain/value-objects";
-import { DrizzleService } from "../../infrastructure/drizzle";
-import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
-import { UserRepository } from "../../interface-adapter/repositories/user";
-import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
+import { UnlinkAccountConnectionUseCase } from "../../features/auth";
+import { ExternalIdentityRepository } from "../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import {
+	externalIdentityProviderSchema,
+	newExternalIdentityProvider,
+} from "../../features/auth/domain/value-objects/external-identity";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -12,9 +13,10 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../modules/elysia-with-env";
-import { BadRequestException } from "../../modules/error";
-import { pathDetail } from "../../modules/open-api";
+} from "../../plugins/elysia-with-env";
+import { BadRequestException } from "../../plugins/error";
+import { pathDetail } from "../../plugins/open-api";
+import { DrizzleService } from "../../shared/infra/drizzle";
 
 export const UnlinkAccountConnection = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -23,22 +25,18 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 	// Route
 	.delete(
 		"connections/:provider",
-		async ({ cfModuleEnv: { DB }, params: { provider: _provider }, user }) => {
+		async ({ cfModuleEnv: { DB }, params: { provider: _provider }, userIdentity }) => {
 			// === Instances ===
 			const provider = newExternalIdentityProvider(_provider);
 
 			const drizzleService = new DrizzleService(DB);
 
 			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
 
-			const unlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(
-				externalIdentityRepository,
-				userRepository,
-			);
+			const unlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(externalIdentityRepository);
 			// === End of instances ===
 
-			const result = await unlinkAccountConnectionUseCase.execute(provider, user.id);
+			const result = await unlinkAccountConnectionUseCase.execute(provider, userIdentity);
 
 			if (result.isErr) {
 				const { code } = result;
@@ -47,13 +45,6 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 					throw new BadRequestException({
 						code: "PROVIDER_NOT_LINKED",
 						message: "Account is not linked to this provider. Please check your account connections.",
-					});
-				}
-
-				if (code === "UNLINK_OPERATION_FAILED") {
-					throw new BadRequestException({
-						code: "UNLINK_OPERATION_FAILED",
-						message: "Failed to unlink account connection. Please try again.",
 					});
 				}
 
@@ -78,7 +69,6 @@ export const UnlinkAccountConnection = new ElysiaWithEnv()
 					AuthGuardSchema.response[400],
 					ErrorResponseSchema("PROVIDER_NOT_LINKED"),
 					ErrorResponseSchema("UNLINK_OPERATION_FAILED"),
-					ErrorResponseSchema("PASSWORD_NOT_SET"),
 				),
 				401: AuthGuardSchema.response[401],
 			}),

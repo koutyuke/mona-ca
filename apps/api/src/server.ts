@@ -1,8 +1,13 @@
 import { Buffer } from "node:buffer";
-import type { AppEnv } from "./modules/env";
+import { env } from "cloudflare:workers";
 import { root } from "./routes";
+import { type AppEnv, validateEnv } from "./shared/infra/config/env";
 
 globalThis.Buffer = Buffer;
+
+if (env !== undefined) {
+	validateEnv(env);
+}
 
 export default {
 	fetch: async (request: Request, env: AppEnv) => {

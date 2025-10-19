@@ -1,1 +1,0 @@
-export { StringEnum } from "./utils";

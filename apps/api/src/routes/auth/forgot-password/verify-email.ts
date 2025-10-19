@@ -1,15 +1,8 @@
 import { t } from "elysia";
-import {
-	PasswordResetVerifyEmailUseCase,
-	ValidatePasswordResetSessionUseCase,
-} from "../../../application/use-cases/password";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newPasswordResetSessionToken } from "../../../domain/value-objects";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { PasswordResetSessionRepository } from "../../../interface-adapter/repositories/password-reset-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
+import { PasswordResetVerifyEmailUseCase, ValidatePasswordResetSessionUseCase } from "../../../features/auth";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session/password-reset-session.repository";
+import { newPasswordResetSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -17,11 +10,15 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -53,13 +50,13 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 
 			const sessionSecretHasher = new SessionSecretHasher();
 
 			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
-				userRepository,
+				authUserRepository,
 				sessionSecretHasher,
 			);
 			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);

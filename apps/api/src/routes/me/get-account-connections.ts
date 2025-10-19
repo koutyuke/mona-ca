@@ -1,14 +1,13 @@
-import { GetConnectionsUseCase } from "../../application/use-cases/account-link";
-import { DrizzleService } from "../../infrastructure/drizzle";
+import { GetConnectionsUseCase } from "../../features/auth";
 import {
-	AccountConnectionsPresenter,
-	AccountConnectionsPresenterResultSchema,
-} from "../../interface-adapter/presenters";
-import { ExternalIdentityRepository } from "../../interface-adapter/repositories/external-identity";
-import { UserRepository } from "../../interface-adapter/repositories/user";
-import { AuthGuardSchema, authGuard } from "../../modules/auth-guard";
-import { ElysiaWithEnv, withBaseResponseSchema } from "../../modules/elysia-with-env";
-import { pathDetail } from "../../modules/open-api";
+	AccountConnectionsResponseSchema,
+	toAccountConnectionsResponse,
+} from "../../features/auth/adapters/presenters/account-connections.presenter";
+import { ExternalIdentityRepository } from "../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
+import { pathDetail } from "../../plugins/open-api";
+import { DrizzleService } from "../../shared/infra/drizzle";
 
 export const GetAccountConnections = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -17,23 +16,22 @@ export const GetAccountConnections = new ElysiaWithEnv()
 	// Route
 	.get(
 		"connections",
-		async ({ cfModuleEnv: { DB }, user }) => {
+		async ({ cfModuleEnv: { DB }, userIdentity }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 
-			const userRepository = new UserRepository(drizzleService);
 			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
 
-			const getConnectionsUseCase = new GetConnectionsUseCase(externalIdentityRepository, userRepository);
+			const getConnectionsUseCase = new GetConnectionsUseCase(externalIdentityRepository);
 
-			const result = await getConnectionsUseCase.execute(user.id);
+			const result = await getConnectionsUseCase.execute(userIdentity);
 
-			return AccountConnectionsPresenter(result);
+			return toAccountConnectionsResponse(result);
 		},
 		{
 			headers: AuthGuardSchema.headers,
 			response: withBaseResponseSchema({
-				200: AccountConnectionsPresenterResultSchema,
+				200: AccountConnectionsResponseSchema,
 				400: AuthGuardSchema.response[400],
 				401: AuthGuardSchema.response[401],
 			}),

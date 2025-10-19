@@ -1,13 +1,9 @@
 import { t } from "elysia";
-import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
-import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { genderSchema, newGender, newSignupSessionToken } from "../../../domain/value-objects";
-import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { SessionRepository } from "../../../interface-adapter/repositories/session";
-import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
+import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../features/auth";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { SessionRepository } from "../../../features/auth/adapters/repositories/session/session.repository";
+import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
+import { newSignupSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -15,10 +11,15 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { genderSchema, newGender } from "../../../shared/domain/value-objects";
+import { PasswordHasher, SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const SignupConfirm = new ElysiaWithEnv()
 
@@ -39,7 +40,7 @@ export const SignupConfirm = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
@@ -51,7 +52,7 @@ export const SignupConfirm = new ElysiaWithEnv()
 				sessionSecretHasher,
 			);
 			const signupConfirmUseCase = new SignupConfirmUseCase(
-				userRepository,
+				authUserRepository,
 				sessionRepository,
 				signupSessionRepository,
 				sessionSecretHasher,

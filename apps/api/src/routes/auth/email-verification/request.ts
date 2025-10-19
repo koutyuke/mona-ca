@@ -1,14 +1,8 @@
 import { t } from "elysia";
-import { SendEmailUseCase } from "../../../application/use-cases/email";
-import { EmailVerificationRequestUseCase } from "../../../application/use-cases/email-verification";
-import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { EmailVerificationSessionRepository } from "../../../interface-adapter/repositories/email-verification-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
-import { CookieManager } from "../../../modules/cookie";
+import { EmailVerificationRequestUseCase } from "../../../features/auth";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { EmailVerificationSessionRepository } from "../../../features/auth/adapters/repositories/email-verification-session/email-verification-session.repository";
+import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -16,10 +10,16 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { EmailGateway } from "../../../shared/adapters/gateways/email";
+import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
+import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 const EmailVerificationRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -43,7 +43,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			env: { APP_ENV, RESEND_API_KEY },
 			cookie,
 			body: { email: bodyEmail },
-			user,
+			userIdentity,
 			clientType,
 			rateLimit,
 		}) => {
@@ -52,25 +52,25 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
+			const emailGateway = new EmailGateway(APP_ENV === "production", RESEND_API_KEY);
 
 			const randomGenerator = new RandomGenerator();
 			const sessionSecretHasher = new SessionSecretHasher();
 
-			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-				userRepository,
 				emailVerificationSessionRepository,
+				authUserRepository,
 				randomGenerator,
 				sessionSecretHasher,
 			);
 			// === End of instances ===
 
-			const email = bodyEmail ?? user.email;
+			const email = bodyEmail ?? userIdentity.email;
 
 			await rateLimit.consume(email, 100);
 
-			const result = await emailVerificationRequestUseCase.execute(email, user);
+			const result = await emailVerificationRequestUseCase.execute(email, userIdentity);
 
 			if (result.isErr) {
 				const { code } = result;
@@ -93,7 +93,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 
 			const mailContents = verificationEmailTemplate(emailVerificationSession.email, emailVerificationSession.code);
 
-			await sendEmailUseCase.execute({
+			await emailGateway.sendEmail({
 				from: mailContents.from,
 				to: mailContents.to,
 				subject: mailContents.subject,
@@ -113,8 +113,8 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			return NoContentResponse();
 		},
 		{
-			beforeHandle: async ({ rateLimit, user }) => {
-				await rateLimit.consume(user.id, 1);
+			beforeHandle: async ({ rateLimit, userIdentity }) => {
+				await rateLimit.consume(userIdentity.id, 1);
 			},
 			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie({

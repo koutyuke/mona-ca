@@ -1,4 +1,4 @@
-import { ElysiaWithEnv } from "../../../modules/elysia-with-env";
+import { ElysiaWithEnv } from "../../../plugins/elysia-with-env";
 import { AccountAssociationChallenge } from "./account-association-challenge";
 import { AccountAssociationConfirm } from "./account-association-confirm";
 import { AccountAssociationPreview } from "./account-association-preview";

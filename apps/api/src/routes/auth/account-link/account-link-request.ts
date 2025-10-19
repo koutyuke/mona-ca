@@ -1,24 +1,28 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { AccountLinkRequestUseCase, accountLinkStateSchema } from "../../../application/use-cases/account-link";
+import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
+import { AccountLinkRequestUseCase } from "../../../features/auth/application/use-cases/account-link/account-link-request.usecase";
+import { accountLinkStateSchema } from "../../../features/auth/application/use-cases/account-link/schema";
 import {
-	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
-	OAUTH_STATE_COOKIE_NAME,
-} from "../../../common/constants";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
-import { AuthGuardSchema, authGuard } from "../../../modules/auth-guard";
-import { CookieManager } from "../../../modules/cookie";
+	externalIdentityProviderSchema,
+	newExternalIdentityProvider,
+} from "../../../features/auth/domain/value-objects/external-identity";
+import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import {
+	OAUTH_CODE_VERIFIER_COOKIE_NAME,
+	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_STATE_COOKIE_NAME,
+} from "../../../shared/lib/http";
 
 export const AccountLinkRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -40,7 +44,7 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			params: { provider: _provider },
 			query: { "redirect-uri": queryRedirectURI = "/" },
 			clientType,
-			user,
+			userIdentity,
 		}) => {
 			// === Instances ===
 			const provider = newExternalIdentityProvider(_provider);
@@ -65,7 +69,12 @@ export const AccountLinkRequest = new ElysiaWithEnv()
 			const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, oauthStateSigner);
 			// === End of instances ===
 
-			const result = accountLinkRequestUseCase.execute(APP_ENV === "production", clientType, queryRedirectURI, user.id);
+			const result = accountLinkRequestUseCase.execute(
+				APP_ENV === "production",
+				clientType,
+				queryRedirectURI,
+				userIdentity.id,
+			);
 
 			if (result.isErr) {
 				const { code } = result;

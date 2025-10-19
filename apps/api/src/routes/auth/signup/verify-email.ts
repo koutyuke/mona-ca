@@ -1,11 +1,7 @@
 import { t } from "elysia";
-import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../application/use-cases/auth";
-import { SIGNUP_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newSignupSessionToken } from "../../../domain/value-objects";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { SignupSessionRepository } from "../../../interface-adapter/repositories/signup-session";
-import { CookieManager } from "../../../modules/cookie";
+import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../features/auth";
+import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
+import { newSignupSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -13,11 +9,15 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const SignupVerifyEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin

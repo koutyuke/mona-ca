@@ -1,22 +1,24 @@
 import { t } from "elysia";
-import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association";
-import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { UserPresenter, UserPresenterResultSchema } from "../../../interface-adapter/presenters";
-import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
+import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session/account-association-session.repository";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association/validate-account-association-session.usecase";
+import { newAccountAssociationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { GetProfileUseCase } from "../../../features/user";
+import { ProfileResponseSchema, toProfileResponse } from "../../../features/user/adapters/presenters/profile.presenter";
+import { ProfileRepository } from "../../../features/user/adapters/repositories/profile/profile.repository";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const AccountAssociationPreview = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -30,16 +32,18 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
+			const profileRepository = new ProfileRepository(drizzleService);
 
 			const sessionSecretHasher = new SessionSecretHasher();
 
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-				userRepository,
+				authUserRepository,
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 			);
+			const getProfileUseCase = new GetProfileUseCase(profileRepository);
 			// === End of instances ===
 
 			const rawAccountAssociationSessionToken =
@@ -75,10 +79,18 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 				}
 			}
 
-			const { user, accountAssociationSession } = result.value;
+			const { userIdentity, accountAssociationSession } = result.value;
+
+			const profile = await getProfileUseCase.execute(userIdentity.id);
+			if (profile.isErr) {
+				throw new BadRequestException({
+					code: profile.code,
+					message: "Failed to get profile",
+				});
+			}
 
 			return {
-				user: UserPresenter(user),
+				user: toProfileResponse(profile.value.profile),
 				provider: accountAssociationSession.provider,
 				providerId: accountAssociationSession.providerUserId,
 			};
@@ -93,12 +105,13 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			}),
 			response: withBaseResponseSchema({
 				200: t.Object({
-					user: UserPresenterResultSchema,
+					user: ProfileResponseSchema,
 					provider: t.String(),
 					providerId: t.String(),
 				}),
 				400: WithClientTypeSchema.response[400],
 				401: ResponseTUnion(
+					ErrorResponseSchema("PROFILE_NOT_FOUND"),
 					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_INVALID"),
 					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_EXPIRED"),
 				),

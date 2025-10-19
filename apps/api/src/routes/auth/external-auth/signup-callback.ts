@@ -1,27 +1,16 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { ExternalAuthSignupCallbackUseCase, oauthStateSchema } from "../../../application/use-cases/external-auth";
-import {
-	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
-	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
-	OAUTH_STATE_COOKIE_NAME,
-	SESSION_COOKIE_NAME,
-} from "../../../common/constants";
-import { convertRedirectableMobileScheme, timingSafeStringEqual } from "../../../common/utils";
+import { ExternalAuthSignupCallbackUseCase } from "../../../features/auth";
+import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
+import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session/account-association-session.repository";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import { SessionRepository } from "../../../features/auth/adapters/repositories/session/session.repository";
+import { oauthStateSchema } from "../../../features/auth/application/use-cases/external-auth/schema";
 import {
 	externalIdentityProviderSchema,
-	newClientType,
 	newExternalIdentityProvider,
-} from "../../../domain/value-objects";
-import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { createOAuthGateway } from "../../../interface-adapter/gateways/oauth-provider";
-import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { ExternalIdentityRepository } from "../../../interface-adapter/repositories/external-identity";
-import { SessionRepository } from "../../../interface-adapter/repositories/session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
+} from "../../../features/auth/domain/value-objects/external-identity";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -29,10 +18,23 @@ import {
 	RedirectResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { BadRequestException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
+} from "../../../plugins/elysia-with-env";
+import { BadRequestException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { newClientType } from "../../../shared/domain/value-objects";
+import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import {
+	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
+	OAUTH_CODE_VERIFIER_COOKIE_NAME,
+	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_STATE_COOKIE_NAME,
+	SESSION_COOKIE_NAME,
+	convertRedirectableMobileScheme,
+} from "../../../shared/lib/http";
+import { timingSafeStringEqual } from "../../../shared/lib/security";
 
 export const ExternalAuthSignupCallback = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -77,7 +79,7 @@ export const ExternalAuthSignupCallback = new ElysiaWithEnv()
 
 			const sessionRepository = new SessionRepository(drizzleService);
 			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 
 			const oauthProviderGateway = createOAuthGateway(
@@ -98,7 +100,7 @@ export const ExternalAuthSignupCallback = new ElysiaWithEnv()
 				oauthProviderGateway,
 				sessionRepository,
 				externalIdentityRepository,
-				userRepository,
+				authUserRepository,
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 				oauthStateSigner,

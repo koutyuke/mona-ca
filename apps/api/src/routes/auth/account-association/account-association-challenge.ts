@@ -1,15 +1,9 @@
 import { t } from "elysia";
-import { AccountAssociationChallengeUseCase } from "../../../application/use-cases/account-association";
-import { ValidateAccountAssociationSessionUseCase } from "../../../application/use-cases/account-association/validate-account-association-session.usecase";
-import { SendEmailUseCase } from "../../../application/use-cases/email";
-import { verificationEmailTemplate } from "../../../application/use-cases/email/mail-context";
-import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../common/constants";
-import { newAccountAssociationSessionToken } from "../../../domain/value-objects";
-import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { AccountAssociationSessionRepository } from "../../../interface-adapter/repositories/account-association-session";
-import { UserRepository } from "../../../interface-adapter/repositories/user";
-import { CookieManager } from "../../../modules/cookie";
+import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session/account-association-session.repository";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { AccountAssociationChallengeUseCase } from "../../../features/auth/application/use-cases/account-association/account-association-challenge.usecase";
+import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association/validate-account-association-session.usecase";
+import { newAccountAssociationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -17,11 +11,17 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../modules/elysia-with-env";
-import { UnauthorizedException } from "../../../modules/error";
-import { pathDetail } from "../../../modules/open-api/path-detail";
-import { RateLimiterSchema, rateLimit } from "../../../modules/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../modules/with-client-type";
+} from "../../../plugins/elysia-with-env";
+import { UnauthorizedException } from "../../../plugins/error";
+import { pathDetail } from "../../../plugins/open-api/path-detail";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { EmailGateway } from "../../../shared/adapters/gateways/email";
+import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
+import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const AccountAssociationChallenge = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -46,19 +46,19 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 
+			const emailGateway = new EmailGateway(APP_ENV === "production", RESEND_API_KEY);
 			const sessionSecretHasher = new SessionSecretHasher();
 			const randomGenerator = new RandomGenerator();
 
-			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 			const accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 				randomGenerator,
 			);
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-				userRepository,
+				authUserRepository,
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 			);
@@ -97,19 +97,19 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				}
 			}
 
-			const { accountAssociationSession: validateAccountAssociationSession, user } = validateResult.value;
+			const { accountAssociationSession: validateAccountAssociationSession } = validateResult.value;
 
-			await rateLimit.consume(user.id, 100);
+			await rateLimit.consume(validateAccountAssociationSession.userId, 100);
 
 			const { accountAssociationSessionToken, accountAssociationSession } =
-				await accountAssociationChallengeUseCase.execute(user, validateAccountAssociationSession);
+				await accountAssociationChallengeUseCase.execute(validateAccountAssociationSession);
 
 			const mailContents = verificationEmailTemplate(
 				accountAssociationSession.email,
 				accountAssociationSession.code ?? "",
 			);
 
-			await sendEmailUseCase.execute({
+			await emailGateway.sendEmail({
 				from: mailContents.from,
 				to: mailContents.to,
 				subject: mailContents.subject,
