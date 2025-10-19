@@ -1,9 +1,10 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../lib/constants";
-import { createSessionFixture, createUserFixture } from "../../../tests/fixtures";
-import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
+import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
+import { SessionTableHelper, UserTableHelper } from "../../../shared/testing/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
@@ -13,14 +14,14 @@ const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 const sessionSecretHasher = new SessionSecretHasher();
 
-const { user: user1 } = createUserFixture({
-	user: {
+const { userRegistration: user1 } = createAuthUserFixture({
+	userRegistration: {
 		email: "test1.email@example.com",
 		emailVerified: false,
 	},
 });
-const { user: user2 } = createUserFixture({
-	user: {
+const { userRegistration: user2 } = createAuthUserFixture({
+	userRegistration: {
 		email: "test2.email@example.com",
 		emailVerified: true,
 	},
@@ -44,11 +45,11 @@ describe("AuthGuard cookie test", () => {
 		sessionTableHelper.deleteAll();
 		userTableHelper.deleteAll();
 
-		await userTableHelper.save(user1, null);
-		await userTableHelper.save(user2, null);
+		await userTableHelper.save(convertUserRegistrationToRaw(user1));
+		await userTableHelper.save(convertUserRegistrationToRaw(user2));
 
-		await sessionTableHelper.save(session1);
-		await sessionTableHelper.save(session2);
+		await sessionTableHelper.save(convertSessionToRaw(session1));
+		await sessionTableHelper.save(convertSessionToRaw(session2));
 	});
 
 	test("Pass with valid cookie that email verification is not required", async () => {

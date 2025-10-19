@@ -1,10 +1,11 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { sessionRefreshSpan } from "../../../domain/entities";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../lib/constants";
-import { createSessionFixture, createUserFixture } from "../../../tests/fixtures";
-import { SessionTableHelper, UserTableHelper } from "../../../tests/helpers";
+import { sessionRefreshSpan } from "../../../features/auth/domain/entities/session";
+import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
+import { SessionTableHelper, UserTableHelper } from "../../../shared/testing/helpers";
 import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
@@ -16,8 +17,8 @@ const userTableHelper = new UserTableHelper(DB);
 const sessionTableHelper = new SessionTableHelper(DB);
 const sessionSecretHasher = new SessionSecretHasher();
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration } = createAuthUserFixture({
+	userRegistration: {
 		email: "test1.email@example.com",
 	},
 });
@@ -25,7 +26,7 @@ const { user } = createUserFixture({
 const { session, sessionToken } = createSessionFixture({
 	secretHasher: sessionSecretHasher.hash,
 	session: {
-		userId: user.id,
+		userId: userRegistration.id,
 		expiresAt: sessionTokenRefreshExpires,
 	},
 });
@@ -35,8 +36,8 @@ describe("AuthGuard enableSessionCookieRefresh option", () => {
 		sessionTableHelper.deleteAll();
 		userTableHelper.deleteAll();
 
-		await userTableHelper.save(user, null);
-		await sessionTableHelper.save(session);
+		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await sessionTableHelper.save(convertSessionToRaw(session));
 	});
 
 	test("should refresh the session token", async () => {

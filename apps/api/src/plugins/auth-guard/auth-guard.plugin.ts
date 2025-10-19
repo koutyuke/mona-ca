@@ -1,20 +1,20 @@
 import { Value } from "@sinclair/typebox/value";
 import { t } from "elysia";
-import type { Session, User } from "../../domain/entities";
-import { newClientType } from "../../domain/value-objects/client-type";
-import { SessionRepository } from "../../features/auth/adapters/repositories/session";
-import { ValidateSessionUseCase } from "../../features/auth/application/use-cases/auth";
-import { UserRepository } from "../../features/user/adapters/repositories/user";
-import { SessionSecretHasher } from "../../infrastructure/crypto";
-import { DrizzleService } from "../../infrastructure/drizzle";
-import { type ClientType, clientTypeSchema, newSessionToken } from "../../shared/domain/value-objects";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../shared/lib/constants";
-import { readBearerToken } from "../../shared/lib/types";
+import { ValidateSessionUseCase } from "../../features/auth";
+import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
+import type { Session } from "../../features/auth/domain/entities/session";
+import type { UserIdentity } from "../../features/auth/domain/entities/user-identity";
+import { newSessionToken } from "../../features/auth/domain/value-objects/session-token";
+import { type ClientType, clientTypeSchema, newClientType } from "../../shared/domain/value-objects";
+import { SessionSecretHasher } from "../../shared/infra/crypto";
+import { DrizzleService } from "../../shared/infra/drizzle";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME, readBearerToken } from "../../shared/lib/http";
 import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
 import { BadRequestException, UnauthorizedException } from "../error";
 
 type Response = {
-	user: User;
+	userIdentity: UserIdentity;
 	session: Session;
 	clientType: ClientType;
 };
@@ -49,10 +49,14 @@ export const authGuard = (options?: {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 			const sessionRepository = new SessionRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 			const sessionSecretHasher = new SessionSecretHasher();
 
-			const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, userRepository, sessionSecretHasher);
+			const validateSessionUseCase = new ValidateSessionUseCase(
+				sessionRepository,
+				authUserRepository,
+				sessionSecretHasher,
+			);
 			// === End of instances ===
 
 			if (!clientType || !Value.Check(clientTypeSchema, clientType)) {
@@ -79,9 +83,9 @@ export const authGuard = (options?: {
 				});
 			}
 
-			const { user, session } = result.value;
+			const { userIdentity, session } = result.value;
 
-			if (requireEmailVerification && !user.emailVerified) {
+			if (requireEmailVerification && !userIdentity.emailVerified) {
 				throw new UnauthorizedException({
 					code: "EMAIL_VERIFICATION_REQUIRED",
 					message: "Email verification is required.",
@@ -92,7 +96,7 @@ export const authGuard = (options?: {
 				cookie[SESSION_COOKIE_NAME].expires = session.expiresAt;
 			}
 
-			return { user, session, clientType: newClientType(clientType) };
+			return { userIdentity, session, clientType: newClientType(clientType) };
 		},
 	);
 
