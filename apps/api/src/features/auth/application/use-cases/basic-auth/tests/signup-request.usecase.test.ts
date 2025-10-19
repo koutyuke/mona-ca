@@ -4,7 +4,7 @@ import { createAuthUserFixture, createSignupSessionFixture } from "../../../../t
 import {
 	AuthUserRepositoryMock,
 	SignupSessionRepositoryMock,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createSessionsMap,
 	createSignupSessionsMap,
 } from "../../../../testing/mocks/repositories";
@@ -12,7 +12,7 @@ import { SignupRequestUseCase } from "../signup-request.usecase";
 
 // Maps
 const sessionMap = createSessionsMap();
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 const signupSessionMap = createSignupSessionsMap();
 
 // Mocks

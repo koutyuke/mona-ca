@@ -3,13 +3,13 @@ import { createAuthUserFixture, createEmailVerificationSessionFixture } from "..
 import {
 	AuthUserRepositoryMock,
 	EmailVerificationSessionRepositoryMock,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
 import { EmailVerificationConfirmUseCase } from "../email-verification-confirm.usecase";
 
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
 

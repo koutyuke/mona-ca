@@ -14,7 +14,7 @@ import {
 	ExternalIdentityRepositoryMock,
 	SessionRepositoryMock,
 	createAccountAssociationSessionsMap,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
 	createSessionsMap,
@@ -22,7 +22,7 @@ import {
 import { ExternalAuthSignupCallbackUseCase } from "../external-auth-signup-callback.usecase";
 import type { oauthStateSchema } from "../schema";
 
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
 const externalIdentityMap = createExternalIdentitiesMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();

@@ -8,13 +8,13 @@ import {
 import {
 	AuthUserRepositoryMock,
 	EmailVerificationSessionRepositoryMock,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
 import { EmailVerificationRequestUseCase } from "../email-verification-request.usecase";
 
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
 

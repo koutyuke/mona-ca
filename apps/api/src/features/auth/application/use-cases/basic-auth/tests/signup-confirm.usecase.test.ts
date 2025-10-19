@@ -8,7 +8,7 @@ import {
 	AuthUserRepositoryMock,
 	SessionRepositoryMock,
 	SignupSessionRepositoryMock,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createSessionsMap,
 	createSignupSessionsMap,
 } from "../../../../testing/mocks/repositories";
@@ -16,7 +16,7 @@ import { SignupConfirmUseCase } from "../signup-confirm.usecase";
 
 // Maps
 const sessionMap = createSessionsMap();
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 const signupSessionMap = createSignupSessionsMap();
 
 // Mocks

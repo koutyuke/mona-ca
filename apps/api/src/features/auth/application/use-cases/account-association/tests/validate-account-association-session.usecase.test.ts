@@ -11,12 +11,12 @@ import {
 	AccountAssociationSessionRepositoryMock,
 	AuthUserRepositoryMock,
 	createAccountAssociationSessionsMap,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
 import { ValidateAccountAssociationSessionUseCase } from "../validate-account-association-session.usecase";
 
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 

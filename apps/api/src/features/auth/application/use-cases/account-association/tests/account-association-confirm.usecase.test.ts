@@ -10,7 +10,7 @@ import {
 	ExternalIdentityRepositoryMock,
 	SessionRepositoryMock,
 	createAccountAssociationSessionsMap,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
 	createSessionsMap,
@@ -18,7 +18,7 @@ import {
 import { AccountAssociationConfirmUseCase } from "../account-association-confirm.usecase";
 
 const sessionMap = createSessionsMap();
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 const externalIdentityMap = createExternalIdentitiesMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 

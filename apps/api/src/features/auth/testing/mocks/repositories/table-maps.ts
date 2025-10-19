@@ -18,12 +18,8 @@ import type {
 	SignupSessionId,
 } from "../../../domain/value-objects/ids";
 
-export const createAuthUserMap = (users: UserRegistration[] = []): Map<UserId, UserRegistration> => {
+export const createAuthUsersMap = (users: UserRegistration[] = []): Map<UserId, UserRegistration> => {
 	return new Map(users.map(userRegistration => [userRegistration.id, userRegistration]));
-};
-
-export const createUserPasswordHashMap = (entries: [UserId, string][] = []): Map<UserId, string> => {
-	return new Map(entries);
 };
 
 export const createSessionsMap = (sessions: Session[] = []): Map<SessionId, Session> => {

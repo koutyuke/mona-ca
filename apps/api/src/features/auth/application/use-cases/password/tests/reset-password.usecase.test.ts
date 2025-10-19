@@ -9,7 +9,7 @@ import {
 	AuthUserRepositoryMock,
 	PasswordResetSessionRepositoryMock,
 	SessionRepositoryMock,
-	createAuthUserMap,
+	createAuthUsersMap,
 	createPasswordResetSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
@@ -17,7 +17,7 @@ import { ResetPasswordUseCase } from "../reset-password.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
 const sessionMap = createSessionsMap();
-const authUserMap = createAuthUserMap();
+const authUserMap = createAuthUsersMap();
 
 const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
