@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { newSignupSessionToken } from "../../../../../../common/domain/value-objects";
+import { newSignupSessionToken } from "../../../../../../shared/domain/value-objects";
 import { createSignupSessionFixture } from "../../../../../../tests/fixtures";
 import {
 	SessionSecretHasherMock,

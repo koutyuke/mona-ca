@@ -14,7 +14,7 @@ import type { SessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	ISignupConfirmUseCase,
 	SignupConfirmUseCaseResult,
-} from "../../contracts/auth/signup-confirm.usecase.interface";
+} from "../../contracts/basic-auth/signup-confirm.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";

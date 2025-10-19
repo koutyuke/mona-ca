@@ -10,7 +10,7 @@ import type { SignupSessionToken } from "../../../domain/value-objects/session-t
 import type {
 	ISignupRequestUseCase,
 	SignupRequestUseCaseResult,
-} from "../../contracts/auth/signup-request.usecase.interface";
+} from "../../contracts/basic-auth/signup-request.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 

@@ -8,7 +8,7 @@ import type { UserId } from "../../../../../shared/domain/value-objects";
 import type { IPasswordHasher, ISessionSecretHasher } from "../../../../../shared/ports/system";
 import type { Session } from "../../../domain/entities/session";
 import type { SessionToken } from "../../../domain/value-objects/session-token";
-import type { ILoginUseCase, LoginUseCaseResult } from "../../contracts/auth/login.usecase.interface";
+import type { ILoginUseCase, LoginUseCaseResult } from "../../contracts/basic-auth/login.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 

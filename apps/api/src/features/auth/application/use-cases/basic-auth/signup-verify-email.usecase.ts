@@ -6,7 +6,7 @@ import type { SignupSession } from "../../../domain/entities/signup-session";
 import type {
 	ISignupVerifyEmailUseCase,
 	SignupVerifyEmailUseCaseResult,
-} from "../../contracts/auth/signup-verify-email.usecase.interface";
+} from "../../contracts/basic-auth/signup-verify-email.usecase.interface";
 import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 
 export class SignupVerifyEmailUseCase implements ISignupVerifyEmailUseCase {

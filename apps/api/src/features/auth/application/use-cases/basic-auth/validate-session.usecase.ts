@@ -7,7 +7,7 @@ import type { SessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	IValidateSessionUseCase,
 	ValidateSessionUseCaseResult,
-} from "../../contracts/auth/validate-session.usecase";
+} from "../../contracts/basic-auth/validate-session.usecase";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
