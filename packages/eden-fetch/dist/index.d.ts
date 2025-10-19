@@ -407,9 +407,7 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     query?: Record<string, unknown>;
                     fetch?: RequestInit;
                 }) => Promise<Treaty.TreatyResponse<{
-                    200: {
-                        sessionToken: string;
-                    };
+                    200: null;
                     204: null;
                     400: {
                         code: "PARSE_ERROR";
@@ -1095,6 +1093,9 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     } | {
                         code: "ACCOUNT_ASSOCIATION_SESSION_EXPIRED";
                         message: string;
+                    } | {
+                        code: "PROFILE_NOT_FOUND";
+                        message: string;
                     };
                     422: {
                         code: "VALIDATION_ERROR";
@@ -1148,6 +1149,9 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         message: string;
                     } | {
                         code: "INVALID_CLIENT_TYPE";
+                        message: string;
+                    } | {
+                        code: "PROFILE_NOT_FOUND";
                         message: string;
                     };
                     401: {
@@ -1210,6 +1214,9 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         message: string;
                     } | {
                         code: "INVALID_CLIENT_TYPE";
+                        message: string;
+                    } | {
+                        code: "PROFILE_NOT_FOUND";
                         message: string;
                     };
                     401: {
@@ -1399,9 +1406,6 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         message: string;
                     } | {
                         code: "UNLINK_OPERATION_FAILED";
-                        message: string;
-                    } | {
-                        code: "PASSWORD_NOT_SET";
                         message: string;
                     };
                     401: {
