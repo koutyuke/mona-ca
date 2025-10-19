@@ -1,13 +1,9 @@
 import { t } from "elysia";
-import { newAccountAssociationSessionToken } from "../../../common/domain/value-objects";
-import { CookieManager } from "../../../features/auth/adapters/http/cookie";
-import { UserResponseSchema, toUserResponse } from "../../../features/auth/adapters/presenters";
-import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session";
-import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association";
-import { UserRepository } from "../../../features/user/adapters/repositories/user";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../lib/constants";
+import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session/account-association-session.repository";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association/validate-account-association-session.usecase";
+import { newAccountAssociationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { UserResponseSchema, toUserResponse } from "../../../features/user/adapters/presenters/user.presenter";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -17,6 +13,10 @@ import {
 import { UnauthorizedException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const AccountAssociationPreview = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -30,13 +30,13 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 
 			const sessionSecretHasher = new SessionSecretHasher();
 
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-				userRepository,
+				authUserRepository,
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 			);
@@ -75,10 +75,12 @@ export const AccountAssociationPreview = new ElysiaWithEnv()
 				}
 			}
 
-			const { user, accountAssociationSession } = result.value;
+			const { userIdentity, accountAssociationSession } = result.value;
+
+			// TODO: ユーザー情報を取得する
 
 			return {
-				user: toUserResponse(user),
+				user: toUserResponse(userIdentity),
 				provider: accountAssociationSession.provider,
 				providerId: accountAssociationSession.providerUserId,
 			};

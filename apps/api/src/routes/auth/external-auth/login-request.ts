@@ -1,23 +1,12 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import {
-	clientTypeSchema,
-	externalIdentityProviderSchema,
-	newClientType,
-	newExternalIdentityProvider,
-} from "../../../common/domain/value-objects";
+import { ExternalAuthRequestUseCase } from "../../../features/auth";
 import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
-import { CookieManager } from "../../../features/auth/adapters/http/cookie";
+import { oauthStateSchema } from "../../../features/auth/application/use-cases/external-auth/schema";
 import {
-	ExternalAuthRequestUseCase,
-	oauthStateSchema,
-} from "../../../features/auth/application/use-cases/external-auth";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import {
-	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
-	OAUTH_STATE_COOKIE_NAME,
-} from "../../../lib/constants";
+	externalIdentityProviderSchema,
+	newExternalIdentityProvider,
+} from "../../../features/auth/domain/value-objects/external-identity";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -28,6 +17,14 @@ import {
 import { BadRequestException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { clientTypeSchema, newClientType } from "../../../shared/domain/value-objects";
+import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import {
+	OAUTH_CODE_VERIFIER_COOKIE_NAME,
+	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_STATE_COOKIE_NAME,
+} from "../../../shared/lib/http";
 
 export const ExternalAuthLoginRequest = new ElysiaWithEnv()
 	// Local Middleware & Plugin

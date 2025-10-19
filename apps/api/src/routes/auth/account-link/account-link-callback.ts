@@ -1,22 +1,13 @@
 import { getAPIBaseURL } from "@mona-ca/core/utils";
 import { t } from "elysia";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../common/domain/value-objects";
 import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
-import { CookieManager } from "../../../features/auth/adapters/http/cookie";
-import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity";
+import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import { AccountLinkCallbackUseCase } from "../../../features/auth/application/use-cases/account-link/account-link-callback.usecase";
+import { accountLinkStateSchema } from "../../../features/auth/application/use-cases/account-link/schema";
 import {
-	AccountLinkCallbackUseCase,
-	accountLinkStateSchema,
-} from "../../../features/auth/application/use-cases/account-link";
-import { HmacOAuthStateSigner } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import {
-	OAUTH_CODE_VERIFIER_COOKIE_NAME,
-	OAUTH_REDIRECT_URI_COOKIE_NAME,
-	OAUTH_STATE_COOKIE_NAME,
-	SESSION_COOKIE_NAME,
-} from "../../../lib/constants";
-import { timingSafeStringEqual } from "../../../lib/utils";
+	externalIdentityProviderSchema,
+	newExternalIdentityProvider,
+} from "../../../features/auth/domain/value-objects/external-identity";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -27,6 +18,16 @@ import {
 } from "../../../plugins/elysia-with-env";
 import { BadRequestException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
+import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import {
+	OAUTH_CODE_VERIFIER_COOKIE_NAME,
+	OAUTH_REDIRECT_URI_COOKIE_NAME,
+	OAUTH_STATE_COOKIE_NAME,
+	SESSION_COOKIE_NAME,
+} from "../../../shared/lib/http";
+import { timingSafeStringEqual } from "../../../shared/lib/security";
 
 export const AccountLinkCallback = new ElysiaWithEnv()
 

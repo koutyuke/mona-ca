@@ -1,13 +1,7 @@
 import { t } from "elysia";
-import { SendEmailUseCase } from "../../../common/adapters/gateways/email";
-import { verificationEmailTemplate } from "../../../common/adapters/gateways/email/mail-context";
-import { CookieManager } from "../../../features/auth/adapters/http/cookie";
-import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session";
-import { SignupRequestUseCase } from "../../../features/auth/application/use-cases/auth";
-import { UserRepository } from "../../../features/user/adapters/repositories/user";
-import { RandomGenerator, SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { SIGNUP_SESSION_COOKIE_NAME } from "../../../lib/constants";
+import { SignupRequestUseCase } from "../../../features/auth";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
 import { CaptchaSchema, captcha } from "../../../plugins/captcha";
 import {
 	ElysiaWithEnv,
@@ -21,6 +15,12 @@ import { BadRequestException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { EmailGateway } from "../../../shared/adapters/gateways/email";
+import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
+import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const SignupRequest = new ElysiaWithEnv()
 
@@ -47,15 +47,15 @@ export const SignupRequest = new ElysiaWithEnv()
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
 			const signupSessionRepository = new SignupSessionRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
+			const emailGateway = new EmailGateway(APP_ENV === "production", RESEND_API_KEY);
 
 			const sessionSecretHasher = new SessionSecretHasher();
 			const randomGenerator = new RandomGenerator();
-			const sendEmailUseCase = new SendEmailUseCase(APP_ENV === "production", RESEND_API_KEY);
 
 			const signupRequestUseCase = new SignupRequestUseCase(
 				signupSessionRepository,
-				userRepository,
+				authUserRepository,
 				sessionSecretHasher,
 				randomGenerator,
 			);
@@ -83,7 +83,7 @@ export const SignupRequest = new ElysiaWithEnv()
 
 			const mailContents = verificationEmailTemplate(signupSession.email, signupSession.code);
 
-			await sendEmailUseCase.sendEmail({
+			await emailGateway.sendEmail({
 				from: mailContents.from,
 				to: mailContents.to,
 				subject: mailContents.subject,

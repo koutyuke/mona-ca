@@ -1,9 +1,6 @@
 import { t } from "elysia";
-import { CookieManager } from "../../features/auth/adapters/http/cookie";
-import { SessionRepository } from "../../features/auth/adapters/repositories/session";
-import { LogoutUseCase } from "../../features/auth/application/use-cases/auth";
-import { DrizzleService } from "../../infrastructure/drizzle";
-import { SESSION_COOKIE_NAME } from "../../lib/constants";
+import { LogoutUseCase } from "../../features/auth";
+import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import {
 	ElysiaWithEnv,
@@ -12,6 +9,9 @@ import {
 	withBaseResponseSchema,
 } from "../../plugins/elysia-with-env";
 import { pathDetail } from "../../plugins/open-api";
+import { DrizzleService } from "../../shared/infra/drizzle";
+import { CookieManager } from "../../shared/infra/elysia/cookie";
+import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
 export const Logout = new ElysiaWithEnv()
 	// Local Middleware & Plugin

@@ -1,14 +1,7 @@
 import { t } from "elysia";
-import { newSignupSessionToken } from "../../../common/domain/value-objects";
-import { CookieManager } from "../../../features/auth/adapters/http/cookie";
-import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session";
-import {
-	SignupVerifyEmailUseCase,
-	ValidateSignupSessionUseCase,
-} from "../../../features/auth/application/use-cases/auth";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { SIGNUP_SESSION_COOKIE_NAME } from "../../../lib/constants";
+import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../features/auth";
+import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
+import { newSignupSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -21,6 +14,10 @@ import { BadRequestException, UnauthorizedException } from "../../../plugins/err
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const SignupVerifyEmail = new ElysiaWithEnv()
 	// Local Middleware & Plugin

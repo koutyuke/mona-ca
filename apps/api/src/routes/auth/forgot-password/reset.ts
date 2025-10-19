@@ -1,16 +1,9 @@
 import { t } from "elysia";
-import { newPasswordResetSessionToken } from "../../../common/domain/value-objects";
-import { CookieManager } from "../../../features/auth/adapters/http/cookie";
-import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session";
-import { SessionRepository } from "../../../features/auth/adapters/repositories/session";
-import {
-	ResetPasswordUseCase,
-	ValidatePasswordResetSessionUseCase,
-} from "../../../features/auth/application/use-cases/password";
-import { UserRepository } from "../../../features/user/adapters/repositories/user";
-import { PasswordHasher, SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../lib/constants";
+import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../features/auth";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session/password-reset-session.repository";
+import { SessionRepository } from "../../../features/auth/adapters/repositories/session/session.repository";
+import { newPasswordResetSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -22,6 +15,10 @@ import {
 import { ForbiddenException, UnauthorizedException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { PasswordHasher, SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const ResetPassword = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -41,7 +38,7 @@ export const ResetPassword = new ElysiaWithEnv()
 			const drizzleService = new DrizzleService(DB);
 			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
 
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 			const sessionRepository = new SessionRepository(drizzleService);
 			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 
@@ -50,11 +47,11 @@ export const ResetPassword = new ElysiaWithEnv()
 
 			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 				passwordResetSessionRepository,
-				userRepository,
+				authUserRepository,
 				sessionSecretHasher,
 			);
 			const resetPasswordUseCase = new ResetPasswordUseCase(
-				userRepository,
+				authUserRepository,
 				sessionRepository,
 				passwordResetSessionRepository,
 				passwordHasher,
@@ -94,9 +91,9 @@ export const ResetPassword = new ElysiaWithEnv()
 				}
 			}
 
-			const { passwordResetSession, user } = validationResult.value;
+			const { passwordResetSession, userIdentity } = validationResult.value;
 
-			const resetResult = await resetPasswordUseCase.execute(newPassword, passwordResetSession, user);
+			const resetResult = await resetPasswordUseCase.execute(newPassword, passwordResetSession, userIdentity);
 
 			if (resetResult.isErr) {
 				const { code } = resetResult;

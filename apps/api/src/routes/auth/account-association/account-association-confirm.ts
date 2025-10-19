@@ -1,15 +1,11 @@
 import { t } from "elysia";
-import { newAccountAssociationSessionToken } from "../../../common/domain/value-objects";
-import { CookieManager } from "../../../features/auth/adapters/http/cookie";
-import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session";
-import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity";
-import { SessionRepository } from "../../../features/auth/adapters/repositories/session";
-import { AccountAssociationConfirmUseCase } from "../../../features/auth/application/use-cases/account-association";
-import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association";
-import { UserRepository } from "../../../features/user/adapters/repositories/user";
-import { SessionSecretHasher } from "../../../infrastructure/crypto";
-import { DrizzleService } from "../../../infrastructure/drizzle";
-import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../lib/constants";
+import { AccountAssociationSessionRepository } from "../../../features/auth/adapters/repositories/account-association-session/account-association-session.repository";
+import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
+import { ExternalIdentityRepository } from "../../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import { SessionRepository } from "../../../features/auth/adapters/repositories/session/session.repository";
+import { AccountAssociationConfirmUseCase } from "../../../features/auth/application/use-cases/account-association/account-association-confirm.usecase";
+import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association/validate-account-association-session.usecase";
+import { newAccountAssociationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -22,6 +18,10 @@ import { BadRequestException, UnauthorizedException } from "../../../plugins/err
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { SessionSecretHasher } from "../../../shared/infra/crypto";
+import { DrizzleService } from "../../../shared/infra/drizzle";
+import { CookieManager } from "../../../shared/infra/elysia/cookie";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const AccountAssociationConfirm = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -55,17 +55,17 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 			const sessionRepository = new SessionRepository(drizzleService);
 			const accountAssociationSessionRepository = new AccountAssociationSessionRepository(drizzleService);
 			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
-			const userRepository = new UserRepository(drizzleService);
+			const authUserRepository = new AuthUserRepository(drizzleService);
 
 			const sessionSecretHasher = new SessionSecretHasher();
 
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
-				userRepository,
+				authUserRepository,
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 			);
 			const accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
-				userRepository,
+				authUserRepository,
 				sessionRepository,
 				externalIdentityRepository,
 				accountAssociationSessionRepository,
@@ -106,11 +106,15 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 				}
 			}
 
-			const { accountAssociationSession } = validateResult.value;
+			const { accountAssociationSession, userIdentity } = validateResult.value;
 
-			await rateLimit.consume(accountAssociationSession.id, 100);
+			await rateLimit.consume(userIdentity.id, 100);
 
-			const confirmResult = await accountAssociationConfirmUseCase.execute(code, accountAssociationSession);
+			const confirmResult = await accountAssociationConfirmUseCase.execute(
+				code,
+				userIdentity,
+				accountAssociationSession,
+			);
 
 			if (confirmResult.isErr) {
 				const { code } = confirmResult;
@@ -131,12 +135,6 @@ export const AccountAssociationConfirm = new ElysiaWithEnv()
 					throw new BadRequestException({
 						code,
 						message: "This OAuth account is already linked to another user.",
-					});
-				}
-				if (code === "USER_NOT_FOUND") {
-					throw new BadRequestException({
-						code,
-						message: "User not found. Please try again.",
 					});
 				}
 			}
