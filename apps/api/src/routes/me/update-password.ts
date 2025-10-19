@@ -51,7 +51,7 @@ export const UpdatePassword = new ElysiaWithEnv()
 			);
 			// === End of instances ===
 
-			const result = await updateUserPasswordUseCase.execute(userIdentity, currentPassword, newPassword);
+			const result = await updateUserPasswordUseCase.execute(userIdentity, currentPassword ?? null, newPassword);
 
 			if (result.isErr) {
 				const { code } = result;

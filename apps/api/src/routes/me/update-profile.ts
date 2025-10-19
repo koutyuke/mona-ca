@@ -1,13 +1,19 @@
 import { t } from "elysia";
-import type { UpdateUserProfileDto } from "../../application/ports/in";
-import { genderSchema, newGender } from "../../common/domain/value-objects";
-import { UserResponseSchema, toUserResponse } from "../../features/auth/adapters/presenters";
-import { UserRepository } from "../../features/user/adapters/repositories/user";
-import { UpdateUserProfileUseCase } from "../../features/user/application/use-cases/user";
-import { DrizzleService } from "../../infrastructure/drizzle";
+import { UpdateProfileUseCase } from "../../features/user";
+import { ProfileResponseSchema, toProfileResponse } from "../../features/user/adapters/presenters/profile.presenter";
+import { ProfileRepository } from "../../features/user/adapters/repositories/profile/profile.repository";
+import type { UpdateProfileDto } from "../../features/user/application/contracts/profile/update-profile.usecase.interface";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
+import {
+	ElysiaWithEnv,
+	ErrorResponseSchema,
+	ResponseTUnion,
+	withBaseResponseSchema,
+} from "../../plugins/elysia-with-env";
+import { BadRequestException } from "../../plugins/error";
 import { pathDetail } from "../../plugins/open-api";
+import { genderSchema, newGender } from "../../shared/domain/value-objects";
+import { DrizzleService } from "../../shared/infra/drizzle";
 
 export const UpdateProfile = new ElysiaWithEnv()
 	// Local Middleware & Plugin
@@ -16,16 +22,16 @@ export const UpdateProfile = new ElysiaWithEnv()
 	// Route
 	.patch(
 		"",
-		async ({ cfModuleEnv: { DB }, body: { name, gender, iconUrl }, user }) => {
+		async ({ cfModuleEnv: { DB }, body: { name, gender, iconUrl }, userIdentity }) => {
 			// === Instances ===
 			const drizzleService = new DrizzleService(DB);
 
-			const userRepository = new UserRepository(drizzleService);
+			const profileRepository = new ProfileRepository(drizzleService);
 
-			const updateUserProfileUseCase = new UpdateUserProfileUseCase(userRepository);
+			const updateProfileUseCase = new UpdateProfileUseCase(profileRepository);
 			// === End of instances ===
 
-			const updateProfile: UpdateUserProfileDto = {};
+			const updateProfile: UpdateProfileDto = {};
 
 			if (name) {
 				updateProfile.name = name;
@@ -39,9 +45,16 @@ export const UpdateProfile = new ElysiaWithEnv()
 				updateProfile.iconUrl = iconUrl;
 			}
 
-			const updatedUser = await updateUserProfileUseCase.execute(user, updateProfile);
+			const updatedProfile = await updateProfileUseCase.execute(userIdentity.id, updateProfile);
 
-			return toUserResponse(updatedUser);
+			if (updatedProfile.isErr) {
+				throw new BadRequestException({
+					code: updatedProfile.code,
+					message: "Failed to update profile",
+				});
+			}
+
+			return toProfileResponse(updatedProfile.value.profile);
 		},
 		{
 			headers: AuthGuardSchema.headers,
@@ -56,8 +69,8 @@ export const UpdateProfile = new ElysiaWithEnv()
 				iconUrl: t.Optional(t.String()),
 			}),
 			response: withBaseResponseSchema({
-				200: UserResponseSchema,
-				400: AuthGuardSchema.response[400],
+				200: ProfileResponseSchema,
+				400: ResponseTUnion(AuthGuardSchema.response[400], ErrorResponseSchema("PROFILE_NOT_FOUND")),
 				401: AuthGuardSchema.response[401],
 			}),
 			detail: pathDetail({
