@@ -1,12 +1,13 @@
 import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
+
+import type { ClientType } from "../../../../../shared/domain/value-objects";
+import type { IOAuthStateSigner } from "../../../../../shared/ports/system";
 import type {
 	ExternalAuthRequestUseCaseResult,
 	IExternalAuthRequestUseCase,
-} from "../../../../../application/ports/in";
-import type { ClientType } from "../../../../../common/domain/value-objects";
-import type { IOAuthProviderGateway } from "../../../../../common/ports/gateways";
-import type { IOAuthStateSigner } from "../../../../../common/ports/system";
+} from "../../contracts/external-auth/external-auth-request.usecase.interface";
+import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
 import type { oauthStateSchema } from "./schema";
 
 export class ExternalAuthRequestUseCase implements IExternalAuthRequestUseCase {

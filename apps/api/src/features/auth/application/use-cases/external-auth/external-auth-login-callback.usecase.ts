@@ -1,35 +1,30 @@
 import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
+import { newClientType } from "../../../../../shared/domain/value-objects";
+import { ulid } from "../../../../../shared/lib/id";
+import { createAccountAssociationSession } from "../../../domain/entities/account-association-session";
+import { createSession } from "../../../domain/entities/session";
+import { newExternalIdentityProviderUserId } from "../../../domain/value-objects/external-identity";
+import { newAccountAssociationSessionId, newSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IOAuthStateSigner, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { Session } from "../../../domain/entities/session";
+import type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+} from "../../../domain/value-objects/external-identity";
+import type { AccountAssociationSessionToken, SessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	ExternalAuthLoginCallbackUseCaseResult,
 	IExternalAuthLoginCallbackUseCase,
-} from "../../../../../application/ports/in";
-import {
-	type AccountAssociationSessionToken,
-	type ExternalIdentityProvider,
-	type ExternalIdentityProviderUserId,
-	type SessionToken,
-	type UserId,
-	newAccountAssociationSessionId,
-	newClientType,
-	newExternalIdentityProviderUserId,
-	newSessionId,
-} from "../../../../../common/domain/value-objects";
-import { formatSessionToken } from "../../../../../common/domain/value-objects";
-import type { IOAuthProviderGateway } from "../../../../../common/ports/gateways";
-import type { IOAuthStateSigner, ISessionSecretHasher } from "../../../../../common/ports/system";
-import { ulid } from "../../../../../lib/utils";
-import {
-	type AccountAssociationSession,
-	type Session,
-	createAccountAssociationSession,
-	createSession,
-} from "../../../domain/entities";
-import type {
-	IAccountAssociationSessionRepository,
-	IExternalIdentityRepository,
-	ISessionRepository,
-	IUserRepository,
-} from "../../ports/out/repositories";
+} from "../../contracts/external-auth/external-auth-login-callback.usecase.interface";
+import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
+import type { IAccountAssociationSessionRepository } from "../../ports/repositories/account-association-session.repository.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
+import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 import type { oauthStateSchema } from "./schema";
 
 export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallbackUseCase {
@@ -37,7 +32,7 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly externalIdentityRepository: IExternalIdentityRepository,
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly oauthStateSigner: IOAuthStateSigner<typeof oauthStateSchema>,
@@ -104,15 +99,13 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 			}
 		}
 
-		const identity = getIdentityResult.value;
-		const identityUserId = newExternalIdentityProviderUserId(identity.id);
+		const { providerIdentity } = getIdentityResult.value;
+		const identityUserId = newExternalIdentityProviderUserId(providerIdentity.id);
 
-		const existingExternalIdentity = await this.externalIdentityRepository.findByProviderAndProviderUserId(
-			provider,
-			identityUserId,
-		);
-
-		const existingUserForSameEmail = await this.userRepository.findByEmail(identity.email);
+		const [existingExternalIdentity, existingUserIdentityForSameEmail] = await Promise.all([
+			this.externalIdentityRepository.findByProviderAndProviderUserId(provider, identityUserId),
+			this.authUserRepository.findByEmail(providerIdentity.email),
+		]);
 
 		if (existingExternalIdentity) {
 			const { session, sessionToken } = this.createSession(existingExternalIdentity.userId);
@@ -127,15 +120,15 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 			});
 		}
 
-		if (existingUserForSameEmail) {
+		if (existingUserIdentityForSameEmail) {
 			const { accountAssociationSession, accountAssociationSessionToken } = this.createAccountAssociationSession(
-				existingUserForSameEmail.id,
-				existingUserForSameEmail.email,
+				existingUserIdentityForSameEmail.id,
+				existingUserIdentityForSameEmail.email,
 				provider,
 				identityUserId,
 			);
 
-			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
+			await this.accountAssociationSessionRepository.deleteByUserId(existingUserIdentityForSameEmail.id);
 			await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
 			return err("ACCOUNT_ASSOCIATION_AVAILABLE", {
@@ -155,7 +148,7 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 		const sessionSecret = this.sessionSecretHasher.generate();
 		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatAnySessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId,
@@ -176,7 +169,7 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 		const accountAssociationSessionSecret = this.sessionSecretHasher.generate();
 		const accountAssociationSessionSecretHash = this.sessionSecretHasher.hash(accountAssociationSessionSecret);
 		const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-		const accountAssociationSessionToken = formatSessionToken(
+		const accountAssociationSessionToken = formatAnySessionToken(
 			accountAssociationSessionId,
 			accountAssociationSessionSecret,
 		);

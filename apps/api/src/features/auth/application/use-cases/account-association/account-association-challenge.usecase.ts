@@ -1,19 +1,21 @@
+import { ulid } from "../../../../../shared/lib/id";
+import { createAccountAssociationSession } from "../../../domain/entities/account-association-session";
+import { newAccountAssociationSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+} from "../../../domain/value-objects/external-identity";
+import type { AccountAssociationSessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	AccountAssociationChallengeUseCaseResult,
 	IAccountAssociationChallengeUseCase,
-} from "../../../../../application/ports/in";
-import {
-	type AccountAssociationSessionToken,
-	type ExternalIdentityProvider,
-	type ExternalIdentityProviderUserId,
-	type UserId,
-	formatSessionToken,
-	newAccountAssociationSessionId,
-} from "../../../../../common/domain/value-objects";
-import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../common/ports/system";
-import { ulid } from "../../../../../lib/utils";
-import { type AccountAssociationSession, type User, createAccountAssociationSession } from "../../../domain/entities";
-import type { IAccountAssociationSessionRepository } from "../../ports/out/repositories";
+} from "../../contracts/account-association/account-association-challenge.usecase.interface";
+import type { IAccountAssociationSessionRepository } from "../../ports/repositories/account-association-session.repository.interface";
 
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.
@@ -25,14 +27,13 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 	) {}
 
 	public async execute(
-		user: User,
 		oldAccountAssociationSession: AccountAssociationSession,
 	): Promise<AccountAssociationChallengeUseCaseResult> {
 		await this.accountAssociationSessionRepository.deleteByUserId(oldAccountAssociationSession.userId);
 
 		const { accountAssociationSession, accountAssociationSessionToken } = this.createAccountAssociationSession(
-			user.id,
-			user.email,
+			oldAccountAssociationSession.userId,
+			oldAccountAssociationSession.email,
 			oldAccountAssociationSession.provider,
 			oldAccountAssociationSession.providerUserId,
 		);
@@ -57,7 +58,7 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 		const accountAssociationSessionSecret = this.sessionSecretHasher.generate();
 		const accountAssociationSessionSecretHash = this.sessionSecretHasher.hash(accountAssociationSessionSecret);
 		const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-		const accountAssociationSessionToken = formatSessionToken(
+		const accountAssociationSessionToken = formatAnySessionToken(
 			accountAssociationSessionId,
 			accountAssociationSessionSecret,
 		);

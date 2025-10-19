@@ -1,40 +1,33 @@
 import { err, ok } from "@mona-ca/core/utils";
+import { timingSafeStringEqual } from "../../../../../shared/lib/security";
+import { updateUserIdentity } from "../../../domain/entities/user-identity";
+
+import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type {
 	EmailVerificationConfirmUseCaseResult,
 	IEmailVerificationConfirmUseCase,
-} from "../../../../../application/ports/in";
-import {
-	type SessionToken,
-	type UserId,
-	formatSessionToken,
-	newSessionId,
-} from "../../../../../common/domain/value-objects";
-import type { ISessionSecretHasher } from "../../../../../common/ports/system";
-import { timingSafeStringEqual, ulid } from "../../../../../lib/utils";
-import { createSession, updateUser } from "../../../domain/entities";
-import type { EmailVerificationSession, Session, User } from "../../../domain/entities";
-import type {
-	IEmailVerificationSessionRepository,
-	ISessionRepository,
-	IUserRepository,
-} from "../../ports/out/repositories";
+} from "../../contracts/email-verification/email-verification-confirm.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
-// this use case will be called after the validate email verification session use case.
-// so we don't need to check the expired email verification session.
 export class EmailVerificationConfirmUseCase implements IEmailVerificationConfirmUseCase {
 	constructor(
-		private readonly userRepository: IUserRepository,
-		private readonly sessionRepository: ISessionRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
+	/**
+	 * this use case will be called after the validate email verification session use case.
+	 *
+	 * so we don't need to check the expired email verification session.
+	 */
 	public async execute(
 		code: string,
-		user: User,
+		userIdentity: UserIdentity,
 		emailVerificationSession: EmailVerificationSession,
 	): Promise<EmailVerificationConfirmUseCaseResult> {
-		if (emailVerificationSession.email !== user.email) {
+		if (emailVerificationSession.email !== userIdentity.email) {
 			return err("EMAIL_MISMATCH");
 		}
 
@@ -42,38 +35,15 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 			return err("INVALID_VERIFICATION_CODE");
 		}
 
-		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
-
-		// Delete all sessions for the user.
-		await this.sessionRepository.deleteByUserId(user.id);
-
-		const { session, sessionToken } = this.createSession(user.id);
-
-		const updatedUser = updateUser(user, {
+		const updatedUserIdentity = updateUserIdentity(userIdentity, {
 			emailVerified: true,
 		});
 
-		await Promise.all([this.userRepository.save(updatedUser), this.sessionRepository.save(session)]);
+		await Promise.all([
+			this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id),
+			this.authUserRepository.update(updatedUserIdentity),
+		]);
 
-		return ok({
-			session,
-			sessionToken,
-		});
-	}
-
-	private createSession(userId: UserId): {
-		session: Session;
-		sessionToken: SessionToken;
-	} {
-		const sessionSecret = this.sessionSecretHasher.generate();
-		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
-		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
-		const session = createSession({
-			id: sessionId,
-			userId,
-			secretHash: sessionSecretHash,
-		});
-		return { session, sessionToken };
+		return ok();
 	}
 }

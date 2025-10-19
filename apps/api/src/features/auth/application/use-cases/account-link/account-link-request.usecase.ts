@@ -1,10 +1,14 @@
 import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
-import type { AccountLinkRequestUseCaseResult, IAccountLinkRequestUseCase } from "../../../../../application/ports/in";
-import type { ClientType } from "../../../../../common/domain/value-objects";
-import type { UserId } from "../../../../../common/domain/value-objects";
-import type { IOAuthProviderGateway } from "../../../../../common/ports/gateways";
-import type { IOAuthStateSigner } from "../../../../../common/ports/system";
+
+import type { ClientType } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IOAuthStateSigner } from "../../../../../shared/ports/system";
+import type {
+	AccountLinkRequestUseCaseResult,
+	IAccountLinkRequestUseCase,
+} from "../../contracts/account-link/account-link-request.usecase.interface";
+import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
 import type { accountLinkStateSchema } from "./schema";
 
 export class AccountLinkRequestUseCase implements IAccountLinkRequestUseCase {

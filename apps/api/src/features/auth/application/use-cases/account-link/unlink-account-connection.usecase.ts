@@ -1,38 +1,31 @@
 import { err, ok } from "@mona-ca/core/utils";
+
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 import type {
 	IUnlinkAccountConnectionUseCase,
 	UnlinkAccountConnectionUseCaseResult,
-} from "../../../../../application/ports/in";
-import type { ExternalIdentityProvider, UserId } from "../../../../../common/domain/value-objects";
-import type { IExternalIdentityRepository, IUserRepository } from "../../ports/out/repositories";
+} from "../../contracts/account-link/unlink-account-connection.usecase.interface";
+import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
 
 export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionUseCase {
-	constructor(
-		private readonly externalIdentityRepository: IExternalIdentityRepository,
-		private readonly userRepository: IUserRepository,
-	) {}
+	constructor(private readonly externalIdentityRepository: IExternalIdentityRepository) {}
 
 	public async execute(
 		provider: ExternalIdentityProvider,
-		userId: UserId,
+		userIdentity: UserIdentity,
 	): Promise<UnlinkAccountConnectionUseCaseResult> {
-		const linkedAccount = await this.externalIdentityRepository.findByUserIdAndProvider(userId, provider);
-		const passwordHashed = await this.userRepository.findPasswordHashById(userId);
+		const linkedAccount = await this.externalIdentityRepository.findByUserIdAndProvider(userIdentity.id, provider);
 
 		if (!linkedAccount) {
 			return err("PROVIDER_NOT_LINKED");
 		}
 
-		if (!passwordHashed) {
+		if (!userIdentity.passwordHash) {
 			return err("PASSWORD_NOT_SET");
 		}
 
-		try {
-			await this.externalIdentityRepository.deleteByUserIdAndProvider(userId, provider);
-			return ok();
-		} catch (error) {
-			console.error(`Failed to unlink account: ${error}`);
-			return err("UNLINK_OPERATION_FAILED");
-		}
+		await this.externalIdentityRepository.deleteByUserIdAndProvider(userIdentity.id, provider);
+		return ok();
 	}
 }

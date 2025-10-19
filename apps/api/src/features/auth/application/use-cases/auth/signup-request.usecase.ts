@@ -1,25 +1,31 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { ISignupRequestUseCase, SignupRequestUseCaseResult } from "../../../../../application/ports/in";
-import { formatSessionToken, newSignupSessionId } from "../../../../../common/domain/value-objects";
-import type { SignupSessionToken } from "../../../../../common/domain/value-objects";
-import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../common/ports/system";
-import { ulid } from "../../../../../lib/utils";
-import { type SignupSession, createSignupSession } from "../../../domain/entities";
-import type { IUserRepository } from "../../ports/out/repositories";
-import type { ISignupSessionRepository } from "../../ports/out/repositories";
+import { ulid } from "../../../../../shared/lib/id";
+import { createSignupSession } from "../../../domain/entities/signup-session";
+import { newSignupSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { SignupSession } from "../../../domain/entities/signup-session";
+import type { SignupSessionToken } from "../../../domain/value-objects/session-token";
+import type {
+	ISignupRequestUseCase,
+	SignupRequestUseCaseResult,
+} from "../../contracts/auth/signup-request.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 
 export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(
 		private readonly signupSessionRepository: ISignupSessionRepository,
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly randomGenerator: IRandomGenerator,
 	) {}
 
 	async execute(email: string): Promise<SignupRequestUseCaseResult> {
-		const user = await this.userRepository.findByEmail(email);
+		const userIdentity = await this.authUserRepository.findByEmail(email);
 
-		if (user !== null) {
+		if (userIdentity) {
 			return err("EMAIL_ALREADY_USED");
 		}
 
@@ -30,8 +36,8 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 		await this.signupSessionRepository.save(signupSession);
 
 		return ok({
-			signupSessionToken,
 			signupSession,
+			signupSessionToken,
 		});
 	}
 
@@ -49,7 +55,7 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 			code,
 			secretHash: signupSessionSecretHash,
 		});
-		const signupSessionToken = formatSessionToken(signupSessionId, signupSessionSecret);
+		const signupSessionToken = formatAnySessionToken(signupSessionId, signupSessionSecret);
 
 		return { signupSessionToken, signupSession };
 	}

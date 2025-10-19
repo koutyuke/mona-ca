@@ -1,6 +1,6 @@
-import type { ILogoutUseCase } from "../../../../../application/ports/in";
-import type { SessionId } from "../../../../../common/domain/value-objects";
-import type { ISessionRepository } from "../../ports/out/repositories";
+import type { SessionId } from "../../../domain/value-objects/ids";
+import type { ILogoutUseCase } from "../../contracts/auth/logout.usecase.interface";
+import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
 export class LogoutUseCase implements ILogoutUseCase {
 	constructor(private readonly sessionRepository: ISessionRepository) {}

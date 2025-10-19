@@ -1,44 +1,53 @@
 import { err, ok } from "@mona-ca/core/utils";
+import { ulid } from "../../../../../shared/lib/id";
+import { createEmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import { newEmailVerificationSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { EmailVerificationSessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	EmailVerificationRequestUseCaseResult,
 	IEmailVerificationRequestUseCase,
-} from "../../../../../application/ports/in";
-import {
-	type EmailVerificationSessionToken,
-	formatSessionToken,
-	newEmailVerificationSessionId,
-} from "../../../../../common/domain/value-objects";
-import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../common/ports/system";
-import { ulid } from "../../../../../lib/utils";
-import { createEmailVerificationSession } from "../../../domain/entities";
-import type { EmailVerificationSession, User } from "../../../domain/entities";
-import type { IEmailVerificationSessionRepository, IUserRepository } from "../../ports/out/repositories";
+} from "../../contracts/email-verification/email-verification-request.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
-		private readonly userRepository: IUserRepository,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly randomGenerator: IRandomGenerator,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
-	public async execute(email: string, user: User): Promise<EmailVerificationRequestUseCaseResult> {
-		if (email === user.email && user.emailVerified) {
-			return err("EMAIL_ALREADY_VERIFIED");
-		}
+	public async execute(email: string, userIdentity: UserIdentity): Promise<EmailVerificationRequestUseCaseResult> {
+		if (email === userIdentity.email) {
+			// userIdentity.email === email => email verification
 
-		const existingUserForVerifiedEmail = await this.userRepository.findByEmail(email);
+			// check if the email is already verified
+			if (userIdentity.emailVerified) {
+				return err("EMAIL_ALREADY_VERIFIED");
+			}
+		} else {
+			// userIdentity.email !== email => update user email
 
-		if (existingUserForVerifiedEmail && existingUserForVerifiedEmail.id !== user.id) {
-			return err("EMAIL_ALREADY_REGISTERED");
+			// check if the email is already registered
+			const existingUserIdentityForVerifiedEmail = await this.authUserRepository.findByEmail(email);
+			if (existingUserIdentityForVerifiedEmail && existingUserIdentityForVerifiedEmail.id !== userIdentity.id) {
+				return err("EMAIL_ALREADY_REGISTERED");
+			}
 		}
 
 		const { emailVerificationSessionToken, emailVerificationSession } = this.createEmailVerificationSession(
 			email,
-			user,
+			userIdentity.id,
 		);
 
-		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
+		await this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id);
 		await this.emailVerificationSessionRepository.save(emailVerificationSession);
 
 		return ok({
@@ -49,7 +58,7 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 
 	private createEmailVerificationSession(
 		email: string,
-		user: User,
+		userId: UserId,
 	): {
 		emailVerificationSessionToken: EmailVerificationSessionToken;
 		emailVerificationSession: EmailVerificationSession;
@@ -60,14 +69,14 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 		const emailVerificationSessionSecret = this.sessionSecretHasher.generate();
 		const secretHash = this.sessionSecretHasher.hash(emailVerificationSessionSecret);
 		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const emailVerificationSessionToken = formatSessionToken(
+		const emailVerificationSessionToken = formatAnySessionToken(
 			emailVerificationSessionId,
 			emailVerificationSessionSecret,
 		);
 		const emailVerificationSession = createEmailVerificationSession({
 			id: emailVerificationSessionId,
 			email,
-			userId: user.id,
+			userId,
 			code,
 			secretHash,
 		});

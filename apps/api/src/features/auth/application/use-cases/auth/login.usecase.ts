@@ -1,34 +1,39 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { ILoginUseCase, LoginUseCaseResult } from "../../../../../application/ports/in";
-import {
-	type SessionToken,
-	type UserId,
-	formatSessionToken,
-	newSessionId,
-} from "../../../../../common/domain/value-objects";
-import type { IPasswordHasher, ISessionSecretHasher } from "../../../../../common/ports/system";
-import { ulid } from "../../../../../lib/utils";
-import { type Session, createSession } from "../../../domain/entities";
-import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
+import { ulid } from "../../../../../shared/lib/id";
+import { createSession } from "../../../domain/entities/session";
+import { newSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IPasswordHasher, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { Session } from "../../../domain/entities/session";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
+import type { ILoginUseCase, LoginUseCaseResult } from "../../contracts/auth/login.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
 export class LoginUseCase implements ILoginUseCase {
 	constructor(
 		private readonly sessionRepository: ISessionRepository,
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly passwordHasher: IPasswordHasher,
 	) {}
 
 	public async execute(email: string, password: string): Promise<LoginUseCaseResult> {
-		const user = await this.userRepository.findByEmail(email);
-		const passwordHash = user ? await this.userRepository.findPasswordHashById(user.id) : null;
-		const verifyPasswordResult = passwordHash ? await this.passwordHasher.verify(password, passwordHash) : false;
+		const userIdentity = await this.authUserRepository.findByEmail(email);
 
-		if (!(user && passwordHash && verifyPasswordResult)) {
+		if (!userIdentity || !userIdentity.passwordHash) {
 			return err("INVALID_CREDENTIALS");
 		}
 
-		const { session, sessionToken } = this.createSession(user.id);
+		const verifyPasswordResult = await this.passwordHasher.verify(password, userIdentity.passwordHash);
+
+		if (!verifyPasswordResult) {
+			return err("INVALID_CREDENTIALS");
+		}
+
+		const { session, sessionToken } = this.createSession(userIdentity.id);
 
 		await this.sessionRepository.save(session);
 
@@ -45,7 +50,7 @@ export class LoginUseCase implements ILoginUseCase {
 		const sessionSecret = this.sessionSecretHasher.generate();
 		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatAnySessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId,

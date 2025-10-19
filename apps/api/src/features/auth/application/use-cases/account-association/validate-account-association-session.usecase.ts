@@ -1,16 +1,19 @@
 import { err, ok } from "@mona-ca/core/utils";
+import { isExpiredAccountAssociationSession } from "../../../domain/entities/account-association-session";
+import { parseAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { AccountAssociationSessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	IValidateAccountAssociationSessionUseCase,
 	ValidateAccountAssociationSessionUseCaseResult,
-} from "../../../../../application/ports/in";
-import { type AccountAssociationSessionToken, parseSessionToken } from "../../../../../common/domain/value-objects";
-import type { ISessionSecretHasher } from "../../../../../common/ports/system";
-import { isExpiredAccountAssociationSession } from "../../../domain/entities";
-import type { IAccountAssociationSessionRepository, IUserRepository } from "../../ports/out/repositories";
+} from "../../contracts/account-association/validate-account-association-session.usecase.interface";
+import type { IAccountAssociationSessionRepository } from "../../ports/repositories/account-association-session.repository.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 
 export class ValidateAccountAssociationSessionUseCase implements IValidateAccountAssociationSessionUseCase {
 	constructor(
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
@@ -18,7 +21,7 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 	public async execute(
 		accountAssociationSessionToken: AccountAssociationSessionToken,
 	): Promise<ValidateAccountAssociationSessionUseCaseResult> {
-		const accountAssociationSessionIdAndSecret = parseSessionToken(accountAssociationSessionToken);
+		const accountAssociationSessionIdAndSecret = parseAnySessionToken(accountAssociationSessionToken);
 
 		if (!accountAssociationSessionIdAndSecret) {
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
@@ -43,13 +46,13 @@ export class ValidateAccountAssociationSessionUseCase implements IValidateAccoun
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 
-		const user = await this.userRepository.findById(accountAssociationSession.userId);
+		const userIdentity = await this.authUserRepository.findById(accountAssociationSession.userId);
 
-		if (!user || user.email !== accountAssociationSession.email) {
+		if (!userIdentity || userIdentity.email !== accountAssociationSession.email) {
 			await this.accountAssociationSessionRepository.deleteById(accountAssociationSessionId);
 			return err("ACCOUNT_ASSOCIATION_SESSION_INVALID");
 		}
 
-		return ok({ accountAssociationSession, user });
+		return ok({ accountAssociationSession, userIdentity });
 	}
 }

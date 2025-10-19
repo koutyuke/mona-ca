@@ -1,13 +1,15 @@
 import { err, ok } from "@mona-ca/core/utils";
+import { isExpiredEmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import { parseAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { EmailVerificationSessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	IValidateEmailVerificationSessionUseCase,
 	ValidateEmailVerificationSessionUseCaseResult,
-} from "../../../../../application/ports/in";
-import type { EmailVerificationSessionToken } from "../../../../../common/domain/value-objects";
-import { parseSessionToken } from "../../../../../common/domain/value-objects";
-import type { ISessionSecretHasher } from "../../../../../common/ports/system";
-import { type User, isExpiredEmailVerificationSession } from "../../../domain/entities";
-import type { IEmailVerificationSessionRepository } from "../../ports/out/repositories";
+} from "../../contracts/email-verification/validate-email-verification-session.usecase.interface";
+import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
 export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVerificationSessionUseCase {
 	constructor(
@@ -16,10 +18,10 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 	) {}
 
 	public async execute(
+		userIdentity: UserIdentity,
 		emailVerificationSessionToken: EmailVerificationSessionToken,
-		user: User,
 	): Promise<ValidateEmailVerificationSessionUseCaseResult> {
-		const emailVerificationSessionIdAndSecret = parseSessionToken(emailVerificationSessionToken);
+		const emailVerificationSessionIdAndSecret = parseAnySessionToken(emailVerificationSessionToken);
 
 		if (!emailVerificationSessionIdAndSecret) {
 			return err("EMAIL_VERIFICATION_SESSION_INVALID");
@@ -34,7 +36,7 @@ export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVe
 			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 
-		if (emailVerificationSession.userId !== user.id) {
+		if (emailVerificationSession.userId !== userIdentity.id) {
 			return err("EMAIL_VERIFICATION_SESSION_INVALID");
 		}
 

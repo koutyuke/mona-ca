@@ -1,21 +1,27 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { ISignupConfirmUseCase, SignupConfirmUseCaseResult } from "../../../../../application/ports/in";
-import {
-	type Gender,
-	type SessionToken,
-	type UserId,
-	formatSessionToken,
-	newSessionId,
-	newUserId,
-} from "../../../../../common/domain/value-objects";
-import type { IPasswordHasher, ISessionSecretHasher } from "../../../../../common/ports/system";
-import { ulid } from "../../../../../lib/utils";
-import { type Session, type SignupSession, createSession, createUser } from "../../../domain/entities";
-import type { ISessionRepository, ISignupSessionRepository, IUserRepository } from "../../ports/out/repositories";
+import { newUserId } from "../../../../../shared/domain/value-objects";
+import { ulid } from "../../../../../shared/lib/id";
+import { createSession } from "../../../domain/entities/session";
+import { newSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { Gender, UserId } from "../../../../../shared/domain/value-objects";
+import type { IPasswordHasher, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { Session } from "../../../domain/entities/session";
+import type { SignupSession } from "../../../domain/entities/signup-session";
+import { createUserRegistration } from "../../../domain/entities/user-registration";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
+import type {
+	ISignupConfirmUseCase,
+	SignupConfirmUseCaseResult,
+} from "../../contracts/auth/signup-confirm.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
+import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 
 export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 	constructor(
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly signupSessionRepository: ISignupSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
@@ -32,33 +38,33 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 			return err("EMAIL_VERIFICATION_REQUIRED");
 		}
 
-		const existingSameEmailUser = await this.userRepository.findByEmail(signupSession.email);
-		if (existingSameEmailUser) {
+		const existingUserIdentityForSameEmail = await this.authUserRepository.findByEmail(signupSession.email);
+		if (existingUserIdentityForSameEmail) {
 			await this.signupSessionRepository.deleteById(signupSession.id);
 			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
 		const userId = newUserId(ulid());
-		const user = createUser({
+		const passwordHash = await this.passwordHasher.hash(password);
+
+		const userRegistration = createUserRegistration({
 			id: userId,
 			name,
 			email: signupSession.email,
 			emailVerified: true,
 			iconUrl: null,
 			gender,
+			passwordHash,
 		});
-
-		const passwordHash = await this.passwordHasher.hash(password);
 
 		const { session, sessionToken } = this.createSession(userId);
 
-		await this.userRepository.save(user, { passwordHash });
+		await this.authUserRepository.create(userRegistration);
 		await this.sessionRepository.save(session);
 
 		await this.signupSessionRepository.deleteById(signupSession.id);
 
 		return ok({
-			user,
 			session,
 			sessionToken,
 		});
@@ -71,7 +77,7 @@ export class SignupConfirmUseCase implements ISignupConfirmUseCase {
 		const sessionSecret = this.sessionSecretHasher.generate();
 		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatAnySessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId,

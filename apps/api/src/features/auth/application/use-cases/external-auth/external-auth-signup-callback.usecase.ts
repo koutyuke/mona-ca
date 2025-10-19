@@ -1,40 +1,33 @@
 import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
+import { newClientType, newGender, newUserId } from "../../../../../shared/domain/value-objects";
+import { ulid } from "../../../../../shared/lib/id";
+import { createAccountAssociationSession } from "../../../domain/entities/account-association-session";
+import { createExternalIdentity } from "../../../domain/entities/external-identity";
+import { createSession } from "../../../domain/entities/session";
+import { DEFAULT_USER_GENDER, createUserRegistration } from "../../../domain/entities/user-registration";
+import { newExternalIdentityProviderUserId } from "../../../domain/value-objects/external-identity";
+import { newAccountAssociationSessionId, newSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IOAuthStateSigner, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { Session } from "../../../domain/entities/session";
+import type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+} from "../../../domain/value-objects/external-identity";
+import type { AccountAssociationSessionToken, SessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	ExternalAuthSignupCallbackUseCaseResult,
 	IExternalAuthSignupCallbackUseCase,
-} from "../../../../../application/ports/in";
-import {
-	type AccountAssociationSessionToken,
-	type ExternalIdentityProvider,
-	type ExternalIdentityProviderUserId,
-	type SessionToken,
-	type UserId,
-	formatSessionToken,
-	newAccountAssociationSessionId,
-	newClientType,
-	newExternalIdentityProviderUserId,
-	newGender,
-	newSessionId,
-	newUserId,
-} from "../../../../../common/domain/value-objects";
-import type { IOAuthProviderGateway } from "../../../../../common/ports/gateways";
-import type { IOAuthStateSigner, ISessionSecretHasher } from "../../../../../common/ports/system";
-import { ulid } from "../../../../../lib/utils";
-import {
-	type AccountAssociationSession,
-	DEFAULT_USER_GENDER,
-	type Session,
-	createAccountAssociationSession,
-	createExternalIdentity,
-	createSession,
-	createUser,
-} from "../../../domain/entities";
-import type {
-	IAccountAssociationSessionRepository,
-	IExternalIdentityRepository,
-	ISessionRepository,
-	IUserRepository,
-} from "../../ports/out/repositories";
+} from "../../contracts/external-auth/external-auth-signup-callback.usecase.interface";
+import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
+
+import type { IAccountAssociationSessionRepository } from "../../ports/repositories/account-association-session.repository.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
+import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 import type { oauthStateSchema } from "./schema";
 
 export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCallbackUseCase {
@@ -42,7 +35,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly externalIdentityRepository: IExternalIdentityRepository,
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly oauthStateSigner: IOAuthStateSigner<typeof oauthStateSchema>,
@@ -111,29 +104,29 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 			}
 		}
 
-		const identity = getIdentityResult.value;
-		const identityUserId = newExternalIdentityProviderUserId(identity.id);
+		const { providerIdentity } = getIdentityResult.value;
+		const identityUserId = newExternalIdentityProviderUserId(providerIdentity.id);
 
 		const existingExternalIdentity = await this.externalIdentityRepository.findByProviderAndProviderUserId(
 			provider,
 			identityUserId,
 		);
 
-		const existingUserForSameEmail = await this.userRepository.findByEmail(identity.email);
+		const existingUserIdentityForSameEmail = await this.authUserRepository.findByEmail(providerIdentity.email);
 
 		if (existingExternalIdentity) {
 			return err("ACCOUNT_ALREADY_REGISTERED", { redirectURL: redirectToClientURL });
 		}
 
-		if (existingUserForSameEmail) {
+		if (existingUserIdentityForSameEmail) {
 			const { accountAssociationSession, accountAssociationSessionToken } = this.createAccountAssociationSession(
-				existingUserForSameEmail.id,
-				existingUserForSameEmail.email,
+				existingUserIdentityForSameEmail.id,
+				existingUserIdentityForSameEmail.email,
 				provider,
 				identityUserId,
 			);
 
-			await this.accountAssociationSessionRepository.deleteByUserId(existingUserForSameEmail.id);
+			await this.accountAssociationSessionRepository.deleteByUserId(existingUserIdentityForSameEmail.id);
 			await this.accountAssociationSessionRepository.save(accountAssociationSession);
 
 			return err("ACCOUNT_ASSOCIATION_AVAILABLE", {
@@ -144,23 +137,24 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 			});
 		}
 
-		const user = createUser({
-			id: newUserId(ulid()),
-			name: identity.name,
-			email: identity.email,
-			emailVerified: identity.emailVerified,
-			iconUrl: identity.iconURL,
+		const userId = newUserId(ulid());
+		const userRegistration = createUserRegistration({
+			id: userId,
+			email: providerIdentity.email,
+			emailVerified: true,
+			passwordHash: null,
+			name: providerIdentity.name,
+			iconUrl: providerIdentity.iconURL,
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
+		await this.authUserRepository.create(userRegistration);
 
-		await this.userRepository.save(user, { passwordHash: null });
-
-		const { session, sessionToken } = this.createSession(user.id);
+		const { session, sessionToken } = this.createSession(userId);
 
 		const externalIdentity = createExternalIdentity({
 			provider,
 			providerUserId: identityUserId,
-			userId: user.id,
+			userId,
 		});
 
 		await Promise.all([this.sessionRepository.save(session), this.externalIdentityRepository.save(externalIdentity)]);
@@ -180,7 +174,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 		const sessionSecret = this.sessionSecretHasher.generate();
 		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatAnySessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId,
@@ -201,7 +195,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 		const accountAssociationSessionSecret = this.sessionSecretHasher.generate();
 		const accountAssociationSessionSecretHash = this.sessionSecretHasher.hash(accountAssociationSessionSecret);
 		const accountAssociationSessionId = newAccountAssociationSessionId(ulid());
-		const accountAssociationSessionToken = formatSessionToken(
+		const accountAssociationSessionToken = formatAnySessionToken(
 			accountAssociationSessionId,
 			accountAssociationSessionSecret,
 		);

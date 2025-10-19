@@ -1,8 +1,13 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { ISignupVerifyEmailUseCase, SignupVerifyEmailUseCaseResult } from "../../../../../application/ports/in";
-import { timingSafeStringEqual } from "../../../../../lib/utils";
-import { type SignupSession, completeEmailVerificationForSignupSession } from "../../../domain/entities";
-import type { ISignupSessionRepository } from "../../ports/out/repositories";
+import { timingSafeStringEqual } from "../../../../../shared/lib/security";
+import { completeEmailVerificationForSignupSession } from "../../../domain/entities/signup-session";
+
+import type { SignupSession } from "../../../domain/entities/signup-session";
+import type {
+	ISignupVerifyEmailUseCase,
+	SignupVerifyEmailUseCaseResult,
+} from "../../contracts/auth/signup-verify-email.usecase.interface";
+import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 
 export class SignupVerifyEmailUseCase implements ISignupVerifyEmailUseCase {
 	constructor(private readonly signupSessionRepository: ISignupSessionRepository) {}

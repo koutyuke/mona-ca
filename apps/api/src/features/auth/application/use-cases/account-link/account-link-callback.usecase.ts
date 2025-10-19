@@ -1,19 +1,17 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { err, ok } from "@mona-ca/core/utils";
+import { newClientType, newUserId } from "../../../../../shared/domain/value-objects";
+import { createExternalIdentity } from "../../../domain/entities/external-identity";
+import { newExternalIdentityProviderUserId } from "../../../domain/value-objects/external-identity";
+
+import type { IOAuthStateSigner } from "../../../../../shared/ports/system";
+import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 import type {
 	AccountLinkCallbackUseCaseResult,
 	IAccountLinkCallbackUseCase,
-} from "../../../../../application/ports/in";
-import {
-	type ExternalIdentityProvider,
-	newClientType,
-	newExternalIdentityProviderUserId,
-	newUserId,
-} from "../../../../../common/domain/value-objects";
-import type { IOAuthProviderGateway } from "../../../../../common/ports/gateways";
-import type { IOAuthStateSigner } from "../../../../../common/ports/system";
-import { createExternalIdentity } from "../../../domain/entities";
-import type { IExternalIdentityRepository } from "../../ports/out/repositories";
+} from "../../contracts/account-link/account-link-callback.usecase.interface";
+import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
+import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
 import type { accountLinkStateSchema } from "./schema";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
@@ -87,9 +85,9 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 			}
 		}
 
-		const identity = getIdentityResult.value;
+		const { providerIdentity } = getIdentityResult.value;
 
-		const providerUserId = newExternalIdentityProviderUserId(identity.id);
+		const providerUserId = newExternalIdentityProviderUserId(providerIdentity.id);
 
 		const [existingExternalIdentity, currentUserExternalIdentity] = await Promise.all([
 			this.externalIdentityRepository.findByProviderAndProviderUserId(provider, providerUserId),

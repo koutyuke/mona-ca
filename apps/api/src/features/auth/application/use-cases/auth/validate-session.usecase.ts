@@ -1,35 +1,37 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { SessionToken } from "../../../../../common/domain/value-objects";
-import { parseSessionToken } from "../../../../../common/domain/value-objects";
-import type { ISessionSecretHasher } from "../../../../../common/ports/system";
-import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities";
-import type { ISessionRepository, IUserRepository } from "../../ports/out/repositories";
+import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities/session";
+import { parseAnySessionToken } from "../../../domain/value-objects/session-token";
+
+import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	IValidateSessionUseCase,
 	ValidateSessionUseCaseResult,
-} from "../../ports/use-cases/auth/validate-session.usecase";
+} from "../../contracts/auth/validate-session.usecase";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(
 		private readonly sessionRepository: ISessionRepository,
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
 	public async execute(sessionToken: SessionToken): Promise<ValidateSessionUseCaseResult> {
-		const idAndSecret = parseSessionToken(sessionToken);
+		const idAndSecret = parseAnySessionToken(sessionToken);
 		if (!idAndSecret) {
 			return err("SESSION_INVALID");
 		}
 
 		const { id: sessionId, secret: sessionSecret } = idAndSecret;
 
-		let [user, session] = await Promise.all([
-			this.userRepository.findBySessionId(sessionId),
+		let [userIdentity, session] = await Promise.all([
+			this.authUserRepository.findBySessionId(sessionId),
 			this.sessionRepository.findById(sessionId),
 		]);
 
-		if (!session || !user || !this.sessionSecretHasher.verify(sessionSecret, session.secretHash)) {
+		if (!session || !userIdentity || !this.sessionSecretHasher.verify(sessionSecret, session.secretHash)) {
 			return err("SESSION_INVALID");
 		}
 
@@ -44,6 +46,6 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 			await this.sessionRepository.save(session);
 		}
 
-		return ok({ session, user });
+		return ok({ session, userIdentity });
 	}
 }

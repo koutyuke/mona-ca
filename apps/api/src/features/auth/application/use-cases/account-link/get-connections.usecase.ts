@@ -1,33 +1,27 @@
 import type { ToPrimitive } from "@mona-ca/core/utils";
-import type { GetConnectionsUseCaseResult, IGetConnectionsUseCase } from "../../../../../application/ports/in";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 import type {
-	ExternalIdentityProvider,
-	ExternalIdentityProviderUserId,
-	UserId,
-} from "../../../../../common/domain/value-objects";
-import type { IExternalIdentityRepository, IUserRepository } from "../../ports/out/repositories";
+	AccountConnections,
+	BasicAuthConnection,
+	IGetConnectionsUseCase,
+	ProviderConnections,
+} from "../../contracts/account-link/get-connections.usecase.interface";
+import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
 
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {
-	constructor(
-		private readonly externalIdentityRepository: IExternalIdentityRepository,
-		private readonly userRepository: IUserRepository,
-	) {}
+	constructor(private readonly externalIdentityRepository: IExternalIdentityRepository) {}
 
-	public async execute(userId: UserId): Promise<GetConnectionsUseCaseResult> {
-		const passwordHash = await this.userRepository.findPasswordHashById(userId);
-
-		const providerConnections: {
-			[key in ToPrimitive<ExternalIdentityProvider>]: {
-				provider: ExternalIdentityProvider;
-				providerUserId: ExternalIdentityProviderUserId;
-				linkedAt: Date;
-			} | null;
-		} = {
+	public async execute(userIdentity: UserIdentity): Promise<AccountConnections> {
+		const basicAuthConnection: BasicAuthConnection = {
+			password: userIdentity.passwordHash !== null,
+		};
+		const providerConnections: ProviderConnections = {
 			discord: null,
 			google: null,
 		};
 
-		const externalIdentities = await this.externalIdentityRepository.findByUserId(userId);
+		const externalIdentities = await this.externalIdentityRepository.findByUserId(userIdentity.id);
 
 		for (const externalIdentity of externalIdentities) {
 			providerConnections[externalIdentity.provider as ToPrimitive<ExternalIdentityProvider>] = {
@@ -38,7 +32,7 @@ export class GetConnectionsUseCase implements IGetConnectionsUseCase {
 		}
 
 		return {
-			password: passwordHash !== null,
+			...basicAuthConnection,
 			...providerConnections,
 		};
 	}

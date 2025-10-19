@@ -1,39 +1,46 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { IUpdateEmailUseCase, UpdateEmailUseCaseResult } from "../../../../../application/ports/in";
-import {
-	type SessionToken,
-	type UserId,
-	formatSessionToken,
-	newSessionId,
-} from "../../../../../common/domain/value-objects";
-import type { ISessionSecretHasher } from "../../../../../common/ports/system";
-import { timingSafeStringEqual, ulid } from "../../../../../lib/utils";
-import { createSession, updateUser } from "../../../domain/entities";
-import type { EmailVerificationSession, Session, User } from "../../../domain/entities";
-import type {
-	IEmailVerificationSessionRepository,
-	ISessionRepository,
-	IUserRepository,
-} from "../../ports/out/repositories";
+import { ulid } from "../../../../../shared/lib/id";
+import { timingSafeStringEqual } from "../../../../../shared/lib/security";
+import { createSession } from "../../../domain/entities/session";
+import { updateUserIdentity } from "../../../domain/entities/user-identity";
+import { newSessionId } from "../../../domain/value-objects/ids";
+import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-// this use case will be called after the validate email verification session use case.
-// so we don't need to check the expired email verification session.
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { Session } from "../../../domain/entities/session";
+import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { SessionToken } from "../../../domain/value-objects/session-token";
+import type {
+	IUpdateEmailUseCase,
+	UpdateEmailUseCaseResult,
+} from "../../contracts/email-verification/update-email.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
+import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
+
 export class UpdateEmailUseCase implements IUpdateEmailUseCase {
 	constructor(
-		private readonly userRepository: IUserRepository,
+		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 	) {}
 
+	/**
+	 * this use case will be called after the validate email verification session use case.
+	 *
+	 * so we don't need to check the expired email verification session.
+	 */
 	public async execute(
 		code: string,
-		user: User,
+		userIdentity: UserIdentity,
 		emailVerificationSession: EmailVerificationSession,
 	): Promise<UpdateEmailUseCaseResult> {
-		const existingUserForNewEmail = await this.userRepository.findByEmail(emailVerificationSession.email);
+		const existingUserIdentityForNewEmail = await this.authUserRepository.findByEmail(emailVerificationSession.email);
 
-		if (existingUserForNewEmail && existingUserForNewEmail.id !== user.id) {
+		if (existingUserIdentityForNewEmail && existingUserIdentityForNewEmail.id !== userIdentity.id) {
 			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
@@ -41,17 +48,18 @@ export class UpdateEmailUseCase implements IUpdateEmailUseCase {
 			return err("INVALID_VERIFICATION_CODE");
 		}
 
-		await this.emailVerificationSessionRepository.deleteByUserId(user.id);
-		await this.sessionRepository.deleteByUserId(user.id);
+		await Promise.all([
+			this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id),
+			this.sessionRepository.deleteByUserId(userIdentity.id),
+		]);
 
-		const { session, sessionToken } = this.createSession(user.id);
+		const { session, sessionToken } = this.createSession(userIdentity.id);
 
-		const updatedUser = updateUser(user, {
-			emailVerified: true,
+		const updatedUserIdentity = updateUserIdentity(userIdentity, {
 			email: emailVerificationSession.email,
 		});
 
-		await Promise.all([this.userRepository.save(updatedUser), this.sessionRepository.save(session)]);
+		await Promise.all([this.authUserRepository.update(updatedUserIdentity), this.sessionRepository.save(session)]);
 
 		return ok({
 			session,
@@ -66,7 +74,7 @@ export class UpdateEmailUseCase implements IUpdateEmailUseCase {
 		const sessionSecret = this.sessionSecretHasher.generate();
 		const sessionSecretHash = this.sessionSecretHasher.hash(sessionSecret);
 		const sessionId = newSessionId(ulid());
-		const sessionToken = formatSessionToken(sessionId, sessionSecret);
+		const sessionToken = formatAnySessionToken(sessionId, sessionSecret);
 		const session = createSession({
 			id: sessionId,
 			userId,
