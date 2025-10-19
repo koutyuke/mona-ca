@@ -1,12 +1,12 @@
-import { type PasswordResetSession, passwordResetSessionEmailVerificationExpiresSpan } from "../../../domain/entities";
+import { newUserId } from "../../../../shared/domain/value-objects";
+import { ulid } from "../../../../shared/lib/id";
+import { SessionSecretHasherMock } from "../../../../shared/testing/mocks/system";
 import {
-	type PasswordResetSessionToken,
-	formatSessionToken,
-	newPasswordResetSessionId,
-	newUserId,
-} from "../../../shared/domain/value-objects";
-import { ulid } from "../../../shared/lib/types";
-import { SessionSecretHasherMock } from "../../mocks";
+	type PasswordResetSession,
+	passwordResetSessionEmailVerificationExpiresSpan,
+} from "../../domain/entities/password-reset-session";
+import { newPasswordResetSessionId } from "../../domain/value-objects/ids";
+import { type PasswordResetSessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
 
 const sessionSecretHasher = new SessionSecretHasherMock();
 
@@ -43,6 +43,6 @@ export const createPasswordResetSessionFixture = (override?: {
 	return {
 		passwordResetSession,
 		passwordResetSessionSecret: passwordResetSessionSecret,
-		passwordResetSessionToken: formatSessionToken(passwordResetSession.id, passwordResetSessionSecret),
+		passwordResetSessionToken: formatAnySessionToken(passwordResetSession.id, passwordResetSessionSecret),
 	};
 };

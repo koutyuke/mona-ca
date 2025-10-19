@@ -1,12 +1,12 @@
-import { type EmailVerificationSession, emailVerificationSessionExpiresSpan } from "../../../domain/entities";
+import { newUserId } from "../../../../shared/domain/value-objects";
+import { ulid } from "../../../../shared/lib/id";
+import { SessionSecretHasherMock } from "../../../../shared/testing/mocks/system";
 import {
-	type EmailVerificationSessionToken,
-	formatSessionToken,
-	newEmailVerificationSessionId,
-	newUserId,
-} from "../../../shared/domain/value-objects";
-import { ulid } from "../../../shared/lib/types";
-import { SessionSecretHasherMock } from "../../mocks";
+	type EmailVerificationSession,
+	emailVerificationSessionExpiresSpan,
+} from "../../domain/entities/email-verification-session";
+import { newEmailVerificationSessionId } from "../../domain/value-objects/ids";
+import { type EmailVerificationSessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
 
 const sessionSecretHasher = new SessionSecretHasherMock();
 
@@ -42,6 +42,6 @@ export const createEmailVerificationSessionFixture = (override?: {
 	return {
 		emailVerificationSession: session,
 		emailVerificationSessionSecret: sessionSecret,
-		emailVerificationSessionToken: formatSessionToken(session.id, sessionSecret),
+		emailVerificationSessionToken: formatAnySessionToken(session.id, sessionSecret),
 	};
 };

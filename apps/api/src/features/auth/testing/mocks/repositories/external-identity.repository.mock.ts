@@ -1,10 +1,10 @@
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IExternalIdentityRepository } from "../../../application/ports/repositories/external-identity.repository.interface";
+import type { ExternalIdentity } from "../../../domain/entities/external-identity";
 import type {
 	ExternalIdentityProvider,
 	ExternalIdentityProviderUserId,
-	UserId,
-} from "../../../../../shared/domain/value-objects";
-import type { IExternalIdentityRepository } from "../../../application/ports/out/repositories";
-import type { ExternalIdentity } from "../../../domain/entities";
+} from "../../../domain/value-objects/external-identity";
 
 export class ExternalIdentityRepositoryMock implements IExternalIdentityRepository {
 	private readonly externalIdentityMap: Map<string, ExternalIdentity>;
@@ -46,13 +46,5 @@ export class ExternalIdentityRepositoryMock implements IExternalIdentityReposito
 				this.externalIdentityMap.delete(key);
 			}
 		}
-	}
-
-	async deleteByProviderAndProviderUserId(
-		provider: ExternalIdentityProvider,
-		providerUserId: ExternalIdentityProviderUserId,
-	): Promise<void> {
-		const key = `${provider}-${providerUserId}`;
-		this.externalIdentityMap.delete(key);
 	}
 }

@@ -1,6 +1,7 @@
-import type { PasswordResetSessionId, UserId } from "../../../../../shared/domain/value-objects";
-import type { IPasswordResetSessionRepository } from "../../../application/ports/out/repositories";
-import type { PasswordResetSession } from "../../../domain/entities";
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IPasswordResetSessionRepository } from "../../../application/ports/repositories/password-reset-session.repository.interface";
+import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import type { PasswordResetSessionId } from "../../../domain/value-objects/ids";
 
 export class PasswordResetSessionRepositoryMock implements IPasswordResetSessionRepository {
 	private readonly passwordResetSessionMap: Map<PasswordResetSessionId, PasswordResetSession>;

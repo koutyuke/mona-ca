@@ -6,7 +6,7 @@ export { ExternalIdentityRepositoryMock } from "./external-identity.repository.m
 export { SignupSessionRepositoryMock } from "./signup-session.repository.mock";
 
 export {
-	createUsersMap,
+	createAuthUserMap,
 	createUserPasswordHashMap,
 	createSessionsMap,
 	createPasswordResetSessionsMap,

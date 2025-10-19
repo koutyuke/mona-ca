@@ -1,7 +1,9 @@
-import { type Session, sessionExpiresSpan } from "../../../domain/entities";
-import { type SessionToken, formatSessionToken, newSessionId, newUserId } from "../../../shared/domain/value-objects";
-import { ulid } from "../../../shared/lib/types";
-import { SessionSecretHasherMock } from "../../mocks";
+import { newUserId } from "../../../../shared/domain/value-objects";
+import { ulid } from "../../../../shared/lib/id";
+import { SessionSecretHasherMock } from "../../../../shared/testing/mocks/system";
+import { type Session, sessionExpiresSpan } from "../../domain/entities/session";
+import { newSessionId } from "../../domain/value-objects/ids";
+import { type SessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
 
 const sessionSecretHasher = new SessionSecretHasherMock();
 
@@ -32,6 +34,6 @@ export const createSessionFixture = (override?: {
 	return {
 		session,
 		sessionSecret,
-		sessionToken: formatSessionToken(session.id, sessionSecret),
+		sessionToken: formatAnySessionToken(session.id, sessionSecret),
 	};
 };

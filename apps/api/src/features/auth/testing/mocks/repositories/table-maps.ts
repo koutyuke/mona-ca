@@ -1,25 +1,25 @@
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { ExternalIdentity } from "../../../domain/entities/external-identity";
+import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import type { Session } from "../../../domain/entities/session";
+import type { SignupSession } from "../../../domain/entities/signup-session";
+import type { UserRegistration } from "../../../domain/entities/user-registration";
+import type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+} from "../../../domain/value-objects/external-identity";
 import type {
 	AccountAssociationSessionId,
 	EmailVerificationSessionId,
-	ExternalIdentityProvider,
-	ExternalIdentityProviderUserId,
 	PasswordResetSessionId,
 	SessionId,
 	SignupSessionId,
-	UserId,
-} from "../../../../../shared/domain/value-objects";
-import type {
-	AccountAssociationSession,
-	EmailVerificationSession,
-	ExternalIdentity,
-	PasswordResetSession,
-	Session,
-	SignupSession,
-	User,
-} from "../../../domain/entities";
+} from "../../../domain/value-objects/ids";
 
-export const createUsersMap = (users: User[] = []): Map<UserId, User> => {
-	return new Map(users.map(user => [user.id, user]));
+export const createAuthUserMap = (users: UserRegistration[] = []): Map<UserId, UserRegistration> => {
+	return new Map(users.map(userRegistration => [userRegistration.id, userRegistration]));
 };
 
 export const createUserPasswordHashMap = (entries: [UserId, string][] = []): Map<UserId, string> => {

@@ -1,7 +1,8 @@
-import { type SignupSession, signupSessionEmailVerificationExpiresSpan } from "../../../domain/entities";
-import { type SignupSessionToken, formatSessionToken, newSignupSessionId } from "../../../shared/domain/value-objects";
-import { ulid } from "../../../shared/lib/types";
-import { SessionSecretHasherMock } from "../../mocks";
+import { ulid } from "../../../../shared/lib/id";
+import { SessionSecretHasherMock } from "../../../../shared/testing/mocks/system";
+import { type SignupSession, signupSessionEmailVerificationExpiresSpan } from "../../domain/entities/signup-session";
+import { newSignupSessionId } from "../../domain/value-objects/ids";
+import { type SignupSessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
 
 const sessionSecretHasher = new SessionSecretHasherMock();
 
@@ -37,6 +38,6 @@ export const createSignupSessionFixture = (override?: {
 	return {
 		signupSession,
 		signupSessionSecret,
-		signupSessionToken: formatSessionToken(signupSession.id, signupSessionSecret),
+		signupSessionToken: formatAnySessionToken(signupSession.id, signupSessionSecret),
 	};
 };

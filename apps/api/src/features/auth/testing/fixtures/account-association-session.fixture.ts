@@ -1,15 +1,16 @@
-import { accountAssociationSessionExpiresSpan } from "../../../domain/entities";
-import type { AccountAssociationSession } from "../../../domain/entities";
+import { newUserId } from "../../../../shared/domain/value-objects";
+import { ulid } from "../../../../shared/lib/id";
+import { SessionSecretHasherMock } from "../../../../shared/testing/mocks/system";
 import {
-	type AccountAssociationSessionToken,
-	formatSessionToken,
-	newAccountAssociationSessionId,
+	type AccountAssociationSession,
+	accountAssociationSessionExpiresSpan,
+} from "../../domain/entities/account-association-session";
+import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-	newUserId,
-} from "../../../shared/domain/value-objects";
-import { ulid } from "../../../shared/lib/types";
-import { SessionSecretHasherMock } from "../../mocks";
+} from "../../domain/value-objects/external-identity";
+import { newAccountAssociationSessionId } from "../../domain/value-objects/ids";
+import { type AccountAssociationSessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
 
 const sessionSecretHasher = new SessionSecretHasherMock();
 
@@ -44,7 +45,7 @@ export const createAccountAssociationSessionFixture = (override?: {
 		expiresAt,
 	};
 
-	const sessionToken = formatSessionToken(session.id, sessionSecret);
+	const sessionToken = formatAnySessionToken(session.id, sessionSecret);
 
 	return {
 		accountAssociationSession: session,
