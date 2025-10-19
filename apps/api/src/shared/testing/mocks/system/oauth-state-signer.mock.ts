@@ -1,6 +1,6 @@
 import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/utils";
 import type { Static, TObject } from "@sinclair/typebox";
-import type { IOAuthStateSigner } from "../../../common/ports/system";
+import type { IOAuthStateSigner } from "../../../ports/system";
 
 export class OAuthStateSignerMock<P extends TObject> implements IOAuthStateSigner<P> {
 	generate(payload: Static<P>): string {

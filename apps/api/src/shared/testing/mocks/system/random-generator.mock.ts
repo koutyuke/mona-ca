@@ -1,4 +1,4 @@
-import type { IRandomGenerator, RandomStringOptions } from "../../../common/ports/system";
+import type { IRandomGenerator, RandomStringOptions } from "../../../ports/system";
 
 type Character = "lowercase" | "uppercase" | "digits";
 
