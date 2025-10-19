@@ -1,6 +1,10 @@
 import { ok } from "@mona-ca/core/utils";
 import type { OAuth2Tokens } from "arctic";
-import type { GetIdentityResult, GetTokensResult, IOAuthProviderGateway } from "../../../common/ports/gateways";
+import type {
+	GetIdentityResult,
+	GetTokensResult,
+	IOAuthProviderGateway,
+} from "../../../application/ports/gateways/oauth-provider.gateway.interface";
 
 export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 	public createAuthorizationURL(state: string, codeVerifier: string): URL {
@@ -16,13 +20,15 @@ export class OAuthProviderGatewayMock implements IOAuthProviderGateway {
 	}
 
 	public async getIdentity(_tokens: OAuth2Tokens): Promise<GetIdentityResult> {
-		return ok({
+		const providerIdentity = {
 			id: "provider_user_id",
 			email: "test@example.com",
 			name: "Test User",
 			iconURL: "https://example.com/icon.png",
 			emailVerified: true,
-		});
+		};
+
+		return ok({ providerIdentity });
 	}
 
 	public async revokeToken(_tokens: OAuth2Tokens): Promise<void> {

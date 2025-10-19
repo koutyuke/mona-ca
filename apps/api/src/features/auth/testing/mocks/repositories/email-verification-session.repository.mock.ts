@@ -1,5 +1,5 @@
+import type { EmailVerificationSessionId, UserId } from "../../../../../shared/domain/value-objects";
 import type { IEmailVerificationSessionRepository } from "../../../application/ports/out/repositories";
-import type { EmailVerificationSessionId, UserId } from "../../../common/domain/value-objects";
 import type { EmailVerificationSession } from "../../../domain/entities";
 import { isExpiredEmailVerificationSession } from "../../../domain/entities";
 

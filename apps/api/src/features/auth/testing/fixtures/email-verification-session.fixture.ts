@@ -1,11 +1,11 @@
+import { type EmailVerificationSession, emailVerificationSessionExpiresSpan } from "../../../domain/entities";
 import {
 	type EmailVerificationSessionToken,
 	formatSessionToken,
 	newEmailVerificationSessionId,
 	newUserId,
-} from "../../../common/domain/value-objects";
-import { type EmailVerificationSession, emailVerificationSessionExpiresSpan } from "../../../domain/entities";
-import { ulid } from "../../../lib/utils";
+} from "../../../shared/domain/value-objects";
+import { ulid } from "../../../shared/lib/types";
 import { SessionSecretHasherMock } from "../../mocks";
 
 const sessionSecretHasher = new SessionSecretHasherMock();

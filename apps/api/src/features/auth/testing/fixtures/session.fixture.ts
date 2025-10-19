@@ -1,6 +1,6 @@
-import { type SessionToken, formatSessionToken, newSessionId, newUserId } from "../../../common/domain/value-objects";
 import { type Session, sessionExpiresSpan } from "../../../domain/entities";
-import { ulid } from "../../../lib/utils";
+import { type SessionToken, formatSessionToken, newSessionId, newUserId } from "../../../shared/domain/value-objects";
+import { ulid } from "../../../shared/lib/types";
 import { SessionSecretHasherMock } from "../../mocks";
 
 const sessionSecretHasher = new SessionSecretHasherMock();

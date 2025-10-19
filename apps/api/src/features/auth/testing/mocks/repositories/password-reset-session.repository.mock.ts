@@ -1,5 +1,5 @@
+import type { PasswordResetSessionId, UserId } from "../../../../../shared/domain/value-objects";
 import type { IPasswordResetSessionRepository } from "../../../application/ports/out/repositories";
-import type { PasswordResetSessionId, UserId } from "../../../common/domain/value-objects";
 import type { PasswordResetSession } from "../../../domain/entities";
 
 export class PasswordResetSessionRepositoryMock implements IPasswordResetSessionRepository {

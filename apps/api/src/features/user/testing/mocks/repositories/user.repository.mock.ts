@@ -1,5 +1,5 @@
+import type { SessionId, UserId } from "../../../../../shared/domain/value-objects";
 import type { IUserRepository } from "../../../application/ports/out/repositories";
-import type { SessionId, UserId } from "../../../common/domain/value-objects";
 import type { Session, User } from "../../../domain/entities";
 
 export class UserRepositoryMock implements IUserRepository {

@@ -1,5 +1,5 @@
+import type { AccountAssociationSessionId, UserId } from "../../../../../shared/domain/value-objects";
 import type { IAccountAssociationSessionRepository } from "../../../application/ports/out/repositories";
-import type { AccountAssociationSessionId, UserId } from "../../../common/domain/value-objects";
 import type { AccountAssociationSession } from "../../../domain/entities";
 import { isExpiredAccountAssociationSession } from "../../../domain/entities";
 

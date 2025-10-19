@@ -1,11 +1,11 @@
+import { type PasswordResetSession, passwordResetSessionEmailVerificationExpiresSpan } from "../../../domain/entities";
 import {
 	type PasswordResetSessionToken,
 	formatSessionToken,
 	newPasswordResetSessionId,
 	newUserId,
-} from "../../../common/domain/value-objects";
-import { type PasswordResetSession, passwordResetSessionEmailVerificationExpiresSpan } from "../../../domain/entities";
-import { ulid } from "../../../lib/utils";
+} from "../../../shared/domain/value-objects";
+import { ulid } from "../../../shared/lib/types";
 import { SessionSecretHasherMock } from "../../mocks";
 
 const sessionSecretHasher = new SessionSecretHasherMock();

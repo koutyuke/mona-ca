@@ -1,6 +1,6 @@
-import { type SignupSessionToken, formatSessionToken, newSignupSessionId } from "../../../common/domain/value-objects";
 import { type SignupSession, signupSessionEmailVerificationExpiresSpan } from "../../../domain/entities";
-import { ulid } from "../../../lib/utils";
+import { type SignupSessionToken, formatSessionToken, newSignupSessionId } from "../../../shared/domain/value-objects";
+import { ulid } from "../../../shared/lib/types";
 import { SessionSecretHasherMock } from "../../mocks";
 
 const sessionSecretHasher = new SessionSecretHasherMock();

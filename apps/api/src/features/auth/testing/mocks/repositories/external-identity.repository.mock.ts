@@ -1,9 +1,9 @@
-import type { IExternalIdentityRepository } from "../../../application/ports/out/repositories";
 import type {
 	ExternalIdentityProvider,
 	ExternalIdentityProviderUserId,
 	UserId,
-} from "../../../common/domain/value-objects";
+} from "../../../../../shared/domain/value-objects";
+import type { IExternalIdentityRepository } from "../../../application/ports/out/repositories";
 import type { ExternalIdentity } from "../../../domain/entities";
 
 export class ExternalIdentityRepositoryMock implements IExternalIdentityRepository {

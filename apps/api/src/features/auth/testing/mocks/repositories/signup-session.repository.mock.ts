@@ -1,5 +1,5 @@
+import type { SignupSessionId } from "../../../../../shared/domain/value-objects";
 import type { ISignupSessionRepository } from "../../../application/ports/out/repositories";
-import type { SignupSessionId } from "../../../common/domain/value-objects";
 import type { SignupSession } from "../../../domain/entities";
 
 export class SignupSessionRepositoryMock implements ISignupSessionRepository {

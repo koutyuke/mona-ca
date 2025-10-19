@@ -7,7 +7,7 @@ import type {
 	SessionId,
 	SignupSessionId,
 	UserId,
-} from "../../../common/domain/value-objects";
+} from "../../../../../shared/domain/value-objects";
 import type {
 	AccountAssociationSession,
 	EmailVerificationSession,
