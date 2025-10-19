@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { newClientType, newUserId } from "../../../../../../common/domain/value-objects";
-import { ulid } from "../../../../../../lib/utils";
-import { OAuthProviderGatewayMock, OAuthStateSignerMock } from "../../../../../../tests/mocks";
+import { newClientType, newUserId } from "../../../../../../shared/domain/value-objects";
+import { ulid } from "../../../../../../shared/lib/id";
+import { OAuthStateSignerMock } from "../../../../../../shared/testing/mocks/system";
+import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
 import type { accountLinkStateSchema } from "../schema";
 

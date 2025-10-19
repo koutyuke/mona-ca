@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import type { IAccountLinkCallbackUseCase } from "../../../../../../application/ports/in";
+import { newClientType } from "../../../../../../shared/domain/value-objects";
+import { OAuthStateSignerMock } from "../../../../../../shared/testing/mocks/system";
 import {
-	newClientType,
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-} from "../../../../../../common/domain/value-objects";
-import { createExternalIdentityFixture, createUserFixture } from "../../../../../../tests/fixtures";
+} from "../../../../domain/value-objects/external-identity";
+import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
+import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import {
 	ExternalIdentityRepositoryMock,
-	OAuthProviderGatewayMock,
-	OAuthStateSignerMock,
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
+import type { IAccountLinkCallbackUseCase } from "../../../contracts/account-link/account-link-callback.usecase.interface";
 import { AccountLinkCallbackUseCase } from "../account-link-callback.usecase";
 import type { accountLinkStateSchema } from "../schema";
 
@@ -30,7 +30,7 @@ const accountLinkCallbackUseCase: IAccountLinkCallbackUseCase = new AccountLinkC
 
 const PRODUCTION = false;
 
-const { user } = createUserFixture();
+const { userRegistration } = createAuthUserFixture();
 
 describe("AccountLinkCallbackUseCase", () => {
 	beforeEach(() => {
@@ -58,7 +58,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", async () => {
-		const userId = user.id;
+		const userId = userRegistration.id;
 		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
@@ -79,7 +79,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
-		const userId = user.id;
+		const userId = userRegistration.id;
 		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
@@ -100,7 +100,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
-		const userId = user.id;
+		const userId = userRegistration.id;
 		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
@@ -121,7 +121,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return PROVIDER_ERROR error for provider error", async () => {
-		const userId = user.id;
+		const userId = userRegistration.id;
 		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
@@ -142,7 +142,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return PROVIDER_ALREADY_LINKED error when user already has linked account for this provider", async () => {
-		const userId = user.id;
+		const userId = userRegistration.id;
 		const provider = newExternalIdentityProvider("discord");
 		const providerId = newExternalIdentityProviderUserId("different_provider_id");
 
@@ -175,8 +175,8 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should return ACCOUNT_LINKED_ELSEWHERE error when provider account is already linked to another user", async () => {
-		const userId = user.id;
-		const { user: anotherUser } = createUserFixture();
+		const userId = userRegistration.id;
+		const { userRegistration: anotherUser } = createAuthUserFixture();
 		const provider = newExternalIdentityProvider("discord");
 		const providerId = newExternalIdentityProviderUserId("provider_user_id");
 
@@ -209,7 +209,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	});
 
 	it("should successfully link account when no conflicts", async () => {
-		const userId = user.id;
+		const userId = userRegistration.id;
 		const provider = newExternalIdentityProvider("discord");
 		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
 
