@@ -1,9 +1,7 @@
 import type { ToPrimitive } from "@mona-ca/core/utils";
 import { type Static, t } from "elysia";
-import type {
-	ExternalIdentityProvider,
-	ExternalIdentityProviderUserId,
-} from "../../domain/value-objects/external-identity";
+import type { AccountConnections } from "../../application/contracts/account-link/get-connections.usecase.interface";
+import type { ExternalIdentityProvider } from "../../domain/value-objects/external-identity";
 
 export const AccountConnectionsResponseSchema = t.Composite([
 	t.Object({
@@ -30,36 +28,31 @@ type ProviderConnection = {
 	linkedAt: string;
 } | null;
 
-export const toAccountConnectionsResponse = (
-	connections: {
-		password: boolean;
-	} & {
-		[key in ToPrimitive<ExternalIdentityProvider>]: {
-			provider: ExternalIdentityProvider;
-			providerUserId: ExternalIdentityProviderUserId;
-			linkedAt: Date;
-		} | null;
-	},
-): AccountConnectionsResponse => {
+type PrimitiveProvider = ToPrimitive<ExternalIdentityProvider>;
+
+export const toAccountConnectionsResponse = (connections: AccountConnections): AccountConnectionsResponse => {
 	const { password, ...providers } = connections;
 
-	const formattedProviders: Record<string, ProviderConnection> = {};
+	const formattedProviders: { [key in PrimitiveProvider]: ProviderConnection | null } = {
+		discord: null,
+		google: null,
+	};
 
 	for (const [provider, connection] of Object.entries(providers)) {
 		if (connection) {
-			formattedProviders[provider] = {
+			formattedProviders[provider as PrimitiveProvider] = {
 				provider: connection.provider,
 				providerUserId: connection.providerUserId,
 				linkedAt: connection.linkedAt.toISOString(),
 			};
 		} else {
-			formattedProviders[provider] = null;
+			formattedProviders[provider as PrimitiveProvider] = null;
 		}
 	}
 
 	return {
 		password,
-		discord: formattedProviders.discord || null,
-		google: formattedProviders.google || null,
+		discord: formattedProviders.discord,
+		google: formattedProviders.google,
 	};
 };
