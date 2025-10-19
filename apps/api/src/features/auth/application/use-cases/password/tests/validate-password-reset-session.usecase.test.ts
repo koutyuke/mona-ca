@@ -1,39 +1,36 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createPasswordResetSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
+import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
 import {
+	AuthUserRepositoryMock,
 	PasswordResetSessionRepositoryMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
+	createAuthUserMap,
 	createPasswordResetSessionsMap,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
 import { ValidatePasswordResetSessionUseCase } from "../validate-password-reset-session.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 const sessionMap = createSessionsMap();
 
 const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
 
 const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
 	passwordResetSessionRepository,
-	userRepository,
+	authUserRepository,
 	sessionSecretHasher,
 );
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration: user } = createAuthUserFixture({
+	userRegistration: {
 		email: "test@example.com",
 		name: "test_user",
 	},
@@ -42,8 +39,7 @@ const { user } = createUserFixture({
 describe("ValidatePasswordResetSessionUseCase", () => {
 	beforeEach(() => {
 		passwordResetSessionMap.clear();
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 		sessionMap.clear();
 	});
 
@@ -55,7 +51,7 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 		passwordResetSessionMap.set(passwordResetSession.id, passwordResetSession);
 
 		const result = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);
@@ -63,10 +59,10 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
-			const { passwordResetSession, user } = result.value;
+			const { passwordResetSession, userIdentity } = result.value;
 			expect(passwordResetSession.id).toBe(passwordResetSession.id);
-			expect(passwordResetSession.userId).toBe(user.id);
-			expect(user.id).toBe(user.id);
+			expect(passwordResetSession.userId).toBe(userIdentity.id);
+			expect(userIdentity.id).toBe(user.id);
 		}
 	});
 
@@ -117,7 +113,7 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 		passwordResetSessionMap.set(passwordResetSession.id, passwordResetSession);
 
 		const result = await validatePasswordResetSessionUseCase.execute("invalid.secret.token" as never);
@@ -138,7 +134,7 @@ describe("ValidatePasswordResetSessionUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 		passwordResetSessionMap.set(passwordResetSession.id, passwordResetSession);
 
 		const result = await validatePasswordResetSessionUseCase.execute(passwordResetSessionToken);

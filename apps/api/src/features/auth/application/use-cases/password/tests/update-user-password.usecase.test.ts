@@ -1,75 +1,71 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
+import { PasswordHasherMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
 import {
-	PasswordHasherMock,
+	AuthUserRepositoryMock,
 	SessionRepositoryMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
+	createAuthUserMap,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
 import { UpdateUserPasswordUseCase } from "../update-user-password.usecase";
 
 const sessionMap = createSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const passwordHasher = new PasswordHasherMock();
 const sessionSecretHasher = new SessionSecretHasherMock();
 
 const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
-	userRepository,
+	authUserRepository,
 	sessionRepository,
 	passwordHasher,
 	sessionSecretHasher,
 );
 
-const { user } = createUserFixture({
-	user: {
-		email: "test@example.com",
-		name: "test_user",
+const { userRegistration, userIdentity } = createAuthUserFixture({
+	userRegistration: {
+		passwordHash: null,
 	},
 });
 
 describe("UpdateUserPasswordUseCase", () => {
 	beforeEach(() => {
 		sessionMap.clear();
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 	});
 
 	it("should update password successfully when no existing password and no current password provided", async () => {
+		authUserMap.set(userRegistration.id, userRegistration);
 		const newPassword = "new_password123";
-		const result = await updateUserPasswordUseCase.execute(user, undefined, newPassword);
+		const result = await updateUserPasswordUseCase.execute(userIdentity, null, newPassword);
 
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
 			const { session, sessionToken } = result.value;
-			expect(session.userId).toBe(user.id);
+			expect(session.userId).toBe(userRegistration.id);
 			expect(typeof sessionToken).toBe("string");
 			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
-		const savedPasswordHash = userPasswordHashMap.get(user.id);
-		expect(savedPasswordHash).toBeDefined();
-		expect(savedPasswordHash).not.toBe(newPassword);
-		if (savedPasswordHash) {
-			expect(await passwordHasher.verify(newPassword, savedPasswordHash)).toBe(true);
+		const savedUser = authUserMap.get(userRegistration.id);
+		expect(savedUser?.passwordHash).toBeDefined();
+		expect(savedUser?.passwordHash).not.toBe(newPassword);
+		if (savedUser?.passwordHash) {
+			expect(await passwordHasher.verify(newPassword, savedUser.passwordHash)).toBe(true);
 		}
 	});
 
 	it("should return INVALID_CURRENT_PASSWORD error when no existing password but current password provided", async () => {
-		const result = await updateUserPasswordUseCase.execute(user, "wrong_password", "new_password123");
+		authUserMap.set(userRegistration.id, userRegistration);
+		const result = await updateUserPasswordUseCase.execute(userIdentity, "wrong_password", "new_password123");
 
 		expect(result.isErr).toBe(true);
 
@@ -79,9 +75,11 @@ describe("UpdateUserPasswordUseCase", () => {
 	});
 
 	it("should return INVALID_CURRENT_PASSWORD error when existing password but no current password provided", async () => {
-		userPasswordHashMap.set(user.id, "existing_hash");
+		const userWithPassword = { ...userRegistration, passwordHash: "existing_hash" };
+		const userIdentityWithPassword = { ...userIdentity, passwordHash: "existing_hash" };
+		authUserMap.set(userWithPassword.id, userWithPassword);
 
-		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
+		const result = await updateUserPasswordUseCase.execute(userIdentityWithPassword, null, "new_password123");
 
 		expect(result.isErr).toBe(true);
 
@@ -93,9 +91,15 @@ describe("UpdateUserPasswordUseCase", () => {
 	it("should return INVALID_CURRENT_PASSWORD error when current password is incorrect", async () => {
 		const existingPassword = "existing_password";
 		const existingPasswordHash = await passwordHasher.hash(existingPassword);
-		userPasswordHashMap.set(user.id, existingPasswordHash);
+		const userWithPassword = { ...userRegistration, passwordHash: existingPasswordHash };
+		const userIdentityWithPassword = { ...userIdentity, passwordHash: existingPasswordHash };
+		authUserMap.set(userWithPassword.id, userWithPassword);
 
-		const result = await updateUserPasswordUseCase.execute(user, "wrong_password", "new_password123");
+		const result = await updateUserPasswordUseCase.execute(
+			userIdentityWithPassword,
+			"wrong_password",
+			"new_password123",
+		);
 
 		expect(result.isErr).toBe(true);
 
@@ -107,45 +111,48 @@ describe("UpdateUserPasswordUseCase", () => {
 	it("should update password successfully when current password is correct", async () => {
 		const existingPassword = "existing_password";
 		const existingPasswordHash = await passwordHasher.hash(existingPassword);
-		userPasswordHashMap.set(user.id, existingPasswordHash);
+		const userWithPassword = { ...userRegistration, passwordHash: existingPasswordHash };
+		const userIdentityWithPassword = { ...userIdentity, passwordHash: existingPasswordHash };
+		authUserMap.set(userWithPassword.id, userWithPassword);
 
 		const newPassword = "new_password123";
-		const result = await updateUserPasswordUseCase.execute(user, existingPassword, newPassword);
+		const result = await updateUserPasswordUseCase.execute(userIdentityWithPassword, existingPassword, newPassword);
 
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
 			const { session, sessionToken } = result.value;
-			expect(session.userId).toBe(user.id);
+			expect(session.userId).toBe(userWithPassword.id);
 			expect(typeof sessionToken).toBe("string");
 			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 
-		const savedPasswordHash = userPasswordHashMap.get(user.id);
-		expect(savedPasswordHash).toBeDefined();
-		expect(savedPasswordHash).not.toBe(newPassword);
-		expect(savedPasswordHash).not.toBe(existingPasswordHash);
-		if (savedPasswordHash) {
-			expect(await passwordHasher.verify(newPassword, savedPasswordHash)).toBe(true);
+		const savedUser = authUserMap.get(userWithPassword.id);
+		expect(savedUser?.passwordHash).toBeDefined();
+		expect(savedUser?.passwordHash).not.toBe(newPassword);
+		expect(savedUser?.passwordHash).not.toBe(existingPasswordHash);
+		if (savedUser?.passwordHash) {
+			expect(await passwordHasher.verify(newPassword, savedUser.passwordHash)).toBe(true);
 		}
 	});
 
 	it("should delete all user sessions when password is updated", async () => {
+		authUserMap.set(userRegistration.id, userRegistration);
 		const { session: session1 } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 		const { session: session2 } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 
 		sessionMap.set(session1.id, session1);
 		sessionMap.set(session2.id, session2);
 
-		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
+		const result = await updateUserPasswordUseCase.execute(userIdentity, null, "new_password123");
 
 		expect(result.isErr).toBe(false);
 
@@ -159,7 +166,8 @@ describe("UpdateUserPasswordUseCase", () => {
 	});
 
 	it("should create and save new session after password update", async () => {
-		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
+		authUserMap.set(userRegistration.id, userRegistration);
+		const result = await updateUserPasswordUseCase.execute(userIdentity, null, "new_password123");
 
 		expect(result.isErr).toBe(false);
 
@@ -167,13 +175,14 @@ describe("UpdateUserPasswordUseCase", () => {
 			const { session } = result.value;
 			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
-			expect(savedSession?.userId).toBe(user.id);
+			expect(savedSession?.userId).toBe(userRegistration.id);
 			expect(savedSession?.id).toBe(session.id);
 		}
 	});
 
 	it("should generate session token with correct format", async () => {
-		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
+		authUserMap.set(userRegistration.id, userRegistration);
+		const result = await updateUserPasswordUseCase.execute(userIdentity, null, "new_password123");
 
 		expect(result.isErr).toBe(false);
 
@@ -186,20 +195,20 @@ describe("UpdateUserPasswordUseCase", () => {
 	});
 
 	it("should save user with new password hash", async () => {
-		const result = await updateUserPasswordUseCase.execute(user, undefined, "new_password123");
+		authUserMap.set(userRegistration.id, userRegistration);
+		const result = await updateUserPasswordUseCase.execute(userIdentity, null, "new_password123");
 
 		expect(result.isErr).toBe(false);
 
-		const savedUser = userMap.get(user.id);
+		const savedUser = authUserMap.get(userRegistration.id);
 		expect(savedUser).toBeDefined();
-		expect(savedUser?.id).toBe(user.id);
-		expect(savedUser?.email).toBe(user.email);
+		expect(savedUser?.id).toBe(userRegistration.id);
+		expect(savedUser?.email).toBe(userRegistration.email);
 
-		const savedPasswordHash = userPasswordHashMap.get(user.id);
-		expect(savedPasswordHash).toBeDefined();
-		expect(savedPasswordHash).not.toBe("new_password123");
-		if (savedPasswordHash) {
-			expect(await passwordHasher.verify("new_password123", savedPasswordHash)).toBe(true);
+		expect(savedUser?.passwordHash).toBeDefined();
+		expect(savedUser?.passwordHash).not.toBe("new_password123");
+		if (savedUser?.passwordHash) {
+			expect(await passwordHasher.verify("new_password123", savedUser.passwordHash)).toBe(true);
 		}
 	});
 });

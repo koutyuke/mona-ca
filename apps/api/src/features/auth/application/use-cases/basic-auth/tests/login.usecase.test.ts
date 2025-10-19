@@ -1,68 +1,62 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createUserFixture } from "../../../../../../tests/fixtures";
+import { PasswordHasherMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { createAuthUserFixture } from "../../../../testing/fixtures";
 import {
-	PasswordHasherMock,
+	AuthUserRepositoryMock,
 	SessionRepositoryMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
-} from "../../../../../../tests/mocks";
-import { createSessionsMap, createUserPasswordHashMap, createUsersMap } from "../../../../../../tests/mocks";
+	createAuthUserMap,
+	createSessionsMap,
+} from "../../../../testing/mocks/repositories";
 import { LoginUseCase } from "../login.usecase";
 
 const sessionMap = createSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 const sessionRepositoryMock = new SessionRepositoryMock({
 	sessionMap,
 });
 
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
 const passwordHasher = new PasswordHasherMock();
 
-const loginUseCase = new LoginUseCase(sessionRepositoryMock, userRepository, sessionSecretHasher, passwordHasher);
+const loginUseCase = new LoginUseCase(sessionRepositoryMock, authUserRepository, sessionSecretHasher, passwordHasher);
 
 const password = "password123";
 const passwordHash = await passwordHasher.hash(password);
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration } = createAuthUserFixture({
+	userRegistration: {
 		email: "test@example.com",
+		passwordHash,
 	},
 });
 
 describe("LoginUseCase", () => {
 	beforeEach(() => {
 		sessionMap.clear();
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 
-		userMap.set(user.id, user);
-		if (passwordHash) {
-			userPasswordHashMap.set(user.id, passwordHash);
-		}
+		authUserMap.set(userRegistration.id, userRegistration);
 	});
 
 	it("should be able to login with valid credentials", async () => {
-		const result = await loginUseCase.execute(user.email, "password123");
+		const result = await loginUseCase.execute(userRegistration.email, "password123");
 
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
 			const { session, sessionToken } = result.value;
-			expect(session.userId).toBe(user.id);
+			expect(session.userId).toBe(userRegistration.id);
 			expect(typeof sessionToken).toBe("string");
 			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 	});
 
 	it("should return INVALID_CREDENTIALS error when user does not exist", async () => {
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 		sessionMap.clear();
 
 		const result = await loginUseCase.execute("nonexistent@example.com", "password123");
@@ -75,7 +69,7 @@ describe("LoginUseCase", () => {
 	});
 
 	it("should return INVALID_CREDENTIALS error when password is incorrect", async () => {
-		const result = await loginUseCase.execute(user.email, "wrong_password");
+		const result = await loginUseCase.execute(userRegistration.email, "wrong_password");
 
 		expect(result.isErr).toBe(true);
 
@@ -95,9 +89,13 @@ describe("LoginUseCase", () => {
 	});
 
 	it("should return INVALID_CREDENTIALS error when user has no password hash", async () => {
-		userPasswordHashMap.clear();
+		const userWithoutPassword = {
+			...userRegistration,
+			passwordHash: null,
+		};
+		authUserMap.set(userWithoutPassword.id, userWithoutPassword);
 
-		const result = await loginUseCase.execute(user.email, "password123");
+		const result = await loginUseCase.execute(userRegistration.email, "password123");
 
 		expect(result.isErr).toBe(true);
 
@@ -107,7 +105,7 @@ describe("LoginUseCase", () => {
 	});
 
 	it("should create and save a new session on successful login", async () => {
-		const result = await loginUseCase.execute(user.email, "password123");
+		const result = await loginUseCase.execute(userRegistration.email, "password123");
 
 		expect(result.isErr).toBe(false);
 
@@ -115,7 +113,7 @@ describe("LoginUseCase", () => {
 			const { session } = result.value;
 			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
-			expect(savedSession?.userId).toBe(user.id);
+			expect(savedSession?.userId).toBe(userRegistration.id);
 		}
 	});
 });

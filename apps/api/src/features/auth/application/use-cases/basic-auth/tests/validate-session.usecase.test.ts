@@ -1,59 +1,53 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { formatSessionToken, newSessionToken } from "../../../../../../shared/domain/value-objects";
-import { createSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { sessionExpiresSpan, sessionRefreshSpan } from "../../../../domain/entities/session";
+import { formatAnySessionToken, newSessionToken } from "../../../../domain/value-objects/session-token";
+import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
 import {
-	PasswordHasherMock,
+	AuthUserRepositoryMock,
 	SessionRepositoryMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
+	createAuthUserMap,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
-import { sessionExpiresSpan, sessionRefreshSpan } from "../../../../domain/entities";
+} from "../../../../testing/mocks/repositories";
 import { ValidateSessionUseCase } from "../validate-session.usecase";
 
 const sessionMap = createSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
-const passwordHasher = new PasswordHasherMock();
 
-const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, userRepository, sessionSecretHasher);
+const validateSessionUseCase = new ValidateSessionUseCase(sessionRepository, authUserRepository, sessionSecretHasher);
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration } = createAuthUserFixture({
+	userRegistration: {
 		email: "test@example.com",
 	},
 });
-const password = "password123";
-const passwordHash = await passwordHasher.hash(password);
 
 describe("ValidateSessionUseCase", () => {
 	beforeEach(() => {
 		sessionMap.clear();
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 
-		userMap.set(user.id, user);
-		if (passwordHash) {
-			userPasswordHashMap.set(user.id, passwordHash);
-		}
+		authUserMap.set(userRegistration.id, userRegistration);
+	});
+
+	afterAll(() => {
+		sessionMap.clear();
+		authUserMap.clear();
 	});
 
 	it("should validate session successfully with valid session token", async () => {
 		const { session, sessionToken } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 
@@ -64,11 +58,11 @@ describe("ValidateSessionUseCase", () => {
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
-			const { session, user } = result.value;
-			expect(session.id).toBe(session.id);
-			expect(session.userId).toBe(user.id);
-			expect(user.id).toBe(user.id);
-			expect(user.email).toBe(user.email);
+			const { session: validatedSession, userIdentity } = result.value;
+			expect(validatedSession.id).toBe(session.id);
+			expect(validatedSession.userId).toBe(userIdentity.id);
+			expect(userIdentity.id).toBe(userRegistration.id);
+			expect(userIdentity.email).toBe(userRegistration.email);
 		}
 	});
 
@@ -99,8 +93,7 @@ describe("ValidateSessionUseCase", () => {
 	it("should return SESSION_INVALID error when user does not exist", async () => {
 		const { session, sessionToken } = createSessionFixture();
 
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 		sessionMap.set(session.id, session);
 
 		const result = await validateSessionUseCase.execute(sessionToken);
@@ -115,13 +108,13 @@ describe("ValidateSessionUseCase", () => {
 	it("should return SESSION_INVALID error when session secret is invalid", async () => {
 		const { session } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 
 		sessionMap.set(session.id, session);
 
-		const invalidSessionToken = formatSessionToken(session.id, "invalid_secret");
+		const invalidSessionToken = formatAnySessionToken(session.id, "invalid_secret");
 		const result = await validateSessionUseCase.execute(invalidSessionToken);
 
 		expect(result.isErr).toBe(true);
@@ -134,7 +127,7 @@ describe("ValidateSessionUseCase", () => {
 	it("should return SESSION_EXPIRED error and delete session when session is expired", async () => {
 		const { session, sessionToken } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 				expiresAt: new Date(0),
 			},
 		});
@@ -158,7 +151,7 @@ describe("ValidateSessionUseCase", () => {
 		);
 		const { session, sessionToken } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 				expiresAt: refreshableExpiresAt,
 			},
 		});
@@ -170,8 +163,9 @@ describe("ValidateSessionUseCase", () => {
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
-			expect(session.id).toBe(session.id);
-			expect(user.id).toBe(user.id);
+			const { session: validatedSession, userIdentity } = result.value;
+			expect(validatedSession.id).toBe(session.id);
+			expect(userIdentity.id).toBe(userRegistration.id);
 
 			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();

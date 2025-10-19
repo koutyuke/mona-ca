@@ -1,30 +1,27 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { createSignupSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
+import { afterEach, describe, expect, it } from "vitest";
+import { newGender, newUserId } from "../../../../../../shared/domain/value-objects";
+import { ulid } from "../../../../../../shared/lib/id";
+import { PasswordHasherMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { createUserRegistration } from "../../../../domain/entities/user-registration";
+import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import {
-	PasswordHasherMock,
+	AuthUserRepositoryMock,
 	SessionRepositoryMock,
-	SessionSecretHasherMock,
 	SignupSessionRepositoryMock,
-	UserRepositoryMock,
-} from "../../../../../../tests/mocks";
-import {
+	createAuthUserMap,
 	createSessionsMap,
 	createSignupSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
 import { SignupConfirmUseCase } from "../signup-confirm.usecase";
 
 // Maps
 const sessionMap = createSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 const signupSessionMap = createSignupSessionsMap();
 
 // Mocks
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const sessionRepository = new SessionRepositoryMock({
@@ -38,59 +35,50 @@ const passwordHasher = new PasswordHasherMock();
 
 // Use Case
 const signupConfirmUseCase = new SignupConfirmUseCase(
-	userRepository,
+	authUserRepository,
 	sessionRepository,
 	signupSessionRepository,
 	sessionSecretHasher,
 	passwordHasher,
 );
 
-const { user: verifiedUserFixture } = createUserFixture({
-	user: {
-		email: "test@example.com",
-	},
-});
-const userGender = verifiedUserFixture.gender;
-
-const verifiedSignupSessionFixture = () => {
-	const { signupSession } = createSignupSessionFixture({
-		signupSession: {
-			email: "test@example.com",
-			emailVerified: true,
-			code: "12345678",
-		},
-	});
-
-	signupSessionMap.set(signupSession.id, signupSession);
-
-	return signupSession;
-};
-
 describe("SignupConfirmUseCase", () => {
-	beforeEach(() => {
+	afterEach(() => {
 		sessionMap.clear();
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 		signupSessionMap.clear();
 	});
 
 	it("should create user and session when signup session is verified", async () => {
-		const signupSession = verifiedSignupSessionFixture();
+		const { signupSession } = createSignupSessionFixture({
+			signupSession: {
+				email: "test@example.com",
+				emailVerified: true,
+				code: "12345678",
+			},
+		});
 
-		const result = await signupConfirmUseCase.execute(signupSession, "Test User", "password123", userGender);
+		signupSessionMap.set(signupSession.id, signupSession);
+
+		const result = await signupConfirmUseCase.execute(
+			signupSession,
+			"Test User",
+			"password123",
+			newGender("woman" as const),
+		);
 
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
-			const { user, session, sessionToken } = result.value;
-			expect(user.email).toBe("test@example.com");
-			expect(user.name).toBe("Test User");
-			expect(session.userId).toBe(user.id);
+			const { session, sessionToken } = result.value;
 			expect(sessionToken.length).toBeGreaterThan(0);
-			expect(user.emailVerified).toBe(true);
 
-			const savedUser = userMap.get(user.id);
+			const savedUser = Array.from(authUserMap.values()).find(u => u.email === "test@example.com");
 			expect(savedUser).toBeDefined();
+			expect(savedUser?.name).toBe("Test User");
+			expect(savedUser?.email).toBe("test@example.com");
+			expect(savedUser?.emailVerified).toBe(true);
+			expect(session.userId).toBe(savedUser?.id);
 
 			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
@@ -108,7 +96,12 @@ describe("SignupConfirmUseCase", () => {
 			},
 		});
 
-		const result = await signupConfirmUseCase.execute(signupSession, "Test User", "password123", userGender);
+		const result = await signupConfirmUseCase.execute(
+			signupSession,
+			"Test User",
+			"password123",
+			newGender("man" as const),
+		);
 
 		expect(result.isErr).toBe(true);
 
@@ -118,17 +111,29 @@ describe("SignupConfirmUseCase", () => {
 	});
 
 	it("should return EMAIL_ALREADY_REGISTERED when email already exists", async () => {
-		const signupSession = verifiedSignupSessionFixture();
-		const { user: existingUser } = createUserFixture({
-			user: {
-				email: signupSession.email,
-				name: "Existing User",
+		const { signupSession } = createSignupSessionFixture({
+			signupSession: {
+				email: "test@example.com",
+				emailVerified: true,
+				code: "12345678",
 			},
 		});
 
-		userMap.set(existingUser.id, existingUser);
+		signupSessionMap.set(signupSession.id, signupSession);
 
-		const result = await signupConfirmUseCase.execute(signupSession, "Another User", "password123", userGender);
+		const existingUser = createUserRegistration({
+			id: newUserId(ulid()),
+			email: signupSession.email,
+			name: "Existing User",
+			emailVerified: true,
+			iconUrl: null,
+			gender: newGender("man" as const),
+			passwordHash: "hashedPassword",
+		});
+
+		authUserMap.set(existingUser.id, existingUser);
+
+		const result = await signupConfirmUseCase.execute(signupSession, "Another User", "password123", newGender("man"));
 
 		expect(result.isErr).toBe(true);
 
@@ -140,19 +145,34 @@ describe("SignupConfirmUseCase", () => {
 	});
 
 	it("should hash password and save user", async () => {
-		const signupSession = verifiedSignupSessionFixture();
+		const { signupSession } = createSignupSessionFixture({
+			signupSession: {
+				email: "test@example.com",
+				emailVerified: true,
+				code: "12345678",
+			},
+		});
 
-		const result = await signupConfirmUseCase.execute(signupSession, "Hashed User", "securePassword", userGender);
+		signupSessionMap.set(signupSession.id, signupSession);
+
+		const result = await signupConfirmUseCase.execute(
+			signupSession,
+			"Hashed User",
+			"securePassword",
+			newGender("man" as const),
+		);
 
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
-			const { user, session, sessionToken } = result.value;
-			const savedPasswordHash = userPasswordHashMap.get(user.id);
-			expect(savedPasswordHash).toBe("__password-hashed:securePassword");
+			const { session, sessionToken } = result.value;
+
+			const savedUser = Array.from(authUserMap.values()).find(u => u.email === "test@example.com");
+			expect(savedUser).toBeDefined();
+			expect(savedUser?.passwordHash).toBe("__password-hashed:securePassword");
 
 			const savedSession = sessionMap.get(session.id);
-			expect(savedSession?.userId).toBe(user.id);
+			expect(savedSession?.userId).toBe(savedUser?.id);
 			expect(sessionToken.length).toBeGreaterThan(0);
 		}
 	});

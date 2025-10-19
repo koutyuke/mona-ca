@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createPasswordResetSessionFixture } from "../../../../../../tests/fixtures";
-import { PasswordResetSessionRepositoryMock, createPasswordResetSessionsMap } from "../../../../../../tests/mocks";
+import { createPasswordResetSessionFixture } from "../../../../testing/fixtures";
+import {
+	PasswordResetSessionRepositoryMock,
+	createPasswordResetSessionsMap,
+} from "../../../../testing/mocks/repositories";
 import { PasswordResetVerifyEmailUseCase } from "../password-reset-verify-email.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();

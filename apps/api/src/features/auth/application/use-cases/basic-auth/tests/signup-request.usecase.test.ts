@@ -1,32 +1,26 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createSignupSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
+import { RandomGeneratorMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { createAuthUserFixture, createSignupSessionFixture } from "../../../../testing/fixtures";
 import {
-	RandomGeneratorMock,
-	SessionSecretHasherMock,
+	AuthUserRepositoryMock,
 	SignupSessionRepositoryMock,
-	UserRepositoryMock,
-} from "../../../../../../tests/mocks";
-import {
+	createAuthUserMap,
 	createSessionsMap,
 	createSignupSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
 import { SignupRequestUseCase } from "../signup-request.usecase";
 
 // Maps
 const sessionMap = createSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 const signupSessionMap = createSignupSessionsMap();
 
 // Mocks
 const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
@@ -35,28 +29,27 @@ const randomGenerator = new RandomGeneratorMock();
 // Use Case
 const signupRequestUseCase = new SignupRequestUseCase(
 	signupSessionRepository,
-	userRepository,
+	authUserRepository,
 	sessionSecretHasher,
 	randomGenerator,
 );
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration } = createAuthUserFixture({
+	userRegistration: {
 		email: "existing@example.com",
 		name: "Existing User",
 	},
 });
 
-beforeEach(() => {
-	sessionMap.clear();
-	userMap.clear();
-	userPasswordHashMap.clear();
-	signupSessionMap.clear();
-
-	userMap.set(user.id, user);
-});
-
 describe("SignupRequestUseCase", () => {
+	beforeEach(() => {
+		sessionMap.clear();
+		authUserMap.clear();
+		signupSessionMap.clear();
+
+		authUserMap.set(userRegistration.id, userRegistration);
+	});
+
 	it("should create signup session successfully when email is not used", async () => {
 		const result = await signupRequestUseCase.execute("new@example.com");
 

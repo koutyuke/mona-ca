@@ -15,7 +15,7 @@ export type UpdateUserPasswordUseCaseResult = Result<Success, Error>;
 export interface IUpdateUserPasswordUseCase {
 	execute(
 		userIdentity: UserIdentity,
-		currentPassword: string | undefined,
+		currentPassword: string | null,
 		newPassword: string,
 	): Promise<UpdateUserPasswordUseCaseResult>;
 }

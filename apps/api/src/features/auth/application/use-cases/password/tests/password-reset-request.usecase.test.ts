@@ -1,42 +1,38 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createPasswordResetSessionFixture, createUserFixture } from "../../../../../../tests/fixtures";
+import { RandomGeneratorMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
 import {
+	AuthUserRepositoryMock,
 	PasswordResetSessionRepositoryMock,
-	RandomGeneratorMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
+	createAuthUserMap,
 	createPasswordResetSessionsMap,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
 import { PasswordResetRequestUseCase } from "../password-reset-request.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 const sessionMap = createSessionsMap();
 
 const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const randomGenerator = new RandomGeneratorMock();
 const sessionSecretHasher = new SessionSecretHasherMock();
 
 const passwordResetRequestUseCase = new PasswordResetRequestUseCase(
+	authUserRepository,
 	passwordResetSessionRepository,
-	userRepository,
 	randomGenerator,
 	sessionSecretHasher,
 );
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration: user } = createAuthUserFixture({
+	userRegistration: {
 		email: "test@example.com",
 		name: "test_user",
 	},
@@ -45,11 +41,10 @@ const { user } = createUserFixture({
 describe("PasswordResetRequestUseCase", () => {
 	beforeEach(() => {
 		passwordResetSessionMap.clear();
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 		sessionMap.clear();
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 	});
 
 	it("should create password reset session successfully for existing user", async () => {
@@ -70,7 +65,7 @@ describe("PasswordResetRequestUseCase", () => {
 	});
 
 	it("should return USER_NOT_FOUND error for non-existent user", async () => {
-		userMap.clear();
+		authUserMap.clear();
 		const result = await passwordResetRequestUseCase.execute("nonexistent@example.com");
 
 		expect(result.isErr).toBe(true);

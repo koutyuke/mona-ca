@@ -27,7 +27,7 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 
 	public async execute(
 		userIdentity: UserIdentity,
-		currentPassword: string | undefined,
+		currentPassword: string | null,
 		newPassword: string,
 	): Promise<UpdateUserPasswordUseCaseResult> {
 		if (userIdentity.passwordHash === null) {

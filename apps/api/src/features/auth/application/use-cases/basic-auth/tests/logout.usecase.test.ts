@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { ILogoutUseCase } from "../../../../../../application/ports/in";
-import { createSessionFixture } from "../../../../../../tests/fixtures";
-import { SessionRepositoryMock } from "../../../../../../tests/mocks";
-import { createSessionsMap } from "../../../../../../tests/mocks";
+import { createSessionFixture } from "../../../../testing/fixtures";
+import { SessionRepositoryMock, createSessionsMap } from "../../../../testing/mocks/repositories";
+import type { ILogoutUseCase } from "../../../contracts/basic-auth/logout.usecase.interface";
 import { LogoutUseCase } from "../logout.usecase";
 
 const sessionMap = createSessionsMap();
@@ -31,6 +30,8 @@ describe("LogoutUseCase", () => {
 
 		expect(sessionMap.has(session.id)).toBe(false);
 
-		await expect(logoutUseCase.execute(session.id)).resolves.not.toThrow();
+		// Should complete without throwing
+		await logoutUseCase.execute(session.id);
+		expect(sessionMap.has(session.id)).toBe(false);
 	});
 });

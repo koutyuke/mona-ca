@@ -19,16 +19,17 @@ export const createSessionFixture = (override?: {
 	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
 
 	const sessionSecret = override?.sessionSecret ?? "sessionSecret";
-	const secretHash = override?.session?.secretHash ?? secretHasher(sessionSecret);
+	const secretHash = secretHasher(sessionSecret);
 
 	const expiresAt = new Date(override?.session?.expiresAt?.getTime() ?? Date.now() + sessionExpiresSpan.milliseconds());
 	expiresAt.setMilliseconds(0);
 
 	const session: Session = {
-		id: override?.session?.id ?? newSessionId(ulid()),
-		userId: override?.session?.userId ?? newUserId(ulid()),
-		secretHash: override?.session?.secretHash ?? secretHash,
+		id: newSessionId(ulid()),
+		userId: newUserId(ulid()),
+		secretHash: secretHash,
 		expiresAt,
+		...override?.session,
 	} satisfies Session;
 
 	return {

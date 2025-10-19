@@ -26,7 +26,7 @@ export const createAccountAssociationSessionFixture = (override?: {
 	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
 
 	const sessionSecret = override?.accountAssociationSessionSecret ?? "accountAssociationSessionSecret";
-	const secretHash = override?.accountAssociationSession?.secretHash ?? secretHasher(sessionSecret);
+	const secretHash = secretHasher(sessionSecret);
 
 	const expiresAt = new Date(
 		override?.accountAssociationSession?.expiresAt?.getTime() ??
@@ -35,14 +35,15 @@ export const createAccountAssociationSessionFixture = (override?: {
 	expiresAt.setMilliseconds(0);
 
 	const session: AccountAssociationSession = {
-		id: override?.accountAssociationSession?.id ?? newAccountAssociationSessionId(ulid()),
-		userId: override?.accountAssociationSession?.userId ?? newUserId(ulid()),
-		code: override?.accountAssociationSession?.code ?? "testCode",
-		secretHash: override?.accountAssociationSession?.secretHash ?? secretHash,
-		email: override?.accountAssociationSession?.email ?? "test.email@example.com",
-		provider: override?.accountAssociationSession?.provider ?? newExternalIdentityProvider("discord"),
-		providerUserId: override?.accountAssociationSession?.providerUserId ?? newExternalIdentityProviderUserId(ulid()),
+		id: newAccountAssociationSessionId(ulid()),
+		userId: newUserId(ulid()),
+		code: "testCode",
+		secretHash: secretHash,
+		email: "test.email@example.com",
+		provider: newExternalIdentityProvider("discord"),
+		providerUserId: newExternalIdentityProviderUserId(ulid()),
 		expiresAt,
+		...override?.accountAssociationSession,
 	};
 
 	const sessionToken = formatAnySessionToken(session.id, sessionSecret);

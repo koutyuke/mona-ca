@@ -1,11 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { newSignupSessionToken } from "../../../../../../shared/domain/value-objects";
-import { createSignupSessionFixture } from "../../../../../../tests/fixtures";
-import {
-	SessionSecretHasherMock,
-	SignupSessionRepositoryMock,
-	createSignupSessionsMap,
-} from "../../../../../../tests/mocks";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { newSignupSessionToken } from "../../../../domain/value-objects/session-token";
+import { createSignupSessionFixture } from "../../../../testing/fixtures";
+import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../testing/mocks/repositories";
 import { ValidateSignupSessionUseCase } from "../validate-signup-session.usecase";
 
 const signupSessionMap = createSignupSessionsMap();
@@ -32,6 +29,10 @@ describe("ValidateSignupSessionUseCase", () => {
 	beforeEach(() => {
 		signupSessionMap.clear();
 		signupSessionMap.set(baseSignupSession.id, baseSignupSession);
+	});
+
+	afterAll(() => {
+		signupSessionMap.clear();
 	});
 
 	it("should validate signup session successfully with valid token", async () => {

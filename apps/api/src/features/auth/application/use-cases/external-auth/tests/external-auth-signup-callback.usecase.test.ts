@@ -1,42 +1,37 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { newClientType, newGender } from "../../../../../../shared/domain/value-objects";
+import { OAuthStateSignerMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { DEFAULT_USER_GENDER } from "../../../../domain/entities/user-registration";
 import {
-	newClientType,
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-	newGender,
-} from "../../../../../../common/domain/value-objects";
-import { createExternalIdentityFixture, createUserFixture } from "../../../../../../tests/fixtures";
+} from "../../../../domain/value-objects/external-identity";
+import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
+import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import {
 	AccountAssociationSessionRepositoryMock,
+	AuthUserRepositoryMock,
 	ExternalIdentityRepositoryMock,
-	OAuthProviderGatewayMock,
-	OAuthStateSignerMock,
 	SessionRepositoryMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
 	createAccountAssociationSessionsMap,
+	createAuthUserMap,
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
-import { DEFAULT_USER_GENDER } from "../../../../domain/entities";
+} from "../../../../testing/mocks/repositories";
 import { ExternalAuthSignupCallbackUseCase } from "../external-auth-signup-callback.usecase";
 import type { oauthStateSchema } from "../schema";
 
-const userMap = createUsersMap();
+const authUserMap = createAuthUserMap();
 const sessionMap = createSessionsMap();
-const userPasswordHashMap = createUserPasswordHashMap();
 const externalIdentityMap = createExternalIdentitiesMap();
 const accountAssociationSessionMap = createAccountAssociationSessionsMap();
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
 const sessionRepository = new SessionRepositoryMock({ sessionMap });
 const externalIdentityRepository = new ExternalIdentityRepositoryMock({ externalIdentityMap });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const accountAssociationSessionRepository = new AccountAssociationSessionRepositoryMock({
@@ -49,7 +44,7 @@ const externalAuthSignupCallbackUseCase = new ExternalAuthSignupCallbackUseCase(
 	oauthProviderGateway,
 	sessionRepository,
 	externalIdentityRepository,
-	userRepository,
+	authUserRepository,
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
 	oauthStateSigner,
@@ -59,9 +54,8 @@ const PRODUCTION = false;
 
 describe("ExternalAuthSignupCallbackUseCase", () => {
 	beforeEach(() => {
-		userMap.clear();
+		authUserMap.clear();
 		sessionMap.clear();
-		userPasswordHashMap.clear();
 		externalIdentityMap.clear();
 		accountAssociationSessionMap.clear();
 	});
@@ -180,7 +174,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 			expect(redirectURL).toBeInstanceOf(URL);
 			expect(clientType).toBe(newClientType("web"));
 			expect(sessionMap.size).toBe(1);
-			expect(userMap.size).toBe(1);
+			expect(authUserMap.size).toBe(1);
 			expect(externalIdentityMap.size).toBe(1);
 			const savedSession = sessionMap.get(session.id);
 			expect(savedSession).toBeDefined();
@@ -188,8 +182,8 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return ACCOUNT_ALREADY_REGISTERED error when user is already registered", async () => {
-		const { user: existingUser } = createUserFixture({
-			user: {
+		const { userRegistration: existingUser } = createAuthUserFixture({
+			userRegistration: {
 				email: "test@example.com",
 				gender: newGender(DEFAULT_USER_GENDER),
 			},
@@ -202,7 +196,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 			},
 		});
 
-		userMap.set(existingUser.id, existingUser);
+		authUserMap.set(existingUser.id, existingUser);
 		externalIdentityMap.set(
 			createExternalIdentityKey(oauthAccount.provider, oauthAccount.providerUserId),
 			oauthAccount,
@@ -227,14 +221,14 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return ACCOUNT_ASSOCIATION_AVAILABLE error when user is already registered", async () => {
-		const { user: existingUser } = createUserFixture({
-			user: {
+		const { userRegistration: existingUser } = createAuthUserFixture({
+			userRegistration: {
 				email: "test@example.com",
 				gender: newGender(DEFAULT_USER_GENDER),
 			},
 		});
 
-		userMap.set(existingUser.id, existingUser);
+		authUserMap.set(existingUser.id, existingUser);
 
 		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
 

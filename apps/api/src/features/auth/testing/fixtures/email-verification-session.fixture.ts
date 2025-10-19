@@ -22,7 +22,7 @@ export const createEmailVerificationSessionFixture = (override?: {
 	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
 
 	const sessionSecret = override?.emailVerificationSecret ?? "emailVerificationSessionSecret";
-	const secretHash = override?.emailVerificationSession?.secretHash ?? secretHasher(sessionSecret);
+	const secretHash = secretHasher(sessionSecret);
 
 	const expiresAt = new Date(
 		override?.emailVerificationSession?.expiresAt?.getTime() ??
@@ -31,12 +31,13 @@ export const createEmailVerificationSessionFixture = (override?: {
 	expiresAt.setMilliseconds(0);
 
 	const session: EmailVerificationSession = {
-		id: override?.emailVerificationSession?.id ?? newEmailVerificationSessionId(ulid()),
-		email: override?.emailVerificationSession?.email ?? "test.email@example.com",
-		userId: override?.emailVerificationSession?.userId ?? newUserId(ulid()),
-		code: override?.emailVerificationSession?.code ?? "testCode",
-		secretHash: override?.emailVerificationSession?.secretHash ?? secretHash,
+		id: newEmailVerificationSessionId(ulid()),
+		email: "test.email@example.com",
+		userId: newUserId(ulid()),
+		code: "testCode",
+		secretHash: secretHash,
 		expiresAt,
+		...override?.emailVerificationSession,
 	} satisfies EmailVerificationSession;
 
 	return {

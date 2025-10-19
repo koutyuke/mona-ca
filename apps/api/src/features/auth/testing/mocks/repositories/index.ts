@@ -1,3 +1,4 @@
+export { AuthUserRepositoryMock } from "./auth-user.repository.mock";
 export { SessionRepositoryMock } from "./session.repository.mock";
 export { PasswordResetSessionRepositoryMock } from "./password-reset-session.repository.mock";
 export { EmailVerificationSessionRepositoryMock } from "./email-verification-session.repository.mock";

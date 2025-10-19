@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { createSignupSessionFixture } from "../../../../../../tests/fixtures";
-import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../../../tests/mocks";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { createSignupSessionFixture } from "../../../../testing/fixtures";
+import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../testing/mocks/repositories";
 import { SignupVerifyEmailUseCase } from "../signup-verify-email.usecase";
 
 const signupSessionMap = createSignupSessionsMap();
@@ -18,9 +18,11 @@ const { signupSession: baseSignupSession } = createSignupSessionFixture({
 
 describe("SignupVerifyEmailUseCase", () => {
 	beforeEach(() => {
-		signupSessionMap.clear();
-
 		signupSessionMap.set(baseSignupSession.id, baseSignupSession);
+	});
+
+	afterEach(() => {
+		signupSessionMap.clear();
 	});
 
 	it("should verify email when code matches", async () => {

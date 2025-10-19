@@ -11,24 +11,26 @@ export const createAuthUserFixture = (override?: {
 	userIdentity: UserIdentity;
 } => {
 	const userRegistration = {
-		id: override?.userRegistration?.id ?? newUserId(ulid()),
-		email: override?.userRegistration?.email ?? "test.email@example.com",
-		emailVerified: override?.userRegistration?.emailVerified ?? true,
-		passwordHash: override?.userRegistration?.passwordHash ?? "passwordHash",
-		name: override?.userRegistration?.name ?? "testUser",
-		iconUrl: override?.userRegistration?.iconUrl ?? "http://example.com/icon-url",
-		gender: override?.userRegistration?.gender ?? newGender("man"),
-		createdAt: override?.userRegistration?.createdAt ?? new Date(1704067200 * 1000),
-		updatedAt: override?.userRegistration?.updatedAt ?? new Date(1704067200 * 1000),
+		id: newUserId(ulid()),
+		email: "test.email@example.com",
+		emailVerified: true,
+		passwordHash: "passwordHash",
+		name: "testUser",
+		iconUrl: "http://example.com/icon-url",
+		gender: newGender("man"),
+		createdAt: new Date(1704067200 * 1000),
+		updatedAt: new Date(1704067200 * 1000),
+		...override?.userRegistration,
 	} satisfies UserRegistration;
 
 	const userIdentity = {
-		id: override?.userIdentity?.id ?? userRegistration.id,
-		email: override?.userIdentity?.email ?? userRegistration.email,
-		emailVerified: override?.userIdentity?.emailVerified ?? userRegistration.emailVerified,
-		passwordHash: override?.userIdentity?.passwordHash ?? userRegistration.passwordHash,
-		createdAt: override?.userIdentity?.createdAt ?? userRegistration.createdAt,
-		updatedAt: override?.userIdentity?.updatedAt ?? userRegistration.updatedAt,
+		id: userRegistration.id,
+		email: userRegistration.email,
+		emailVerified: userRegistration.emailVerified,
+		passwordHash: userRegistration.passwordHash,
+		createdAt: userRegistration.createdAt,
+		updatedAt: userRegistration.updatedAt,
+		...override?.userIdentity,
 	} satisfies UserIdentity;
 
 	return {

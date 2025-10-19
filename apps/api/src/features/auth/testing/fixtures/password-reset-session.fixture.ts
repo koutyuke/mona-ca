@@ -22,7 +22,7 @@ export const createPasswordResetSessionFixture = (override?: {
 	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
 
 	const passwordResetSessionSecret = override?.passwordResetSessionSecret ?? "passwordResetSessionSecret";
-	const secretHash = override?.passwordResetSession?.secretHash ?? secretHasher(passwordResetSessionSecret);
+	const secretHash = secretHasher(passwordResetSessionSecret);
 
 	const expiresAt = new Date(
 		override?.passwordResetSession?.expiresAt?.getTime() ??
@@ -31,13 +31,14 @@ export const createPasswordResetSessionFixture = (override?: {
 	expiresAt.setMilliseconds(0);
 
 	const passwordResetSession: PasswordResetSession = {
-		id: override?.passwordResetSession?.id ?? newPasswordResetSessionId(ulid()),
-		userId: override?.passwordResetSession?.userId ?? newUserId(ulid()),
-		code: override?.passwordResetSession?.code ?? "testCode",
+		id: newPasswordResetSessionId(ulid()),
+		userId: newUserId(ulid()),
+		code: "testCode",
 		secretHash,
-		email: override?.passwordResetSession?.email ?? "test.email@example.com",
-		emailVerified: override?.passwordResetSession?.emailVerified ?? true,
+		email: "test.email@example.com",
+		emailVerified: true,
 		expiresAt,
+		...override?.passwordResetSession,
 	};
 
 	return {

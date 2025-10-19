@@ -1,25 +1,23 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { PasswordHasherMock } from "../../../../../../shared/testing/mocks/system";
 import {
+	createAuthUserFixture,
 	createPasswordResetSessionFixture,
 	createSessionFixture,
-	createUserFixture,
-} from "../../../../../../tests/fixtures";
+} from "../../../../testing/fixtures";
 import {
-	PasswordHasherMock,
+	AuthUserRepositoryMock,
 	PasswordResetSessionRepositoryMock,
 	SessionRepositoryMock,
-	UserRepositoryMock,
+	createAuthUserMap,
 	createPasswordResetSessionsMap,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
 import { ResetPasswordUseCase } from "../reset-password.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
 const sessionMap = createSessionsMap();
-const userMap = createUsersMap();
-const userPasswordHashMap = createUserPasswordHashMap();
+const authUserMap = createAuthUserMap();
 
 const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
@@ -27,22 +25,21 @@ const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const passwordHasher = new PasswordHasherMock();
 
 const resetPasswordUseCase = new ResetPasswordUseCase(
-	userRepository,
+	authUserRepository,
 	sessionRepository,
 	passwordResetSessionRepository,
 	passwordHasher,
 );
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration: user } = createAuthUserFixture({
+	userRegistration: {
 		email: "test@example.com",
 		name: "test_user",
 	},
@@ -52,8 +49,7 @@ describe("ResetPasswordUseCase", () => {
 	beforeEach(() => {
 		passwordResetSessionMap.clear();
 		sessionMap.clear();
-		userMap.clear();
-		userPasswordHashMap.clear();
+		authUserMap.clear();
 	});
 
 	it("should reset password successfully when email is verified", async () => {
@@ -65,14 +61,14 @@ describe("ResetPasswordUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 
 		const newPassword = "new_password123";
 		const result = await resetPasswordUseCase.execute(newPassword, session, user);
 
 		expect(result.isErr).toBe(false);
 
-		const savedUser = userMap.get(user.id);
+		const savedUser = authUserMap.get(user.id);
 		expect(savedUser).toBeDefined();
 		expect(savedUser?.id).toBe(user.id);
 	});
@@ -86,7 +82,7 @@ describe("ResetPasswordUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 
 		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
@@ -106,18 +102,18 @@ describe("ResetPasswordUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 
 		const newPassword = "new_password123";
 		const result = await resetPasswordUseCase.execute(newPassword, session, user);
 
 		expect(result.isErr).toBe(false);
 
-		const savedPasswordHash = userPasswordHashMap.get(user.id);
-		expect(savedPasswordHash).toBeDefined();
-		expect(savedPasswordHash).not.toBe(newPassword);
-		if (savedPasswordHash) {
-			expect(await passwordHasher.verify(newPassword, savedPasswordHash)).toBe(true);
+		const savedUser = authUserMap.get(user.id);
+		expect(savedUser?.passwordHash).toBeDefined();
+		expect(savedUser?.passwordHash).not.toBe(newPassword);
+		if (savedUser?.passwordHash) {
+			expect(await passwordHasher.verify(newPassword, savedUser.passwordHash)).toBe(true);
 		}
 	});
 
@@ -138,7 +134,7 @@ describe("ResetPasswordUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 
 		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
@@ -162,7 +158,7 @@ describe("ResetPasswordUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 		passwordResetSessionMap.set(session.id, session);
 		passwordResetSessionMap.set(anotherSession.id, anotherSession);
 
@@ -183,21 +179,20 @@ describe("ResetPasswordUseCase", () => {
 			},
 		});
 
-		userMap.set(user.id, user);
+		authUserMap.set(user.id, user);
 
 		const result = await resetPasswordUseCase.execute("new_password123", session, user);
 
 		expect(result.isErr).toBe(false);
 
-		const savedUser = userMap.get(user.id);
+		const savedUser = authUserMap.get(user.id);
 		expect(savedUser).toBeDefined();
 		expect(savedUser?.id).toBe(user.id);
 
-		const savedPasswordHash = userPasswordHashMap.get(user.id);
-		expect(savedPasswordHash).toBeDefined();
-		expect(savedPasswordHash).not.toBe("new_password123");
-		if (savedPasswordHash) {
-			expect(await passwordHasher.verify("new_password123", savedPasswordHash)).toBe(true);
+		expect(savedUser?.passwordHash).toBeDefined();
+		expect(savedUser?.passwordHash).not.toBe("new_password123");
+		if (savedUser?.passwordHash) {
+			expect(await passwordHasher.verify("new_password123", savedUser.passwordHash)).toBe(true);
 		}
 	});
 });

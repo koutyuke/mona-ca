@@ -18,7 +18,7 @@ export const createSignupSessionFixture = (override?: {
 	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
 
 	const signupSessionSecret = override?.signupSessionSecret ?? "signupSessionSecret";
-	const secretHash = override?.signupSession?.secretHash ?? secretHasher(signupSessionSecret);
+	const secretHash = secretHasher(signupSessionSecret);
 
 	const expiresAt = new Date(
 		override?.signupSession?.expiresAt?.getTime() ??
@@ -27,12 +27,13 @@ export const createSignupSessionFixture = (override?: {
 	expiresAt.setMilliseconds(0);
 
 	const signupSession: SignupSession = {
-		id: override?.signupSession?.id ?? newSignupSessionId(ulid()),
-		email: override?.signupSession?.email ?? "test@example.com",
-		emailVerified: override?.signupSession?.emailVerified ?? false,
-		code: override?.signupSession?.code ?? "testCode",
-		secretHash: override?.signupSession?.secretHash ?? secretHash,
+		id: newSignupSessionId(ulid()),
+		email: "test@example.com",
+		emailVerified: false,
+		code: "testCode",
+		secretHash: secretHash,
 		expiresAt,
+		...override?.signupSession,
 	};
 
 	return {

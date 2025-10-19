@@ -58,6 +58,7 @@ export class AuthUserRepositoryMock implements IAuthUserRepository {
 			...userRegistration,
 			email: identity.email,
 			emailVerified: identity.emailVerified,
+			passwordHash: identity.passwordHash,
 		});
 	}
 

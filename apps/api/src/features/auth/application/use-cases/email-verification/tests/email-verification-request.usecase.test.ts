@@ -1,29 +1,25 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { RandomGeneratorMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
 import {
+	createAuthUserFixture,
 	createEmailVerificationSessionFixture,
 	createSessionFixture,
-	createUserFixture,
-} from "../../../../../../tests/fixtures";
+} from "../../../../testing/fixtures";
 import {
+	AuthUserRepositoryMock,
 	EmailVerificationSessionRepositoryMock,
-	RandomGeneratorMock,
-	SessionSecretHasherMock,
-	UserRepositoryMock,
+	createAuthUserMap,
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
-	createUserPasswordHashMap,
-	createUsersMap,
-} from "../../../../../../tests/mocks";
+} from "../../../../testing/mocks/repositories";
 import { EmailVerificationRequestUseCase } from "../email-verification-request.usecase";
 
-const userMap = createUsersMap();
+const authUserMap = createAuthUserMap();
 const sessionMap = createSessionsMap();
-const userPasswordHashMap = createUserPasswordHashMap();
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
 
-const userRepository = new UserRepositoryMock({
-	userMap,
-	userPasswordHashMap,
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
 	sessionMap,
 });
 const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
@@ -33,38 +29,38 @@ const randomGenerator = new RandomGeneratorMock();
 const sessionSecretHasher = new SessionSecretHasherMock();
 
 const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-	userRepository,
 	emailVerificationSessionRepository,
+	authUserRepository,
 	randomGenerator,
 	sessionSecretHasher,
 );
 
-const { user } = createUserFixture({
-	user: {
+const { userRegistration, userIdentity } = createAuthUserFixture({
+	userRegistration: {
 		email: "test@example.com",
 		name: "test_user",
+		emailVerified: false,
 	},
 });
 
 describe("EmailVerificationRequestUseCase", () => {
-	beforeEach(() => {
-		userMap.clear();
+	afterEach(() => {
+		authUserMap.clear();
 		sessionMap.clear();
-		userPasswordHashMap.clear();
 		emailVerificationSessionMap.clear();
 	});
 
 	it("should create email verification request successfully for new email", async () => {
-		userMap.set(user.id, { ...user, emailVerified: false, email: "old@example.com" });
+		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
+		const result = await emailVerificationRequestUseCase.execute("new@example.com", userIdentity);
 
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
 			const { emailVerificationSession, emailVerificationSessionToken } = result.value;
 			expect(emailVerificationSession.email).toBe("new@example.com");
-			expect(emailVerificationSession.userId).toBe(user.id);
+			expect(emailVerificationSession.userId).toBe(userIdentity.id);
 			expect(emailVerificationSession.code).toBeDefined();
 			expect(emailVerificationSession.code.length).toBe(8);
 			expect(typeof emailVerificationSessionToken).toBe("string");
@@ -73,24 +69,26 @@ describe("EmailVerificationRequestUseCase", () => {
 	});
 
 	it("should create email verification request successfully for unverified current email", async () => {
-		const updatedUser = { ...user, emailVerified: false };
-		userMap.set(user.id, updatedUser);
+		const updatedUserRegistration = { ...userRegistration, emailVerified: false };
+		authUserMap.set(userRegistration.id, updatedUserRegistration);
 
-		const result = await emailVerificationRequestUseCase.execute("test@example.com", updatedUser);
+		const result = await emailVerificationRequestUseCase.execute("test@example.com", userIdentity);
 
 		expect(result.isErr).toBe(false);
 
 		if (!result.isErr) {
 			const { emailVerificationSession } = result.value;
 			expect(emailVerificationSession.email).toBe("test@example.com");
-			expect(emailVerificationSession.userId).toBe(updatedUser.id);
+			expect(emailVerificationSession.userId).toBe(userRegistration.id);
 		}
 	});
 
 	it("should return EMAIL_ALREADY_VERIFIED error when trying to verify already verified email", async () => {
-		userMap.set(user.id, { ...user, emailVerified: true });
+		const updatedUserRegistration = { ...userRegistration, emailVerified: true };
 
-		const result = await emailVerificationRequestUseCase.execute("test@example.com", user);
+		authUserMap.set(userRegistration.id, updatedUserRegistration);
+
+		const result = await emailVerificationRequestUseCase.execute("test@example.com", updatedUserRegistration);
 
 		expect(result.isErr).toBe(true);
 
@@ -100,18 +98,18 @@ describe("EmailVerificationRequestUseCase", () => {
 	});
 
 	it("should return EMAIL_ALREADY_REGISTERED error when email is already used by another user", async () => {
-		const { user: anotherUser } = createUserFixture({
-			user: {
+		const { userRegistration: anotherUserRegistration } = createAuthUserFixture({
+			userRegistration: {
 				email: "existing@example.com",
 				name: "another_user",
 				emailVerified: true,
 			},
 		});
 
-		userMap.set(user.id, { ...user, email: "old@example.com" });
-		userMap.set(anotherUser.id, anotherUser);
+		authUserMap.set(userRegistration.id, userRegistration);
+		authUserMap.set(anotherUserRegistration.id, anotherUserRegistration);
 
-		const result = await emailVerificationRequestUseCase.execute("existing@example.com", user);
+		const result = await emailVerificationRequestUseCase.execute("existing@example.com", userIdentity);
 
 		expect(result.isErr).toBe(true);
 
@@ -121,12 +119,12 @@ describe("EmailVerificationRequestUseCase", () => {
 	});
 
 	it("should delete existing email verification sessions before creating new one", async () => {
-		userMap.set(user.id, user);
+		authUserMap.set(userRegistration.id, userRegistration);
 
 		const { emailVerificationSession: existingSession } = createEmailVerificationSessionFixture({
 			emailVerificationSession: {
-				userId: user.id,
-				email: user.email,
+				userId: userRegistration.id,
+				email: userRegistration.email,
 				code: "12345678",
 			},
 		});
@@ -136,7 +134,7 @@ describe("EmailVerificationRequestUseCase", () => {
 		expect(emailVerificationSessionMap.size).toBe(1);
 		expect(emailVerificationSessionMap.get(existingSession.id)).toBeDefined();
 
-		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
+		const result = await emailVerificationRequestUseCase.execute("new@example.com", userIdentity);
 
 		expect(result.isErr).toBe(false);
 
@@ -144,15 +142,15 @@ describe("EmailVerificationRequestUseCase", () => {
 			const { emailVerificationSession } = result.value;
 			const savedSession = emailVerificationSessionMap.get(emailVerificationSession.id);
 			expect(savedSession).toBeDefined();
-			expect(savedSession?.userId).toBe(user.id);
+			expect(savedSession?.userId).toBe(userIdentity.id);
 			expect(savedSession?.email).toBe("new@example.com");
 		}
 	});
 
 	it("should generate 8-digit numeric verification code", async () => {
-		userMap.set(user.id, user);
+		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
+		const result = await emailVerificationRequestUseCase.execute("new@example.com", userRegistration);
 
 		expect(result.isErr).toBe(false);
 
@@ -166,9 +164,9 @@ describe("EmailVerificationRequestUseCase", () => {
 	});
 
 	it("should create session token with correct format", async () => {
-		userMap.set(user.id, user);
+		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
+		const result = await emailVerificationRequestUseCase.execute("new@example.com", userIdentity);
 
 		expect(result.isErr).toBe(false);
 
@@ -180,17 +178,17 @@ describe("EmailVerificationRequestUseCase", () => {
 	});
 
 	it("should remove obsolete sessions when generating new token", async () => {
-		userMap.set(user.id, user);
+		authUserMap.set(userRegistration.id, userRegistration);
 
 		const { session } = createSessionFixture({
 			session: {
-				userId: user.id,
+				userId: userRegistration.id,
 			},
 		});
 
 		sessionMap.set(session.id, session);
 
-		const result = await emailVerificationRequestUseCase.execute("new@example.com", user);
+		const result = await emailVerificationRequestUseCase.execute("new@example.com", userIdentity);
 
 		expect(result.isErr).toBe(false);
 
