@@ -1,17 +1,18 @@
-import type { ToPrimitive } from "@mona-ca/core/utils";
 import { eq, lte } from "drizzle-orm";
-import type { IAccountAssociationSessionRepository } from "../../../../../application/ports/out/repositories";
+import { newUserId } from "../../../../../shared/domain/value-objects";
 import {
-	type AccountAssociationSessionId,
-	type ExternalIdentityProvider,
-	type UserId,
-	newAccountAssociationSessionId,
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-	newUserId,
-} from "../../../../../common/domain/value-objects";
-import type { AccountAssociationSession } from "../../../domain/entities";
-import type { DrizzleService } from "../../../infrastructure/drizzle";
+} from "../../../domain/value-objects/external-identity";
+import { newAccountAssociationSessionId } from "../../../domain/value-objects/ids";
+
+import type { ToPrimitive } from "@mona-ca/core/utils";
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { IAccountAssociationSessionRepository } from "../../../application/ports/repositories/account-association-session.repository.interface";
+import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
+import type { AccountAssociationSessionId } from "../../../domain/value-objects/ids";
 
 interface FoundAccountAssociationSessionDto {
 	id: string;

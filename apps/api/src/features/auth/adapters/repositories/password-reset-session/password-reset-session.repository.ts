@@ -1,13 +1,12 @@
 import { eq } from "drizzle-orm";
-import type { IPasswordResetSessionRepository } from "../../../../../application/ports/out/repositories";
-import {
-	type PasswordResetSessionId,
-	type UserId,
-	newPasswordResetSessionId,
-	newUserId,
-} from "../../../../../common/domain/value-objects";
-import type { PasswordResetSession } from "../../../domain/entities";
-import type { DrizzleService } from "../../../infrastructure/drizzle";
+import { newUserId } from "../../../../../shared/domain/value-objects";
+import { newPasswordResetSessionId } from "../../../domain/value-objects/ids";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { IPasswordResetSessionRepository } from "../../../application/ports/repositories/password-reset-session.repository.interface";
+import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import type { PasswordResetSessionId } from "../../../domain/value-objects/ids";
 
 interface FoundPasswordResetSessionDto {
 	id: string;

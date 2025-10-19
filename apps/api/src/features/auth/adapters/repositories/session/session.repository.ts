@@ -1,8 +1,12 @@
 import { eq, lte } from "drizzle-orm";
-import type { ISessionRepository } from "../../../../../application/ports/out/repositories";
-import { type SessionId, type UserId, newSessionId, newUserId } from "../../../../../common/domain/value-objects";
-import type { Session } from "../../../domain/entities";
-import type { DrizzleService } from "../../../infrastructure/drizzle";
+import { newUserId } from "../../../../../shared/domain/value-objects";
+import { newSessionId } from "../../../domain/value-objects/ids";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { ISessionRepository } from "../../../application/ports/repositories/session.repository.interface";
+import type { Session } from "../../../domain/entities/session";
+import type { SessionId } from "../../../domain/value-objects/ids";
 
 interface FoundSessionDto {
 	id: string;
@@ -10,8 +14,6 @@ interface FoundSessionDto {
 	secretHash: Buffer;
 	expiresAt: Date;
 }
-
-type InsertSession = Omit<Session, "secretHash"> & { secretHash: Buffer };
 
 export class SessionRepository implements ISessionRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
@@ -41,7 +43,12 @@ export class SessionRepository implements ISessionRepository {
 	public async save(session: Session): Promise<void> {
 		await this.drizzleService.db
 			.insert(this.drizzleService.schema.sessions)
-			.values(this.convertToInsertSession(session))
+			.values({
+				id: session.id,
+				userId: session.userId,
+				secretHash: Buffer.from(session.secretHash),
+				expiresAt: session.expiresAt,
+			})
 			.onConflictDoUpdate({
 				target: this.drizzleService.schema.sessions.id,
 				set: {
@@ -78,14 +85,5 @@ export class SessionRepository implements ISessionRepository {
 			secretHash: new Uint8Array(dto.secretHash),
 			expiresAt: dto.expiresAt,
 		} satisfies Session;
-	}
-
-	private convertToInsertSession(session: Session): InsertSession {
-		return {
-			id: session.id,
-			userId: session.userId,
-			secretHash: Buffer.from(session.secretHash),
-			expiresAt: session.expiresAt,
-		};
 	}
 }

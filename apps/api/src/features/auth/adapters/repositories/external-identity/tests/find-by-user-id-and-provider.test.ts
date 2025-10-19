@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { newExternalIdentityProvider, newUserId } from "../../../../../../common/domain/value-objects";
+import { newExternalIdentityProvider, newUserId } from "../../../../../../shared/domain/value-objects";
 import { createExternalIdentityFixture, createUserFixture } from "../../../../../../tests/fixtures";
 import { ExternalIdentityTableHelper, UserTableHelper } from "../../../../../../tests/helpers";
 import { DrizzleService } from "../../../../infrastructure/drizzle";

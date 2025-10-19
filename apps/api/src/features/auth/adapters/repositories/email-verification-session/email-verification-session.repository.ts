@@ -1,13 +1,12 @@
 import { eq, lte } from "drizzle-orm";
-import type { IEmailVerificationSessionRepository } from "../../../../../application/ports/out/repositories";
-import {
-	type EmailVerificationSessionId,
-	type UserId,
-	newEmailVerificationSessionId,
-	newUserId,
-} from "../../../../../common/domain/value-objects";
+import { newUserId } from "../../../../../shared/domain/value-objects";
+import { newEmailVerificationSessionId } from "../../../domain/value-objects/ids";
+
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { IEmailVerificationSessionRepository } from "../../../application/ports/repositories/email-verification-session.repository.interface";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
-import type { DrizzleService } from "../../../infrastructure/drizzle";
+import type { EmailVerificationSessionId } from "../../../domain/value-objects/ids";
 
 interface FoundEmailVerificationSessionDto {
 	id: string;
@@ -17,8 +16,6 @@ interface FoundEmailVerificationSessionDto {
 	secretHash: Buffer;
 	expiresAt: Date;
 }
-
-type InsertEmailVerificationSession = Omit<EmailVerificationSession, "secretHash"> & { secretHash: Buffer };
 
 export class EmailVerificationSessionRepository implements IEmailVerificationSessionRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
@@ -41,7 +38,14 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 	public async save(emailVerificationSession: EmailVerificationSession): Promise<void> {
 		await this.drizzleService.db
 			.insert(this.drizzleService.schema.emailVerificationSessions)
-			.values(this.convertToInsertEmailVerificationSession(emailVerificationSession))
+			.values({
+				id: emailVerificationSession.id,
+				email: emailVerificationSession.email,
+				userId: emailVerificationSession.userId,
+				code: emailVerificationSession.code,
+				secretHash: Buffer.from(emailVerificationSession.secretHash),
+				expiresAt: emailVerificationSession.expiresAt,
+			})
 			.onConflictDoUpdate({
 				target: this.drizzleService.schema.emailVerificationSessions.id,
 				set: {
@@ -75,16 +79,5 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 			secretHash: new Uint8Array(dto.secretHash),
 			expiresAt: dto.expiresAt,
 		} satisfies EmailVerificationSession;
-	}
-
-	private convertToInsertEmailVerificationSession(session: EmailVerificationSession): InsertEmailVerificationSession {
-		return {
-			id: session.id,
-			email: session.email,
-			userId: session.userId,
-			code: session.code,
-			secretHash: Buffer.from(session.secretHash),
-			expiresAt: session.expiresAt,
-		};
 	}
 }

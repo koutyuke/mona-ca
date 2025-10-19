@@ -1,16 +1,19 @@
-import type { ToPrimitive } from "@mona-ca/core/utils";
 import { and, eq } from "drizzle-orm";
-import type { IExternalIdentityRepository } from "../../../../../application/ports/out/repositories";
+import { newUserId } from "../../../../../shared/domain/value-objects";
 import {
-	type ExternalIdentityProvider,
-	type ExternalIdentityProviderUserId,
-	type UserId,
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
-	newUserId,
-} from "../../../../../common/domain/value-objects";
-import type { ExternalIdentity } from "../../../domain/entities";
-import type { DrizzleService } from "../../../infrastructure/drizzle";
+} from "../../../domain/value-objects/external-identity";
+
+import type { ToPrimitive } from "@mona-ca/core/utils";
+import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { IExternalIdentityRepository } from "../../../application/ports/repositories/external-identity.repository.interface";
+import type { ExternalIdentity } from "../../../domain/entities/external-identity";
+import type {
+	ExternalIdentityProvider,
+	ExternalIdentityProviderUserId,
+} from "../../../domain/value-objects/external-identity";
 
 interface FoundExternalIdentityDto {
 	provider: ToPrimitive<ExternalIdentityProvider>;
@@ -92,20 +95,6 @@ export class ExternalIdentityRepository implements IExternalIdentityRepository {
 			.where(
 				and(
 					eq(this.drizzleService.schema.externalIdentities.userId, userId),
-					eq(this.drizzleService.schema.externalIdentities.provider, provider),
-				),
-			);
-	}
-
-	public async deleteByProviderAndProviderUserId(
-		provider: ExternalIdentityProvider,
-		providerUserId: ExternalIdentityProviderUserId,
-	): Promise<void> {
-		await this.drizzleService.db
-			.delete(this.drizzleService.schema.externalIdentities)
-			.where(
-				and(
-					eq(this.drizzleService.schema.externalIdentities.providerUserId, providerUserId),
 					eq(this.drizzleService.schema.externalIdentities.provider, provider),
 				),
 			);
