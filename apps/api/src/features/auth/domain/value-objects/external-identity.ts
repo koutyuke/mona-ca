@@ -1,5 +1,5 @@
 import type { NewType, ToPrimitive } from "@mona-ca/core/utils";
-import { StringEnum } from "../../../../shared/lib/utils";
+import { StringEnum } from "../../../../shared/lib/types";
 
 export type ExternalIdentityProvider = NewType<"ExternalIdentityProvider", "discord" | "google">;
 

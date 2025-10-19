@@ -1,5 +1,5 @@
 import type { UserId } from "../../../../shared/domain/value-objects";
-import { TimeSpan } from "../../../../shared/lib/utils";
+import { TimeSpan } from "../../../../shared/lib/time";
 import type { PasswordResetSessionId } from "../value-objects/ids";
 
 export const PASSWORD_RESET_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES = 10 as const;

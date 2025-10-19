@@ -1,5 +1,5 @@
 import type { UserId } from "../../../../shared/domain/value-objects";
-import { TimeSpan } from "../../../../shared/lib/utils";
+import { TimeSpan } from "../../../../shared/lib/time";
 import type { SessionId } from "../value-objects/ids";
 
 export const SESSION_EXPIRES_SPAN_DAYS = 30 as const;
