@@ -5,9 +5,7 @@ import { type AppEnv, validateEnv } from "./shared/infra/config/env";
 
 globalThis.Buffer = Buffer;
 
-if (env !== undefined) {
-	validateEnv(env);
-}
+validateEnv(env);
 
 export default {
 	fetch: async (request: Request, env: AppEnv) => {
