@@ -2,6 +2,7 @@ import { t } from "elysia";
 import { LogoutUseCase } from "../../features/auth";
 import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { CookieManager } from "../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	NoContentResponse,
@@ -10,7 +11,6 @@ import {
 } from "../../plugins/elysia-with-env";
 import { pathDetail } from "../../plugins/open-api";
 import { DrizzleService } from "../../shared/infra/drizzle";
-import { CookieManager } from "../../shared/infra/elysia/cookie";
 import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
 export const Logout = new ElysiaWithEnv()

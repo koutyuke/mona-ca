@@ -4,6 +4,7 @@ import { AuthUserRepository } from "../../../features/auth/adapters/repositories
 import { SessionRepository } from "../../../features/auth/adapters/repositories/session/session.repository";
 import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
 import { newSignupSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -18,7 +19,6 @@ import { WithClientTypeSchema, withClientType } from "../../../plugins/with-clie
 import { genderSchema, newGender } from "../../../shared/domain/value-objects";
 import { PasswordHasher, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const SignupConfirm = new ElysiaWithEnv()

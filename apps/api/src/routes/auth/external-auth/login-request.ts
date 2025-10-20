@@ -7,6 +7,7 @@ import {
 	externalIdentityProviderSchema,
 	newExternalIdentityProvider,
 } from "../../../features/auth/domain/value-objects/external-identity";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -19,7 +20,6 @@ import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { clientTypeSchema, newClientType } from "../../../shared/domain/value-objects";
 import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,

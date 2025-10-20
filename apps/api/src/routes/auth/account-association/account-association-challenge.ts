@@ -4,6 +4,7 @@ import { AuthUserRepository } from "../../../features/auth/adapters/repositories
 import { AccountAssociationChallengeUseCase } from "../../../features/auth/application/use-cases/account-association/account-association-challenge.usecase";
 import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association/validate-account-association-session.usecase";
 import { newAccountAssociationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -20,7 +21,6 @@ import { EmailGateway } from "../../../shared/adapters/gateways/email";
 import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
 import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const AccountAssociationChallenge = new ElysiaWithEnv()

@@ -11,6 +11,7 @@ import {
 	externalIdentityProviderSchema,
 	newExternalIdentityProvider,
 } from "../../../features/auth/domain/value-objects/external-identity";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -25,7 +26,6 @@ import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { newClientType } from "../../../shared/domain/value-objects";
 import { HmacOAuthStateSigner, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import {
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,

@@ -6,6 +6,7 @@ import { newAccountAssociationSessionToken } from "../../../features/auth/domain
 import { GetProfileUseCase } from "../../../features/user";
 import { ProfileResponseSchema, toProfileResponse } from "../../../features/user/adapters/presenters/profile.presenter";
 import { ProfileRepository } from "../../../features/user/adapters/repositories/profile/profile.repository";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -17,7 +18,6 @@ import { pathDetail } from "../../../plugins/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 import { SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const AccountAssociationPreview = new ElysiaWithEnv()

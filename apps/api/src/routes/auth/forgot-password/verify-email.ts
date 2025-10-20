@@ -3,6 +3,7 @@ import { PasswordResetVerifyEmailUseCase, ValidatePasswordResetSessionUseCase } 
 import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
 import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session/password-reset-session.repository";
 import { newPasswordResetSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -17,7 +18,6 @@ import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 import { SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const PasswordResetVerifyEmail = new ElysiaWithEnv()

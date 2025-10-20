@@ -2,6 +2,7 @@ import { t } from "elysia";
 import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../features/auth";
 import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
 import { newSignupSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -16,7 +17,6 @@ import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 import { SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const SignupVerifyEmail = new ElysiaWithEnv()

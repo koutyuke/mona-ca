@@ -8,6 +8,7 @@ import {
 	newExternalIdentityProvider,
 } from "../../../features/auth/domain/value-objects/external-identity";
 import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -17,7 +18,6 @@ import {
 import { BadRequestException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
 import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,

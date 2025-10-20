@@ -3,6 +3,7 @@ import { LoginUseCase } from "../../features/auth";
 import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
 import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
 import { CaptchaSchema, captcha } from "../../plugins/captcha";
+import { CookieManager } from "../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -17,7 +18,6 @@ import { RateLimiterSchema, rateLimit } from "../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../plugins/with-client-type";
 import { PasswordHasher, SessionSecretHasher } from "../../shared/infra/crypto";
 import { DrizzleService } from "../../shared/infra/drizzle";
-import { CookieManager } from "../../shared/infra/elysia/cookie";
 import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
 export const Login = new ElysiaWithEnv()

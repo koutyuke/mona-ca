@@ -3,6 +3,7 @@ import { UpdateUserPasswordUseCase } from "../../features/auth";
 import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
 import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { CookieManager } from "../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -15,7 +16,6 @@ import { BadRequestException } from "../../plugins/error";
 import { pathDetail } from "../../plugins/open-api";
 import { PasswordHasher, SessionSecretHasher } from "../../shared/infra/crypto";
 import { DrizzleService } from "../../shared/infra/drizzle";
-import { CookieManager } from "../../shared/infra/elysia/cookie";
 import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
 export const UpdatePassword = new ElysiaWithEnv()

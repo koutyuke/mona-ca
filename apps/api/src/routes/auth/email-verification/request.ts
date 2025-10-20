@@ -3,6 +3,7 @@ import { EmailVerificationRequestUseCase } from "../../../features/auth";
 import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
 import { EmailVerificationSessionRepository } from "../../../features/auth/adapters/repositories/email-verification-session/email-verification-session.repository";
 import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -18,7 +19,6 @@ import { EmailGateway } from "../../../shared/adapters/gateways/email";
 import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
 import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 const EmailVerificationRequest = new ElysiaWithEnv()

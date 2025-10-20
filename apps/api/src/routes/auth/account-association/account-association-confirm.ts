@@ -6,6 +6,7 @@ import { SessionRepository } from "../../../features/auth/adapters/repositories/
 import { AccountAssociationConfirmUseCase } from "../../../features/auth/application/use-cases/account-association/account-association-confirm.usecase";
 import { ValidateAccountAssociationSessionUseCase } from "../../../features/auth/application/use-cases/account-association/validate-account-association-session.usecase";
 import { newAccountAssociationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -20,7 +21,6 @@ import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 import { SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const AccountAssociationConfirm = new ElysiaWithEnv()

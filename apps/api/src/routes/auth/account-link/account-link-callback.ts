@@ -8,6 +8,7 @@ import {
 	externalIdentityProviderSchema,
 	newExternalIdentityProvider,
 } from "../../../features/auth/domain/value-objects/external-identity";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -20,7 +21,6 @@ import { BadRequestException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
 import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,

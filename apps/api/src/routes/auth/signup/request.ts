@@ -3,6 +3,7 @@ import { SignupRequestUseCase } from "../../../features/auth";
 import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
 import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
 import { CaptchaSchema, captcha } from "../../../plugins/captcha";
+import { CookieManager } from "../../../plugins/cookie";
 import {
 	ElysiaWithEnv,
 	ErrorResponseSchema,
@@ -19,7 +20,6 @@ import { EmailGateway } from "../../../shared/adapters/gateways/email";
 import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
 import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
 export const SignupRequest = new ElysiaWithEnv()
