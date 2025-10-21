@@ -2,18 +2,18 @@ import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@m
 import { generateCodeVerifier } from "arctic";
 
 import type { ClientType } from "../../../../../shared/domain/value-objects";
-import type { IOAuthStateSigner } from "../../../../../shared/ports/system";
 import type {
 	ExternalAuthRequestUseCaseResult,
 	IExternalAuthRequestUseCase,
 } from "../../contracts/external-auth/external-auth-request.usecase.interface";
 import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
+import type { IHmacOAuthStateSigner } from "../../ports/infra/hmac-oauth-state-signer.interface";
 import type { oauthStateSchema } from "./schema";
 
 export class ExternalAuthRequestUseCase implements IExternalAuthRequestUseCase {
 	constructor(
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
-		private readonly oauthStateSigner: IOAuthStateSigner<typeof oauthStateSchema>,
+		private readonly externalAuthOAuthStateSigner: IHmacOAuthStateSigner<typeof oauthStateSchema>,
 	) {}
 
 	public execute(
@@ -29,7 +29,7 @@ export class ExternalAuthRequestUseCase implements IExternalAuthRequestUseCase {
 			return err("INVALID_REDIRECT_URI");
 		}
 
-		const state = this.oauthStateSigner.generate({ client: clientType });
+		const state = this.externalAuthOAuthStateSigner.generate({ client: clientType });
 		const codeVerifier = generateCodeVerifier();
 		const redirectToProviderURL = this.oauthProviderGateway.createAuthorizationURL(state, codeVerifier);
 

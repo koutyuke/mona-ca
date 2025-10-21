@@ -1,11 +1,9 @@
 import type { Static } from "@sinclair/typebox";
 import { t } from "elysia";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../lib/encoding";
-import { HmacOAuthStateSigner } from "../hmac-oauth-state-signer";
-import { HmacSha256 } from "../hmac-sha-256";
-
-const HMAC_SECRET = "test-secret-key";
+import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../../shared/lib/encoding";
+import { MacMock } from "../../../../../shared/testing/mocks/system";
+import { HmacOAuthStateSigner } from "./hmac-oauth-state-signer";
 
 const payloadSchema = t.Object({
 	clientType: t.String(),
@@ -14,7 +12,9 @@ const payloadSchema = t.Object({
 
 type Payload = Static<typeof payloadSchema>;
 
-const createSigner = () => new HmacOAuthStateSigner<typeof payloadSchema>(HMAC_SECRET, payloadSchema);
+const mac = new MacMock();
+
+const createSigner = () => new HmacOAuthStateSigner<typeof payloadSchema>(payloadSchema, mac);
 
 describe("HmacOAuthStateSigner", () => {
 	afterEach(() => {
@@ -37,7 +37,8 @@ describe("HmacOAuthStateSigner", () => {
 			expect(parsedPayload.clientType).toBe("web");
 			expect(typeof parsedPayload.nonce).toBe("string");
 			expect(parsedPayload.nonce).not.toHaveLength(0);
-			expect(signature).toMatch(/^[a-f0-9]+$/i);
+			expect(signature).toMatch(/^__mac:.*$/i);
+
 			// Should not leak the nonce back to consumers
 			expect(parsedPayload.locale).toBeUndefined();
 		});
@@ -78,14 +79,13 @@ describe("HmacOAuthStateSigner", () => {
 
 		it("returns INVALID_SIGNED_STATE when the payload does not match the schema", () => {
 			const signer = createSigner();
-			const hmac = new HmacSha256(HMAC_SECRET);
 			const invalidPayloadBase64 = encodeBase64URLSafe(
 				JSON.stringify({
 					nonce: "static-nonce",
 					unexpected: "value",
 				}),
 			);
-			const signature = hmac.sign(invalidPayloadBase64);
+			const signature = mac.sign(invalidPayloadBase64);
 			const invalidState = `${invalidPayloadBase64}.${signature}`;
 
 			const result = signer.validate(invalidState);
@@ -100,10 +100,9 @@ describe("HmacOAuthStateSigner", () => {
 
 		it("returns FAILED_TO_DECODE_SIGNED_STATE when the payload cannot be parsed", () => {
 			const signer = createSigner();
-			const hmac = new HmacSha256(HMAC_SECRET);
 			const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 			const invalidJsonBase64 = encodeBase64URLSafe("not json");
-			const signature = hmac.sign(invalidJsonBase64);
+			const signature = mac.sign(invalidJsonBase64);
 			const invalidState = `${invalidJsonBase64}.${signature}`;
 
 			const result = signer.validate(invalidState);

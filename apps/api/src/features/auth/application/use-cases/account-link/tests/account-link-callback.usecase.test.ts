@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { newClientType } from "../../../../../../shared/domain/value-objects";
-import { OAuthStateSignerMock } from "../../../../../../shared/testing/mocks/system";
 import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
 } from "../../../../domain/value-objects/external-identity";
 import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import {
 	ExternalIdentityRepositoryMock,
 	createExternalIdentitiesMap,
@@ -20,12 +20,12 @@ const externalIdentityMap = createExternalIdentitiesMap();
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
 const externalIdentityRepository = new ExternalIdentityRepositoryMock({ externalIdentityMap });
-const oauthStateSigner = new OAuthStateSignerMock<typeof accountLinkStateSchema>();
+const accountLinkOAuthStateSigner = new HmacOAuthStateSignerMock<typeof accountLinkStateSchema>();
 
 const accountLinkCallbackUseCase: IAccountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
 	oauthProviderGateway,
 	externalIdentityRepository,
-	oauthStateSigner,
+	accountLinkOAuthStateSigner,
 );
 
 const PRODUCTION = false;
@@ -59,7 +59,7 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", async () => {
 		const userId = userRegistration.id;
-		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
@@ -80,7 +80,7 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
 		const userId = userRegistration.id;
-		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
@@ -101,7 +101,7 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
 		const userId = userRegistration.id;
-		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
@@ -122,7 +122,7 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return PROVIDER_ERROR error for provider error", async () => {
 		const userId = userRegistration.id;
-		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
 		const provider = newExternalIdentityProvider("discord");
 
 		const result = await accountLinkCallbackUseCase.execute(
@@ -156,7 +156,7 @@ describe("AccountLinkCallbackUseCase", () => {
 
 		externalIdentityMap.set(createExternalIdentityKey(provider, providerId), existingOAuthAccount);
 
-		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -190,7 +190,7 @@ describe("AccountLinkCallbackUseCase", () => {
 
 		externalIdentityMap.set(createExternalIdentityKey(provider, providerId), existingOAuthAccount);
 
-		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -211,7 +211,7 @@ describe("AccountLinkCallbackUseCase", () => {
 	it("should successfully link account when no conflicts", async () => {
 		const userId = userRegistration.id;
 		const provider = newExternalIdentityProvider("discord");
-		const signedState = oauthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,

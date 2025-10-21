@@ -8,7 +8,7 @@ import { newAccountAssociationSessionId, newSessionId } from "../../../domain/va
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
 import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { IOAuthStateSigner, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type { Session } from "../../../domain/entities/session";
 import type {
@@ -21,6 +21,7 @@ import type {
 	IExternalAuthLoginCallbackUseCase,
 } from "../../contracts/external-auth/external-auth-login-callback.usecase.interface";
 import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
+import type { IHmacOAuthStateSigner } from "../../ports/infra/hmac-oauth-state-signer.interface";
 import type { IAccountAssociationSessionRepository } from "../../ports/repositories/account-association-session.repository.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
@@ -35,7 +36,7 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
-		private readonly oauthStateSigner: IOAuthStateSigner<typeof oauthStateSchema>,
+		private readonly externalAuthOAuthStateSigner: IHmacOAuthStateSigner<typeof oauthStateSchema>,
 	) {}
 
 	public async execute(
@@ -47,7 +48,7 @@ export class ExternalAuthLoginCallbackUseCase implements IExternalAuthLoginCallb
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<ExternalAuthLoginCallbackUseCaseResult> {
-		const validatedState = this.oauthStateSigner.validate(signedState);
+		const validatedState = this.externalAuthOAuthStateSigner.validate(signedState);
 
 		if (validatedState.isErr) {
 			return err("INVALID_STATE");

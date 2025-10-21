@@ -3,18 +3,18 @@ import type { Static, TObject } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { generateState } from "arctic";
 import { t } from "elysia";
-import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../lib/encoding";
-import { timingSafeStringEqual } from "../../lib/security";
-import type { IOAuthStateSigner } from "../../ports/system";
-import { HmacSha256 } from "./hmac-sha-256";
+import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../../shared/lib/encoding";
+import { timingSafeStringEqual } from "../../../../../shared/lib/security";
+import type { IMac } from "../../../../../shared/ports/system";
+import type { IHmacOAuthStateSigner } from "../../ports/infra/hmac-oauth-state-signer.interface";
 
-export class HmacOAuthStateSigner<P extends TObject> implements IOAuthStateSigner<P> {
+export class HmacOAuthStateSigner<P extends TObject> implements IHmacOAuthStateSigner<P> {
 	private readonly schema: P;
-	private readonly hmacSha256: HmacSha256;
+	private readonly hmacSha256: IMac;
 
-	constructor(hmacSecret: string, schema: P) {
+	constructor(schema: P, hmacSha256: IMac) {
 		this.schema = schema;
-		this.hmacSha256 = new HmacSha256(hmacSecret);
+		this.hmacSha256 = hmacSha256;
 	}
 
 	generate(payload: Static<P>): string {

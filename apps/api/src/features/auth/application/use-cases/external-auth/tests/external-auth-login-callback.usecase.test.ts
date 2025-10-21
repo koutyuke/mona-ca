@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { newClientType, newGender } from "../../../../../../shared/domain/value-objects";
-import { OAuthStateSignerMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
 import { DEFAULT_USER_GENDER } from "../../../../domain/entities/user-registration";
 import {
 	newExternalIdentityProvider,
@@ -8,6 +8,7 @@ import {
 } from "../../../../domain/value-objects/external-identity";
 import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import {
 	AccountAssociationSessionRepositoryMock,
 	AuthUserRepositoryMock,
@@ -38,7 +39,7 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 	accountAssociationSessionMap,
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
-const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
+const externalAuthOAuthStateSigner = new HmacOAuthStateSignerMock<typeof oauthStateSchema>();
 
 const externalAuthLoginCallbackUseCase = new ExternalAuthLoginCallbackUseCase(
 	oauthProviderGateway,
@@ -47,7 +48,7 @@ const externalAuthLoginCallbackUseCase = new ExternalAuthLoginCallbackUseCase(
 	authUserRepository,
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
-	oauthStateSigner,
+	externalAuthOAuthStateSigner,
 );
 
 const { userRegistration } = createAuthUserFixture({
@@ -84,7 +85,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 	});
 
 	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthLoginCallbackUseCase.execute(
 			PRODUCTION,
@@ -103,7 +104,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 	});
 
 	it("should return ACCOUNT_ASSOCIATION_NOT_FOUND error when ExternalIdentity does not exist", async () => {
-		const signedState = oauthStateSigner.generate({ client: "web" });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: "web" });
 
 		const result = await externalAuthLoginCallbackUseCase.execute(
 			PRODUCTION,
@@ -139,7 +140,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			externalIdentityFixture.externalIdentity,
 		);
 
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthLoginCallbackUseCase.execute(
 			PRODUCTION,

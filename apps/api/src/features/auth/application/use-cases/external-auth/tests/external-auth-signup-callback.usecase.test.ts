@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { newClientType, newGender } from "../../../../../../shared/domain/value-objects";
-import { OAuthStateSignerMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
 import { DEFAULT_USER_GENDER } from "../../../../domain/entities/user-registration";
 import {
 	newExternalIdentityProvider,
@@ -8,6 +8,7 @@ import {
 } from "../../../../domain/value-objects/external-identity";
 import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import {
 	AccountAssociationSessionRepositoryMock,
 	AuthUserRepositoryMock,
@@ -38,7 +39,7 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 	accountAssociationSessionMap,
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
-const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
+const externalAuthOAuthStateSigner = new HmacOAuthStateSignerMock<typeof oauthStateSchema>();
 
 const externalAuthSignupCallbackUseCase = new ExternalAuthSignupCallbackUseCase(
 	oauthProviderGateway,
@@ -47,7 +48,7 @@ const externalAuthSignupCallbackUseCase = new ExternalAuthSignupCallbackUseCase(
 	authUserRepository,
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
-	oauthStateSigner,
+	externalAuthOAuthStateSigner,
 );
 
 const PRODUCTION = false;
@@ -78,7 +79,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
@@ -97,7 +98,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
@@ -116,7 +117,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
@@ -135,7 +136,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return PROVIDER_ERROR error for provider error", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
@@ -154,7 +155,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should process successful signup with new user", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
@@ -202,7 +203,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 			oauthAccount,
 		);
 
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
@@ -230,7 +231,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 
 		authUserMap.set(existingUser.id, existingUser);
 
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,

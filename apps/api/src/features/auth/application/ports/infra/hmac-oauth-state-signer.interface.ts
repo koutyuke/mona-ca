@@ -1,7 +1,7 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
 import type { Static, TObject } from "@sinclair/typebox";
 
-export interface IOAuthStateSigner<P extends TObject> {
+export interface IHmacOAuthStateSigner<P extends TObject> {
 	generate(payload: Static<P>): string;
 	validate(
 		signedState: string,

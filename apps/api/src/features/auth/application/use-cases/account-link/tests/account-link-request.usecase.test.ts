@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { newClientType, newUserId } from "../../../../../../shared/domain/value-objects";
 import { ulid } from "../../../../../../shared/lib/id";
-import { OAuthStateSignerMock } from "../../../../../../shared/testing/mocks/system";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
 import type { accountLinkStateSchema } from "../schema";
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
-const oauthStateSigner = new OAuthStateSignerMock<typeof accountLinkStateSchema>();
+const accountLinkOAuthStateSigner = new HmacOAuthStateSignerMock<typeof accountLinkStateSchema>();
 
-const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, oauthStateSigner);
+const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, accountLinkOAuthStateSigner);
 
 const PRODUCTION = false;
 

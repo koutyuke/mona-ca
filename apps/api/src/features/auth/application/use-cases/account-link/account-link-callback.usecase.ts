@@ -4,13 +4,13 @@ import { newClientType, newUserId } from "../../../../../shared/domain/value-obj
 import { createExternalIdentity } from "../../../domain/entities/external-identity";
 import { newExternalIdentityProviderUserId } from "../../../domain/value-objects/external-identity";
 
-import type { IOAuthStateSigner } from "../../../../../shared/ports/system";
 import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 import type {
 	AccountLinkCallbackUseCaseResult,
 	IAccountLinkCallbackUseCase,
 } from "../../contracts/account-link/account-link-callback.usecase.interface";
 import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
+import type { IHmacOAuthStateSigner } from "../../ports/infra/hmac-oauth-state-signer.interface";
 import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
 import type { accountLinkStateSchema } from "./schema";
 
@@ -18,7 +18,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	constructor(
 		private readonly oauthProviderGateway: IOAuthProviderGateway,
 		private readonly externalIdentityRepository: IExternalIdentityRepository,
-		private readonly oauthStateSigner: IOAuthStateSigner<typeof accountLinkStateSchema>,
+		private readonly accountLinkOAuthStateSigner: IHmacOAuthStateSigner<typeof accountLinkStateSchema>,
 	) {}
 
 	public async execute(
@@ -30,7 +30,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<AccountLinkCallbackUseCaseResult> {
-		const validatedState = this.oauthStateSigner.validate(signedState);
+		const validatedState = this.accountLinkOAuthStateSigner.validate(signedState);
 
 		if (validatedState.isErr) {
 			return err("INVALID_STATE");

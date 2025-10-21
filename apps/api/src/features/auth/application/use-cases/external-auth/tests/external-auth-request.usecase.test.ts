@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { newClientType } from "../../../../../../shared/domain/value-objects";
-import { OAuthStateSignerMock } from "../../../../../../shared/testing/mocks/system";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import { ExternalAuthRequestUseCase } from "../external-auth-request.usecase";
 import type { oauthStateSchema } from "../schema";
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
-const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
+const externalAuthOAuthStateSigner = new HmacOAuthStateSignerMock<typeof oauthStateSchema>();
 
-const externalAuthRequestUseCase = new ExternalAuthRequestUseCase(oauthProviderGateway, oauthStateSigner);
+const externalAuthRequestUseCase = new ExternalAuthRequestUseCase(oauthProviderGateway, externalAuthOAuthStateSigner);
 
 const PRODUCTION = false;
 

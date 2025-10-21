@@ -1,11 +1,11 @@
 import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/utils";
 import type { Static, TObject } from "@sinclair/typebox";
-import type { IOAuthStateSigner } from "../../../ports/system";
+import type { IHmacOAuthStateSigner } from "../../../application/ports/infra/hmac-oauth-state-signer.interface";
 
-export class OAuthStateSignerMock<P extends TObject> implements IOAuthStateSigner<P> {
+export class HmacOAuthStateSignerMock<P extends TObject> implements IHmacOAuthStateSigner<P> {
 	generate(payload: Static<P>): string {
 		const payloadString = JSON.stringify(payload);
-		return `__oauth-state-signed:${payloadString}`;
+		return `__hmac-oauth-state-signed:${payloadString}`;
 	}
 
 	validate(
@@ -18,7 +18,7 @@ export class OAuthStateSignerMock<P extends TObject> implements IOAuthStateSigne
 		const prefix = signedState.slice(0, colon);
 		const payloadString = signedState.slice(colon + 1);
 
-		if (prefix !== "__oauth-state-signed" || !payloadString) {
+		if (prefix !== "__hmac-oauth-state-signed" || !payloadString) {
 			return err("INVALID_SIGNED_STATE");
 		}
 		const payload = JSON.parse(payloadString);
