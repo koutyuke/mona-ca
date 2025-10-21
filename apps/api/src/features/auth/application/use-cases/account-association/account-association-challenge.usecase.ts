@@ -4,6 +4,7 @@ import { newAccountAssociationSessionId } from "../../../domain/value-objects/id
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
 import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IEmailGateway } from "../../../../../shared/ports/gateways";
 import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type {
@@ -24,6 +25,7 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly randomGenerator: IRandomGenerator,
+		private readonly emailGateway: IEmailGateway,
 	) {}
 
 	public async execute(
@@ -39,6 +41,11 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 		);
 
 		await this.accountAssociationSessionRepository.save(accountAssociationSession);
+
+		await this.emailGateway.sendVerificationEmail(
+			accountAssociationSession.email,
+			accountAssociationSession.code ?? "",
+		);
 
 		return {
 			accountAssociationSession,

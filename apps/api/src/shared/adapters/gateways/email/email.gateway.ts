@@ -2,6 +2,7 @@ import { render } from "@react-email/render";
 import type { ReactElement } from "react";
 import { type CreateEmailOptions, type CreateEmailRequestOptions, type CreateEmailResponse, Resend } from "resend";
 import type { IEmailGateway } from "../../../ports/gateways";
+import { verificationEmailTemplate } from "./mail-context";
 import type { EmailRenderOptions, RequireAtLeastOne } from "./type";
 
 export class EmailGateway implements IEmailGateway {
@@ -37,6 +38,16 @@ export class EmailGateway implements IEmailGateway {
 			},
 			error: null,
 		};
+	}
+
+	public async sendVerificationEmail(to: string, code: string): Promise<CreateEmailResponse> {
+		const mailContents = verificationEmailTemplate(to, code);
+		return await this.sendEmail({
+			from: mailContents.from,
+			to: mailContents.to,
+			subject: mailContents.subject,
+			text: mailContents.text,
+		});
 	}
 
 	private async render(

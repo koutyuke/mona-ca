@@ -18,7 +18,6 @@ import { pathDetail } from "../../../plugins/open-api/path-detail";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 import { EmailGateway } from "../../../shared/adapters/gateways/email";
-import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
 import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
@@ -56,6 +55,7 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 				accountAssociationSessionRepository,
 				sessionSecretHasher,
 				randomGenerator,
+				emailGateway,
 			);
 			const validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
 				authUserRepository,
@@ -103,18 +103,6 @@ export const AccountAssociationChallenge = new ElysiaWithEnv()
 
 			const { accountAssociationSessionToken, accountAssociationSession } =
 				await accountAssociationChallengeUseCase.execute(validateAccountAssociationSession);
-
-			const mailContents = verificationEmailTemplate(
-				accountAssociationSession.email,
-				accountAssociationSession.code ?? "",
-			);
-
-			await emailGateway.sendEmail({
-				from: mailContents.from,
-				to: mailContents.to,
-				subject: mailContents.subject,
-				text: mailContents.text,
-			});
 
 			if (clientType === "mobile") {
 				return {

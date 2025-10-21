@@ -17,7 +17,6 @@ import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 import { EmailGateway } from "../../../shared/adapters/gateways/email";
-import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
 import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
@@ -57,6 +56,7 @@ const PasswordResetRequest = new ElysiaWithEnv()
 				passwordResetSessionRepository,
 				randomGenerator,
 				sessionSecretHasher,
+				emailGateway,
 			);
 			// === End of instances ===
 
@@ -79,15 +79,6 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			}
 
 			const { passwordResetSessionToken, passwordResetSession } = result.value;
-
-			const mailContents = verificationEmailTemplate(passwordResetSession.email, passwordResetSession.code);
-
-			await emailGateway.sendEmail({
-				from: mailContents.from,
-				to: mailContents.to,
-				subject: mailContents.subject,
-				text: mailContents.text,
-			});
 
 			if (clientType === "mobile") {
 				return {

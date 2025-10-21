@@ -16,7 +16,6 @@ import { BadRequestException } from "../../../plugins/error";
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { EmailGateway } from "../../../shared/adapters/gateways/email";
-import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
 import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
 import { DrizzleService } from "../../../shared/infra/drizzle";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
@@ -63,6 +62,7 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 				authUserRepository,
 				randomGenerator,
 				sessionSecretHasher,
+				emailGateway,
 			);
 			// === End of instances ===
 
@@ -90,15 +90,6 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			}
 
 			const { emailVerificationSession, emailVerificationSessionToken } = result.value;
-
-			const mailContents = verificationEmailTemplate(emailVerificationSession.email, emailVerificationSession.code);
-
-			await emailGateway.sendEmail({
-				from: mailContents.from,
-				to: mailContents.to,
-				subject: mailContents.subject,
-				text: mailContents.text,
-			});
 
 			if (clientType === "mobile") {
 				return {

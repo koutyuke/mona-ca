@@ -4,6 +4,7 @@ import { createSignupSession } from "../../../domain/entities/signup-session";
 import { newSignupSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
+import type { IEmailGateway } from "../../../../../shared/ports/gateways";
 import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { SignupSessionToken } from "../../../domain/value-objects/session-token";
@@ -20,6 +21,7 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly randomGenerator: IRandomGenerator,
+		private readonly emailGateway: IEmailGateway,
 	) {}
 
 	async execute(email: string): Promise<SignupRequestUseCaseResult> {
@@ -34,6 +36,8 @@ export class SignupRequestUseCase implements ISignupRequestUseCase {
 		const { signupSessionToken, signupSession } = this.createSignupSession(email);
 
 		await this.signupSessionRepository.save(signupSession);
+
+		await this.emailGateway.sendVerificationEmail(signupSession.email, signupSession.code);
 
 		return ok({
 			signupSession,

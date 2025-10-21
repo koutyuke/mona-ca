@@ -5,6 +5,7 @@ import { newPasswordResetSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
 import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IEmailGateway } from "../../../../../shared/ports/gateways";
 import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { PasswordResetSessionToken } from "../../../domain/value-objects/session-token";
@@ -21,6 +22,7 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 		private readonly passwordResetSessionRepository: IPasswordResetSessionRepository,
 		private readonly randomGenerator: IRandomGenerator,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly emailGateway: IEmailGateway,
 	) {}
 
 	public async execute(email: string): Promise<PasswordResetRequestUseCaseResult> {
@@ -37,6 +39,8 @@ export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase
 
 		await this.passwordResetSessionRepository.deleteByUserId(userIdentity.id);
 		await this.passwordResetSessionRepository.save(passwordResetSession);
+
+		await this.emailGateway.sendVerificationEmail(passwordResetSession.email, passwordResetSession.code);
 
 		return ok({
 			passwordResetSessionToken,

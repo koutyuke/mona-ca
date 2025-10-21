@@ -5,6 +5,7 @@ import { newEmailVerificationSessionId } from "../../../domain/value-objects/ids
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
 import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { IEmailGateway } from "../../../../../shared/ports/gateways";
 import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import type { UserIdentity } from "../../../domain/entities/user-identity";
@@ -22,6 +23,7 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly randomGenerator: IRandomGenerator,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
+		private readonly emailGateway: IEmailGateway,
 	) {}
 
 	public async execute(email: string, userIdentity: UserIdentity): Promise<EmailVerificationRequestUseCaseResult> {
@@ -49,6 +51,8 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 
 		await this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id);
 		await this.emailVerificationSessionRepository.save(emailVerificationSession);
+
+		await this.emailGateway.sendVerificationEmail(emailVerificationSession.email, emailVerificationSession.code);
 
 		return ok({
 			emailVerificationSessionToken,
