@@ -1,27 +1,23 @@
-import { t } from "elysia";
-import { EmailVerificationRequestUseCase } from "../../../features/auth";
-import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { EmailVerificationSessionRepository } from "../../../features/auth/adapters/repositories/email-verification-session/email-verification-session.repository";
+import { Elysia, t } from "elysia";
 import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { CookieManager } from "../../../plugins/cookie";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { env } from "../../../shared/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException } from "../../../plugins/error";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { EmailGateway } from "../../../shared/adapters/gateways/email";
-import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
-import { DrizzleService } from "../../../shared/infra/drizzle";
+} from "../../../shared/infra/elysia";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
-const EmailVerificationRequest = new ElysiaWithEnv()
+export const EmailVerificationRequest = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimit("email-verification-request", {
@@ -37,40 +33,14 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 	// Route
 	.post(
 		"",
-		async ({
-			cfModuleEnv: { DB },
-			env: { APP_ENV, RESEND_API_KEY },
-			cookie,
-			body: { email: bodyEmail },
-			userIdentity,
-			clientType,
-			rateLimit,
-		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
-			const authUserRepository = new AuthUserRepository(drizzleService);
-			const emailGateway = new EmailGateway(APP_ENV === "production", RESEND_API_KEY);
-
-			const randomGenerator = new RandomGenerator();
-			const sessionSecretHasher = new SessionSecretHasher();
-
-			const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-				emailVerificationSessionRepository,
-				authUserRepository,
-				randomGenerator,
-				sessionSecretHasher,
-				emailGateway,
-			);
-			// === End of instances ===
+		async ({ cookie, body: { email: bodyEmail }, userIdentity, clientType, rateLimit, containers }) => {
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const email = bodyEmail ?? userIdentity.email;
 
 			await rateLimit.consume(email, 100);
 
-			const result = await emailVerificationRequestUseCase.execute(email, userIdentity);
+			const result = await containers.auth.emailVerificationRequestUseCase.execute(email, userIdentity);
 
 			if (result.isErr) {
 				const { code } = result;
@@ -140,5 +110,3 @@ const EmailVerificationRequest = new ElysiaWithEnv()
 			}),
 		},
 	);
-
-export { EmailVerificationRequest };

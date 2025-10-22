@@ -1,77 +1,45 @@
-import { getAPIBaseURL } from "@mona-ca/core/utils";
-import { t } from "elysia";
-import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
-import { AccountLinkRequestUseCase } from "../../../features/auth/application/use-cases/account-link/account-link-request.usecase";
-import { accountLinkStateSchema } from "../../../features/auth/application/use-cases/account-link/schema";
-import {
-	externalIdentityProviderSchema,
-	newExternalIdentityProvider,
-} from "../../../features/auth/domain/value-objects/external-identity";
+import { Elysia, t } from "elysia";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
 import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { CookieManager } from "../../../plugins/cookie";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { env } from "../../../shared/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException } from "../../../plugins/error";
-import { pathDetail } from "../../../plugins/open-api";
-import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
+} from "../../../shared/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../shared/lib/http";
 
-export const AccountLinkRequest = new ElysiaWithEnv()
+export const AccountLinkRequest = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(authGuard())
 
 	// Route
 	.get(
 		"/:provider/link",
 		async ({
-			env: {
-				APP_ENV,
-				OAUTH_STATE_HMAC_SECRET,
-				DISCORD_CLIENT_ID,
-				DISCORD_CLIENT_SECRET,
-				GOOGLE_CLIENT_ID,
-				GOOGLE_CLIENT_SECRET,
-			},
 			cookie,
 			params: { provider: _provider },
 			query: { "redirect-uri": queryRedirectURI = "/" },
 			clientType,
 			userIdentity,
+			containers,
 		}) => {
-			// === Instances ===
 			const provider = newExternalIdentityProvider(_provider);
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
-			const apiBaseURL = getAPIBaseURL(APP_ENV === "production");
-
-			const providerRedirectURL = new URL(`auth/${provider}/link/callback`, apiBaseURL);
-
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const oauthProviderGateway = createOAuthGateway(
-				{
-					DISCORD_CLIENT_ID,
-					DISCORD_CLIENT_SECRET,
-					GOOGLE_CLIENT_ID,
-					GOOGLE_CLIENT_SECRET,
-				},
-				provider,
-				providerRedirectURL.toString(),
-			);
-			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, accountLinkStateSchema);
-
-			const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, oauthStateSigner);
-			// === End of instances ===
-
-			const result = accountLinkRequestUseCase.execute(
-				APP_ENV === "production",
+			const result = containers.auth.accountLinkRequestUseCase.execute(
+				env.APP_ENV === "production",
 				clientType,
+				provider,
 				queryRedirectURI,
 				userIdentity.id,
 			);

@@ -1,62 +1,36 @@
-import { t } from "elysia";
-import { ResetPasswordUseCase, ValidatePasswordResetSessionUseCase } from "../../../features/auth";
-import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session/password-reset-session.repository";
-import { SessionRepository } from "../../../features/auth/adapters/repositories/session/session.repository";
-import { newPasswordResetSessionToken } from "../../../features/auth/domain/value-objects/session-token";
-import { CookieManager } from "../../../plugins/cookie";
+import { Elysia, t } from "elysia";
+import { newPasswordResetSessionToken } from "../../../features/auth";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { env } from "../../../shared/infra/config/env";
 import {
-	ElysiaWithEnv,
+	CookieManager,
 	ErrorResponseSchema,
+	ForbiddenException,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { ForbiddenException, UnauthorizedException } from "../../../plugins/error";
-import { pathDetail } from "../../../plugins/open-api";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { PasswordHasher, SessionSecretHasher } from "../../../shared/infra/crypto";
-import { DrizzleService } from "../../../shared/infra/drizzle";
+} from "../../../shared/infra/elysia";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
-export const ResetPassword = new ElysiaWithEnv()
+export const ResetPassword = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(withClientType)
 
 	// Route
 	.post(
 		"/reset",
 		async ({
-			cfModuleEnv: { DB },
-			env: { PASSWORD_PEPPER, APP_ENV },
 			cookie,
 			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, newPassword },
 			clientType,
+			containers,
 		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const authUserRepository = new AuthUserRepository(drizzleService);
-			const sessionRepository = new SessionRepository(drizzleService);
-			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
-
-			const sessionSecretHasher = new SessionSecretHasher();
-			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
-
-			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
-				passwordResetSessionRepository,
-				authUserRepository,
-				sessionSecretHasher,
-			);
-			const resetPasswordUseCase = new ResetPasswordUseCase(
-				authUserRepository,
-				sessionRepository,
-				passwordResetSessionRepository,
-				passwordHasher,
-			);
-			// === End of instances ===
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const rawPasswordResetSessionToken =
 				clientType === "web"
@@ -70,7 +44,7 @@ export const ResetPassword = new ElysiaWithEnv()
 				});
 			}
 
-			const validationResult = await validatePasswordResetSessionUseCase.execute(
+			const validationResult = await containers.auth.validatePasswordResetSessionUseCase.execute(
 				newPasswordResetSessionToken(rawPasswordResetSessionToken),
 			);
 
@@ -93,7 +67,11 @@ export const ResetPassword = new ElysiaWithEnv()
 
 			const { passwordResetSession, userIdentity } = validationResult.value;
 
-			const resetResult = await resetPasswordUseCase.execute(newPassword, passwordResetSession, userIdentity);
+			const resetResult = await containers.auth.resetPasswordUseCase.execute(
+				newPassword,
+				passwordResetSession,
+				userIdentity,
+			);
 
 			if (resetResult.isErr) {
 				const { code } = resetResult;

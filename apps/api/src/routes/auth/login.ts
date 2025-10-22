@@ -1,27 +1,24 @@
-import { t } from "elysia";
-import { LoginUseCase } from "../../features/auth";
-import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
+import { Elysia, t } from "elysia";
 import { CaptchaSchema, captcha } from "../../plugins/captcha";
-import { CookieManager } from "../../plugins/cookie";
+import { di } from "../../plugins/di";
+import { pathDetail } from "../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../plugins/with-client-type";
+import { env } from "../../shared/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../plugins/elysia-with-env";
-import { BadRequestException } from "../../plugins/error";
-import { pathDetail } from "../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../plugins/with-client-type";
-import { PasswordHasher, SessionSecretHasher } from "../../shared/infra/crypto";
-import { DrizzleService } from "../../shared/infra/drizzle";
+} from "../../shared/infra/elysia";
 import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
-export const Login = new ElysiaWithEnv()
+export const Login = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(withClientType)
 	.use(
 		rateLimit("login", {
@@ -38,27 +35,10 @@ export const Login = new ElysiaWithEnv()
 	// Route
 	.post(
 		"/login",
-		async ({
-			clientType,
-			env: { APP_ENV, PASSWORD_PEPPER },
-			cfModuleEnv: { DB },
-			cookie,
-			body: { email, password },
-		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
+		async ({ clientType, cookie, body: { email, password }, containers }) => {
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
-			const sessionRepository = new SessionRepository(drizzleService);
-			const authUserRepository = new AuthUserRepository(drizzleService);
-
-			const sessionSecretHasher = new SessionSecretHasher();
-			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
-
-			const loginUseCase = new LoginUseCase(sessionRepository, authUserRepository, sessionSecretHasher, passwordHasher);
-			// === End of instances ===
-
-			const result = await loginUseCase.execute(email, password);
+			const result = await containers.auth.loginUseCase.execute(email, password);
 
 			if (result.isErr) {
 				const { code } = result;

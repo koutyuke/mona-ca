@@ -1,36 +1,25 @@
-import { t } from "elysia";
-import { UpdateProfileUseCase } from "../../features/user";
-import { ProfileResponseSchema, toProfileResponse } from "../../features/user/adapters/presenters/profile.presenter";
-import { ProfileRepository } from "../../features/user/adapters/repositories/profile/profile.repository";
-import type { UpdateProfileDto } from "../../features/user/application/contracts/profile/update-profile.usecase.interface";
+import { Elysia, t } from "elysia";
+import { ProfileResponseSchema, type UpdateProfileDto, toProfileResponse } from "../../features/user";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { di } from "../../plugins/di";
+import { pathDetail } from "../../plugins/open-api";
+import { genderSchema, newGender } from "../../shared/domain/value-objects";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../plugins/elysia-with-env";
-import { BadRequestException } from "../../plugins/error";
-import { pathDetail } from "../../plugins/open-api";
-import { genderSchema, newGender } from "../../shared/domain/value-objects";
-import { DrizzleService } from "../../shared/infra/drizzle";
+} from "../../shared/infra/elysia";
 
-export const UpdateProfile = new ElysiaWithEnv()
+export const UpdateProfile = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(authGuard())
 
 	// Route
 	.patch(
 		"",
-		async ({ cfModuleEnv: { DB }, body: { name, gender, iconUrl }, userIdentity }) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-
-			const profileRepository = new ProfileRepository(drizzleService);
-
-			const updateProfileUseCase = new UpdateProfileUseCase(profileRepository);
-			// === End of instances ===
-
+		async ({ body: { name, gender, iconUrl }, userIdentity, containers }) => {
 			const updateProfile: UpdateProfileDto = {};
 
 			if (name) {
@@ -45,7 +34,7 @@ export const UpdateProfile = new ElysiaWithEnv()
 				updateProfile.iconUrl = iconUrl;
 			}
 
-			const updatedProfile = await updateProfileUseCase.execute(userIdentity.id, updateProfile);
+			const updatedProfile = await containers.user.updateProfileUseCase.execute(userIdentity.id, updateProfile);
 
 			if (updatedProfile.isErr) {
 				throw new BadRequestException({

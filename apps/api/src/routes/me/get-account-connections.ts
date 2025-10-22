@@ -1,30 +1,20 @@
-import { GetConnectionsUseCase } from "../../features/auth";
-import {
-	AccountConnectionsResponseSchema,
-	toAccountConnectionsResponse,
-} from "../../features/auth/adapters/presenters/account-connections.presenter";
-import { ExternalIdentityRepository } from "../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import { Elysia } from "elysia";
+import { AccountConnectionsResponseSchema, toAccountConnectionsResponse } from "../../features/auth";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { ElysiaWithEnv, withBaseResponseSchema } from "../../plugins/elysia-with-env";
+import { di } from "../../plugins/di";
 import { pathDetail } from "../../plugins/open-api";
-import { DrizzleService } from "../../shared/infra/drizzle";
+import { withBaseResponseSchema } from "../../shared/infra/elysia";
 
-export const GetAccountConnections = new ElysiaWithEnv()
+export const GetAccountConnections = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(authGuard())
 
 	// Route
 	.get(
 		"connections",
-		async ({ cfModuleEnv: { DB }, userIdentity }) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-
-			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
-
-			const getConnectionsUseCase = new GetConnectionsUseCase(externalIdentityRepository);
-
-			const result = await getConnectionsUseCase.execute(userIdentity);
+		async ({ userIdentity, containers }) => {
+			const result = await containers.auth.getConnectionsUseCase.execute(userIdentity);
 
 			return toAccountConnectionsResponse(result);
 		},

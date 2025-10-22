@@ -1,27 +1,25 @@
-import { t } from "elysia";
-import { EmailVerificationConfirmUseCase, ValidateEmailVerificationSessionUseCase } from "../../../features/auth";
-import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { EmailVerificationSessionRepository } from "../../../features/auth/adapters/repositories/email-verification-session/email-verification-session.repository";
-import { newEmailVerificationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { Elysia, t } from "elysia";
+import { newEmailVerificationSessionToken } from "../../../features/auth";
 import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { CookieManager } from "../../../plugins/cookie";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { env } from "../../../shared/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { SessionSecretHasher } from "../../../shared/infra/crypto";
-import { DrizzleService } from "../../../shared/infra/drizzle";
+} from "../../../shared/infra/elysia";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
-const EmailVerificationConfirm = new ElysiaWithEnv()
+const EmailVerificationConfirm = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimit("email-verification-confirm", {
@@ -38,32 +36,14 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 	.post(
 		"/confirm",
 		async ({
-			env: { APP_ENV },
-			cfModuleEnv: { DB },
 			cookie,
 			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
 			userIdentity,
 			clientType,
 			rateLimit,
+			containers,
 		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
-			const authUserRepository = new AuthUserRepository(drizzleService);
-
-			const sessionSecretHasher = new SessionSecretHasher();
-
-			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
-				emailVerificationSessionRepository,
-				sessionSecretHasher,
-			);
-			const emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
-				authUserRepository,
-				emailVerificationSessionRepository,
-			);
-			// === End of Instances ===
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const rawEmailVerificationSessionToken =
 				clientType === "web"
@@ -77,7 +57,7 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 				});
 			}
 
-			const validationResult = await validateEmailVerificationSessionUseCase.execute(
+			const validationResult = await containers.auth.validateEmailVerificationSessionUseCase.execute(
 				userIdentity,
 				newEmailVerificationSessionToken(rawEmailVerificationSessionToken),
 			);
@@ -103,7 +83,11 @@ const EmailVerificationConfirm = new ElysiaWithEnv()
 
 			await rateLimit.consume(emailVerificationSession.id, 100);
 
-			const confirmResult = await emailVerificationConfirmUseCase.execute(code, userIdentity, emailVerificationSession);
+			const confirmResult = await containers.auth.emailVerificationConfirmUseCase.execute(
+				code,
+				userIdentity,
+				emailVerificationSession,
+			);
 
 			if (confirmResult.isErr) {
 				const { code } = confirmResult;

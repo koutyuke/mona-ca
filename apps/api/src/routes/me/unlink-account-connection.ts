@@ -1,42 +1,31 @@
-import { t } from "elysia";
-import { UnlinkAccountConnectionUseCase } from "../../features/auth";
-import { ExternalIdentityRepository } from "../../features/auth/adapters/repositories/external-identity/external-identity.repository";
+import { Elysia, t } from "elysia";
 import {
 	externalIdentityProviderSchema,
 	newExternalIdentityProvider,
 } from "../../features/auth/domain/value-objects/external-identity";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { di } from "../../plugins/di";
+import { pathDetail } from "../../plugins/open-api";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../plugins/elysia-with-env";
-import { BadRequestException } from "../../plugins/error";
-import { pathDetail } from "../../plugins/open-api";
-import { DrizzleService } from "../../shared/infra/drizzle";
+} from "../../shared/infra/elysia";
 
-export const UnlinkAccountConnection = new ElysiaWithEnv()
+export const UnlinkAccountConnection = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(authGuard())
 
 	// Route
 	.delete(
 		"connections/:provider",
-		async ({ cfModuleEnv: { DB }, params: { provider: _provider }, userIdentity }) => {
-			// === Instances ===
+		async ({ params: { provider: _provider }, userIdentity, containers }) => {
 			const provider = newExternalIdentityProvider(_provider);
-
-			const drizzleService = new DrizzleService(DB);
-
-			const externalIdentityRepository = new ExternalIdentityRepository(drizzleService);
-
-			const unlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(externalIdentityRepository);
-			// === End of instances ===
-
-			const result = await unlinkAccountConnectionUseCase.execute(provider, userIdentity);
+			const result = await containers.auth.unlinkAccountConnectionUseCase.execute(provider, userIdentity);
 
 			if (result.isErr) {
 				const { code } = result;

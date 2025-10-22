@@ -1,10 +1,10 @@
-import { ElysiaWithEnv } from "../../../plugins/elysia-with-env";
+import { Elysia } from "elysia";
 import { ExternalAuthLoginCallback } from "./login-callback";
 import { ExternalAuthLoginRequest } from "./login-request";
 import { ExternalAuthSignupCallback } from "./signup-callback";
 import { ExternalAuthSignupRequest } from "./signup-request";
 
-export const OAuth = new ElysiaWithEnv()
+export const ExternalAuth = new Elysia()
 	.use(ExternalAuthLoginRequest)
 	.use(ExternalAuthLoginCallback)
 	.use(ExternalAuthSignupRequest)

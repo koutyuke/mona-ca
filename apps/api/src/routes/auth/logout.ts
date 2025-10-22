@@ -1,20 +1,19 @@
-import { t } from "elysia";
-import { LogoutUseCase } from "../../features/auth";
-import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
+import { Elysia, t } from "elysia";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { CookieManager } from "../../plugins/cookie";
+import { di } from "../../plugins/di";
+import { pathDetail } from "../../plugins/open-api";
+import { env } from "../../shared/infra/config/env";
 import {
-	ElysiaWithEnv,
+	CookieManager,
 	NoContentResponse,
 	NoContentResponseSchema,
 	withBaseResponseSchema,
-} from "../../plugins/elysia-with-env";
-import { pathDetail } from "../../plugins/open-api";
-import { DrizzleService } from "../../shared/infra/drizzle";
+} from "../../shared/infra/elysia";
 import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
-export const Logout = new ElysiaWithEnv()
+export const Logout = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(
 		authGuard({
 			requireEmailVerification: false,
@@ -24,17 +23,10 @@ export const Logout = new ElysiaWithEnv()
 	// Route
 	.post(
 		"/logout",
-		async ({ env: { APP_ENV }, cfModuleEnv: { DB }, cookie, session, clientType }) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
+		async ({ cookie, session, clientType, containers }) => {
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
-			const sessionRepository = new SessionRepository(drizzleService);
-
-			const logoutUseCase = new LogoutUseCase(sessionRepository);
-			// === End of instances ===
-
-			await logoutUseCase.execute(session.id);
+			await containers.auth.logoutUseCase.execute(session.id);
 
 			if (clientType === "web") {
 				cookieManager.deleteCookie(SESSION_COOKIE_NAME);
