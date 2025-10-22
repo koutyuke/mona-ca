@@ -43,6 +43,7 @@ const externalAuthOAuthStateSigner = new HmacOAuthStateSignerMock<typeof oauthSt
 
 const externalAuthLoginCallbackUseCase = new ExternalAuthLoginCallbackUseCase(
 	oauthProviderGateway,
+	oauthProviderGateway,
 	sessionRepository,
 	externalIdentityRepository,
 	authUserRepository,
@@ -59,6 +60,8 @@ const { userRegistration } = createAuthUserFixture({
 
 const PRODUCTION = false;
 
+const provider = newExternalIdentityProvider("discord");
+
 describe("ExternalAuthLoginCallbackUseCase", () => {
 	beforeEach(() => {
 		authUserMap.clear();
@@ -72,7 +75,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			"invalid_state",
 			"auth_code",
 			"code_verifier",
@@ -91,7 +94,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			PRODUCTION,
 			undefined,
 			"https://malicious.com/redirect",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState ?? "",
 			"auth_code",
 			"code_verifier",
@@ -110,7 +113,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState ?? "",
 			"auth_code",
 			"code_verifier",
@@ -146,7 +149,7 @@ describe("ExternalAuthLoginCallbackUseCase", () => {
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState ?? "",
 			"auth_code",
 			"code_verifier",

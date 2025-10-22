@@ -33,7 +33,8 @@ import type { oauthStateSchema } from "./schema";
 
 export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCallbackUseCase {
 	constructor(
-		private readonly oauthProviderGateway: IOAuthProviderGateway,
+		private readonly googleOAuthGateway: IOAuthProviderGateway,
+		private readonly discordOAuthGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly authUserRepository: IAuthUserRepository,
@@ -51,6 +52,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<ExternalAuthSignupCallbackUseCaseResult> {
+		const oauthProviderGateway = provider === "google" ? this.googleOAuthGateway : this.discordOAuthGateway;
 		const validatedState = this.externalAuthOAuthStateSigner.validate(signedState);
 
 		if (validatedState.isErr) {
@@ -81,7 +83,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 			return err("TOKEN_EXCHANGE_FAILED");
 		}
 
-		const tokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
+		const tokensResult = await oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
 		if (tokensResult.isErr) {
 			const { code } = tokensResult;
@@ -93,9 +95,9 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 
 		const tokens = tokensResult.value;
 
-		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokens);
+		const getIdentityResult = await oauthProviderGateway.getIdentity(tokens);
 
-		await this.oauthProviderGateway.revokeToken(tokens);
+		await oauthProviderGateway.revokeToken(tokens);
 
 		if (getIdentityResult.isErr) {
 			const { code } = getIdentityResult;

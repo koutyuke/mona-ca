@@ -2,6 +2,7 @@ import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@m
 import { generateCodeVerifier } from "arctic";
 
 import type { ClientType } from "../../../../../shared/domain/value-objects";
+import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 import type {
 	ExternalAuthRequestUseCaseResult,
 	IExternalAuthRequestUseCase,
@@ -12,15 +13,18 @@ import type { oauthStateSchema } from "./schema";
 
 export class ExternalAuthRequestUseCase implements IExternalAuthRequestUseCase {
 	constructor(
-		private readonly oauthProviderGateway: IOAuthProviderGateway,
+		private readonly googleOAuthGateway: IOAuthProviderGateway,
+		private readonly discordOAuthGateway: IOAuthProviderGateway,
 		private readonly externalAuthOAuthStateSigner: IHmacOAuthStateSigner<typeof oauthStateSchema>,
 	) {}
 
 	public execute(
 		production: boolean,
 		clientType: ClientType,
+		provider: ExternalIdentityProvider,
 		queryRedirectURI: string,
 	): ExternalAuthRequestUseCaseResult {
+		const oauthProviderGateway = provider === "google" ? this.googleOAuthGateway : this.discordOAuthGateway;
 		const clientBaseURL = clientType === "web" ? getWebBaseURL(production) : getMobileScheme();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, queryRedirectURI ?? "/");
@@ -31,7 +35,7 @@ export class ExternalAuthRequestUseCase implements IExternalAuthRequestUseCase {
 
 		const state = this.externalAuthOAuthStateSigner.generate({ client: clientType });
 		const codeVerifier = generateCodeVerifier();
-		const redirectToProviderURL = this.oauthProviderGateway.createAuthorizationURL(state, codeVerifier);
+		const redirectToProviderURL = oauthProviderGateway.createAuthorizationURL(state, codeVerifier);
 
 		return ok({
 			state,

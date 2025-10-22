@@ -16,7 +16,8 @@ import type { accountLinkStateSchema } from "./schema";
 
 export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 	constructor(
-		private readonly oauthProviderGateway: IOAuthProviderGateway,
+		private readonly googleOAuthGateway: IOAuthProviderGateway,
+		private readonly discordOAuthGateway: IOAuthProviderGateway,
 		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly accountLinkOAuthStateSigner: IHmacOAuthStateSigner<typeof accountLinkStateSchema>,
 	) {}
@@ -30,6 +31,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<AccountLinkCallbackUseCaseResult> {
+		const oauthProviderGateway = provider === "google" ? this.googleOAuthGateway : this.discordOAuthGateway;
 		const validatedState = this.accountLinkOAuthStateSigner.validate(signedState);
 
 		if (validatedState.isErr) {
@@ -61,7 +63,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 			return err("TOKEN_EXCHANGE_FAILED");
 		}
 
-		const tokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
+		const tokensResult = await oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
 		if (tokensResult.isErr) {
 			const { code } = tokensResult;
@@ -71,9 +73,9 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 			}
 		}
 
-		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokensResult.value);
+		const getIdentityResult = await oauthProviderGateway.getIdentity(tokensResult.value);
 
-		await this.oauthProviderGateway.revokeToken(tokensResult.value);
+		await oauthProviderGateway.revokeToken(tokensResult.value);
 
 		if (getIdentityResult.isErr) {
 			if (
