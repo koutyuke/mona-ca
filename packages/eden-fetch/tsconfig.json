@@ -1,11 +1,7 @@
 {
   "extends": "@mona-ca/tsconfig/base.json",
   "compilerOptions": {
-    "types": [
-      "../../apps/api/types/worker-configuration.d.ts",
-      "../../apps/api/types/cloudflare-test.d.ts",
-      "../../node_modules/@cloudflare/vitest-pool-workers/types/cloudflare-test.d.ts"
-    ]
+    "types": ["../../apps/api/types/worker-configuration.d.ts"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist"]

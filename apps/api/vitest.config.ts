@@ -8,7 +8,11 @@ export default defineWorkersConfig(async () => {
 
 	return {
 		plugins: [tsconfigPaths()],
-		resolve: {},
+		resolve: {
+			alias: {
+				"cloudflare:workers": "cloudflare:test",
+			},
+		},
 		test: {
 			globals: true,
 			setupFiles: ["./tests/apply-migrations.ts"],
