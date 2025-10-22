@@ -7,7 +7,7 @@ import {
 	createAuthUsersMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { UpdateUserPasswordUseCase } from "../update-user-password.usecase";
+import { UpdatePasswordUseCase } from "../update-password.usecase";
 
 const sessionMap = createSessionsMap();
 const authUserMap = createAuthUsersMap();
@@ -22,7 +22,7 @@ const authUserRepository = new AuthUserRepositoryMock({
 const passwordHasher = new PasswordHasherMock();
 const sessionSecretHasher = new SessionSecretHasherMock();
 
-const updateUserPasswordUseCase = new UpdateUserPasswordUseCase(
+const updateUserPasswordUseCase = new UpdatePasswordUseCase(
 	authUserRepository,
 	sessionRepository,
 	passwordHasher,

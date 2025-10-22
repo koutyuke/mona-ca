@@ -11,13 +11,13 @@ import type { Session } from "../../../domain/entities/session";
 import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type { SessionToken } from "../../../domain/value-objects/session-token";
 import type {
-	IUpdateUserPasswordUseCase,
-	UpdateUserPasswordUseCaseResult,
-} from "../../contracts/password/update-user-password.usecase.interface";
+	IUpdatePasswordUseCase,
+	UpdatePasswordUseCaseResult,
+} from "../../contracts/password/update-password.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
-export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
+export class UpdatePasswordUseCase implements IUpdatePasswordUseCase {
 	constructor(
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionRepository: ISessionRepository,
@@ -29,7 +29,7 @@ export class UpdateUserPasswordUseCase implements IUpdateUserPasswordUseCase {
 		userIdentity: UserIdentity,
 		currentPassword: string | null,
 		newPassword: string,
-	): Promise<UpdateUserPasswordUseCaseResult> {
+	): Promise<UpdatePasswordUseCaseResult> {
 		if (userIdentity.passwordHash === null) {
 			if (currentPassword) {
 				return err("INVALID_CURRENT_PASSWORD");

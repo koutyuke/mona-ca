@@ -10,12 +10,12 @@ type Success = Ok<{
 
 type Error = Err<"INVALID_CURRENT_PASSWORD">;
 
-export type UpdateUserPasswordUseCaseResult = Result<Success, Error>;
+export type UpdatePasswordUseCaseResult = Result<Success, Error>;
 
-export interface IUpdateUserPasswordUseCase {
+export interface IUpdatePasswordUseCase {
 	execute(
 		userIdentity: UserIdentity,
 		currentPassword: string | null,
 		newPassword: string,
-	): Promise<UpdateUserPasswordUseCaseResult>;
+	): Promise<UpdatePasswordUseCaseResult>;
 }
