@@ -20,6 +20,7 @@
   ],
   "env": {
     "production": {
+      "name": "mona-ca-api",
       "d1_databases": [
         {
           "binding": "DB",
