@@ -1,5 +1,5 @@
 export {
-	AppEnvWithoutCFModuleSchema,
+	EnvVariablesSchema,
 	PublicSchema,
 	OAuthProviderSchema,
 	PepperSchema,
@@ -8,7 +8,7 @@ export {
 	TurnstileSchema,
 	HMACSecretSchema,
 } from "./schema";
-export { validateEnv } from "./validation";
+export { env, envVariables, cloudflareBindings } from "./env";
 
 export type {
 	PublicEnv,
@@ -17,8 +17,8 @@ export type {
 	UpstashRedisEnv,
 	TurnstileEnv,
 	OAuthProviderEnv,
-	AppEnvWithoutCFModule,
-	CFModuleEnv,
-	AppEnv,
+	EnvVariables,
+	CloudflareBindings,
+	Env,
 	HMACSecretEnv,
 } from "./type";

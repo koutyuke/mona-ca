@@ -1,6 +1,6 @@
 import type { Static } from "elysia";
 import type {
-	AppEnvWithoutCFModuleSchema,
+	EnvVariablesSchema,
 	HMACSecretSchema,
 	OAuthProviderSchema,
 	PepperSchema,
@@ -24,10 +24,10 @@ export type OAuthProviderEnv = Static<typeof OAuthProviderSchema>;
 
 export type HMACSecretEnv = Static<typeof HMACSecretSchema>;
 
-export type AppEnvWithoutCFModule = Static<typeof AppEnvWithoutCFModuleSchema>;
+export type EnvVariables = Static<typeof EnvVariablesSchema>;
 
-export type CFModuleEnv = {
+export type CloudflareBindings = {
 	DB: D1Database;
 };
 
-export type AppEnv = AppEnvWithoutCFModule & CFModuleEnv;
+export type Env = EnvVariables & CloudflareBindings;

@@ -32,7 +32,7 @@ export const HMACSecretSchema = t.Object({
 	OAUTH_STATE_HMAC_SECRET: t.String(),
 });
 
-export const AppEnvWithoutCFModuleSchema = t.Intersect([
+export const EnvVariablesSchema = t.Intersect([
 	PublicSchema,
 	PepperSchema,
 	ResendSchema,

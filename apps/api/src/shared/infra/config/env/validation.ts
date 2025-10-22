@@ -1,13 +1,11 @@
 import { Value } from "@sinclair/typebox/value";
-import { AppEnvWithoutCFModuleSchema } from "./schema";
-import type { AppEnv } from "./type";
+import { EnvVariablesSchema } from "./schema";
+import type { EnvVariables } from "./type";
 
-export const validateEnv = (env: AppEnv) => {
-	const { DB, ...otherEnv } = env;
+export const validateEnv = (envVariables: EnvVariables) => {
+	const preparedEnv = Value.Clean(EnvVariablesSchema, Value.Convert(EnvVariablesSchema, envVariables));
 
-	const preparedEnv = Value.Clean(AppEnvWithoutCFModuleSchema, Value.Convert(AppEnvWithoutCFModuleSchema, otherEnv));
-
-	if (!Value.Check(AppEnvWithoutCFModuleSchema, preparedEnv)) {
+	if (!Value.Check(EnvVariablesSchema, preparedEnv)) {
 		console.error("🚨 Invalid environment variables");
 		throw new Error("🚨 Invalid environment variables");
 	}
