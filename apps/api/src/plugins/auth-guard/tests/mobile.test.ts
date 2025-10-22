@@ -1,11 +1,12 @@
 import { env } from "cloudflare:test";
+import { Elysia } from "elysia";
 import { beforeEach, describe, expect, test } from "vitest";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
+import { di } from "../../../plugins/di";
 import { SessionSecretHasher } from "../../../shared/infra/crypto";
 import { CLIENT_TYPE_HEADER_NAME } from "../../../shared/lib/http";
 import { SessionTableHelper, UserTableHelper } from "../../../shared/testing/helpers";
-import { ElysiaWithEnv } from "../../elysia-with-env";
 import { authGuard } from "../auth-guard.plugin";
 
 const { DB } = env;
@@ -54,8 +55,8 @@ describe("AuthGuard Authorization Header Test", () => {
 	});
 
 	test("Pass with valid authorization header that email verification is not required", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(authGuard({ requireEmailVerification: false }))
 			.get("/", () => "Test");
 
@@ -74,8 +75,8 @@ describe("AuthGuard Authorization Header Test", () => {
 	});
 
 	test("Pass with valid authorization header that email verification is required", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(authGuard({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
@@ -94,8 +95,8 @@ describe("AuthGuard Authorization Header Test", () => {
 	});
 
 	test("Fail with not email verified yet", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(authGuard({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
@@ -112,8 +113,8 @@ describe("AuthGuard Authorization Header Test", () => {
 	});
 
 	test("Fail with invalid authorization header that email verification is not required", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(authGuard({ requireEmailVerification: false }))
 			.get("/", () => "Test");
 
@@ -130,8 +131,8 @@ describe("AuthGuard Authorization Header Test", () => {
 	});
 
 	test("Fail with invalid authorization header that email verification is not required", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(authGuard({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
