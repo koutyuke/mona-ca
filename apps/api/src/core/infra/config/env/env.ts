@@ -1,4 +1,3 @@
-import { env as testEnv } from "cloudflare:test";
 import { env as productionEnv } from "cloudflare:workers";
 import type { CloudflareBindings, Env, EnvVariables } from "./type";
 import { validateEnv } from "./validation";
@@ -8,14 +7,12 @@ const getEnv = (): {
 	envVariables: Readonly<EnvVariables>;
 	cloudflareBindings: Readonly<CloudflareBindings>;
 } => {
-	const _env = testEnv ? testEnv : productionEnv;
-
-	const { DB, ...appEnvWithoutCFModule } = _env;
+	const { DB, ...appEnvWithoutCFModule } = productionEnv;
 
 	validateEnv(appEnvWithoutCFModule);
 
 	return {
-		env: _env,
+		env: productionEnv,
 		envVariables: appEnvWithoutCFModule,
 		cloudflareBindings: {
 			DB,
