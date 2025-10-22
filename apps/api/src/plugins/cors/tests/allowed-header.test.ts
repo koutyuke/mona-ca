@@ -1,12 +1,12 @@
-import { env } from "cloudflare:test";
+import { Elysia } from "elysia";
 import { describe, expect, test } from "vitest";
-import { ElysiaWithEnv } from "../../elysia-with-env";
+import { di } from "../../di";
 import { cors } from "../cors.plugin";
 
 describe("Allowed Header Test", () => {
 	test("falseの時にHeaderが設定されない", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					allowedHeaders: false,
@@ -20,8 +20,8 @@ describe("Allowed Header Test", () => {
 	});
 
 	test("trueの時に全てのHeaderが許可される", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					allowedHeaders: true,
@@ -50,8 +50,8 @@ describe("Allowed Header Test", () => {
 	});
 
 	test("指定したHeaderのみ許可される", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					allowedHeaders: ["content-type", "authorization"],
