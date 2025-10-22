@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
+import { PRODUCTION_BASE_DOMAIN } from "../core/lib/http";
 import { cors } from "../plugins/cors";
 import { di } from "../plugins/di";
 import { error } from "../plugins/error";
 import { openAPI } from "../plugins/open-api";
 import { pathDetail } from "../plugins/open-api";
-import { PRODUCTION_BASE_DOMAIN } from "../shared/lib/http";
 import { Auth } from "./auth";
 import { Me } from "./me";
 

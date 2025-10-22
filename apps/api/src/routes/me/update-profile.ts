@@ -1,15 +1,15 @@
 import { Elysia, t } from "elysia";
-import { ProfileResponseSchema, type UpdateProfileDto, toProfileResponse } from "../../features/user";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
-import { genderSchema, newGender } from "../../shared/domain/value-objects";
+import { genderSchema, newGender } from "../../core/domain/value-objects";
 import {
 	BadRequestException,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../shared/infra/elysia";
+} from "../../core/infra/elysia";
+import { ProfileResponseSchema, type UpdateProfileDto, toProfileResponse } from "../../features/user";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { di } from "../../plugins/di";
+import { pathDetail } from "../../plugins/open-api";
 
 export const UpdateProfile = new Elysia()
 	// Local Middleware & Plugin

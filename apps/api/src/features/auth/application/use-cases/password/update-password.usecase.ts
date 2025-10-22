@@ -1,12 +1,12 @@
 import { err, ok } from "@mona-ca/core/utils";
-import { ulid } from "../../../../../shared/lib/id";
+import { ulid } from "../../../../../core/lib/id";
 import { createSession } from "../../../domain/entities/session";
 import { updateUserIdentity } from "../../../domain/entities/user-identity";
 import { newSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { IPasswordHasher, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { IPasswordHasher, ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { Session } from "../../../domain/entities/session";
 import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type { SessionToken } from "../../../domain/value-objects/session-token";

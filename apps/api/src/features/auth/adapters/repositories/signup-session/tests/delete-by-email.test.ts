@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterEach, describe, expect, test } from "vitest";
-import { DrizzleService } from "../../../../../../shared/infra/drizzle";
-import { SignupSessionTableHelper } from "../../../../../../shared/testing/helpers";
+import { DrizzleService } from "../../../../../../core/infra/drizzle";
+import { SignupSessionTableHelper } from "../../../../../../core/testing/helpers";
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import { SignupSessionRepository } from "../signup-session.repository";
 

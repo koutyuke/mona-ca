@@ -1,10 +1,5 @@
 import Elysia, { t } from "elysia";
-import { CaptchaSchema, captcha } from "../../../plugins/captcha";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { env } from "../../../shared/infra/config/env";
+import { env } from "../../../core/infra/config/env";
 import {
 	BadRequestException,
 	CookieManager,
@@ -13,8 +8,13 @@ import {
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../shared/infra/elysia";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
+} from "../../../core/infra/elysia";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { CaptchaSchema, captcha } from "../../../plugins/captcha";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 const PasswordResetRequest = new Elysia()
 	// Local Middleware & Plugin

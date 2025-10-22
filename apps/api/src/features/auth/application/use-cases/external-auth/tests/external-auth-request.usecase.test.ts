@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { newClientType } from "../../../../../../shared/domain/value-objects";
+import { newClientType } from "../../../../../../core/domain/value-objects";
 import { newExternalIdentityProvider } from "../../../../domain/value-objects/external-identity";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";

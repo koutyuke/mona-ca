@@ -1,5 +1,5 @@
-import type { UserId } from "../../../../shared/domain/value-objects";
-import { TimeSpan } from "../../../../shared/lib/time";
+import type { UserId } from "../../../../core/domain/value-objects";
+import { TimeSpan } from "../../../../core/lib/time";
 import type { ExternalIdentityProvider, ExternalIdentityProviderUserId } from "../value-objects/external-identity";
 import type { AccountAssociationSessionId } from "../value-objects/ids";
 

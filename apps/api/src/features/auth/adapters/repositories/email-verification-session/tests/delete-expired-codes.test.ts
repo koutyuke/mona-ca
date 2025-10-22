@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { DrizzleService } from "../../../../../../shared/infra/drizzle";
-import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { DrizzleService } from "../../../../../../core/infra/drizzle";
+import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
 import { createAuthUserFixture, createEmailVerificationSessionFixture } from "../../../../testing/fixtures";
 import { convertEmailVerificationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";

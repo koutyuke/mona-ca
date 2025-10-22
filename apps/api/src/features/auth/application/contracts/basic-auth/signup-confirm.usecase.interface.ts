@@ -1,5 +1,5 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { Gender } from "../../../../../shared/domain/value-objects";
+import type { Gender } from "../../../../../core/domain/value-objects";
 import type { Session } from "../../../domain/entities/session";
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { SessionToken } from "../../../domain/value-objects/session-token";

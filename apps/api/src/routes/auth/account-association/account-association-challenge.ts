@@ -1,10 +1,5 @@
 import { Elysia, t } from "elysia";
-import { newAccountAssociationSessionToken } from "../../../features/auth";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api/path-detail";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { env } from "../../../shared/infra/config/env";
+import { env } from "../../../core/infra/config/env";
 import {
 	CookieManager,
 	ErrorResponseSchema,
@@ -13,8 +8,13 @@ import {
 	ResponseTUnion,
 	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../shared/infra/elysia";
-import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
+} from "../../../core/infra/elysia";
+import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newAccountAssociationSessionToken } from "../../../features/auth";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api/path-detail";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const AccountAssociationChallenge = new Elysia()
 	// Local Middleware & Plugin

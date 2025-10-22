@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { newGender } from "../../../../../../shared/domain/value-objects";
-import { DrizzleService } from "../../../../../../shared/infra/drizzle";
-import { UserTableHelper, toRawBoolean, toRawDate } from "../../../../../../shared/testing/helpers";
+import { newGender } from "../../../../../../core/domain/value-objects";
+import { DrizzleService } from "../../../../../../core/infra/drizzle";
+import { UserTableHelper, toRawBoolean, toRawDate } from "../../../../../../core/testing/helpers";
 import type { Profile } from "../../../../domain/entities/profile";
 import { createProfileFixture } from "../../../../testing/fixtures/profile.fixture";
 import { convertProfileToRaw } from "../../../../testing/helpers/converters";

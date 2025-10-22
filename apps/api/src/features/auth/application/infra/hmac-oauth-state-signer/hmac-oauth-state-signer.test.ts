@@ -1,8 +1,8 @@
 import type { Static } from "@sinclair/typebox";
 import { t } from "elysia";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../../shared/lib/encoding";
-import { MacMock } from "../../../../../shared/testing/mocks/system";
+import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../../core/lib/encoding";
+import { MacMock } from "../../../../../core/testing/mocks/system";
 import { HmacOAuthStateSigner } from "./hmac-oauth-state-signer";
 
 const payloadSchema = t.Object({

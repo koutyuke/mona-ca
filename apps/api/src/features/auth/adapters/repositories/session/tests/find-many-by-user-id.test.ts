@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { newUserId } from "../../../../../../shared/domain/value-objects";
-import { DrizzleService } from "../../../../../../shared/infra/drizzle";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { newUserId } from "../../../../../../core/domain/value-objects";
+import { DrizzleService } from "../../../../../../core/infra/drizzle";
+import { SessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
 import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";

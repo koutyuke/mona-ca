@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { newClientType, newUserId } from "../../../../../../shared/domain/value-objects";
-import { ulid } from "../../../../../../shared/lib/id";
+import { newClientType, newUserId } from "../../../../../../core/domain/value-objects";
+import { ulid } from "../../../../../../core/lib/id";
 import { newExternalIdentityProvider } from "../../../../domain/value-objects/external-identity";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";

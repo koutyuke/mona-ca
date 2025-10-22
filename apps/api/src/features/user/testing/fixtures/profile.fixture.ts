@@ -1,5 +1,5 @@
-import { newGender, newUserId } from "../../../../shared/domain/value-objects";
-import { ulid } from "../../../../shared/lib/id";
+import { newGender, newUserId } from "../../../../core/domain/value-objects";
+import { ulid } from "../../../../core/lib/id";
 import type { Profile } from "../../domain/entities/profile";
 
 export const createProfileFixture = (override?: {

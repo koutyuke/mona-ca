@@ -1,8 +1,5 @@
 import { Elysia, t } from "elysia";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { env } from "../../../shared/infra/config/env";
+import { env } from "../../../core/infra/config/env";
 import {
 	BadRequestException,
 	CookieManager,
@@ -11,14 +8,17 @@ import {
 	RedirectResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../shared/infra/elysia";
+} from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
-} from "../../../shared/lib/http";
-import { timingSafeStringEqual } from "../../../shared/lib/security";
+} from "../../../core/lib/http";
+import { timingSafeStringEqual } from "../../../core/lib/security";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
 
 export const AccountLinkCallback = new Elysia()
 	// Local Middleware & Plugin

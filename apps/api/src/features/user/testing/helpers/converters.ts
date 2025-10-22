@@ -1,5 +1,5 @@
-import type { RawUser } from "../../../../shared/testing/helpers/user-table";
-import { toRawBoolean, toRawDate } from "../../../../shared/testing/helpers/utils";
+import type { RawUser } from "../../../../core/testing/helpers/user-table";
+import { toRawBoolean, toRawDate } from "../../../../core/testing/helpers/utils";
 import type { Profile } from "../../domain/entities/profile";
 
 export const convertProfileToRaw = (profile: Profile, passwordHash?: string | null): RawUser => {

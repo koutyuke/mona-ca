@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { newClientType, newGender } from "../../../../../../shared/domain/value-objects";
-import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { newClientType, newGender } from "../../../../../../core/domain/value-objects";
+import { SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { DEFAULT_USER_GENDER } from "../../../../domain/entities/user-registration";
 import {
 	newExternalIdentityProvider,

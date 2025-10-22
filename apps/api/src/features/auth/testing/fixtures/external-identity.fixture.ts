@@ -1,5 +1,5 @@
-import { newUserId } from "../../../../shared/domain/value-objects";
-import { ulid } from "../../../../shared/lib/id";
+import { newUserId } from "../../../../core/domain/value-objects";
+import { ulid } from "../../../../core/lib/id";
 import type { ExternalIdentity } from "../../domain/entities/external-identity";
 import {
 	newExternalIdentityProvider,

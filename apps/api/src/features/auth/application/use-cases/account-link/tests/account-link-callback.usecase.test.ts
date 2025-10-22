@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { newClientType } from "../../../../../../shared/domain/value-objects";
+import { newClientType } from "../../../../../../core/domain/value-objects";
 import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,

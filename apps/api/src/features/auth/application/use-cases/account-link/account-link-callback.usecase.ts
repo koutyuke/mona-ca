@@ -1,6 +1,6 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
 import { err, ok } from "@mona-ca/core/utils";
-import { newClientType, newUserId } from "../../../../../shared/domain/value-objects";
+import { newClientType, newUserId } from "../../../../../core/domain/value-objects";
 import { createExternalIdentity } from "../../../domain/entities/external-identity";
 import { newExternalIdentityProviderUserId } from "../../../domain/value-objects/external-identity";
 

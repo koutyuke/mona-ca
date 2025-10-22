@@ -1,6 +1,6 @@
 import Elysia, { t } from "elysia";
-import { BadRequestException, ErrorResponseSchema } from "../../shared/infra/elysia";
-import { getIP } from "../../shared/lib/http";
+import { BadRequestException, ErrorResponseSchema } from "../../core/infra/elysia";
+import { getIP } from "../../core/lib/http";
 import { di } from "../di";
 
 /**

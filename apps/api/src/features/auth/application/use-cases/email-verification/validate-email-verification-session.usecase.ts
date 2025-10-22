@@ -2,7 +2,7 @@ import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredEmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import { parseAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type { EmailVerificationSessionToken } from "../../../domain/value-objects/session-token";
 import type {

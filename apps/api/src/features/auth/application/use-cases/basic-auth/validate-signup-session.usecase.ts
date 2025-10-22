@@ -2,7 +2,7 @@ import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredSignupSession } from "../../../domain/entities/signup-session";
 import { parseAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { SignupSessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	IValidateSignupSessionUseCase,

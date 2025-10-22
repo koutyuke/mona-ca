@@ -1,12 +1,12 @@
 import { env } from "cloudflare:test";
 import { Elysia } from "elysia";
 import { beforeEach, describe, expect, test } from "vitest";
+import { SessionSecretHasher } from "../../../core/infra/crypto";
+import { CLIENT_TYPE_HEADER_NAME } from "../../../core/lib/http";
+import { SessionTableHelper, UserTableHelper } from "../../../core/testing/helpers";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
 import { di } from "../../../plugins/di";
-import { SessionSecretHasher } from "../../../shared/infra/crypto";
-import { CLIENT_TYPE_HEADER_NAME } from "../../../shared/lib/http";
-import { SessionTableHelper, UserTableHelper } from "../../../shared/testing/helpers";
 import { authGuard } from "../auth-guard.plugin";
 
 const { DB } = env;

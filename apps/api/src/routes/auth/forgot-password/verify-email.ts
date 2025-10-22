@@ -1,10 +1,5 @@
 import { Elysia, t } from "elysia";
-import { newPasswordResetSessionToken } from "../../../features/auth";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { env } from "../../../shared/infra/config/env";
+import { env } from "../../../core/infra/config/env";
 import {
 	BadRequestException,
 	CookieManager,
@@ -14,8 +9,13 @@ import {
 	ResponseTUnion,
 	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../shared/infra/elysia";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
+} from "../../../core/infra/elysia";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newPasswordResetSessionToken } from "../../../features/auth";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const PasswordResetVerifyEmail = new Elysia()
 	// Local Middleware & Plugin

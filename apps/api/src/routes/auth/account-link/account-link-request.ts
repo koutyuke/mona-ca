@@ -1,21 +1,21 @@
 import { Elysia, t } from "elysia";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
-import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { env } from "../../../shared/infra/config/env";
+import { env } from "../../../core/infra/config/env";
 import {
 	BadRequestException,
 	CookieManager,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../shared/infra/elysia";
+} from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
-} from "../../../shared/lib/http";
+} from "../../../core/lib/http";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
+import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
 
 export const AccountLinkRequest = new Elysia()
 	// Local Middleware & Plugin

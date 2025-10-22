@@ -1,8 +1,8 @@
 import { Value } from "@sinclair/typebox/value";
 import { Elysia, t } from "elysia";
-import { type ClientType, clientTypeSchema, newClientType } from "../../shared/domain/value-objects";
-import { BadRequestException, ErrorResponseSchema } from "../../shared/infra/elysia";
-import { CLIENT_TYPE_HEADER_NAME } from "../../shared/lib/http";
+import { type ClientType, clientTypeSchema, newClientType } from "../../core/domain/value-objects";
+import { BadRequestException, ErrorResponseSchema } from "../../core/infra/elysia";
+import { CLIENT_TYPE_HEADER_NAME } from "../../core/lib/http";
 
 export const withClientType = new Elysia({
 	name: "@mona-ca/with-client-type",

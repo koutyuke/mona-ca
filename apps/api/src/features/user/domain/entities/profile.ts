@@ -1,4 +1,4 @@
-import type { Gender, UserId } from "../../../../shared/domain/value-objects";
+import type { Gender, UserId } from "../../../../core/domain/value-objects";
 
 export interface Profile {
 	id: UserId;

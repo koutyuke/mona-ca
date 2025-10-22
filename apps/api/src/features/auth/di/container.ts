@@ -37,8 +37,8 @@ import { ResetPasswordUseCase } from "../application/use-cases/password/reset-pa
 import { UpdatePasswordUseCase } from "../application/use-cases/password/update-password.usecase";
 import { ValidatePasswordResetSessionUseCase } from "../application/use-cases/password/validate-password-reset-session.usecase";
 
-import type { ICoreDIContainer } from "../../../shared/di/container";
-import type { EnvVariables } from "../../../shared/infra/config/env";
+import type { ICoreDIContainer } from "../../../core/di/container";
+import type { EnvVariables } from "../../../core/infra/config/env";
 import type { ProviderGateways } from "../adapters/gateways/oauth-provider/type";
 import type { IAccountAssociationChallengeUseCase } from "../application/contracts/account-association/account-association-challenge.usecase.interface";
 import type { IAccountAssociationConfirmUseCase } from "../application/contracts/account-association/account-association-confirm.usecase.interface";

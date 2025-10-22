@@ -1,7 +1,7 @@
 import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
 import { generateCodeVerifier } from "arctic";
 
-import type { ClientType } from "../../../../../shared/domain/value-objects";
+import type { ClientType } from "../../../../../core/domain/value-objects";
 import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
 import type {
 	ExternalAuthRequestUseCaseResult,

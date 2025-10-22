@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { EmailGatewayMock } from "../../../../../../shared/testing/mocks/gateways";
-import { RandomGeneratorMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { EmailGatewayMock } from "../../../../../../core/testing/mocks/gateways";
+import { RandomGeneratorMock, SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { createAccountAssociationSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,

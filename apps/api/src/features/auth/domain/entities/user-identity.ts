@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../core/domain/value-objects";
 
 export interface UserIdentity {
 	id: UserId;

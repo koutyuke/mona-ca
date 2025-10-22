@@ -1,9 +1,9 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import Elysia from "elysia";
-import { env } from "../../shared/infra/config/env";
-import { BadRequestException, ErrorResponseSchema, TooManyRequestsException } from "../../shared/infra/elysia";
-import { getIP } from "../../shared/lib/http";
+import { env } from "../../core/infra/config/env";
+import { BadRequestException, ErrorResponseSchema, TooManyRequestsException } from "../../core/infra/elysia";
+import { getIP } from "../../core/lib/http";
 
 type LimiterConfig = {
 	maxTokens: number;

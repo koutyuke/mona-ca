@@ -1,4 +1,4 @@
-import type { Gender, UserId } from "../../../../shared/domain/value-objects";
+import type { Gender, UserId } from "../../../../core/domain/value-objects";
 
 export const DEFAULT_USER_GENDER = "man";
 

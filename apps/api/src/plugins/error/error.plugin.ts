@@ -11,7 +11,7 @@ import {
 	ServiceUnavailableException,
 	TooManyRequestsException,
 	UnauthorizedException,
-} from "../../shared/infra/elysia";
+} from "../../core/infra/elysia";
 
 /**
  * Initializes an Elysia error handling plugin with the specified error handling configuration.

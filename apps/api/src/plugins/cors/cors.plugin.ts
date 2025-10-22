@@ -7,7 +7,7 @@
  */
 
 import { type Context, Elysia, type HTTPMethod } from "elysia";
-import { type PublicEnv, env } from "../../shared/infra/config/env";
+import { type PublicEnv, env } from "../../core/infra/config/env";
 
 export type Origin = string | RegExp;
 

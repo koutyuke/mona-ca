@@ -2,8 +2,8 @@ import { ProfileRepository } from "../adapters/repositories/profile/profile.repo
 import { GetProfileUseCase } from "../application/use-cases/profile/get-profile.usecase";
 import { UpdateProfileUseCase } from "../application/use-cases/profile/update-profile.usecase";
 
-import type { ICoreDIContainer } from "../../../shared/di";
-import type { EnvVariables } from "../../../shared/infra/config/env";
+import type { ICoreDIContainer } from "../../../core/di";
+import type { EnvVariables } from "../../../core/infra/config/env";
 import type { IGetProfileUseCase } from "../application/contracts/profile/get-profile.usecase.interface";
 import type { IUpdateProfileUseCase } from "../application/contracts/profile/update-profile.usecase.interface";
 import type { IProfileRepository } from "../application/ports/repositories/profile.repository.interface";

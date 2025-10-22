@@ -1,15 +1,15 @@
 import { Elysia, t } from "elysia";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
-import { env } from "../../shared/infra/config/env";
+import { env } from "../../core/infra/config/env";
 import {
 	CookieManager,
 	NoContentResponse,
 	NoContentResponseSchema,
 	withBaseResponseSchema,
-} from "../../shared/infra/elysia";
-import { SESSION_COOKIE_NAME } from "../../shared/lib/http";
+} from "../../core/infra/elysia";
+import { SESSION_COOKIE_NAME } from "../../core/lib/http";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { di } from "../../plugins/di";
+import { pathDetail } from "../../plugins/open-api";
 
 export const Logout = new Elysia()
 	// Local Middleware & Plugin

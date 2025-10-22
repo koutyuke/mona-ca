@@ -1,7 +1,7 @@
 import { err, ok } from "@mona-ca/core/utils";
 import { updateUserIdentity } from "../../../domain/entities/user-identity";
 
-import type { IPasswordHasher } from "../../../../../shared/ports/system";
+import type { IPasswordHasher } from "../../../../../core/ports/system";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type {

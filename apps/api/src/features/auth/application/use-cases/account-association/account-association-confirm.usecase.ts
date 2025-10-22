@@ -1,13 +1,13 @@
 import { err, ok } from "@mona-ca/core/utils";
-import { ulid } from "../../../../../shared/lib/id";
-import { timingSafeStringEqual } from "../../../../../shared/lib/security";
+import { ulid } from "../../../../../core/lib/id";
+import { timingSafeStringEqual } from "../../../../../core/lib/security";
 import { createExternalIdentity } from "../../../domain/entities/external-identity";
 import { createSession } from "../../../domain/entities/session";
 import { newSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type { Session } from "../../../domain/entities/session";
 import { type UserIdentity, updateUserIdentity } from "../../../domain/entities/user-identity";

@@ -9,7 +9,7 @@ import {
 	toRawBoolean,
 	toRawDate,
 	toRawSessionSecretHash,
-} from "../../../../shared/testing/helpers";
+} from "../../../../core/testing/helpers";
 import type { AccountAssociationSession } from "../../domain/entities/account-association-session";
 import type { EmailVerificationSession } from "../../domain/entities/email-verification-session";
 import type { ExternalIdentity } from "../../domain/entities/external-identity";

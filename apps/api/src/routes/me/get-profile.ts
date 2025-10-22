@@ -1,14 +1,14 @@
 import { Elysia } from "elysia";
-import { ProfileResponseSchema, toProfileResponse } from "../../features/user";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
 import {
 	BadRequestException,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../shared/infra/elysia";
+} from "../../core/infra/elysia";
+import { ProfileResponseSchema, toProfileResponse } from "../../features/user";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { di } from "../../plugins/di";
+import { pathDetail } from "../../plugins/open-api";
 
 export const GetProfile = new Elysia()
 	// Local Middleware & Plugin

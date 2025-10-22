@@ -1,5 +1,5 @@
 import { err, ok } from "@mona-ca/core/utils";
-import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../core/domain/value-objects";
 import { updateProfile } from "../../../domain/entities/profile";
 import type {
 	IUpdateProfileUseCase,

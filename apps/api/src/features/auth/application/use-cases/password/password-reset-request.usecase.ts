@@ -1,12 +1,12 @@
 import { err, ok } from "@mona-ca/core/utils";
-import { ulid } from "../../../../../shared/lib/id";
+import { ulid } from "../../../../../core/lib/id";
 import { createPasswordResetSession } from "../../../domain/entities/password-reset-session";
 import { newPasswordResetSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { IEmailGateway } from "../../../../../shared/ports/gateways";
-import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { IEmailGateway } from "../../../../../core/ports/gateways";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { PasswordResetSessionToken } from "../../../domain/value-objects/session-token";
 import type {

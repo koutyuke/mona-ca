@@ -1,5 +1,5 @@
 import type { Err, Ok, Result } from "@mona-ca/core/utils";
-import type { Gender, UserId } from "../../../../../shared/domain/value-objects";
+import type { Gender, UserId } from "../../../../../core/domain/value-objects";
 import type { Profile } from "../../../domain/entities/profile";
 
 export interface UpdateProfileDto {

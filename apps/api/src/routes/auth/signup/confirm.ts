@@ -1,10 +1,6 @@
 import { Elysia, t } from "elysia";
-import { newSignupSessionToken } from "../../../features/auth";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { genderSchema, newGender } from "../../../shared/domain/value-objects";
-import { env } from "../../../shared/infra/config/env";
+import { genderSchema, newGender } from "../../../core/domain/value-objects";
+import { env } from "../../../core/infra/config/env";
 import {
 	BadRequestException,
 	CookieManager,
@@ -14,8 +10,12 @@ import {
 	ResponseTUnion,
 	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../shared/infra/elysia";
-import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
+} from "../../../core/infra/elysia";
+import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newSignupSessionToken } from "../../../features/auth";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const SignupConfirm = new Elysia()
 

@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type { ISessionRepository } from "../../../application/ports/repositories/session.repository.interface";
 import type { Session } from "../../../domain/entities/session";
 import type { SessionId } from "../../../domain/value-objects/ids";

@@ -1,11 +1,11 @@
-import { ulid } from "../../../../../shared/lib/id";
+import { ulid } from "../../../../../core/lib/id";
 import { createAccountAssociationSession } from "../../../domain/entities/account-association-session";
 import { newAccountAssociationSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { IEmailGateway } from "../../../../../shared/ports/gateways";
-import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { IEmailGateway } from "../../../../../core/ports/gateways";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type {
 	ExternalIdentityProvider,

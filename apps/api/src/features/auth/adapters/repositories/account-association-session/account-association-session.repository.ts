@@ -1,5 +1,5 @@
 import { eq, lte } from "drizzle-orm";
-import { newUserId } from "../../../../../shared/domain/value-objects";
+import { newUserId } from "../../../../../core/domain/value-objects";
 import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
@@ -7,8 +7,8 @@ import {
 import { newAccountAssociationSessionId } from "../../../domain/value-objects/ids";
 
 import type { ToPrimitive } from "@mona-ca/core/utils";
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IAccountAssociationSessionRepository } from "../../../application/ports/repositories/account-association-session.repository.interface";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";

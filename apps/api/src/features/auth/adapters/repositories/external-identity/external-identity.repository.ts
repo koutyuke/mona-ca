@@ -1,13 +1,13 @@
 import { and, eq } from "drizzle-orm";
-import { newUserId } from "../../../../../shared/domain/value-objects";
+import { newUserId } from "../../../../../core/domain/value-objects";
 import {
 	newExternalIdentityProvider,
 	newExternalIdentityProviderUserId,
 } from "../../../domain/value-objects/external-identity";
 
 import type { ToPrimitive } from "@mona-ca/core/utils";
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IExternalIdentityRepository } from "../../../application/ports/repositories/external-identity.repository.interface";
 import type { ExternalIdentity } from "../../../domain/entities/external-identity";
 import type {

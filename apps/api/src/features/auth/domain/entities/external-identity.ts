@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../core/domain/value-objects";
 import type { ExternalIdentityProvider, ExternalIdentityProviderUserId } from "../value-objects/external-identity";
 
 export interface ExternalIdentity {

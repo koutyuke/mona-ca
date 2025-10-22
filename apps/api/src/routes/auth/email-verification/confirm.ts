@@ -1,10 +1,5 @@
 import { Elysia, t } from "elysia";
-import { newEmailVerificationSessionToken } from "../../../features/auth";
-import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { env } from "../../../shared/infra/config/env";
+import { env } from "../../../core/infra/config/env";
 import {
 	BadRequestException,
 	CookieManager,
@@ -14,8 +9,13 @@ import {
 	ResponseTUnion,
 	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../shared/infra/elysia";
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../shared/lib/http";
+} from "../../../core/infra/elysia";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newEmailVerificationSessionToken } from "../../../features/auth";
+import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 
 const EmailVerificationConfirm = new Elysia()
 	// Local Middleware & Plugin

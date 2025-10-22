@@ -1,5 +1,5 @@
 import type { DocumentDecoration } from "elysia";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../shared/lib/http";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../core/lib/http";
 import type { Tag } from "./tag";
 
 type PathDocumentProps = {

@@ -1,11 +1,11 @@
 import { err, ok } from "@mona-ca/core/utils";
-import { ulid } from "../../../../../shared/lib/id";
+import { ulid } from "../../../../../core/lib/id";
 import { createSignupSession } from "../../../domain/entities/signup-session";
 import { newSignupSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { IEmailGateway } from "../../../../../shared/ports/gateways";
-import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { IEmailGateway } from "../../../../../core/ports/gateways";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { SignupSessionToken } from "../../../domain/value-objects/session-token";
 import type {

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { type Gender, type UserId, newGender, newUserId } from "../../../../../shared/domain/value-objects";
-import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import { type Gender, type UserId, newGender, newUserId } from "../../../../../core/domain/value-objects";
+import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IProfileRepository } from "../../../application/ports/repositories/profile.repository.interface";
 import type { Profile } from "../../../domain/entities/profile";
 
