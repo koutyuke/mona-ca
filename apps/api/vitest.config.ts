@@ -13,7 +13,7 @@ export default defineWorkersConfig(async () => {
 			globals: true,
 			setupFiles: ["./tests/apply-migrations.ts"],
 			include: ["**/*.test.ts"],
-			exclude: ["src/server.ts"],
+			exclude: ["src/routes/index.ts"],
 			poolOptions: {
 				workers: {
 					singleWorker: true,

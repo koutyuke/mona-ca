@@ -71,8 +71,8 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 get: (options: {
                     headers?: Record<string, unknown>;
                     query: {
-                        code?: string;
                         error?: string;
+                        code?: string;
                         state?: string;
                     };
                     fetch?: RequestInit;
@@ -170,8 +170,8 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 get: (options: {
                     headers?: Record<string, unknown>;
                     query: {
-                        code?: string;
                         error?: string;
+                        code?: string;
                         state?: string;
                     };
                     fetch?: RequestInit;
@@ -281,8 +281,8 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                 get: (options: {
                     headers?: Record<string, unknown>;
                     query: {
-                        code?: string;
                         error?: string;
+                        code?: string;
                         state?: string;
                     };
                     fetch?: RequestInit;
@@ -819,8 +819,8 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
         };
         login: {
             post: (body: {
-                email: string;
                 password: string;
+                email: string;
                 cfTurnstileResponse: string;
             }, options: {
                 headers: {
@@ -1068,8 +1068,8 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                         user: {
                             name: string;
                             gender: "man" | "woman";
-                            id: string;
                             email: string;
+                            id: string;
                             emailVerified: boolean;
                             iconUrl: string | null;
                             createdAt: string;
@@ -1134,8 +1134,8 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     200: {
                         name: string;
                         gender: "man" | "woman";
-                        id: string;
                         email: string;
+                        id: string;
                         emailVerified: boolean;
                         iconUrl: string | null;
                         createdAt: string;
@@ -1199,8 +1199,8 @@ declare const createEdenFetch: (production: boolean, config?: Treaty.Config) => 
                     200: {
                         name: string;
                         gender: "man" | "woman";
-                        id: string;
                         email: string;
+                        id: string;
                         emailVerified: boolean;
                         iconUrl: string | null;
                         createdAt: string;

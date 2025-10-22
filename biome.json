@@ -85,7 +85,7 @@
         "**/.storybook/**",
         "**/src/app/**",
         "apps/web/src/middleware.ts",
-        "./apps/api/src/server.ts"
+        "./apps/api/src/routes/index.ts"
       ],
       "linter": {
         "rules": {
