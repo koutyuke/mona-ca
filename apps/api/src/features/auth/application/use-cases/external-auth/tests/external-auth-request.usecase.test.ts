@@ -1,20 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { newClientType } from "../../../../../../shared/domain/value-objects";
-import { OAuthStateSignerMock } from "../../../../../../shared/testing/mocks/system";
+import { newClientType } from "../../../../../../core/domain/value-objects";
+import { newExternalIdentityProvider } from "../../../../domain/value-objects/external-identity";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import { ExternalAuthRequestUseCase } from "../external-auth-request.usecase";
 import type { oauthStateSchema } from "../schema";
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
-const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
+const externalAuthOAuthStateSigner = new HmacOAuthStateSignerMock<typeof oauthStateSchema>();
 
-const externalAuthRequestUseCase = new ExternalAuthRequestUseCase(oauthProviderGateway, oauthStateSigner);
+const externalAuthRequestUseCase = new ExternalAuthRequestUseCase(
+	oauthProviderGateway,
+	oauthProviderGateway,
+	externalAuthOAuthStateSigner,
+);
 
 const PRODUCTION = false;
 
+const provider = newExternalIdentityProvider("google");
+
 describe("ExternalAuthRequestUseCase", () => {
 	it("should generate ExternalAuth request successfully for web client", () => {
-		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), "/dashboard");
+		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), provider, "/dashboard");
 
 		expect(result.isErr).toBe(false);
 		if (!result.isErr) {
@@ -28,7 +35,7 @@ describe("ExternalAuthRequestUseCase", () => {
 	});
 
 	it("should generate ExternalAuth request successfully for mobile client", () => {
-		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("mobile"), "/home");
+		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("mobile"), provider, "/home");
 
 		expect(result.isErr).toBe(false);
 		if (!result.isErr) {
@@ -45,6 +52,7 @@ describe("ExternalAuthRequestUseCase", () => {
 		const result = externalAuthRequestUseCase.execute(
 			PRODUCTION,
 			newClientType("web"),
+			provider,
 			"https://malicious.com/redirect",
 		);
 
@@ -55,7 +63,7 @@ describe("ExternalAuthRequestUseCase", () => {
 	});
 
 	it("should handle empty redirect URI with default path", () => {
-		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), "");
+		const result = externalAuthRequestUseCase.execute(PRODUCTION, newClientType("web"), provider, "");
 
 		expect(result.isErr).toBe(false);
 		if (!result.isErr) {

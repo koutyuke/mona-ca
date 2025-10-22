@@ -1,12 +1,12 @@
-import { env } from "cloudflare:test";
+import { Elysia } from "elysia";
 import { describe, expect, test } from "vitest";
-import { ElysiaWithEnv } from "../../elysia-with-env";
+import { di } from "../../di";
 import { cors } from "../cors.plugin";
 
 describe("Methods Test", async () => {
 	test("falseの時にMethodが設定されない", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					methods: false,
@@ -20,8 +20,8 @@ describe("Methods Test", async () => {
 	});
 
 	test("trueの時に全てのMethodが許可される", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					methods: true,
@@ -38,8 +38,8 @@ describe("Methods Test", async () => {
 	});
 
 	test("指定したMethodのみ許可される", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					methods: ["GET", "POST"],

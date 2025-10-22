@@ -12,11 +12,13 @@ export default defineWorkersConfig(async () => {
 		test: {
 			globals: true,
 			setupFiles: ["./tests/apply-migrations.ts"],
+			include: ["**/*.test.ts"],
+			exclude: ["src/routes/index.ts"],
 			poolOptions: {
 				workers: {
 					singleWorker: true,
 					wrangler: {
-						configPath: "./wrangler.toml",
+						configPath: "./wrangler.jsonc",
 						environment: "test",
 					},
 					miniflare: {

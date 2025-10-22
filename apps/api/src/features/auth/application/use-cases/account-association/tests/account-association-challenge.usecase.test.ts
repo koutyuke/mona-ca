@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { RandomGeneratorMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { EmailGatewayMock } from "../../../../../../core/testing/mocks/gateways";
+import { RandomGeneratorMock, SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { createAccountAssociationSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
 import {
 	AccountAssociationSessionRepositoryMock,
@@ -15,11 +16,13 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 
 const sessionSecretHasher = new SessionSecretHasherMock();
 const randomGenerator = new RandomGeneratorMock();
+const emailGateway = new EmailGatewayMock();
 
 const accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
 	randomGenerator,
+	emailGateway,
 );
 
 const { userRegistration } = createAuthUserFixture();

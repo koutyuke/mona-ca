@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type { IAccountAssociationSessionRepository } from "../../../application/ports/repositories/account-association-session.repository.interface";
 import {
 	type AccountAssociationSession,

@@ -1,10 +1,11 @@
-import { ulid } from "../../../../../shared/lib/id";
+import { ulid } from "../../../../../core/lib/id";
 import { createAccountAssociationSession } from "../../../domain/entities/account-association-session";
 import { newAccountAssociationSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { IEmailGateway } from "../../../../../core/ports/gateways";
+import type { IRandomGenerator, ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type {
 	ExternalIdentityProvider,
@@ -24,6 +25,7 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly randomGenerator: IRandomGenerator,
+		private readonly emailGateway: IEmailGateway,
 	) {}
 
 	public async execute(
@@ -39,6 +41,11 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 		);
 
 		await this.accountAssociationSessionRepository.save(accountAssociationSession);
+
+		await this.emailGateway.sendVerificationEmail(
+			accountAssociationSession.email,
+			accountAssociationSession.code ?? "",
+		);
 
 		return {
 			accountAssociationSession,

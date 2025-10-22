@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { DrizzleService } from "../../../../../../shared/infra/drizzle";
-import { PasswordResetSessionTableHelper, UserTableHelper, toRawDate } from "../../../../../../shared/testing/helpers";
+import { DrizzleService } from "../../../../../../core/infra/drizzle";
+import { PasswordResetSessionTableHelper, UserTableHelper, toRawDate } from "../../../../../../core/testing/helpers";
 import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
 import { convertPasswordResetSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { PasswordResetSessionRepository } from "../password-reset-session.repository";

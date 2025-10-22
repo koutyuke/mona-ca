@@ -1,26 +1,25 @@
-import { t } from "elysia";
-import { SignupVerifyEmailUseCase, ValidateSignupSessionUseCase } from "../../../features/auth";
-import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
-import { newSignupSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { Elysia, t } from "elysia";
+import { env } from "../../../core/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+} from "../../../core/infra/elysia";
+import { SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newSignupSessionToken } from "../../../features/auth";
+import { di } from "../../../plugins/di";
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { SessionSecretHasher } from "../../../shared/infra/crypto";
-import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
-import { SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
-export const SignupVerifyEmail = new ElysiaWithEnv()
+export const SignupVerifyEmail = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(withClientType)
 	.use(
 		rateLimit("signup-verify-email", {
@@ -37,27 +36,13 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 	.post(
 		"/verify-email",
 		async ({
-			env: { APP_ENV },
-			cfModuleEnv: { DB },
+			containers,
 			cookie,
 			body: { signupSessionToken: bodySignupSessionToken, code },
 			clientType,
 			rateLimit,
 		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const signupSessionRepository = new SignupSessionRepository(drizzleService);
-
-			const sessionSecretHasher = new SessionSecretHasher();
-
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
-				signupSessionRepository,
-				sessionSecretHasher,
-			);
-			const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepository);
-			// === End of instances ===
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const rawSignupSessionToken =
 				clientType === "web" ? cookieManager.getCookie(SIGNUP_SESSION_COOKIE_NAME) : bodySignupSessionToken;
@@ -69,7 +54,9 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 				});
 			}
 
-			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
+			const validationResult = await containers.auth.validateSignupSessionUseCase.execute(
+				newSignupSessionToken(rawSignupSessionToken),
+			);
 
 			if (validationResult.isErr) {
 				const { code } = validationResult;
@@ -92,7 +79,7 @@ export const SignupVerifyEmail = new ElysiaWithEnv()
 
 			await rateLimit.consume(signupSession.id, 100);
 
-			const verifyEmailResult = await signupVerifyEmailUseCase.execute(code, signupSession);
+			const verifyEmailResult = await containers.auth.signupVerifyEmailUseCase.execute(code, signupSession);
 
 			if (verifyEmailResult.isErr) {
 				const { code } = verifyEmailResult;

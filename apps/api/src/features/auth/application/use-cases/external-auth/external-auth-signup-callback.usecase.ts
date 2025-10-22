@@ -1,6 +1,6 @@
 import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
-import { newClientType, newGender, newUserId } from "../../../../../shared/domain/value-objects";
-import { ulid } from "../../../../../shared/lib/id";
+import { newClientType, newGender, newUserId } from "../../../../../core/domain/value-objects";
+import { ulid } from "../../../../../core/lib/id";
 import { createAccountAssociationSession } from "../../../domain/entities/account-association-session";
 import { createExternalIdentity } from "../../../domain/entities/external-identity";
 import { createSession } from "../../../domain/entities/session";
@@ -9,8 +9,8 @@ import { newExternalIdentityProviderUserId } from "../../../domain/value-objects
 import { newAccountAssociationSessionId, newSessionId } from "../../../domain/value-objects/ids";
 import { formatAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { IOAuthStateSigner, ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type { Session } from "../../../domain/entities/session";
 import type {
@@ -24,6 +24,7 @@ import type {
 } from "../../contracts/external-auth/external-auth-signup-callback.usecase.interface";
 import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
 
+import type { IHmacOAuthStateSigner } from "../../ports/infra/hmac-oauth-state-signer.interface";
 import type { IAccountAssociationSessionRepository } from "../../ports/repositories/account-association-session.repository.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
@@ -32,13 +33,14 @@ import type { oauthStateSchema } from "./schema";
 
 export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCallbackUseCase {
 	constructor(
-		private readonly oauthProviderGateway: IOAuthProviderGateway,
+		private readonly googleOAuthGateway: IOAuthProviderGateway,
+		private readonly discordOAuthGateway: IOAuthProviderGateway,
 		private readonly sessionRepository: ISessionRepository,
 		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
-		private readonly oauthStateSigner: IOAuthStateSigner<typeof oauthStateSchema>,
+		private readonly externalAuthOAuthStateSigner: IHmacOAuthStateSigner<typeof oauthStateSchema>,
 	) {}
 
 	public async execute(
@@ -50,7 +52,8 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<ExternalAuthSignupCallbackUseCaseResult> {
-		const validatedState = this.oauthStateSigner.validate(signedState);
+		const oauthProviderGateway = provider === "google" ? this.googleOAuthGateway : this.discordOAuthGateway;
+		const validatedState = this.externalAuthOAuthStateSigner.validate(signedState);
 
 		if (validatedState.isErr) {
 			return err("INVALID_STATE");
@@ -80,7 +83,7 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 			return err("TOKEN_EXCHANGE_FAILED");
 		}
 
-		const tokensResult = await this.oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
+		const tokensResult = await oauthProviderGateway.exchangeCodeForTokens(code, codeVerifier);
 
 		if (tokensResult.isErr) {
 			const { code } = tokensResult;
@@ -92,9 +95,9 @@ export class ExternalAuthSignupCallbackUseCase implements IExternalAuthSignupCal
 
 		const tokens = tokensResult.value;
 
-		const getIdentityResult = await this.oauthProviderGateway.getIdentity(tokens);
+		const getIdentityResult = await oauthProviderGateway.getIdentity(tokens);
 
-		await this.oauthProviderGateway.revokeToken(tokens);
+		await oauthProviderGateway.revokeToken(tokens);
 
 		if (getIdentityResult.isErr) {
 			const { code } = getIdentityResult;

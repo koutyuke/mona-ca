@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { newGender, newUserId } from "../../../../../../shared/domain/value-objects";
-import { ulid } from "../../../../../../shared/lib/id";
-import { PasswordHasherMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { newGender, newUserId } from "../../../../../../core/domain/value-objects";
+import { ulid } from "../../../../../../core/lib/id";
+import { PasswordHasherMock, SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { createUserRegistration } from "../../../../domain/entities/user-registration";
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import {

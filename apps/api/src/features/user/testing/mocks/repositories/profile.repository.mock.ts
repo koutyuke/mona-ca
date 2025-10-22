@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type { IProfileRepository } from "../../../application/ports/repositories/profile.repository.interface";
 import type { Profile } from "../../../domain/entities/profile";
 

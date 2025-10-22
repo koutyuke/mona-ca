@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,

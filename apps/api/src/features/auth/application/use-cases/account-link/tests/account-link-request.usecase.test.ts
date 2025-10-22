@@ -1,17 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { newClientType, newUserId } from "../../../../../../shared/domain/value-objects";
-import { ulid } from "../../../../../../shared/lib/id";
-import { OAuthStateSignerMock } from "../../../../../../shared/testing/mocks/system";
+import { newClientType, newUserId } from "../../../../../../core/domain/value-objects";
+import { ulid } from "../../../../../../core/lib/id";
+import { newExternalIdentityProvider } from "../../../../domain/value-objects/external-identity";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import { AccountLinkRequestUseCase } from "../account-link-request.usecase";
 import type { accountLinkStateSchema } from "../schema";
 
 const oauthProviderGateway = new OAuthProviderGatewayMock();
-const oauthStateSigner = new OAuthStateSignerMock<typeof accountLinkStateSchema>();
+const accountLinkOAuthStateSigner = new HmacOAuthStateSignerMock<typeof accountLinkStateSchema>();
 
-const accountLinkRequestUseCase = new AccountLinkRequestUseCase(oauthProviderGateway, oauthStateSigner);
+const accountLinkRequestUseCase = new AccountLinkRequestUseCase(
+	oauthProviderGateway,
+	oauthProviderGateway,
+	accountLinkOAuthStateSigner,
+);
 
 const PRODUCTION = false;
+
+const provider = newExternalIdentityProvider("google");
 
 describe("ExternalAuthRequestUseCase", () => {
 	it("should generate account link request successfully for web client", () => {
@@ -19,7 +26,7 @@ describe("ExternalAuthRequestUseCase", () => {
 		const queryRedirectURI = "/settings/connections";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, provider, queryRedirectURI, userId);
 
 		expect(result.isErr).toBe(false);
 		if (!result.isErr) {
@@ -37,7 +44,7 @@ describe("ExternalAuthRequestUseCase", () => {
 		const queryRedirectURI = "/settings/connections";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, provider, queryRedirectURI, userId);
 
 		expect(result.isErr).toBe(false);
 		if (!result.isErr) {
@@ -55,7 +62,7 @@ describe("ExternalAuthRequestUseCase", () => {
 		const invalidRedirectURI = "https://malicious.com/redirect";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, invalidRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, provider, invalidRedirectURI, userId);
 
 		expect(result.isErr).toBe(true);
 		if (result.isErr) {
@@ -68,7 +75,7 @@ describe("ExternalAuthRequestUseCase", () => {
 		const emptyRedirectURI = "";
 		const userId = newUserId(ulid());
 
-		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, emptyRedirectURI, userId);
+		const result = accountLinkRequestUseCase.execute(PRODUCTION, clientType, provider, emptyRedirectURI, userId);
 
 		expect(result.isErr).toBe(false);
 		if (!result.isErr) {
@@ -83,8 +90,8 @@ describe("ExternalAuthRequestUseCase", () => {
 		const userId1 = newUserId(ulid());
 		const userId2 = newUserId(ulid());
 
-		const result1 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId1);
-		const result2 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, queryRedirectURI, userId2);
+		const result1 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, provider, queryRedirectURI, userId1);
+		const result2 = accountLinkRequestUseCase.execute(PRODUCTION, clientType, provider, queryRedirectURI, userId2);
 
 		expect(result1.isErr).toBe(false);
 		expect(result2.isErr).toBe(false);

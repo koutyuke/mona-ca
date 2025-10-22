@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
-import { DrizzleService } from "../../../../../../shared/infra/drizzle";
-import { UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { DrizzleService } from "../../../../../../core/infra/drizzle";
+import { UserTableHelper } from "../../../../../../core/testing/helpers";
 import { createAuthUserFixture } from "../../../../testing/fixtures";
 import { convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { AuthUserRepository } from "../auth-user.repository";

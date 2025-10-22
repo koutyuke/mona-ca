@@ -1,8 +1,7 @@
-import { t } from "elysia";
-import { TurnstileGateway } from "../../shared/adapters/gateways/turnstile";
-import { getIP } from "../../shared/lib/http";
-import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
-import { BadRequestException } from "../error";
+import Elysia, { t } from "elysia";
+import { BadRequestException, ErrorResponseSchema } from "../../core/infra/elysia";
+import { getIP } from "../../core/lib/http";
+import { di } from "../di";
 
 /**
  * Initializes a new instance of the ElysiaWithEnv class with the captcha plugin.
@@ -10,37 +9,37 @@ import { BadRequestException } from "../error";
  *
  * @throws {BadRequestException} If the IP address is not found or verification fails.
  */
-export const captcha = new ElysiaWithEnv({
+export const captcha = new Elysia({
 	name: "@mona-ca/captcha",
-}).derive({ as: "scoped" }, async ({ request, env: { CF_TURNSTILE_SECRET } }) => {
-	const ip = getIP(request.headers);
+})
+	.use(di())
+	.derive({ as: "scoped" }, async ({ request, containers }) => {
+		const ip = getIP(request.headers);
 
-	if (!ip) {
-		throw new BadRequestException({
-			name: "IP_ADDRESS_NOT_FOUND",
-			message: "IP address not found",
-		});
-	}
-
-	const turnstileGateway = new TurnstileGateway(CF_TURNSTILE_SECRET);
-
-	const verify = async (token: string) => {
-		const { success } = await turnstileGateway.verify(token, ip);
-
-		if (!success) {
+		if (!ip) {
 			throw new BadRequestException({
-				name: "CAPTCHA_VERIFICATION_FAILED",
-				message: "Verification failed.",
+				name: "IP_ADDRESS_NOT_FOUND",
+				message: "IP address not found",
 			});
 		}
-	};
 
-	return {
-		captcha: {
-			verify,
-		},
-	};
-});
+		const verify = async (token: string) => {
+			const { success } = await containers.core.turnstileGateway.verify(token, ip);
+
+			if (!success) {
+				throw new BadRequestException({
+					name: "CAPTCHA_VERIFICATION_FAILED",
+					message: "Verification failed.",
+				});
+			}
+		};
+
+		return {
+			captcha: {
+				verify,
+			},
+		};
+	});
 
 export const CaptchaSchema = {
 	response: {

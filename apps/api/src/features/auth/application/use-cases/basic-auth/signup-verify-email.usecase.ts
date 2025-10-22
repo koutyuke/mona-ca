@@ -1,5 +1,5 @@
 import { err, ok } from "@mona-ca/core/utils";
-import { timingSafeStringEqual } from "../../../../../shared/lib/security";
+import { timingSafeStringEqual } from "../../../../../core/lib/security";
 import { completeEmailVerificationForSignupSession } from "../../../domain/entities/signup-session";
 
 import type { SignupSession } from "../../../domain/entities/signup-session";

@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type { IEmailVerificationSessionRepository } from "../../../application/ports/repositories/email-verification-session.repository.interface";
 import {
 	type EmailVerificationSession,

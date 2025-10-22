@@ -1,19 +1,18 @@
-import { ProfileResponseSchema, toProfileResponse } from "../../features/user/adapters/presenters/profile.presenter";
-import { ProfileRepository } from "../../features/user/adapters/repositories/profile/profile.repository";
-import { GetProfileUseCase } from "../../features/user/application/use-cases/profile/get-profile.usecase";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { Elysia } from "elysia";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
 	ErrorResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../plugins/elysia-with-env";
-import { BadRequestException } from "../../plugins/error";
+} from "../../core/infra/elysia";
+import { ProfileResponseSchema, toProfileResponse } from "../../features/user";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { di } from "../../plugins/di";
 import { pathDetail } from "../../plugins/open-api";
-import { DrizzleService } from "../../shared/infra/drizzle";
 
-export const GetProfile = new ElysiaWithEnv()
+export const GetProfile = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(
 		authGuard({
 			requireEmailVerification: false,
@@ -23,16 +22,8 @@ export const GetProfile = new ElysiaWithEnv()
 	// Route
 	.get(
 		"",
-		async ({ cfModuleEnv: { DB }, userIdentity }) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-
-			const profileRepository = new ProfileRepository(drizzleService);
-
-			const getProfileUseCase = new GetProfileUseCase(profileRepository);
-			// === End of instances ===
-
-			const result = await getProfileUseCase.execute(userIdentity.id);
+		async ({ userIdentity, containers }) => {
+			const result = await containers.user.getProfileUseCase.execute(userIdentity.id);
 
 			if (result.isErr) {
 				throw new BadRequestException({

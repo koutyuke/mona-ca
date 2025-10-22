@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { DrizzleService } from "../../../../../../shared/infra/drizzle";
-import { ExternalIdentityTableHelper, UserTableHelper } from "../../../../../../shared/testing/helpers";
+import { DrizzleService } from "../../../../../../core/infra/drizzle";
+import { ExternalIdentityTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
 import type { ExternalIdentity } from "../../../../domain/entities/external-identity";
 import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
 import { convertExternalIdentityToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";

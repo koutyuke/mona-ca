@@ -1,12 +1,12 @@
-import { env } from "cloudflare:test";
+import { Elysia } from "elysia";
 import { describe, expect, test } from "vitest";
-import { ElysiaWithEnv } from "../../elysia-with-env";
+import { di } from "../../di";
 import { cors } from "../cors.plugin";
 
 describe("Origin Test", async () => {
 	test("falseの時にOriginが設定されない", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					origin: false,
@@ -20,8 +20,8 @@ describe("Origin Test", async () => {
 	});
 
 	test("trueの時に全てのOriginが許可される", async () => {
-		const app = new ElysiaWithEnv({ aot: false })
-			.setEnv(env)
+		const app = new Elysia({ aot: false })
+			.use(di())
 			.use(
 				cors({
 					origin: true,
@@ -83,68 +83,12 @@ describe("Origin Test", async () => {
 		];
 
 		for (const testCase of testCases) {
-			const app = new ElysiaWithEnv({ aot: false })
-				.setEnv({
-					...env,
-					APP_ENV: "development",
-				})
+			const app = new Elysia({ aot: false })
+				.use(di())
 				.use(
 					cors({
 						origin: app_env => {
-							if (app_env === "development") {
-								return [testCase.origin];
-							}
-							return [];
-						},
-					}),
-				)
-				.get("/", () => "Test");
-
-			const res = await app.fetch(new Request(testCase.url, { headers: { Origin: testCase.url } }));
-
-			expect(res.headers.get("Access-Control-Allow-Origin")).toBe(testCase.result);
-		}
-	});
-
-	test("指定したOriginのみ許可される(production)", async () => {
-		const testCases: {
-			origin: string | RegExp;
-			url: string;
-			result: string | null;
-		}[] = [
-			{
-				origin: "http://example.com",
-				url: "http://example.com",
-				result: "http://example.com",
-			},
-			{
-				origin: "http://example.com",
-				url: "http://example.org",
-				result: null,
-			},
-
-			{
-				origin: /\.com/g,
-				url: "http://example.com",
-				result: "http://example.com",
-			},
-			{
-				origin: /\.com/g,
-				url: "http://example.org",
-				result: null,
-			},
-		];
-
-		for (const testCase of testCases) {
-			const app = new ElysiaWithEnv({ aot: false })
-				.setEnv({
-					...env,
-					APP_ENV: "production",
-				})
-				.use(
-					cors({
-						origin: app_env => {
-							if (app_env === "production") {
+							if (app_env === "test") {
 								return [testCase.origin];
 							}
 							return [];

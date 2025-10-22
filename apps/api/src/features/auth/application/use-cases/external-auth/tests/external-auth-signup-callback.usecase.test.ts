@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { newClientType, newGender } from "../../../../../../shared/domain/value-objects";
-import { OAuthStateSignerMock, SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { newClientType, newGender } from "../../../../../../core/domain/value-objects";
+import { SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { DEFAULT_USER_GENDER } from "../../../../domain/entities/user-registration";
 import {
 	newExternalIdentityProvider,
@@ -8,6 +8,7 @@ import {
 } from "../../../../domain/value-objects/external-identity";
 import { createAuthUserFixture, createExternalIdentityFixture } from "../../../../testing/fixtures";
 import { OAuthProviderGatewayMock } from "../../../../testing/mocks/gateways";
+import { HmacOAuthStateSignerMock } from "../../../../testing/mocks/infra";
 import {
 	AccountAssociationSessionRepositoryMock,
 	AuthUserRepositoryMock,
@@ -38,19 +39,22 @@ const accountAssociationSessionRepository = new AccountAssociationSessionReposit
 	accountAssociationSessionMap,
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
-const oauthStateSigner = new OAuthStateSignerMock<typeof oauthStateSchema>();
+const externalAuthOAuthStateSigner = new HmacOAuthStateSignerMock<typeof oauthStateSchema>();
 
 const externalAuthSignupCallbackUseCase = new ExternalAuthSignupCallbackUseCase(
+	oauthProviderGateway,
 	oauthProviderGateway,
 	sessionRepository,
 	externalIdentityRepository,
 	authUserRepository,
 	accountAssociationSessionRepository,
 	sessionSecretHasher,
-	oauthStateSigner,
+	externalAuthOAuthStateSigner,
 );
 
 const PRODUCTION = false;
+
+const provider = newExternalIdentityProvider("discord");
 
 describe("ExternalAuthSignupCallbackUseCase", () => {
 	beforeEach(() => {
@@ -65,7 +69,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			"invalid_state",
 			"auth_code",
 			"code_verifier",
@@ -78,13 +82,13 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"https://malicious.com/redirect",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState,
 			"auth_code",
 			"code_verifier",
@@ -97,13 +101,13 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState,
 			undefined,
 			"code_verifier",
@@ -116,13 +120,13 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
 			"access_denied",
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState,
 			undefined,
 			"code_verifier",
@@ -135,13 +139,13 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should return PROVIDER_ERROR error for provider error", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
 			"server_error",
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState,
 			undefined,
 			"code_verifier",
@@ -154,13 +158,13 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 	});
 
 	it("should process successful signup with new user", async () => {
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState,
 			"auth_code",
 			"code_verifier",
@@ -191,7 +195,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 		const { externalIdentity: oauthAccount } = createExternalIdentityFixture({
 			externalIdentity: {
 				userId: existingUser.id,
-				provider: newExternalIdentityProvider("discord"),
+				provider: provider,
 				providerUserId: newExternalIdentityProviderUserId("provider_user_id"),
 			},
 		});
@@ -202,7 +206,7 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 			oauthAccount,
 		);
 
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
@@ -230,13 +234,13 @@ describe("ExternalAuthSignupCallbackUseCase", () => {
 
 		authUserMap.set(existingUser.id, existingUser);
 
-		const signedState = oauthStateSigner.generate({ client: newClientType("web") });
+		const signedState = externalAuthOAuthStateSigner.generate({ client: newClientType("web") });
 
 		const result = await externalAuthSignupCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
-			newExternalIdentityProvider("discord"),
+			provider,
 			signedState,
 			"auth_code",
 			"code_verifier",

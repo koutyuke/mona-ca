@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
-import { SessionSecretHasherMock } from "../../../../../../shared/testing/mocks/system";
+import { SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { sessionExpiresSpan, sessionRefreshSpan } from "../../../../domain/entities/session";
 import { formatAnySessionToken, newSessionToken } from "../../../../domain/value-objects/session-token";
 import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";

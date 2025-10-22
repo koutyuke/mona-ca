@@ -1,64 +1,38 @@
-import { t } from "elysia";
-import { SignupConfirmUseCase, ValidateSignupSessionUseCase } from "../../../features/auth";
-import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { SessionRepository } from "../../../features/auth/adapters/repositories/session/session.repository";
-import { SignupSessionRepository } from "../../../features/auth/adapters/repositories/signup-session/signup-session.repository";
-import { newSignupSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { Elysia, t } from "elysia";
+import { genderSchema, newGender } from "../../../core/domain/value-objects";
+import { env } from "../../../core/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+} from "../../../core/infra/elysia";
+import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newSignupSessionToken } from "../../../features/auth";
+import { di } from "../../../plugins/di";
 import { pathDetail } from "../../../plugins/open-api";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { genderSchema, newGender } from "../../../shared/domain/value-objects";
-import { PasswordHasher, SessionSecretHasher } from "../../../shared/infra/crypto";
-import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
-import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
-export const SignupConfirm = new ElysiaWithEnv()
+export const SignupConfirm = new Elysia()
 
 	// Local Middleware & Plugin
+	.use(di())
 	.use(withClientType)
 
 	// Route
 	.post(
 		"/confirm",
 		async ({
-			env: { APP_ENV, PASSWORD_PEPPER },
-			cfModuleEnv: { DB },
 			cookie,
 			body: { signupSessionToken: bodySignupSessionToken, name, password, gender },
 			clientType,
+			containers,
 		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const authUserRepository = new AuthUserRepository(drizzleService);
-			const sessionRepository = new SessionRepository(drizzleService);
-			const signupSessionRepository = new SignupSessionRepository(drizzleService);
-
-			const sessionSecretHasher = new SessionSecretHasher();
-			const passwordHasher = new PasswordHasher(PASSWORD_PEPPER);
-
-			const validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
-				signupSessionRepository,
-				sessionSecretHasher,
-			);
-			const signupConfirmUseCase = new SignupConfirmUseCase(
-				authUserRepository,
-				sessionRepository,
-				signupSessionRepository,
-				sessionSecretHasher,
-				passwordHasher,
-			);
-			// === End of instances ===
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const rawSignupSessionToken =
 				clientType === "web" ? cookieManager.getCookie(SIGNUP_SESSION_COOKIE_NAME) : bodySignupSessionToken;
@@ -70,7 +44,9 @@ export const SignupConfirm = new ElysiaWithEnv()
 				});
 			}
 
-			const validationResult = await validateSignupSessionUseCase.execute(newSignupSessionToken(rawSignupSessionToken));
+			const validationResult = await containers.auth.validateSignupSessionUseCase.execute(
+				newSignupSessionToken(rawSignupSessionToken),
+			);
 
 			if (validationResult.isErr) {
 				const { code } = validationResult;
@@ -91,7 +67,12 @@ export const SignupConfirm = new ElysiaWithEnv()
 
 			const { signupSession } = validationResult.value;
 
-			const result = await signupConfirmUseCase.execute(signupSession, name, password, newGender(gender));
+			const result = await containers.auth.signupConfirmUseCase.execute(
+				signupSession,
+				name,
+				password,
+				newGender(gender),
+			);
 
 			if (result.isErr) {
 				const { code } = result;

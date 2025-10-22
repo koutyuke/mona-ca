@@ -17,6 +17,12 @@ import type {
 	IOAuthProviderGateway,
 	Identity,
 } from "../../../application/ports/gateways/oauth-provider.gateway.interface";
+import {
+	externalLinkRedirectURL,
+	externalLoginRedirectURL,
+	externalSignupRedirectURL,
+} from "../../../lib/redirect-url";
+import type { ProviderGateways } from "./type";
 
 const googleIdTokenClaimsSchema = t.Object({
 	sub: t.String(),
@@ -97,4 +103,29 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 			console.error("revokeToken request error", error);
 		}
 	}
+}
+
+export type GoogleSecrets = {
+	clientId: string;
+	clientSecret: string;
+};
+
+export function createGoogleGateways(isProduction: boolean, secrets: GoogleSecrets): ProviderGateways {
+	return {
+		signup: new GoogleOAuthGateway(
+			secrets.clientId,
+			secrets.clientSecret,
+			externalSignupRedirectURL(isProduction, "google"),
+		),
+		login: new GoogleOAuthGateway(
+			secrets.clientId,
+			secrets.clientSecret,
+			externalLoginRedirectURL(isProduction, "google"),
+		),
+		link: new GoogleOAuthGateway(
+			secrets.clientId,
+			secrets.clientSecret,
+			externalLinkRedirectURL(isProduction, "google"),
+		),
+	};
 }

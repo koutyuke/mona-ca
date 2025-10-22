@@ -1,27 +1,25 @@
-import { t } from "elysia";
-import { PasswordResetVerifyEmailUseCase, ValidatePasswordResetSessionUseCase } from "../../../features/auth";
-import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session/password-reset-session.repository";
-import { newPasswordResetSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { Elysia, t } from "elysia";
+import { env } from "../../../core/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
+	UnauthorizedException,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../../../plugins/error";
+} from "../../../core/infra/elysia";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newPasswordResetSessionToken } from "../../../features/auth";
+import { di } from "../../../plugins/di";
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { SessionSecretHasher } from "../../../shared/infra/crypto";
-import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
-export const PasswordResetVerifyEmail = new ElysiaWithEnv()
+export const PasswordResetVerifyEmail = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(withClientType)
 	.use(
 		rateLimit("forgot-password-verify-email", {
@@ -38,29 +36,13 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 	.post(
 		"/verify-email",
 		async ({
-			env: { APP_ENV },
-			cfModuleEnv: { DB },
 			cookie,
 			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, code },
 			clientType,
 			rateLimit,
+			containers,
 		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
-			const authUserRepository = new AuthUserRepository(drizzleService);
-
-			const sessionSecretHasher = new SessionSecretHasher();
-
-			const validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
-				passwordResetSessionRepository,
-				authUserRepository,
-				sessionSecretHasher,
-			);
-			const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
-			// === End of instances ===
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const rawPasswordResetSessionToken =
 				clientType === "web"
@@ -74,7 +56,7 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 				});
 			}
 
-			const validationResult = await validatePasswordResetSessionUseCase.execute(
+			const validationResult = await containers.auth.validatePasswordResetSessionUseCase.execute(
 				newPasswordResetSessionToken(rawPasswordResetSessionToken),
 			);
 
@@ -99,7 +81,10 @@ export const PasswordResetVerifyEmail = new ElysiaWithEnv()
 
 			await rateLimit.consume(passwordResetSession.id, 100);
 
-			const verifyEmailResult = await passwordResetVerifyEmailUseCase.execute(code, passwordResetSession);
+			const verifyEmailResult = await containers.auth.passwordResetVerifyEmailUseCase.execute(
+				code,
+				passwordResetSession,
+			);
 
 			if (verifyEmailResult.isErr) {
 				const { code } = verifyEmailResult;

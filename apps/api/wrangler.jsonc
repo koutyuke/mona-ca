@@ -1,0 +1,57 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "mona-ca-api",
+  "main": "./src/routes/index.ts",
+  "compatibility_date": "2025-02-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "b7773705-8f1f-49e2-9a42-564971632cf4",
+      "database_name": "mona-ca_db",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ],
+  "routes": [
+    {
+      "custom_domain": true,
+      "pattern": "api.mona-ca.com"
+    }
+  ],
+  "env": {
+    "production": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_id": "b7773705-8f1f-49e2-9a42-564971632cf4",
+          "database_name": "mona-ca_db",
+          "migrations_dir": "drizzle/migrations"
+        }
+      ],
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+      },
+      "vars": {
+        "APP_ENV": "production"
+      }
+    },
+    "test": {
+      "main": "",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_id": "b7773705-8f1f-49e2-9a42-564971632cf4",
+          "database_name": "mona-ca_db",
+          "migrations_dir": "drizzle/migrations"
+        }
+      ],
+      "vars": {
+        "APP_ENV": "test"
+      }
+    }
+  },
+  "vars": {
+    "APP_ENV": "development"
+  }
+}

@@ -1,5 +1,5 @@
-import { ulid } from "../../../../shared/lib/id";
-import { SessionSecretHasherMock } from "../../../../shared/testing/mocks/system";
+import { ulid } from "../../../../core/lib/id";
+import { SessionSecretHasherMock } from "../../../../core/testing/mocks/system";
 import { type SignupSession, signupSessionEmailVerificationExpiresSpan } from "../../domain/entities/signup-session";
 import { newSignupSessionId } from "../../domain/value-objects/ids";
 import { type SignupSessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";

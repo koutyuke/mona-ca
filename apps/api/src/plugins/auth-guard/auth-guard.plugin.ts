@@ -1,17 +1,12 @@
 import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
-import { ValidateSessionUseCase } from "../../features/auth";
-import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
+import Elysia, { t } from "elysia";
+import { type ClientType, clientTypeSchema, newClientType } from "../../core/domain/value-objects";
+import { BadRequestException, ErrorResponseSchema, UnauthorizedException } from "../../core/infra/elysia";
+import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME, readBearerToken } from "../../core/lib/http";
 import type { Session } from "../../features/auth/domain/entities/session";
 import type { UserIdentity } from "../../features/auth/domain/entities/user-identity";
 import { newSessionToken } from "../../features/auth/domain/value-objects/session-token";
-import { type ClientType, clientTypeSchema, newClientType } from "../../shared/domain/value-objects";
-import { SessionSecretHasher } from "../../shared/infra/crypto";
-import { DrizzleService } from "../../shared/infra/drizzle";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME, readBearerToken } from "../../shared/lib/http";
-import { ElysiaWithEnv, ErrorResponseSchema } from "../elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../error";
+import { di } from "../di";
 
 type Response = {
 	userIdentity: UserIdentity;
@@ -37,68 +32,57 @@ export const authGuard = (options?: {
 }) => {
 	const { requireEmailVerification = true, enableSessionCookieRefresh = true } = options ?? {};
 
-	const plugin = new ElysiaWithEnv({
+	const plugin = new Elysia({
 		name: "@mona-ca/auth",
 		seed: {
 			requireEmailVerification,
 			enableSessionCookieRefresh,
 		},
-	}).derive<Response, "scoped">(
-		{ as: "scoped" },
-		async ({ cfModuleEnv: { DB }, cookie, headers: { authorization, [CLIENT_TYPE_HEADER_NAME]: clientType } }) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const sessionRepository = new SessionRepository(drizzleService);
-			const authUserRepository = new AuthUserRepository(drizzleService);
-			const sessionSecretHasher = new SessionSecretHasher();
+	})
+		.use(di())
+		.derive<Response, "scoped">(
+			{ as: "scoped" },
+			async ({ cookie, headers: { authorization, [CLIENT_TYPE_HEADER_NAME]: clientType }, containers }) => {
+				if (!clientType || !Value.Check(clientTypeSchema, clientType)) {
+					throw new BadRequestException({
+						name: "INVALID_CLIENT_TYPE",
+						message: "Invalid client type.",
+					});
+				}
 
-			const validateSessionUseCase = new ValidateSessionUseCase(
-				sessionRepository,
-				authUserRepository,
-				sessionSecretHasher,
-			);
-			// === End of instances ===
+				const sessionToken =
+					clientType === "web" ? cookie[SESSION_COOKIE_NAME]?.value : readBearerToken(authorization ?? "");
 
-			if (!clientType || !Value.Check(clientTypeSchema, clientType)) {
-				throw new BadRequestException({
-					name: "INVALID_CLIENT_TYPE",
-					message: "Invalid client type.",
-				});
-			}
+				if (!sessionToken) {
+					throw new UnauthorizedException();
+				}
 
-			const sessionToken =
-				clientType === "web" ? cookie[SESSION_COOKIE_NAME]?.value : readBearerToken(authorization ?? "");
+				const result = await containers.auth.validateSessionUseCase.execute(newSessionToken(sessionToken));
 
-			if (!sessionToken) {
-				throw new UnauthorizedException();
-			}
+				if (result.isErr) {
+					const { code } = result;
 
-			const result = await validateSessionUseCase.execute(newSessionToken(sessionToken));
+					throw new UnauthorizedException({
+						name: code,
+					});
+				}
 
-			if (result.isErr) {
-				const { code } = result;
+				const { userIdentity, session } = result.value;
 
-				throw new UnauthorizedException({
-					name: code,
-				});
-			}
+				if (requireEmailVerification && !userIdentity.emailVerified) {
+					throw new UnauthorizedException({
+						code: "EMAIL_VERIFICATION_REQUIRED",
+						message: "Email verification is required.",
+					});
+				}
 
-			const { userIdentity, session } = result.value;
+				if (enableSessionCookieRefresh && cookie[SESSION_COOKIE_NAME]) {
+					cookie[SESSION_COOKIE_NAME].expires = session.expiresAt;
+				}
 
-			if (requireEmailVerification && !userIdentity.emailVerified) {
-				throw new UnauthorizedException({
-					code: "EMAIL_VERIFICATION_REQUIRED",
-					message: "Email verification is required.",
-				});
-			}
-
-			if (enableSessionCookieRefresh && cookie[SESSION_COOKIE_NAME]) {
-				cookie[SESSION_COOKIE_NAME].expires = session.expiresAt;
-			}
-
-			return { userIdentity, session, clientType: newClientType(clientType) };
-		},
-	);
+				return { userIdentity, session, clientType: newClientType(clientType) };
+			},
+		);
 
 	return plugin;
 };

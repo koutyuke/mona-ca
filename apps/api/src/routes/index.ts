@@ -1,23 +1,26 @@
+import { Elysia } from "elysia";
+import { PRODUCTION_BASE_DOMAIN } from "../core/lib/http";
 import { cors } from "../plugins/cors";
-import { ElysiaWithEnv } from "../plugins/elysia-with-env";
+import { di } from "../plugins/di";
 import { error } from "../plugins/error";
 import { openAPI } from "../plugins/open-api";
 import { pathDetail } from "../plugins/open-api";
 import { Auth } from "./auth";
 import { Me } from "./me";
 
-export const root = new ElysiaWithEnv({
+globalThis.Buffer = Buffer;
+
+const app = new Elysia({
 	aot: false,
 	strictPath: false,
-});
-
-export const app = root
+})
 	// Global Middleware & Plugin
+	.use(di())
 	.use(
 		cors({
 			origin: app_env => {
 				if (app_env === "production") {
-					return ["mona-ca.com"];
+					return [PRODUCTION_BASE_DOMAIN];
 				}
 				return [/localhost:\d{4}$/];
 			},
@@ -46,3 +49,5 @@ export const app = root
 			}),
 		},
 	);
+
+export default app;

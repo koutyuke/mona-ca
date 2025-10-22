@@ -16,6 +16,12 @@ import type {
 	IOAuthProviderGateway,
 	Identity,
 } from "../../../application/ports/gateways/oauth-provider.gateway.interface";
+import {
+	externalLinkRedirectURL,
+	externalLoginRedirectURL,
+	externalSignupRedirectURL,
+} from "../../../lib/redirect-url";
+import type { ProviderGateways } from "./type";
 
 const discordIdentifySchema = t.Object({
 	id: t.String(),
@@ -112,4 +118,29 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 			console.error("revokeToken request error", error);
 		}
 	}
+}
+
+export type DiscordSecrets = {
+	clientId: string;
+	clientSecret: string;
+};
+
+export function createDiscordGateways(isProduction: boolean, secrets: DiscordSecrets): ProviderGateways {
+	return {
+		signup: new DiscordOAuthGateway(
+			secrets.clientId,
+			secrets.clientSecret,
+			externalSignupRedirectURL(isProduction, "discord"),
+		),
+		login: new DiscordOAuthGateway(
+			secrets.clientId,
+			secrets.clientSecret,
+			externalLoginRedirectURL(isProduction, "discord"),
+		),
+		link: new DiscordOAuthGateway(
+			secrets.clientId,
+			secrets.clientSecret,
+			externalLinkRedirectURL(isProduction, "discord"),
+		),
+	};
 }

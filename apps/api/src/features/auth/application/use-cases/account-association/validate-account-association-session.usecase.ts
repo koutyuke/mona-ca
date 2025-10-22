@@ -2,7 +2,7 @@ import { err, ok } from "@mona-ca/core/utils";
 import { isExpiredAccountAssociationSession } from "../../../domain/entities/account-association-session";
 import { parseAnySessionToken } from "../../../domain/value-objects/session-token";
 
-import type { ISessionSecretHasher } from "../../../../../shared/ports/system";
+import type { ISessionSecretHasher } from "../../../../../core/ports/system";
 import type { AccountAssociationSessionToken } from "../../../domain/value-objects/session-token";
 import type {
 	IValidateAccountAssociationSessionUseCase,

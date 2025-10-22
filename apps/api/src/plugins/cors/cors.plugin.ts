@@ -6,9 +6,8 @@
  * @pilcrowOnPaper/oslo/request: https://github.com/pilcrowOnPaper/oslo/tree/main/src/request
  */
 
-import type { Context, HTTPMethod } from "elysia";
-import type { PublicEnv } from "../../shared/infra/config/env";
-import { ElysiaWithEnv } from "../elysia-with-env";
+import { type Context, Elysia, type HTTPMethod } from "elysia";
+import { type PublicEnv, env } from "../../core/infra/config/env";
 
 export type Origin = string | RegExp;
 
@@ -127,7 +126,7 @@ export const cors = (config?: CORSConfig) => {
 		set.headers["access-control-allow-methods"] = flattenMethod;
 	};
 
-	const app = new ElysiaWithEnv({
+	const app = new Elysia({
 		name: "@mona-ca/cors",
 		aot: false,
 	});
@@ -140,8 +139,8 @@ export const cors = (config?: CORSConfig) => {
 				status: 204,
 			});
 		})
-		.onRequest(({ set, request, env: { APP_ENV } }) => {
-			handleOrigin(set, request, APP_ENV);
+		.onRequest(({ set, request }) => {
+			handleOrigin(set, request, env.APP_ENV);
 			handleMethod(set, request.method);
 
 			if (flattenAllowedHeaders || flattenExposeHeaders) {

@@ -1,28 +1,24 @@
-import { t } from "elysia";
-import { UpdateEmailUseCase, ValidateEmailVerificationSessionUseCase } from "../../features/auth";
-import { AuthUserRepository } from "../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { EmailVerificationSessionRepository } from "../../features/auth/adapters/repositories/email-verification-session/email-verification-session.repository";
-import { SessionRepository } from "../../features/auth/adapters/repositories/session/session.repository";
-import { newEmailVerificationSessionToken } from "../../features/auth/domain/value-objects/session-token";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { Elysia, t } from "elysia";
+import { env } from "../../core/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../plugins/elysia-with-env";
-import { BadRequestException } from "../../plugins/error";
+} from "../../core/infra/elysia";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../core/lib/http";
+import { newEmailVerificationSessionToken } from "../../features/auth/domain/value-objects/session-token";
+import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
+import { di } from "../../plugins/di";
 import { pathDetail } from "../../plugins/open-api";
 import { rateLimit } from "../../plugins/rate-limit";
-import { SessionSecretHasher } from "../../shared/infra/crypto";
-import { DrizzleService } from "../../shared/infra/drizzle";
-import { CookieManager } from "../../shared/infra/elysia/cookie";
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../shared/lib/http";
 
-export const UpdateEmail = new ElysiaWithEnv()
+export const UpdateEmail = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(authGuard({ requireEmailVerification: false }))
 	.use(
 		rateLimit("me-update-email", {
@@ -39,35 +35,14 @@ export const UpdateEmail = new ElysiaWithEnv()
 	.patch(
 		"/email",
 		async ({
-			env: { APP_ENV },
-			cfModuleEnv: { DB },
 			cookie,
 			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
 			userIdentity,
 			clientType,
 			rateLimit,
+			containers,
 		}) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-
-			const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
-			const authUserRepository = new AuthUserRepository(drizzleService);
-			const sessionRepository = new SessionRepository(drizzleService);
-
-			const sessionSecretHasher = new SessionSecretHasher();
-
-			const validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
-				emailVerificationSessionRepository,
-				sessionSecretHasher,
-			);
-			const updateEmailUseCase = new UpdateEmailUseCase(
-				authUserRepository,
-				sessionRepository,
-				emailVerificationSessionRepository,
-				sessionSecretHasher,
-			);
-			// === End of instances ===
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const rawEmailVerificationSessionToken =
 				clientType === "web"
@@ -81,7 +56,7 @@ export const UpdateEmail = new ElysiaWithEnv()
 				});
 			}
 
-			const validationResult = await validateEmailVerificationSessionUseCase.execute(
+			const validationResult = await containers.auth.validateEmailVerificationSessionUseCase.execute(
 				userIdentity,
 				newEmailVerificationSessionToken(rawEmailVerificationSessionToken),
 			);
@@ -107,7 +82,11 @@ export const UpdateEmail = new ElysiaWithEnv()
 
 			await rateLimit.consume(emailVerificationSession.id, 100);
 
-			const updateResult = await updateEmailUseCase.execute(code, userIdentity, emailVerificationSession);
+			const updateResult = await containers.auth.updateEmailUseCase.execute(
+				code,
+				userIdentity,
+				emailVerificationSession,
+			);
 
 			if (updateResult.isErr) {
 				const { code } = updateResult;

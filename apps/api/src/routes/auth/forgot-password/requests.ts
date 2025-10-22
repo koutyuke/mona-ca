@@ -1,29 +1,24 @@
-import { t } from "elysia";
-import { PasswordResetRequestUseCase } from "../../../features/auth";
-import { AuthUserRepository } from "../../../features/auth/adapters/repositories/auth-user/auth-user.repository";
-import { PasswordResetSessionRepository } from "../../../features/auth/adapters/repositories/password-reset-session/password-reset-session.repository";
-import { CaptchaSchema, captcha } from "../../../plugins/captcha";
+import Elysia, { t } from "elysia";
+import { env } from "../../../core/infra/config/env";
 import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	NoContentResponse,
 	NoContentResponseSchema,
 	ResponseTUnion,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException } from "../../../plugins/error";
+} from "../../../core/infra/elysia";
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { CaptchaSchema, captcha } from "../../../plugins/captcha";
+import { di } from "../../../plugins/di";
 import { pathDetail } from "../../../plugins/open-api";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
-import { EmailGateway } from "../../../shared/adapters/gateways/email";
-import { verificationEmailTemplate } from "../../../shared/adapters/gateways/email/mail-context";
-import { RandomGenerator, SessionSecretHasher } from "../../../shared/infra/crypto";
-import { DrizzleService } from "../../../shared/infra/drizzle";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../shared/lib/http";
 
-const PasswordResetRequest = new ElysiaWithEnv()
+const PasswordResetRequest = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(withClientType)
 	.use(
 		rateLimit("forgot-password-request", {
@@ -40,27 +35,10 @@ const PasswordResetRequest = new ElysiaWithEnv()
 	// Route
 	.post(
 		"",
-		async ({ env: { RESEND_API_KEY, APP_ENV }, cfModuleEnv: { DB }, cookie, body: { email }, clientType }) => {
-			// === Instances ===
-			const drizzleService = new DrizzleService(DB);
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
+		async ({ cookie, body: { email }, clientType, containers }) => {
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
-			const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
-			const authUserRepository = new AuthUserRepository(drizzleService);
-			const emailGateway = new EmailGateway(APP_ENV === "production", RESEND_API_KEY);
-
-			const randomGenerator = new RandomGenerator();
-			const sessionSecretHasher = new SessionSecretHasher();
-
-			const passwordResetRequestUseCase = new PasswordResetRequestUseCase(
-				authUserRepository,
-				passwordResetSessionRepository,
-				randomGenerator,
-				sessionSecretHasher,
-			);
-			// === End of instances ===
-
-			const result = await passwordResetRequestUseCase.execute(email);
+			const result = await containers.auth.passwordResetRequestUseCase.execute(email);
 
 			if (result.isErr) {
 				const { code } = result;
@@ -79,15 +57,6 @@ const PasswordResetRequest = new ElysiaWithEnv()
 			}
 
 			const { passwordResetSessionToken, passwordResetSession } = result.value;
-
-			const mailContents = verificationEmailTemplate(passwordResetSession.email, passwordResetSession.code);
-
-			await emailGateway.sendEmail({
-				from: mailContents.from,
-				to: mailContents.to,
-				subject: mailContents.subject,
-				text: mailContents.text,
-			});
 
 			if (clientType === "mobile") {
 				return {

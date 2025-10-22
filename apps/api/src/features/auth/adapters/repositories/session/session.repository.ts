@@ -1,9 +1,9 @@
 import { eq, lte } from "drizzle-orm";
-import { newUserId } from "../../../../../shared/domain/value-objects";
+import { newUserId } from "../../../../../core/domain/value-objects";
 import { newSessionId } from "../../../domain/value-objects/ids";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { ISessionRepository } from "../../../application/ports/repositories/session.repository.interface";
 import type { Session } from "../../../domain/entities/session";
 import type { SessionId } from "../../../domain/value-objects/ids";

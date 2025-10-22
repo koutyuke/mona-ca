@@ -1,7 +1,7 @@
-import type { AppEnv } from "../src/shared/infra/config/env";
+import type { Env } from "../src/core/infra/config/env";
 
 declare module "cloudflare:test" {
-	interface ProvidedEnv extends AppEnv {
+	interface ProvidedEnv extends Env {
 		TEST_MIGRATIONS: D1Migration[];
 	}
 }

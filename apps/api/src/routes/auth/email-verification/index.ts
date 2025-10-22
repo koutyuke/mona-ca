@@ -1,8 +1,8 @@
-import { ElysiaWithEnv } from "../../../plugins/elysia-with-env";
+import { Elysia } from "elysia";
 import { EmailVerificationConfirm } from "./confirm";
 import { EmailVerificationRequest } from "./request";
 
-const EmailVerification = new ElysiaWithEnv({
+const EmailVerification = new Elysia({
 	prefix: "/email-verification",
 })
 	.use(EmailVerificationRequest)

@@ -1,33 +1,27 @@
-import { getAPIBaseURL } from "@mona-ca/core/utils";
-import { t } from "elysia";
-import { ExternalAuthRequestUseCase } from "../../../features/auth";
-import { createOAuthGateway } from "../../../features/auth/adapters/gateways/oauth-provider";
-import { oauthStateSchema } from "../../../features/auth/application/use-cases/external-auth/schema";
+import { Elysia, t } from "elysia";
+import { clientTypeSchema, newClientType } from "../../../core/domain/value-objects";
+import { env } from "../../../core/infra/config/env";
 import {
-	externalIdentityProviderSchema,
-	newExternalIdentityProvider,
-} from "../../../features/auth/domain/value-objects/external-identity";
-import {
-	ElysiaWithEnv,
+	BadRequestException,
+	CookieManager,
 	ErrorResponseSchema,
 	RedirectResponse,
 	RedirectResponseSchema,
 	withBaseResponseSchema,
-} from "../../../plugins/elysia-with-env";
-import { BadRequestException } from "../../../plugins/error";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { clientTypeSchema, newClientType } from "../../../shared/domain/value-objects";
-import { HmacOAuthStateSigner } from "../../../shared/infra/crypto";
-import { CookieManager } from "../../../shared/infra/elysia/cookie";
+} from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
-} from "../../../shared/lib/http";
+} from "../../../core/lib/http";
+import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
+import { di } from "../../../plugins/di";
+import { pathDetail } from "../../../plugins/open-api";
+import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 
-export const ExternalAuthSignupRequest = new ElysiaWithEnv()
+export const ExternalAuthSignupRequest = new Elysia()
 	// Local Middleware & Plugin
+	.use(di())
 	.use(
 		rateLimit("external-auth-signup-request", {
 			maxTokens: 1000,
@@ -43,44 +37,22 @@ export const ExternalAuthSignupRequest = new ElysiaWithEnv()
 	.get(
 		"/:provider/signup",
 		async ({
-			env: {
-				APP_ENV,
-				DISCORD_CLIENT_ID,
-				DISCORD_CLIENT_SECRET,
-				GOOGLE_CLIENT_ID,
-				GOOGLE_CLIENT_SECRET,
-				OAUTH_STATE_HMAC_SECRET,
-			},
+			containers,
 			params: { provider: _provider },
 			cookie,
 			query: { "redirect-uri": queryRedirectURI = "/", "client-type": _clientType },
 		}) => {
-			// === Instances ===
 			const provider = newExternalIdentityProvider(_provider);
 			const clientType = newClientType(_clientType);
 
-			const apiBaseURL = getAPIBaseURL(APP_ENV === "production");
+			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
-			const providerRedirectURL = new URL(`auth/${provider}/signup/callback`, apiBaseURL);
-
-			const cookieManager = new CookieManager(APP_ENV === "production", cookie);
-			const oauthProviderGateway = createOAuthGateway(
-				{
-					DISCORD_CLIENT_ID,
-					DISCORD_CLIENT_SECRET,
-					GOOGLE_CLIENT_ID,
-					GOOGLE_CLIENT_SECRET,
-				},
+			const result = containers.auth.externalAuthSignupRequestUseCase.execute(
+				env.APP_ENV === "production",
+				clientType,
 				provider,
-				providerRedirectURL.toString(),
+				queryRedirectURI,
 			);
-
-			const oauthStateSigner = new HmacOAuthStateSigner(OAUTH_STATE_HMAC_SECRET, oauthStateSchema);
-
-			const externalAuthRequestUseCase = new ExternalAuthRequestUseCase(oauthProviderGateway, oauthStateSigner);
-			// === End of instances ===
-
-			const result = externalAuthRequestUseCase.execute(APP_ENV === "production", clientType, queryRedirectURI);
 
 			if (result.isErr) {
 				const { code } = result;

@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { PasswordResetSessionId } from "../../../domain/value-objects/ids";
 

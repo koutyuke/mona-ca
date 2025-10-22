@@ -1,6 +1,6 @@
-import { newUserId } from "../../../../shared/domain/value-objects";
-import { ulid } from "../../../../shared/lib/id";
-import { SessionSecretHasherMock } from "../../../../shared/testing/mocks/system";
+import { newUserId } from "../../../../core/domain/value-objects";
+import { ulid } from "../../../../core/lib/id";
+import { SessionSecretHasherMock } from "../../../../core/testing/mocks/system";
 import {
 	type EmailVerificationSession,
 	emailVerificationSessionExpiresSpan,

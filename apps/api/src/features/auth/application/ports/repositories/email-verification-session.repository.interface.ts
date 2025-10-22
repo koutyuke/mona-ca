@@ -1,4 +1,4 @@
-import type { UserId } from "../../../../../shared/domain/value-objects";
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import type { EmailVerificationSessionId } from "../../../domain/value-objects/ids";
 

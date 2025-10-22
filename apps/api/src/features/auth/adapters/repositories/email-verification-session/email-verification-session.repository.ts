@@ -1,9 +1,9 @@
 import { eq, lte } from "drizzle-orm";
-import { newUserId } from "../../../../../shared/domain/value-objects";
+import { newUserId } from "../../../../../core/domain/value-objects";
 import { newEmailVerificationSessionId } from "../../../domain/value-objects/ids";
 
-import type { UserId } from "../../../../../shared/domain/value-objects";
-import type { DrizzleService } from "../../../../../shared/infra/drizzle";
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IEmailVerificationSessionRepository } from "../../../application/ports/repositories/email-verification-session.repository.interface";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import type { EmailVerificationSessionId } from "../../../domain/value-objects/ids";
