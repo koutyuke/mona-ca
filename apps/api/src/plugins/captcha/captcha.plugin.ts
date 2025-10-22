@@ -1,8 +1,7 @@
 import Elysia, { t } from "elysia";
+import { BadRequestException, ErrorResponseSchema } from "../../shared/infra/elysia";
 import { getIP } from "../../shared/lib/http";
 import { di } from "../di";
-import { ErrorResponseSchema } from "../elysia-with-env";
-import { BadRequestException } from "../error";
 
 /**
  * Initializes a new instance of the ElysiaWithEnv class with the captcha plugin.

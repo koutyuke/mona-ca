@@ -4,10 +4,9 @@ import type { Session } from "../../features/auth/domain/entities/session";
 import type { UserIdentity } from "../../features/auth/domain/entities/user-identity";
 import { newSessionToken } from "../../features/auth/domain/value-objects/session-token";
 import { type ClientType, clientTypeSchema, newClientType } from "../../shared/domain/value-objects";
+import { BadRequestException, ErrorResponseSchema, UnauthorizedException } from "../../shared/infra/elysia";
 import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME, readBearerToken } from "../../shared/lib/http";
 import { di } from "../di";
-import { ErrorResponseSchema } from "../elysia-with-env";
-import { BadRequestException, UnauthorizedException } from "../error";
 
 type Response = {
 	userIdentity: UserIdentity;
