@@ -1,0 +1,128 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "files": {
+    "includes": [
+      "**/*.ts*",
+      "**/*.*js*",
+      "**/*.json*",
+      "!apps/api/src/core/infra/crypto/argon2id/bin",
+      "!apps/api/types"
+    ],
+    "ignoreUnknown": true
+  },
+  "vcs": {
+    "clientKind": "git",
+    "enabled": true,
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "formatWithErrors": false,
+    "lineWidth": 120
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "useSortedAttributes": "on",
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              { "type": false, "source": "cloudflare*" },
+              { "type": false, "source": ":BUN:" },
+              { "type": false, "source": ":NODE:" },
+              { "type": false, "source": ["@mona-ca/**"] },
+              { "type": false, "source": ":PACKAGE:" },
+              { "type": false, "source": ":PATH:" },
+              ":BLANK_LINE:",
+              { "type": true, "source": "cloudflare*" },
+              { "type": true, "source": ":BUN:" },
+              { "type": true, "source": ":NODE:" },
+              { "type": true, "source": ["@mona-ca/**"] },
+              { "type": true, "source": ":PACKAGE:" },
+              { "type": true, "source": ":PATH:" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "arrowParentheses": "asNeeded"
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  },
+  "json": {
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space"
+    },
+    "parser": {
+      "allowComments": true
+    }
+  },
+  "linter": {
+    "rules": {
+      "complexity": {
+        "noForEach": "error",
+        "noUselessFragments": "error",
+        "useArrowFunction": "error"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "warn",
+          "options": {
+            "functions": ["tv", "twMerge", "cn", "clsx"]
+          }
+        },
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error"
+      },
+      "recommended": true,
+      "style": {
+        "noDefaultExport": "error",
+        "noNonNullAssertion": "off",
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"],
+            "requireAscii": true,
+            "strictCase": false
+          }
+        },
+        "useImportType": {
+          "level": "on",
+          "options": {
+            "style": "separatedType"
+          }
+        }
+      },
+      "suspicious": {
+        "noConsole": "warn"
+      }
+    }
+  },
+  // It is not separated because biome cannot resolve it. ref: https://github.com/biomejs/biome/issues/7343
+  "overrides": [
+    {
+      "includes": [
+        "**/*.story.*",
+        "**/*.config.*",
+        "**/.storybook/**",
+        "**/src/app/**/*.*",
+
+        // api
+        "apps/api/src/routes/index.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    }
+  ]
+}
