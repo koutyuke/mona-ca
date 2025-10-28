@@ -1,77 +1,113 @@
 [
   {
-    "name": "🔗 API",
-    "color": "2FF735",
-    "description": "APIの開発や改善に関連するタスク"
+    "name": "T-Bug",
+    "color": "b60205",
+    "description": "type: bug - 不具合の報告・修正",
+    "ref": "T-Bug"
   },
   {
-    "name": "🌐 Web",
-    "color": "005cc5",
-    "description": "ウェブサイトの開発や改善に関連するタスク"
+    "name": "T-Feature",
+    "color": "1d76db",
+    "description": "type: feature - 新機能の追加",
+    "ref": "T-Feature"
   },
   {
-    "name": "📱 Mobile",
-    "color": "d73a49",
-    "description": "モバイルアプリケーションの開発や改善に関連するタスク"
+    "name": "T-Enhancement",
+    "color": "1d76db",
+    "description": "type: enhancement - 既存機能の拡張・改善",
+    "ref": "T-Enhancement"
   },
   {
-    "name": "♻ Refactor",
-    "color": "ffc107",
-    "description": "コードのリファクタリングや構造の最適化に関連するタスク"
+    "name": "T-Refactor",
+    "color": "1d76db",
+    "description": "type: refactor - 構造改善・リファクタリング",
+    "ref": "T-Refactor"
   },
   {
-    "name": "🎨 UI/UX",
-    "color": "5319e7",
-    "description": "ユーザーインターフェースやエクスペリエンスの改善に関連するタスク"
+    "name": "T-Documentation",
+    "color": "1d76db",
+    "description": "type: documentation - ドキュメントの作成・更新",
+    "ref": "T-Documentation"
   },
   {
-    "name": "🦺 CI/CD",
-    "color": "008672",
-    "description": "継続的インテグレーションやデプロイメントに関連するタスク"
+    "name": "T-Chore",
+    "color": "1d76db",
+    "description": "type: chore - 雑務・メンテ作業",
+    "ref": "T-Chore"
+  },
+
+  {
+    "name": "A-App",
+    "color": "0f302b",
+    "description": "area: app - アプリケーション全体",
+    "ref": "A-App"
   },
   {
-    "name": "✨ Feature",
-    "color": "a2eeef",
-    "description": "新しい機能の追加に関連するタスク"
+    "name": "A-Backend",
+    "color": "0f302b",
+    "description": "area: backend - バックエンド",
+    "ref": "A-Backend"
   },
   {
-    "name": "🌟 Enhancement",
-    "color": "ffd33d",
-    "description": "既存機能の向上や拡張に関連するタスク"
+    "name": "A-Web",
+    "color": "0f302b",
+    "description": "area: web - Web フロント",
+    "ref": "A-Web"
   },
   {
-    "name": "🐛 Bug",
-    "color": "e99695",
-    "description": "バグの報告や修正に関連するタスク"
+    "name": "A-Mobile",
+    "color": "0f302b",
+    "description": "area: mobile - モバイルアプリ",
+    "ref": "A-Mobile"
   },
   {
-    "name": "🔧 Config",
-    "color": "c2e0f4",
-    "description": "設定や構成に関する変更に関連するタスク"
+    "name": "A-Packages",
+    "color": "0f302b",
+    "description": "area: packages - パッケージ",
+    "ref": "A-Packages"
+  },
+
+  {
+    "name": "P-Critical",
+    "color": "f01cd9",
+    "description": "priority: critical - 最優先・即時対応",
+    "ref": "P-Critical"
   },
   {
-    "name": "📦 Build",
-    "color": "e4e669",
-    "description": "ビルドシステムや外部依存関係の更新に関連するタスク"
+    "name": "P-High",
+    "color": "f01cd9",
+    "description": "priority: high - 高優先",
+    "ref": "P-High"
   },
   {
-    "name": "📚 Documentation",
-    "color": "0075ca",
-    "description": "ドキュメントの作成や更新に関連するタスク"
+    "name": "P-Medium",
+    "color": "f01cd9",
+    "description": "priority: medium - 中優先",
+    "ref": "P-Medium"
   },
   {
-    "name": "🤖 Renovate",
-    "color": "f6f8fa",
-    "description": "Renovate bot による自動更新に関連するタスク"
+    "name": "P-Low",
+    "color": "f01cd9",
+    "description": "priority: low - 低優先",
+    "ref": "P-Low"
+  },
+
+  {
+    "name": "S-Epic",
+    "color": "fbca04",
+    "description": "scope: epic - 複数Issueを束ねる大項目",
+    "ref": "S-Epic"
   },
   {
-    "name": "🎯 Epic",
-    "color": "7057ff",
-    "description": "複数のタスクやイシューを包括する大規模な作業項目"
+    "name": "S-Task",
+    "color": "fbca04",
+    "description": "scope: task - 通常の作業単位",
+    "ref": "S-Task"
   },
   {
-    "name": "🔥 Hotfix",
-    "color": "f43254",
-    "description": "緊急の修正や対応が必要なタスク"
+    "name": "S-Hotfix",
+    "color": "b60205",
+    "description": "scope: hotfix - 緊急修正",
+    "ref": "S-Hotfix"
   }
 ]
