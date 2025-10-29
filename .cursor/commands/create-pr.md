@@ -6,9 +6,9 @@
 
 ## 前提知識
 
-- branchは`{Issue Number}-{Task Type}/{Branch Name}`の形式である。
+- branchは`<Issue Number>-<Type>/<Subject>`の形式である。
   - 例: `1-feat/implement-mobile-signup-screen`
-  - Task Typeは以下のいずれかである。
+  - Typeは以下のいずれかである。
     - `feat`: 新機能の追加
     - `fix`: 既存機能の修正
     - `refactor`: 構造改善・リファクタリング
@@ -32,26 +32,29 @@
      - されていない場合はユーザーに確認する
    - ブランチをリモートにプッシュ
 
-2. **変更点を作成する**
+2. **Issueを確認する**
+   - 対象のIssueを確認する
+   - このIssueが何をするものでどのような変更を行うものかを確認する
+
+3. **変更点を確認する**
 
    - 現在のブランチのとMerge先のブラントの変更点を確認する
    - これらの変更を確認するコマンドを使用してその内容を確認すること
      - `git diff --stat origin/{対象のブランチ}..HEAD`
      - `git log --oneline origin/{対象のブランチ}..HEAD`
 
-3. **Titleを作成する**
+4. **Titleを作成する**
 
-   - PRのタイトルは基本的にブランチ名を詳しくかつ内容を簡潔にしたものにする。
-   - Titleの形式は `{Task Type}({Issue Number})/ {Title}` であり、この形式で作成すること。
-   - ブランチ名はある程度短くするようにしているためある程度詳細になるようにTitleを作成すること。
-   - 例(ブランチ名: `1-feat/ implement-mobile-signup-screen`): `feat(1)/ Implement mobile signup screen`
+   - PRのタイトルはIssueのタイトルや内容、Branchでの変更点をを詳しくかつ内容を簡潔に反映したものにする。
+   - Titleの形式は `<Task Type>(<Area>): <Subject>` であり、この形式で作成すること。
 
-4. **Discriptionを作成する**
+5. **Discriptionを作成する**
    - テンプレートは`.github/pull_request_template.md`を利用すること
    - 確認した変更点を元に作成すること
    - 破壊的変更があれば記載
    - 関連するissueをリンクする
      - 表記方法は`- closed #{Issue Number}`とする
 
-5. **PRの設定**
+6. **PRの設定**
    - 作成したtitleと説明文を元にPRを作成する
+   - `gh pr create`コマンドを使用して作成すること
