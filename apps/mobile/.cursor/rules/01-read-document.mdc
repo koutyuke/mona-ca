@@ -1,0 +1,17 @@
+---
+alwaysApply: false
+description: Mobile Frontend開発時のドキュメント参照ルール
+globs: apps/mobile/**/*
+---
+# ドキュメント参照ルール
+
+Mobile Frontendの実装や変更を行う際は、必ず関連ドキュメントを確認すること。
+
+## 基本方針
+
+1. **まず [docs/README.md](../../docs/README.md) を確認する**
+   - 全ドキュメントの目次と概要が記載されている
+   - 必要なドキュメントを特定する
+
+2. **必要に応じて詳細ドキュメントを読み込む**
+   - README.mdに記載されている必要なドキュメントを参照する
