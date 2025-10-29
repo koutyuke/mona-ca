@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="./assets/social-header.png"  width="100%" height="auto"  />
+  <img src="./assets/social-header.png" alt="mona-ca: Share period information with your partner" width="100%" height="auto"/>
 
   # mona-ca
 
