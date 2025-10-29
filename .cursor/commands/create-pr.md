@@ -6,8 +6,18 @@
 
 ## 前提知識
 
-- branchは`{Backlog ID}/{branch name}`の形式である。
-  - 例: `MC-1/implement-mobile-signup-screen`
+- branchは`{Issue Number}-{Task Type}/{Branch Name}`の形式である。
+  - 例: `1-feat/implement-mobile-signup-screen`
+  - Task Typeは以下のいずれかである。
+    - `feat`: 新機能の追加
+    - `fix`: 既存機能の修正
+    - `refactor`: 構造改善・リファクタリング
+    - `docs`: ドキュメントの作成・更新
+    - `test`: テストの追加・修正
+    - `chore`: 雑務・メンテ作業
+    - `style`: スタイル調整
+    - `perf`: パフォーマンス改善
+    - `build`: ビルドや依存関係の更新
 
 ## ルール
 
@@ -29,29 +39,19 @@
      - `git diff --stat origin/{対象のブランチ}..HEAD`
      - `git log --oneline origin/{対象のブランチ}..HEAD`
 
-3. **関連するIssueを見つける**
-
-   - 関連するIssueを見つけ、Issue IDを取得する
-   - Issueは基本的に`[<Backlog ID>] <Issueのタイトル>`の形式である。
-     - 例: `[MC-1] Implement mobile signup screen`
-   - ブランチにあるBacklog IDを元にIssueを見つける
-   - ブランチの検索には `gh issue list` を使用する
-   - あった場合はそのIssue IDを確認する
-   - ない場合はユーザーに確認する
-
-4. **Titleを作成する**
+3. **Titleを作成する**
 
    - PRのタイトルは基本的にブランチ名を詳しくかつ内容を簡潔にしたものにする。
-   - Titleの形式は `[<Backlog ID>] <PRのタイトル>` であり、この形式で作成すること。
-   - 例(ブランチ名: `MC-7/create-signup-page`): `[MC-7] Implement mobile signup screen`
+   - Titleの形式は `{Task Type}({Issue Number})/ {Title}` であり、この形式で作成すること。
+   - ブランチ名はある程度短くするようにしているためある程度詳細になるようにTitleを作成すること。
+   - 例(ブランチ名: `1-feat/ implement-mobile-signup-screen`): `feat(1)/ Implement mobile signup screen`
 
-5. **Discriptionを作成する**
+4. **Discriptionを作成する**
    - テンプレートは`.github/pull_request_template.md`を利用すること
    - 確認した変更点を元に作成すること
    - 破壊的変更があれば記載
    - 関連するissueをリンクする
-     - 表記方法は`- closed #<issue_number>`とする
-     - Issueも同様にBacklog IDがprefixとしてついているのでブランチのものと同じものをリンクさせる
+     - 表記方法は`- closed #{Issue Number}`とする
 
-6. **PRの設定**
+5. **PRの設定**
    - 作成したtitleと説明文を元にPRを作成する
