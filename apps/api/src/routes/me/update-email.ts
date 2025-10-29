@@ -13,7 +13,7 @@ import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../
 import { newEmailVerificationSessionToken } from "../../features/auth/domain/value-objects/session-token";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
+import { pathDetail } from "../../plugins/openapi";
 import { rateLimit } from "../../plugins/rate-limit";
 
 export const UpdateEmail = new Elysia()

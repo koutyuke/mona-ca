@@ -12,7 +12,7 @@ import {
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newAccountAssociationSessionToken } from "../../../features/auth";
 import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api/path-detail";
+import { pathDetail } from "../../../plugins/openapi/path-detail";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 

@@ -12,7 +12,7 @@ import {
 import { SESSION_COOKIE_NAME } from "../../core/lib/http";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
+import { pathDetail } from "../../plugins/openapi";
 
 export const UpdatePassword = new Elysia()
 	// Local Middleware & Plugin

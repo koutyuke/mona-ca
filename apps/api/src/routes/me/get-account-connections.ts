@@ -3,7 +3,7 @@ import { withBaseResponseSchema } from "../../core/infra/elysia";
 import { AccountConnectionsResponseSchema, toAccountConnectionsResponse } from "../../features/auth";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
+import { pathDetail } from "../../plugins/openapi";
 
 export const GetAccountConnections = new Elysia()
 	// Local Middleware & Plugin

@@ -13,7 +13,7 @@ import {
 } from "../../features/auth/domain/value-objects/external-identity";
 import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
 import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
+import { pathDetail } from "../../plugins/openapi";
 
 export const UnlinkAccountConnection = new Elysia()
 	// Local Middleware & Plugin

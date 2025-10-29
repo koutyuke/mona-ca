@@ -1,8 +1,8 @@
-import swagger from "@elysiajs/swagger";
+import { openapi as elysiaOpenAPI } from "@elysiajs/openapi";
 import { preferredSecurityScheme, securitySchemes } from "./security-scheme";
 import { tags } from "./tag";
 
-export const openAPI = swagger({
+export const openapi = elysiaOpenAPI({
 	path: "docs",
 	documentation: {
 		info: {
@@ -14,7 +14,7 @@ export const openAPI = swagger({
 			securitySchemes,
 		},
 	},
-	scalarConfig: {
+	scalar: {
 		authentication: {
 			preferredSecurityScheme,
 		},

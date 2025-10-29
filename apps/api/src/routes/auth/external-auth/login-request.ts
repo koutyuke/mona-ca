@@ -16,7 +16,7 @@ import {
 } from "../../../core/lib/http";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
 import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
+import { pathDetail } from "../../../plugins/openapi";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 
 export const ExternalAuthLoginRequest = new Elysia()

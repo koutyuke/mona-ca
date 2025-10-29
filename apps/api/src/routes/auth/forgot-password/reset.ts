@@ -13,7 +13,7 @@ import {
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newPasswordResetSessionToken } from "../../../features/auth";
 import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
+import { pathDetail } from "../../../plugins/openapi";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const ResetPassword = new Elysia()

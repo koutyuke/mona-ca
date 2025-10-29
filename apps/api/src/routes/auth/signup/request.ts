@@ -12,7 +12,7 @@ import {
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { CaptchaSchema, captcha } from "../../../plugins/captcha";
 import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
+import { pathDetail } from "../../../plugins/openapi";
 import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 

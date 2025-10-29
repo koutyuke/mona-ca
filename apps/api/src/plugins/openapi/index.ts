@@ -1,2 +1,2 @@
-export { openAPI } from "./open-api";
+export { openapi } from "./openapi";
 export { pathDetail } from "./path-detail";

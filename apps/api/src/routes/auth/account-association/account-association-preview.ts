@@ -12,7 +12,7 @@ import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../core/lib/http"
 import { newAccountAssociationSessionToken } from "../../../features/auth";
 import { ProfileResponseSchema, toProfileResponse } from "../../../features/user";
 import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
+import { pathDetail } from "../../../plugins/openapi";
 import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
 
 export const AccountAssociationPreview = new Elysia()

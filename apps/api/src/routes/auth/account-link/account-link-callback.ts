@@ -18,7 +18,7 @@ import {
 import { timingSafeStringEqual } from "../../../core/lib/security";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
 import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
+import { pathDetail } from "../../../plugins/openapi";
 
 export const AccountLinkCallback = new Elysia()
 	// Local Middleware & Plugin
