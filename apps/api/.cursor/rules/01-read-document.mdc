@@ -9,7 +9,7 @@ Backend APIの実装や変更を行う際は、必ず関連ドキュメントを
 
 ## 基本方針
 
-1. **まず [docs/README.md](mdc:apps/api/docs/README.md) を確認する**
+1. **まず [docs/README.md](../../docs/README.md) を確認する**
    - 全ドキュメントの目次と概要が記載されている
    - 必要なドキュメントを特定する
 
