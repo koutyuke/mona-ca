@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="https://github.com/user-attachments/assets/dd71116e-4799-47e5-a3de-73384f564ef2"  width="100%" height="auto"  />
+  <img src="./assets/social-header.png"  width="100%" height="auto"  />
 
   # mona-ca
 
@@ -124,23 +124,7 @@ Perform CI performed by Github Action in a local environment
 Install [`act`](https://github.com/nektos/act) and Start `Docker`
 
 ```sh
-# all CI
-act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main
-
-# app-build
-act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/app-build.yaml
-
-# app-test
-act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/app-test.yaml
-
-# app-static-check
-act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/app-static-check.yaml
-
-# api-deploy-cloudflare
-act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/api-deploy-cloudflare.yaml
-
-# catalog-build
-act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W ./.github/workflows/catalog-build.yaml
+act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W "target-flow"
 ```
 
 ## Note
