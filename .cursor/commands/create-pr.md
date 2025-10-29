@@ -6,8 +6,18 @@
 
 ## 前提知識
 
-- branchは`{Backlog ID}/{branch name}`の形式である。
-  - 例: `MC-1/implement-mobile-signup-screen`
+- branchは`<Issue Number>-<Type>/<Subject>`の形式である。
+  - 例: `1-feat/implement-mobile-signup-screen`
+  - Typeは以下のいずれかである。
+    - `feat`: 新機能の追加
+    - `fix`: 既存機能の修正
+    - `refactor`: 構造改善・リファクタリング
+    - `docs`: ドキュメントの作成・更新
+    - `test`: テストの追加・修正
+    - `chore`: 雑務・メンテ作業
+    - `style`: スタイル調整
+    - `perf`: パフォーマンス改善
+    - `build`: ビルドや依存関係の更新
 
 ## ルール
 
@@ -22,36 +32,33 @@
      - されていない場合はユーザーに確認する
    - ブランチをリモートにプッシュ
 
-2. **変更点を作成する**
+2. **Issueを確認する**
+   - 対象のIssueを確認する
+   - このIssueが何をするものでどのような変更を行うものかを確認する
+   - `gh issue` コマンドを使用してIssueを確認すること
+     - 対象のIssueがない場合はユーザーに確認する
+
+3. **変更点を確認する**
 
    - 現在のブランチのとMerge先のブラントの変更点を確認する
    - これらの変更を確認するコマンドを使用してその内容を確認すること
      - `git diff --stat origin/{対象のブランチ}..HEAD`
      - `git log --oneline origin/{対象のブランチ}..HEAD`
 
-3. **関連するIssueを見つける**
-
-   - 関連するIssueを見つけ、Issue IDを取得する
-   - Issueは基本的に`[<Backlog ID>] <Issueのタイトル>`の形式である。
-     - 例: `[MC-1] Implement mobile signup screen`
-   - ブランチにあるBacklog IDを元にIssueを見つける
-   - ブランチの検索には `gh issue list` を使用する
-   - あった場合はそのIssue IDを確認する
-   - ない場合はユーザーに確認する
-
 4. **Titleを作成する**
 
-   - PRのタイトルは基本的にブランチ名を詳しくかつ内容を簡潔にしたものにする。
-   - Titleの形式は `[<Backlog ID>] <PRのタイトル>` であり、この形式で作成すること。
-   - 例(ブランチ名: `MC-7/create-signup-page`): `[MC-7] Implement mobile signup screen`
+   - PRのタイトルはIssueのタイトルや内容、Branchでの変更点をを詳しくかつ内容を簡潔に反映したものにする。
+   - Titleの形式は `<Task Type>(<Area>): <Subject>` であり、この形式で作成すること。
 
 5. **Discriptionを作成する**
    - テンプレートは`.github/pull_request_template.md`を利用すること
+   - どのような変更を行ったかを簡潔に記載すること
+   - 「このファイルをこのように変更した」ではなく「この機能をこのように新規作成・改善・削除した」などのように記載すること
    - 確認した変更点を元に作成すること
    - 破壊的変更があれば記載
    - 関連するissueをリンクする
-     - 表記方法は`- closed #<issue_number>`とする
-     - Issueも同様にBacklog IDがprefixとしてついているのでブランチのものと同じものをリンクさせる
+     - 表記方法は`- closed #{Issue Number}`とする
 
 6. **PRの設定**
    - 作成したtitleと説明文を元にPRを作成する
+   - `gh pr create`コマンドを使用して作成すること
