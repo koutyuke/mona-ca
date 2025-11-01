@@ -50,7 +50,6 @@ describe("EmailVerificationConfirmUseCase", () => {
 			},
 		});
 
-		authUserMap.set(userRegistration.id, userRegistration);
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
 		const result = await emailVerificationConfirmUseCase.execute(

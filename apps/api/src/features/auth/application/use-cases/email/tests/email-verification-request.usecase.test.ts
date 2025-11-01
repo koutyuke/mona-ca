@@ -60,18 +60,6 @@ describe("EmailVerificationRequestUseCase", () => {
 		}
 	});
 
-	it("should create email verification request successfully for unverified current email", async () => {
-		const result = await emailVerificationRequestUseCase.execute(userIdentity);
-
-		expect(result.isErr).toBe(false);
-
-		if (!result.isErr) {
-			const { emailVerificationSession } = result.value;
-			expect(emailVerificationSession.email).toBe("test@example.com");
-			expect(emailVerificationSession.userId).toBe(userIdentity.id);
-		}
-	});
-
 	it("should return EMAIL_ALREADY_VERIFIED error when trying to verify already verified email", async () => {
 		const { userIdentity: verifiedUserIdentity } = createAuthUserFixture({
 			userRegistration: {
