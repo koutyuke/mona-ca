@@ -35,6 +35,11 @@ export const UnlinkAccountConnection = new Elysia()
 						message: "Cannot unlink account without a password set. Please set a password first.",
 					});
 				}
+
+				return status("Bad Request", {
+					code: code,
+					message: "Failed to unlink account connection. Please try again.",
+				});
 			}
 
 			return status("No Content");
