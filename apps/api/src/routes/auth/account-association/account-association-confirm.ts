@@ -34,7 +34,7 @@ export const AccountAssociationConfirm = new Elysia()
 
 	// Route
 	.post(
-		"/association/confirm",
+		"/confirm",
 		async ({
 			cookie,
 			body: { accountAssociationSessionToken: bodyAccountAssociationSessionToken, code },

@@ -34,7 +34,7 @@ export const AccountAssociationChallenge = new Elysia()
 
 	// Route
 	.post(
-		"/association",
+		"/",
 		async ({ containers, cookie, body, clientType, rateLimit }) => {
 			const rawAccountAssociationSessionToken =
 				clientType === "web"

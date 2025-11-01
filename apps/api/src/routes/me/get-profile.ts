@@ -15,7 +15,7 @@ export const GetProfile = new Elysia()
 
 	// Route
 	.get(
-		"",
+		"/",
 		async ({ userIdentity, containers, status }) => {
 			const result = await containers.user.getProfileUseCase.execute(userIdentity.id);
 

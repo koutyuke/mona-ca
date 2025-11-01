@@ -33,7 +33,7 @@ export const EmailVerificationRequest = new Elysia()
 
 	// Route
 	.post(
-		"",
+		"/",
 		async ({ cookie, body: { email: bodyEmail }, userIdentity, clientType, rateLimit, containers, status }) => {
 			const email = bodyEmail ?? userIdentity.email;
 

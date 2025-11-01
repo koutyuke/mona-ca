@@ -13,7 +13,7 @@ export const AccountAssociationPreview = new Elysia()
 
 	// Route
 	.post(
-		"/association/preview",
+		"/preview",
 		async ({ containers, cookie, body, clientType, status }) => {
 			const rawAccountAssociationSessionToken =
 				clientType === "web"
