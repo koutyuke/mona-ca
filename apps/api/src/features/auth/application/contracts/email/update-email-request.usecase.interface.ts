@@ -8,10 +8,10 @@ export type Success = Ok<{
 	emailVerificationSession: EmailVerificationSession;
 }>;
 
-export type Error = Err<"EMAIL_ALREADY_VERIFIED"> | Err<"EMAIL_ALREADY_REGISTERED">;
+export type Error = Err<"EMAIL_ALREADY_REGISTERED">;
 
-export type EmailVerificationRequestUseCaseResult = Result<Success, Error>;
+export type UpdateEmailRequestUseCaseResult = Result<Success, Error>;
 
-export interface IEmailVerificationRequestUseCase {
-	execute(email: string, userIdentity: UserIdentity): Promise<EmailVerificationRequestUseCaseResult>;
+export interface IUpdateEmailRequestUseCase {
+	execute(email: string, userIdentity: UserIdentity): Promise<UpdateEmailRequestUseCaseResult>;
 }

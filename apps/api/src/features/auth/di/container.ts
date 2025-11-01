@@ -23,10 +23,11 @@ import { SignupRequestUseCase } from "../application/use-cases/basic-auth/signup
 import { SignupVerifyEmailUseCase } from "../application/use-cases/basic-auth/signup-verify-email.usecase";
 import { ValidateSessionUseCase } from "../application/use-cases/basic-auth/validate-session.usecase";
 import { ValidateSignupSessionUseCase } from "../application/use-cases/basic-auth/validate-signup-session.usecase";
-import { EmailVerificationConfirmUseCase } from "../application/use-cases/email-verification/email-verification-confirm.usecase";
-import { EmailVerificationRequestUseCase } from "../application/use-cases/email-verification/email-verification-request.usecase";
-import { UpdateEmailUseCase } from "../application/use-cases/email-verification/update-email.usecase";
-import { ValidateEmailVerificationSessionUseCase } from "../application/use-cases/email-verification/validate-email-verification-session.usecase";
+import { EmailVerificationConfirmUseCase } from "../application/use-cases/email/email-verification-confirm.usecase";
+import { EmailVerificationRequestUseCase } from "../application/use-cases/email/email-verification-request.usecase";
+import { UpdateEmailConfirmUseCase } from "../application/use-cases/email/update-email-confirm.usecase";
+import { UpdateEmailRequestUseCase } from "../application/use-cases/email/update-email-request.usecase";
+import { ValidateEmailVerificationSessionUseCase } from "../application/use-cases/email/validate-email-verification-session.usecase";
 import { ExternalAuthLoginCallbackUseCase } from "../application/use-cases/external-auth/external-auth-login-callback.usecase";
 import { ExternalAuthRequestUseCase } from "../application/use-cases/external-auth/external-auth-request.usecase";
 import { ExternalAuthSignupCallbackUseCase } from "../application/use-cases/external-auth/external-auth-signup-callback.usecase";
@@ -54,10 +55,11 @@ import type { ISignupRequestUseCase } from "../application/contracts/basic-auth/
 import type { ISignupVerifyEmailUseCase } from "../application/contracts/basic-auth/signup-verify-email.usecase.interface";
 import type { IValidateSessionUseCase } from "../application/contracts/basic-auth/validate-session.usecase";
 import type { IValidateSignupSessionUseCase } from "../application/contracts/basic-auth/validate-signup-session.usecase.interface";
-import type { IEmailVerificationConfirmUseCase } from "../application/contracts/email-verification/email-verification-confirm.usecase.interface";
-import type { IEmailVerificationRequestUseCase } from "../application/contracts/email-verification/email-verification-request.usecase.interface";
-import type { IUpdateEmailUseCase } from "../application/contracts/email-verification/update-email.usecase.interface";
-import type { IValidateEmailVerificationSessionUseCase } from "../application/contracts/email-verification/validate-email-verification-session.usecase.interface";
+import type { IEmailVerificationConfirmUseCase } from "../application/contracts/email/email-verification-confirm.usecase.interface";
+import type { IEmailVerificationRequestUseCase } from "../application/contracts/email/email-verification-request.usecase.interface";
+import type { IUpdateEmailConfirmUseCase } from "../application/contracts/email/update-email-confirm.usecase.interface";
+import type { IUpdateEmailRequestUseCase } from "../application/contracts/email/update-email-request.usecase.interface";
+import type { IValidateEmailVerificationSessionUseCase } from "../application/contracts/email/validate-email-verification-session.usecase.interface";
 import type { IExternalAuthLoginCallbackUseCase } from "../application/contracts/external-auth/external-auth-login-callback.usecase.interface";
 import type { IExternalAuthRequestUseCase } from "../application/contracts/external-auth/external-auth-request.usecase.interface";
 import type { IExternalAuthSignupCallbackUseCase } from "../application/contracts/external-auth/external-auth-signup-callback.usecase.interface";
@@ -127,7 +129,8 @@ export class AuthDIContainer implements IAuthDIContainer {
 
 	private _emailVerificationConfirmUseCase: IEmailVerificationConfirmUseCase | undefined;
 	private _emailVerificationRequestUseCase: IEmailVerificationRequestUseCase | undefined;
-	private _updateEmailUseCase: IUpdateEmailUseCase | undefined;
+	private _updateEmailConfirmUseCase: IUpdateEmailConfirmUseCase | undefined;
+	private _updateEmailRequestUseCase: IUpdateEmailRequestUseCase | undefined;
 	private _validateEmailVerificationSessionUseCase: IValidateEmailVerificationSessionUseCase | undefined;
 
 	private _externalAuthLoginCallbackUseCase: IExternalAuthLoginCallbackUseCase | undefined;
@@ -239,8 +242,11 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (overrides.emailVerificationRequestUseCase) {
 			this._emailVerificationRequestUseCase = overrides.emailVerificationRequestUseCase;
 		}
-		if (overrides.updateEmailUseCase) {
-			this._updateEmailUseCase = overrides.updateEmailUseCase;
+		if (overrides.updateEmailConfirmUseCase) {
+			this._updateEmailConfirmUseCase = overrides.updateEmailConfirmUseCase;
+		}
+		if (overrides.updateEmailRequestUseCase) {
+			this._updateEmailRequestUseCase = overrides.updateEmailRequestUseCase;
 		}
 		if (overrides.validateEmailVerificationSessionUseCase) {
 			this._validateEmailVerificationSessionUseCase = overrides.validateEmailVerificationSessionUseCase;
@@ -526,7 +532,6 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (!this._emailVerificationRequestUseCase) {
 			this._emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 				this.emailVerificationSessionRepository,
-				this.authUserRepository,
 				this.coreContainer.randomGenerator,
 				this.coreContainer.sessionSecretHasher,
 				this.coreContainer.emailGateway,
@@ -534,16 +539,28 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		return this._emailVerificationRequestUseCase;
 	}
-	get updateEmailUseCase(): IUpdateEmailUseCase {
-		if (!this._updateEmailUseCase) {
-			this._updateEmailUseCase = new UpdateEmailUseCase(
+	get updateEmailConfirmUseCase(): IUpdateEmailConfirmUseCase {
+		if (!this._updateEmailConfirmUseCase) {
+			this._updateEmailConfirmUseCase = new UpdateEmailConfirmUseCase(
 				this.authUserRepository,
 				this.sessionRepository,
 				this.emailVerificationSessionRepository,
 				this.coreContainer.sessionSecretHasher,
 			);
 		}
-		return this._updateEmailUseCase;
+		return this._updateEmailConfirmUseCase;
+	}
+	get updateEmailRequestUseCase(): IUpdateEmailRequestUseCase {
+		if (!this._updateEmailRequestUseCase) {
+			this._updateEmailRequestUseCase = new UpdateEmailRequestUseCase(
+				this.emailVerificationSessionRepository,
+				this.authUserRepository,
+				this.coreContainer.randomGenerator,
+				this.coreContainer.sessionSecretHasher,
+				this.coreContainer.emailGateway,
+			);
+		}
+		return this._updateEmailRequestUseCase;
 	}
 	get validateEmailVerificationSessionUseCase(): IValidateEmailVerificationSessionUseCase {
 		if (!this._validateEmailVerificationSessionUseCase) {
