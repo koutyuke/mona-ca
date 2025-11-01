@@ -10,7 +10,7 @@
 <Issue Number>-<Type>/<Subject>
 ```
 
-* **ype**: 変更の性質を表す接頭辞。後述の一覧から選ぶ
+* **Type**: 変更の性質を表す接頭辞。後述の一覧から選ぶ
 * **Subject**: 変更内容の要約（英小文字の kebab-case 推奨）
 * **文字種**: 半角英数字・ハイフンのみ（スペース、全角、記号は不可）
 * **長さ**: できるだけ 60 文字以内
@@ -35,13 +35,13 @@
 
 ---
 
-## 4. Subject の書き方
+## 3. Subject の書き方
 
 * **英語の命題句**を kebab-case で（`add`, `enable`, `improve`, `fix` など）
 * 3〜7 語程度を目安に簡潔に
 * **具体語**を入れる（例：`improve tooltip delay`, `enable http2`, `reduce db roundtrips`）
 
-## 5. PR/コミットとの整合（参考）
+## 4. PR/コミットとの整合（参考）
 
 * **PR タイトル**は Conventional Commits を推奨：
 
@@ -55,7 +55,7 @@
 
 ---
 
-## 6. 運用ポリシー
+## 5. 運用ポリシー
 
 * ブランチは原則 **`main`（または `develop`）から作成**
 * マージは **Squash and merge** 推奨（履歴を簡潔に保つ）
