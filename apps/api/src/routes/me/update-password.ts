@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { defaultCookieOptions } from "../../core/infra/elysia";
 import { SESSION_COOKIE_NAME } from "../../core/lib/http";
+import { toAnySessionTokenResponse } from "../../features/auth";
 import { authPlugin } from "../../plugins/auth";
 import { containerPlugin } from "../../plugins/container";
 import { pathDetail } from "../../plugins/openapi";
@@ -35,7 +36,7 @@ export const UpdatePassword = new Elysia()
 
 			if (clientType === "mobile") {
 				return {
-					sessionToken,
+					sessionToken: toAnySessionTokenResponse(sessionToken),
 				};
 			}
 

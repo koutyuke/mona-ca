@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { toAnySessionTokenResponse } from "../../../features/auth";
 import { captchaPlugin } from "../../../plugins/captcha";
 import { clientTypePlugin } from "../../../plugins/client-type";
 import { containerPlugin } from "../../../plugins/container";
@@ -49,7 +50,7 @@ const PasswordResetRequest = new Elysia()
 
 			if (clientType === "mobile") {
 				return {
-					passwordResetSessionToken,
+					passwordResetSessionToken: toAnySessionTokenResponse(passwordResetSessionToken),
 				};
 			}
 

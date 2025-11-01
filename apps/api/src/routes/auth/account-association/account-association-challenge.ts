@@ -1,7 +1,7 @@
 import { Elysia, status, t } from "elysia";
 import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { newAccountAssociationSessionToken } from "../../../features/auth";
+import { newAccountAssociationSessionToken, toAnySessionTokenResponse } from "../../../features/auth";
 import { clientTypePlugin } from "../../../plugins/client-type";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi/path-detail";
@@ -85,7 +85,7 @@ export const AccountAssociationChallenge = new Elysia()
 
 			if (clientType === "mobile") {
 				return status("OK", {
-					accountAssociationSessionToken,
+					accountAssociationSessionToken: toAnySessionTokenResponse(accountAssociationSessionToken),
 				});
 			}
 

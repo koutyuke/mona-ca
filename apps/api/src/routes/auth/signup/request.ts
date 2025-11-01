@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { toAnySessionTokenResponse } from "../../../features/auth";
 import { captchaPlugin } from "../../../plugins/captcha";
 import { clientTypePlugin } from "../../../plugins/client-type";
 import { containerPlugin } from "../../../plugins/container";
@@ -50,7 +51,7 @@ export const SignupRequest = new Elysia()
 
 			if (clientType === "mobile") {
 				return {
-					signupSessionToken,
+					signupSessionToken: toAnySessionTokenResponse(signupSessionToken),
 				};
 			}
 

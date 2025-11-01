@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { genderSchema, newGender } from "../../../core/domain/value-objects";
 import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { newSignupSessionToken } from "../../../features/auth";
+import { newSignupSessionToken, toAnySessionTokenResponse } from "../../../features/auth";
 import { clientTypePlugin } from "../../../plugins/client-type";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
@@ -84,7 +84,7 @@ export const SignupConfirm = new Elysia()
 
 			if (clientType === "mobile") {
 				return {
-					sessionToken,
+					sessionToken: toAnySessionTokenResponse(sessionToken),
 				};
 			}
 

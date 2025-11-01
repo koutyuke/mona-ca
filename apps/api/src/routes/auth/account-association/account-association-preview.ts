@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { newAccountAssociationSessionToken } from "../../../features/auth";
+import { newAccountAssociationSessionToken, toAccountAssociationPreviewResponse } from "../../../features/auth";
 import { toProfileResponse } from "../../../features/user";
 import { clientTypePlugin } from "../../../plugins/client-type";
 import { containerPlugin } from "../../../plugins/container";
@@ -60,8 +60,7 @@ export const AccountAssociationPreview = new Elysia()
 
 			return {
 				user: toProfileResponse(profile.value.profile),
-				provider: accountAssociationSession.provider,
-				providerId: accountAssociationSession.providerUserId,
+				...toAccountAssociationPreviewResponse(accountAssociationSession),
 			};
 		},
 		{
