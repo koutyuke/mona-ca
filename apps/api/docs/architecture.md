@@ -211,14 +211,12 @@ apps/api/
 │   │       └── index.ts           # Feature公開API
 │   │
 │   ├── plugins/                   # Elysiaプラグイン
-│   │   ├── auth-guard/            # 認証ガード
+│   │   ├── auth/                  # 認証プラグイン
 │   │   ├── captcha/               # CAPTCHA検証
-│   │   ├── cors/                  # CORS設定
-│   │   ├── di/                    # DI Plugin
-│   │   ├── error/                 # エラーハンドリング
-│   │   ├── open-api/              # OpenAPI/Swagger
-│   │   ├── rate-limit/            # レート制限
-│   │   └── with-client-type/      # クライアントタイプ判定
+│   │   ├── container/             # DI Plugin
+│   │   ├── openapi/               # OpenAPI/Swagger
+│   │   ├── ratelimit/             # レート制限プラグイン
+│   │   └── client-type/           # クライアントタイププラグイン
 │   │
 │   ├── routes/                    # ルート定義
 │   │   ├── [Slug]/                # 各スライス
