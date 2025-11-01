@@ -44,8 +44,5 @@
   ],
   "overrides": {
     "@scalar/types": "0.1.5"
-  },
-  "patchedDependencies": {
-    "elysia@1.2.25": "patches/elysia@1.2.25.patch"
   }
 }
