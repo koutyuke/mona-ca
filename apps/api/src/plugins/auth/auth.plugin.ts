@@ -14,7 +14,7 @@ import { containerPlugin } from "../container";
  * @returns The configured Elysia plugin with derived context.
  *
  * @example
- * const plugin = authGuard({ requireEmailVerification: false, includeSessionToken: true });
+ * const plugin = authPlugin({ requireEmailVerification: false });
  */
 export const authPlugin = (options?: {
 	requireEmailVerification?: boolean;
