@@ -1,12 +1,12 @@
-name: Verify eden-fetch index.d.ts is committed
+name: Verify treaty-fetch index.d.ts is committed
 
 on:
   pull_request:
     paths:
-      - packages/eden-fetch/**
+      - packages/treaty-fetch/**
       - apps/api/**
       - packages/core/**
-      - .github/workflows/eden-fetch-types-check.yml
+      - .github/workflows/treaty-fetch-types-check.yml
     types:
       - opened
       - synchronize
@@ -26,12 +26,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build eden-fetch types
-        run: cd packages/eden-fetch && bun run build:types
+      - name: Build treaty-fetch types
+        run: cd packages/treaty-fetch && bun run build:types
 
       - name: Verify no diff in dist/index.d.ts
         run: |
-          git diff --name-only --exit-code -- packages/eden-fetch/dist/index.d.ts || (
-            echo "::error file=packages/eden-fetch/dist/index.d.ts::Generated types are out of date. Run 'cd packages/eden-fetch && bun run build:types' and commit changes." &&
+          git diff --name-only --exit-code -- packages/treaty-fetch/dist/index.d.ts || (
+            echo "::error file=packages/treaty-fetch/dist/index.d.ts::Generated types are out of date. Run 'cd packages/treaty-fetch && bun run build:types' and commit changes." &&
             exit 1
           )
