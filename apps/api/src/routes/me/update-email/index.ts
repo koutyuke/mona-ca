@@ -1,6 +1,9 @@
 import { Elysia } from "elysia";
-import { UpdateEmail } from "./update-email";
+import { UpdateEmailConfirm } from "./update-email-confirm";
+import { UpdateEmailRequest } from "./update-email-request";
 
 export const UpdateEmailRoutes = new Elysia({
 	prefix: "/email",
-}).use(UpdateEmail);
+})
+	.use(UpdateEmailConfirm)
+	.use(UpdateEmailRequest);

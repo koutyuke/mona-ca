@@ -109,6 +109,8 @@ const EmailVerificationConfirm = new Elysia()
 				}
 			}
 
+			cookie[EMAIL_VERIFICATION_SESSION_COOKIE_NAME].remove();
+
 			return noContent();
 		},
 		{
