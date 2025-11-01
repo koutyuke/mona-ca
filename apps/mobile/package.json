@@ -20,7 +20,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@mona-ca/core": "workspace:*",
     "@mona-ca/design-tokens": "workspace:*",
-    "@mona-ca/eden-fetch": "workspace:*",
+    "@mona-ca/treaty-fetch": "workspace:*",
     "@mona-ca/tailwind-helpers": "workspace:*",
     "@mona-ca/ui": "workspace:*",
     "@react-native-async-storage/async-storage": "2.1.2",

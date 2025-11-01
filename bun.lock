@@ -132,8 +132,8 @@
         "@hookform/resolvers": "^5.1.1",
         "@mona-ca/core": "workspace:*",
         "@mona-ca/design-tokens": "workspace:*",
-        "@mona-ca/eden-fetch": "workspace:*",
         "@mona-ca/tailwind-helpers": "workspace:*",
+        "@mona-ca/treaty-fetch": "workspace:*",
         "@mona-ca/ui": "workspace:*",
         "@react-native-async-storage/async-storage": "2.1.2",
         "@react-native-community/netinfo": "11.4.1",
@@ -236,19 +236,6 @@
         "@mona-ca/tsconfig": "workspace:*",
       },
     },
-    "packages/eden-fetch": {
-      "name": "@mona-ca/eden-fetch",
-      "version": "1.0.0",
-      "dependencies": {
-        "@elysiajs/eden": "~1.4.4",
-        "@mona-ca/core": "workspace:*",
-      },
-      "devDependencies": {
-        "@mona-ca/api": "workspace:*",
-        "@mona-ca/tsconfig": "workspace:*",
-        "tsup": "^8.5.0",
-      },
-    },
     "packages/tailwind-helpers": {
       "name": "@mona-ca/tailwind-helpers",
       "version": "0.0.0",
@@ -266,6 +253,19 @@
         "@mona-ca/tsconfig": "workspace:*",
         "@types/babel__core": "^7.20.5",
         "tsup": "^8.2.4",
+      },
+    },
+    "packages/treaty-fetch": {
+      "name": "@mona-ca/treaty-fetch",
+      "version": "1.0.0",
+      "dependencies": {
+        "@elysiajs/eden": "~1.4.4",
+        "@mona-ca/core": "workspace:*",
+      },
+      "devDependencies": {
+        "@mona-ca/api": "workspace:*",
+        "@mona-ca/tsconfig": "workspace:*",
+        "tsup": "^8.5.0",
       },
     },
     "packages/ui": {
@@ -907,8 +907,6 @@
 
     "@mona-ca/design-tokens": ["@mona-ca/design-tokens@workspace:packages/design-tokens"],
 
-    "@mona-ca/eden-fetch": ["@mona-ca/eden-fetch@workspace:packages/eden-fetch"],
-
     "@mona-ca/mobile": ["@mona-ca/mobile@workspace:apps/mobile"],
 
     "@mona-ca/postcss": ["@mona-ca/postcss@workspace:tools/postcss"],
@@ -916,6 +914,8 @@
     "@mona-ca/tailwind-config": ["@mona-ca/tailwind-config@workspace:tools/tailwind-config"],
 
     "@mona-ca/tailwind-helpers": ["@mona-ca/tailwind-helpers@workspace:packages/tailwind-helpers"],
+
+    "@mona-ca/treaty-fetch": ["@mona-ca/treaty-fetch@workspace:packages/treaty-fetch"],
 
     "@mona-ca/tsconfig": ["@mona-ca/tsconfig@workspace:tools/tsconfig"],
 
