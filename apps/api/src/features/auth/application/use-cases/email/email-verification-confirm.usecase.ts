@@ -27,13 +27,13 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		userIdentity: UserIdentity,
 		emailVerificationSession: EmailVerificationSession,
 	): Promise<EmailVerificationConfirmUseCaseResult> {
+		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
+			return err("INVALID_VERIFICATION_CODE");
+		}
+
 		if (emailVerificationSession.email !== userIdentity.email) {
 			await this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id);
 			return err("EMAIL_MISMATCH");
-		}
-
-		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
-			return err("INVALID_VERIFICATION_CODE");
 		}
 
 		const updatedUserIdentity = updateUserIdentity(userIdentity, {

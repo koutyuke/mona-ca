@@ -38,15 +38,15 @@ export class UpdateEmailConfirmUseCase implements IUpdateEmailConfirmUseCase {
 		userIdentity: UserIdentity,
 		emailVerificationSession: EmailVerificationSession,
 	): Promise<UpdateEmailConfirmUseCaseResult> {
+		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
+			return err("INVALID_VERIFICATION_CODE");
+		}
+
 		const existingUserIdentityForNewEmail = await this.authUserRepository.findByEmail(emailVerificationSession.email);
 
 		if (existingUserIdentityForNewEmail) {
 			await this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id);
 			return err("EMAIL_ALREADY_REGISTERED");
-		}
-
-		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
-			return err("INVALID_VERIFICATION_CODE");
 		}
 
 		await Promise.all([
