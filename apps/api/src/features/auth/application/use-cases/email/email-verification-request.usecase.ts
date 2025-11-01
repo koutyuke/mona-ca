@@ -13,39 +13,24 @@ import type { EmailVerificationSessionToken } from "../../../domain/value-object
 import type {
 	EmailVerificationRequestUseCaseResult,
 	IEmailVerificationRequestUseCase,
-} from "../../contracts/email-verification/email-verification-request.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
+} from "../../contracts/email/email-verification-request.usecase.interface";
 import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
-		private readonly authUserRepository: IAuthUserRepository,
 		private readonly randomGenerator: IRandomGenerator,
 		private readonly sessionSecretHasher: ISessionSecretHasher,
 		private readonly emailGateway: IEmailGateway,
 	) {}
 
-	public async execute(email: string, userIdentity: UserIdentity): Promise<EmailVerificationRequestUseCaseResult> {
-		if (email === userIdentity.email) {
-			// userIdentity.email === email => email verification
-
-			// check if the email is already verified
-			if (userIdentity.emailVerified) {
-				return err("EMAIL_ALREADY_VERIFIED");
-			}
-		} else {
-			// userIdentity.email !== email => update user email
-
-			// check if the email is already registered
-			const existingUserIdentityForVerifiedEmail = await this.authUserRepository.findByEmail(email);
-			if (existingUserIdentityForVerifiedEmail && existingUserIdentityForVerifiedEmail.id !== userIdentity.id) {
-				return err("EMAIL_ALREADY_REGISTERED");
-			}
+	public async execute(userIdentity: UserIdentity): Promise<EmailVerificationRequestUseCaseResult> {
+		if (userIdentity.emailVerified) {
+			return err("EMAIL_ALREADY_VERIFIED");
 		}
 
 		const { emailVerificationSessionToken, emailVerificationSession } = this.createEmailVerificationSession(
-			email,
+			userIdentity.email,
 			userIdentity.id,
 		);
 

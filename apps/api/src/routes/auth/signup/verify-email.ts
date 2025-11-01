@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { noContent } from "../../../core/infra/elysia";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newSignupSessionToken } from "../../../features/auth";
 import { clientTypePlugin } from "../../../plugins/client-type";
@@ -102,7 +103,7 @@ export const SignupVerifyEmail = new Elysia()
 				}
 			}
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			cookie: t.Cookie({

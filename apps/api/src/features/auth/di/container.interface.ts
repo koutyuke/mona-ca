@@ -13,10 +13,11 @@ import type { ISignupRequestUseCase } from "../application/contracts/basic-auth/
 import type { ISignupVerifyEmailUseCase } from "../application/contracts/basic-auth/signup-verify-email.usecase.interface";
 import type { IValidateSessionUseCase } from "../application/contracts/basic-auth/validate-session.usecase";
 import type { IValidateSignupSessionUseCase } from "../application/contracts/basic-auth/validate-signup-session.usecase.interface";
-import type { IEmailVerificationConfirmUseCase } from "../application/contracts/email-verification/email-verification-confirm.usecase.interface";
-import type { IEmailVerificationRequestUseCase } from "../application/contracts/email-verification/email-verification-request.usecase.interface";
-import type { IUpdateEmailUseCase } from "../application/contracts/email-verification/update-email.usecase.interface";
-import type { IValidateEmailVerificationSessionUseCase } from "../application/contracts/email-verification/validate-email-verification-session.usecase.interface";
+import type { IEmailVerificationConfirmUseCase } from "../application/contracts/email/email-verification-confirm.usecase.interface";
+import type { IEmailVerificationRequestUseCase } from "../application/contracts/email/email-verification-request.usecase.interface";
+import type { IUpdateEmailConfirmUseCase } from "../application/contracts/email/update-email-confirm.usecase.interface";
+import type { IUpdateEmailRequestUseCase } from "../application/contracts/email/update-email-request.usecase.interface";
+import type { IValidateEmailVerificationSessionUseCase } from "../application/contracts/email/validate-email-verification-session.usecase.interface";
 import type { IExternalAuthLoginCallbackUseCase } from "../application/contracts/external-auth/external-auth-login-callback.usecase.interface";
 import type { IExternalAuthRequestUseCase } from "../application/contracts/external-auth/external-auth-request.usecase.interface";
 import type { IExternalAuthSignupCallbackUseCase } from "../application/contracts/external-auth/external-auth-signup-callback.usecase.interface";
@@ -74,7 +75,8 @@ export interface IAuthDIContainer {
 
 	readonly emailVerificationConfirmUseCase: IEmailVerificationConfirmUseCase;
 	readonly emailVerificationRequestUseCase: IEmailVerificationRequestUseCase;
-	readonly updateEmailUseCase: IUpdateEmailUseCase;
+	readonly updateEmailConfirmUseCase: IUpdateEmailConfirmUseCase;
+	readonly updateEmailRequestUseCase: IUpdateEmailRequestUseCase;
 	readonly validateEmailVerificationSessionUseCase: IValidateEmailVerificationSessionUseCase;
 
 	readonly externalAuthLoginCallbackUseCase: IExternalAuthLoginCallbackUseCase;
