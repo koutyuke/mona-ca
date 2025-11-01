@@ -150,7 +150,7 @@ export const ExternalAuthLoginCallback = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return redirect(redirectURI.toString());
+			return redirect(redirectURL.toString());
 		},
 		{
 			query: t.Object(
