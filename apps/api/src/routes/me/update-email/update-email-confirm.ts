@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { toAnySessionTokenResponse } from "../../../features/auth";
 import { newEmailVerificationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
@@ -8,12 +8,12 @@ import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-export const UpdateEmail = new Elysia()
+export const UpdateEmailConfirm = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
-	.use(authPlugin({ requireEmailVerification: false }))
+	.use(authPlugin())
 	.use(
-		ratelimitPlugin("me-update-email", {
+		ratelimitPlugin("me-update-email-confirm", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -24,8 +24,8 @@ export const UpdateEmail = new Elysia()
 	)
 
 	// Route
-	.patch(
-		"/email",
+	.post(
+		"/confirm",
 		async ({
 			cookie,
 			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
@@ -77,7 +77,7 @@ export const UpdateEmail = new Elysia()
 				});
 			}
 
-			const updateResult = await containers.auth.updateEmailUseCase.execute(
+			const updateResult = await containers.auth.updateEmailConfirmUseCase.execute(
 				code,
 				userIdentity,
 				emailVerificationSession,
@@ -116,7 +116,7 @@ export const UpdateEmail = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			cookie: t.Cookie({
@@ -128,9 +128,9 @@ export const UpdateEmail = new Elysia()
 				emailVerificationSessionToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
-				operationId: "me-update-email",
-				summary: "Update Email",
-				description: "Update Email endpoint for the User",
+				operationId: "me-update-email-confirm",
+				summary: "Update Email Confirm",
+				description: "Update Email Confirm endpoint for the User",
 				tag: "Me",
 				withAuth: true,
 			}),

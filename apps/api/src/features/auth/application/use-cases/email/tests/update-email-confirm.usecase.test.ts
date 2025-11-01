@@ -13,7 +13,7 @@ import {
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { UpdateEmailUseCase } from "../update-email.usecase";
+import { UpdateEmailConfirmUseCase } from "../update-email-confirm.usecase";
 
 const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
@@ -31,7 +31,7 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 });
 const sessionSecretHasher = new SessionSecretHasherMock();
 
-const updateEmailUseCase = new UpdateEmailUseCase(
+const updateEmailUseCase = new UpdateEmailConfirmUseCase(
 	authUserRepository,
 	sessionRepository,
 	emailVerificationSessionRepository,
@@ -44,7 +44,7 @@ const { userIdentity, userRegistration } = createAuthUserFixture({
 	},
 });
 
-describe("UpdateEmailUseCase", () => {
+describe("UpdateEmailConfirmUseCase", () => {
 	beforeEach(() => {
 		authUserMap.clear();
 		sessionMap.clear();
@@ -127,24 +127,24 @@ describe("UpdateEmailUseCase", () => {
 		}
 	});
 
-	it("should allow changing to same email if user is changing their own email", async () => {
+	it("should return EMAIL_ALREADY_REGISTERED error when trying to change to same email", async () => {
 		const { emailVerificationSession } = createEmailVerificationSessionFixture({
 			emailVerificationSession: {
 				userId: userIdentity.id,
-				email: "same@example.com",
+				email: "old@example.com",
 				code: "12345678",
 			},
 		});
 
-		authUserMap.set(userRegistration.id, { ...userRegistration, email: "same@example.com", emailVerified: false });
+		authUserMap.set(userRegistration.id, userRegistration);
 
 		const result = await updateEmailUseCase.execute("12345678", userIdentity, emailVerificationSession);
 
-		expect(result.isErr).toBe(false);
+		expect(result.isErr).toBe(true);
 
-		const updatedUserIdentity = authUserMap.get(userIdentity.id);
-		expect(updatedUserIdentity?.email).toBe("same@example.com");
-		expect(updatedUserIdentity?.emailVerified).toBe(true);
+		if (result.isErr) {
+			expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
+		}
 	});
 
 	it("should create and save a new session on successful email change", async () => {

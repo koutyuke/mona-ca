@@ -7,7 +7,7 @@ import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type {
 	EmailVerificationConfirmUseCaseResult,
 	IEmailVerificationConfirmUseCase,
-} from "../../contracts/email-verification/email-verification-confirm.usecase.interface";
+} from "../../contracts/email/email-verification-confirm.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
@@ -27,12 +27,13 @@ export class EmailVerificationConfirmUseCase implements IEmailVerificationConfir
 		userIdentity: UserIdentity,
 		emailVerificationSession: EmailVerificationSession,
 	): Promise<EmailVerificationConfirmUseCaseResult> {
-		if (emailVerificationSession.email !== userIdentity.email) {
-			return err("EMAIL_MISMATCH");
-		}
-
 		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
 			return err("INVALID_VERIFICATION_CODE");
+		}
+
+		if (emailVerificationSession.email !== userIdentity.email) {
+			await this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id);
+			return err("EMAIL_MISMATCH");
 		}
 
 		const updatedUserIdentity = updateUserIdentity(userIdentity, {

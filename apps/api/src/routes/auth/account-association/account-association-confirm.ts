@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newAccountAssociationSessionToken, toAnySessionTokenResponse } from "../../../features/auth";
 import { clientTypePlugin } from "../../../plugins/client-type";
@@ -130,7 +130,7 @@ export const AccountAssociationConfirm = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			cookie: t.Cookie({

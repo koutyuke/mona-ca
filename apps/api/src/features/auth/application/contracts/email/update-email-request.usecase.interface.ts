@@ -3,15 +3,15 @@ import type { EmailVerificationSession } from "../../../domain/entities/email-ve
 import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type { EmailVerificationSessionToken } from "../../../domain/value-objects/session-token";
 
-export type Success = Ok<{
+type Success = Ok<{
 	emailVerificationSessionToken: EmailVerificationSessionToken;
 	emailVerificationSession: EmailVerificationSession;
 }>;
 
-export type Error = Err<"EMAIL_ALREADY_VERIFIED"> | Err<"EMAIL_ALREADY_REGISTERED">;
+type Error = Err<"EMAIL_ALREADY_REGISTERED">;
 
-export type EmailVerificationRequestUseCaseResult = Result<Success, Error>;
+export type UpdateEmailRequestUseCaseResult = Result<Success, Error>;
 
-export interface IEmailVerificationRequestUseCase {
-	execute(email: string, userIdentity: UserIdentity): Promise<EmailVerificationRequestUseCaseResult>;
+export interface IUpdateEmailRequestUseCase {
+	execute(email: string, userIdentity: UserIdentity): Promise<UpdateEmailRequestUseCaseResult>;
 }

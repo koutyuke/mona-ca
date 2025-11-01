@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { noContent } from "../../../core/infra/elysia";
 import {
 	externalIdentityProviderSchema,
 	newExternalIdentityProvider,
@@ -42,7 +43,7 @@ export const UnlinkAccountConnection = new Elysia()
 				});
 			}
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			params: t.Object({

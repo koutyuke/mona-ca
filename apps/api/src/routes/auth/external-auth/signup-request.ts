@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
 import { clientTypeSchema, newClientType } from "../../../core/domain/value-objects";
 import { env } from "../../../core/infra/config/env";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, redirect } from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
@@ -45,7 +45,6 @@ export const ExternalAuthSignupRequest = new Elysia()
 			cookie,
 			query: { "redirect-uri": queryRedirectURI = "/", "client-type": _clientType },
 			status,
-			redirect,
 		}) => {
 			const provider = newExternalIdentityProvider(_provider);
 			const clientType = newClientType(_clientType);

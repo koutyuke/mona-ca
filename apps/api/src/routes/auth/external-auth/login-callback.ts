@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
 import { newClientType } from "../../../core/domain/value-objects";
 import { env } from "../../../core/infra/config/env";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, redirect } from "../../../core/infra/elysia";
 import {
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -50,7 +50,6 @@ export const ExternalAuthLoginCallback = new Elysia()
 			set,
 			containers,
 			status,
-			redirect,
 		}) => {
 			const provider = newExternalIdentityProvider(_provider);
 

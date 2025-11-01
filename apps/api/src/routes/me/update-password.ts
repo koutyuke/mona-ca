@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { defaultCookieOptions } from "../../core/infra/elysia";
+import { defaultCookieOptions, noContent } from "../../core/infra/elysia";
 import { SESSION_COOKIE_NAME } from "../../core/lib/http";
 import { toAnySessionTokenResponse } from "../../features/auth";
 import { authPlugin } from "../../plugins/auth";
@@ -46,7 +46,7 @@ export const UpdatePassword = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			cookie: t.Cookie({

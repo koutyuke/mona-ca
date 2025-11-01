@@ -13,7 +13,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 };
                 fetch?: RequestInit;
             }) => Promise<Treaty.TreatyResponse<{
-                200: Response;
+                302: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
@@ -44,7 +44,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     query?: Record<string, unknown>;
                     fetch?: RequestInit;
                 } | undefined) => Promise<Treaty.TreatyResponse<{
-                    200: Response;
+                    302: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
@@ -83,7 +83,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 };
                 fetch?: RequestInit;
             }) => Promise<Treaty.TreatyResponse<{
-                200: Response;
+                302: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
@@ -114,7 +114,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     query?: Record<string, unknown>;
                     fetch?: RequestInit;
                 } | undefined) => Promise<Treaty.TreatyResponse<{
-                    200: Response;
+                    302: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
@@ -189,7 +189,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     query?: Record<string, unknown>;
                     fetch?: RequestInit;
                 } | undefined) => Promise<Treaty.TreatyResponse<{
-                    200: Response;
+                    302: null;
                     400: {
                         readonly code: "INVALID_STATE";
                     } | {
@@ -228,7 +228,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 200: {
                     sessionToken: string;
                 };
-                204: "No Content";
+                204: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
@@ -273,7 +273,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     readonly code: "EMAIL_VERIFICATION_REQUIRED";
                     readonly message: "It looks like your email is not verified. Please verify your email to continue.";
                 };
-                204: "No Content";
+                204: null;
                 422: {
                     type: "validation";
                     on: string;
@@ -286,9 +286,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
             }>>;
         };
         "email-verification": {
-            post: (body: {
-                email: string | null;
-            }, options: {
+            post: (body: unknown, options: {
                 headers: {
                     "mc-client-type": "web" | "mobile";
                 } & {
@@ -310,7 +308,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 200: {
                     emailVerificationSessionToken: string;
                 };
-                204: "No Content";
+                204: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
@@ -370,7 +368,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         readonly code: "EMAIL_VERIFICATION_SESSION_EXPIRED";
                         readonly message: "Email verification session has expired. Please request email verification again.";
                     };
-                    204: "No Content";
+                    204: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
@@ -415,7 +413,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 200: {
                     passwordResetSessionToken: string;
                 };
-                204: "No Content";
+                204: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
@@ -454,7 +452,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         readonly code: "PASSWORD_RESET_SESSION_EXPIRED";
                         readonly message: "Password reset session has expired. Please request password reset again.";
                     };
-                    204: "No Content";
+                    204: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
@@ -498,7 +496,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         readonly code: "PASSWORD_RESET_SESSION_EXPIRED";
                         readonly message: "Password reset session has expired. Please request password reset again.";
                     };
-                    204: "No Content";
+                    204: null;
                     403: {
                         readonly code: "REQUIRED_EMAIL_VERIFICATION";
                         readonly message: "Email verification is required before resetting password. Please verify your email first.";
@@ -530,7 +528,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 200: {
                     signupSessionToken: string;
                 };
-                204: "No Content";
+                204: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
@@ -575,7 +573,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         readonly code: "SIGNUP_SESSION_EXPIRED";
                         readonly message: "Signup session token has expired. Please request signup again.";
                     };
-                    204: "No Content";
+                    204: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
@@ -630,7 +628,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     200: {
                         sessionToken: string;
                     };
-                    204: "No Content";
+                    204: null;
                     400: {
                         readonly code: "EMAIL_ALREADY_REGISTERED";
                         readonly message: "Email is already registered. Please use a different email address or try logging in.";
@@ -673,7 +671,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 200: {
                     readonly accountAssociationSessionToken: string;
                 };
-                204: "No Content";
+                204: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
@@ -719,7 +717,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     200: {
                         sessionToken: string;
                     };
-                    204: "No Content";
+                    204: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
@@ -920,7 +918,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     200: {
                         sessionToken: string;
                     };
-                    204: "No Content";
+                    204: null;
                     400: {
                         readonly code: "INVALID_CURRENT_PASSWORD";
                         readonly message: "Current password is incorrect. Please check your password and try again.";
@@ -961,7 +959,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         readonly code: "EMAIL_VERIFICATION_REQUIRED";
                         readonly message: "It looks like your email is not verified. Please verify your email to continue.";
                     };
-                    204: "No Content";
+                    204: null;
                     400: {
                         readonly code: "PROVIDER_NOT_LINKED";
                         readonly message: "Account is not linked to this provider. Please check your account connections.";
@@ -1027,8 +1025,8 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 }>>;
             };
             email: {
-                email: {
-                    patch: (body: {
+                confirm: {
+                    post: (body: {
                         emailVerificationSessionToken?: string;
                         code: string;
                     }, options: {
@@ -1053,7 +1051,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         200: {
                             sessionToken: string;
                         };
-                        204: "No Content";
+                        204: null;
                         400: {
                             readonly code: "IP_ADDRESS_NOT_FOUND";
                             readonly message: "IP address not found";
@@ -1088,6 +1086,58 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         };
                     }>>;
                 };
+                post: (body: {
+                    email: string | null;
+                }, options: {
+                    headers: {
+                        "mc-client-type": "web" | "mobile";
+                    } & {
+                        authorization?: string;
+                    };
+                    query?: Record<string, unknown>;
+                    fetch?: RequestInit;
+                }) => Promise<Treaty.TreatyResponse<{
+                    401: {
+                        readonly code: "UNAUTHORIZED";
+                        readonly message: "It looks like you are not authenticated. Please login to continue.";
+                    } | {
+                        readonly code: "SESSION_EXPIRED" | "SESSION_INVALID";
+                        readonly message: "It looks like your session is invalid. Please login to continue.";
+                    } | {
+                        readonly code: "EMAIL_VERIFICATION_REQUIRED";
+                        readonly message: "It looks like your email is not verified. Please verify your email to continue.";
+                    };
+                    200: {
+                        emailVerificationSessionToken: string;
+                    };
+                    204: null;
+                    400: {
+                        readonly code: "IP_ADDRESS_NOT_FOUND";
+                        readonly message: "IP address not found";
+                    } | {
+                        readonly code: "EMAIL_ALREADY_REGISTERED";
+                        readonly message: "Email is already registered by another user. Please use a different email address.";
+                    } | {
+                        readonly code: never;
+                        readonly message: "Failed to request to update email. Please try again.";
+                    };
+                    422: {
+                        type: "validation";
+                        on: string;
+                        summary?: string;
+                        message?: string;
+                        found?: unknown;
+                        property?: string;
+                        expected?: string;
+                    };
+                    429: {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
+                    } | {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
+                    };
+                }>>;
             };
         };
     };

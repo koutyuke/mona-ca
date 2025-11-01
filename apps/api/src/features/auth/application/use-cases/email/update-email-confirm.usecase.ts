@@ -13,14 +13,14 @@ import type { Session } from "../../../domain/entities/session";
 import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type { SessionToken } from "../../../domain/value-objects/session-token";
 import type {
-	IUpdateEmailUseCase,
-	UpdateEmailUseCaseResult,
-} from "../../contracts/email-verification/update-email.usecase.interface";
+	IUpdateEmailConfirmUseCase,
+	UpdateEmailConfirmUseCaseResult,
+} from "../../contracts/email/update-email-confirm.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
-export class UpdateEmailUseCase implements IUpdateEmailUseCase {
+export class UpdateEmailConfirmUseCase implements IUpdateEmailConfirmUseCase {
 	constructor(
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionRepository: ISessionRepository,
@@ -37,15 +37,16 @@ export class UpdateEmailUseCase implements IUpdateEmailUseCase {
 		code: string,
 		userIdentity: UserIdentity,
 		emailVerificationSession: EmailVerificationSession,
-	): Promise<UpdateEmailUseCaseResult> {
-		const existingUserIdentityForNewEmail = await this.authUserRepository.findByEmail(emailVerificationSession.email);
-
-		if (existingUserIdentityForNewEmail && existingUserIdentityForNewEmail.id !== userIdentity.id) {
-			return err("EMAIL_ALREADY_REGISTERED");
-		}
-
+	): Promise<UpdateEmailConfirmUseCaseResult> {
 		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
 			return err("INVALID_VERIFICATION_CODE");
+		}
+
+		const existingUserIdentityForNewEmail = await this.authUserRepository.findByEmail(emailVerificationSession.email);
+
+		if (existingUserIdentityForNewEmail) {
+			await this.emailVerificationSessionRepository.deleteByUserId(userIdentity.id);
+			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
 		await Promise.all([

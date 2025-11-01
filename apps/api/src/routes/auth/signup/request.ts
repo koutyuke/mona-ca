@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { toAnySessionTokenResponse } from "../../../features/auth";
 import { captchaPlugin } from "../../../plugins/captcha";
@@ -61,7 +61,7 @@ export const SignupRequest = new Elysia()
 				expires: signupSession.expiresAt,
 			});
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			beforeHandle: async ({ rateLimit, ipAddress, body: { email }, status }) => {

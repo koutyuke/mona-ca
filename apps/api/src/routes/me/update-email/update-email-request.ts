@@ -7,12 +7,12 @@ import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-export const EmailVerificationRequest = new Elysia()
+export const UpdateEmailRequest = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
-	.use(authPlugin({ requireEmailVerification: false }))
+	.use(authPlugin())
 	.use(
-		ratelimitPlugin("email-verification-request", {
+		ratelimitPlugin("update-email-request", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -35,8 +35,10 @@ export const EmailVerificationRequest = new Elysia()
 	// Route
 	.post(
 		"/",
-		async ({ cookie, userIdentity, clientType, rateLimit, containers, status }) => {
-			const ratelimitResult = await rateLimit.consume(userIdentity.id, 100);
+		async ({ cookie, body: { email: bodyEmail }, userIdentity, clientType, rateLimit, containers, status }) => {
+			const email = bodyEmail ?? userIdentity.email;
+
+			const ratelimitResult = await rateLimit.consume(email, 100);
 			if (ratelimitResult.isErr) {
 				return status("Too Many Requests", {
 					code: "TOO_MANY_REQUESTS",
@@ -44,23 +46,22 @@ export const EmailVerificationRequest = new Elysia()
 				});
 			}
 
-			const result = await containers.auth.emailVerificationRequestUseCase.execute(userIdentity);
+			const result = await containers.auth.updateEmailRequestUseCase.execute(email, userIdentity);
 
 			if (result.isErr) {
 				const { code } = result;
 
-				if (code === "EMAIL_ALREADY_VERIFIED") {
-					return status("Bad Request", {
-						code: code,
-						message: "Email is already verified. Please use a different email address.",
-					});
-				}
 				if (code === "EMAIL_ALREADY_REGISTERED") {
 					return status("Bad Request", {
-						code: code,
+						code,
 						message: "Email is already registered by another user. Please use a different email address.",
 					});
 				}
+
+				return status("Bad Request", {
+					code,
+					message: "Failed to request to update email. Please try again.",
+				});
 			}
 
 			const { emailVerificationSession, emailVerificationSessionToken } = result.value;
@@ -83,11 +84,18 @@ export const EmailVerificationRequest = new Elysia()
 			cookie: t.Cookie({
 				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
+			body: t.Object({
+				email: t.Nullable(
+					t.String({
+						format: "email",
+					}),
+				),
+			}),
 			detail: pathDetail({
-				operationId: "auth-email-verification-request",
-				summary: "Email Verification Request",
-				description: "The User can request email verification by this endpoint",
-				tag: "Auth - Email Verification",
+				operationId: "me-update-email-request",
+				summary: "Update Email Request",
+				description: "The User can request to update their email by this endpoint",
+				tag: "Me",
 				withAuth: true,
 			}),
 		},

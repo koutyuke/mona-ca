@@ -58,13 +58,15 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 	public async deleteById(id: PasswordResetSessionId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.passwordResetSessions)
-			.where(eq(this.drizzleService.schema.passwordResetSessions.id, id));
+			.where(eq(this.drizzleService.schema.passwordResetSessions.id, id))
+			.execute();
 	}
 
 	public async deleteByUserId(userId: UserId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.passwordResetSessions)
-			.where(eq(this.drizzleService.schema.passwordResetSessions.userId, userId));
+			.where(eq(this.drizzleService.schema.passwordResetSessions.userId, userId))
+			.execute();
 	}
 
 	private convertToPasswordResetSession(dto: FoundPasswordResetSessionDto): PasswordResetSession {

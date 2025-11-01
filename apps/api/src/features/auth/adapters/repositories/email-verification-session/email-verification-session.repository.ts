@@ -61,13 +61,15 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 	public async deleteByUserId(userId: UserId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.emailVerificationSessions)
-			.where(eq(this.drizzleService.schema.emailVerificationSessions.userId, userId));
+			.where(eq(this.drizzleService.schema.emailVerificationSessions.userId, userId))
+			.execute();
 	}
 
 	public async deleteExpiredVerifications(): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.emailVerificationSessions)
-			.where(lte(this.drizzleService.schema.emailVerificationSessions.expiresAt, new Date()));
+			.where(lte(this.drizzleService.schema.emailVerificationSessions.expiresAt, new Date()))
+			.execute();
 	}
 
 	private convertToEmailVerificationSession(dto: FoundEmailVerificationSessionDto): EmailVerificationSession {

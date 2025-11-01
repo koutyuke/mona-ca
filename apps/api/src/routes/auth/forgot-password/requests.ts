@@ -1,5 +1,5 @@
 import Elysia, { t } from "elysia";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { toAnySessionTokenResponse } from "../../../features/auth";
 import { captchaPlugin } from "../../../plugins/captcha";
@@ -27,11 +27,11 @@ const PasswordResetRequest = new Elysia()
 	// Route
 	.post(
 		"/",
-		async ({ cookie, body: { email }, clientType, containers, status }) => {
+		async ({ cookie, body: { email }, clientType, containers }) => {
 			const result = await containers.auth.passwordResetRequestUseCase.execute(email);
 
 			if (result.isErr) {
-				return status("No Content");
+				return noContent();
 			}
 
 			const { passwordResetSessionToken, passwordResetSession } = result.value;
@@ -48,7 +48,7 @@ const PasswordResetRequest = new Elysia()
 				expires: passwordResetSession.expiresAt,
 			});
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			beforeHandle: async ({ rateLimit, ipAddress, body: { email }, status }) => {

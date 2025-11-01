@@ -8,7 +8,7 @@ import type { EmailVerificationSessionToken } from "../../../domain/value-object
 import type {
 	IValidateEmailVerificationSessionUseCase,
 	ValidateEmailVerificationSessionUseCaseResult,
-} from "../../contracts/email-verification/validate-email-verification-session.usecase.interface";
+} from "../../contracts/email/validate-email-verification-session.usecase.interface";
 import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
 export class ValidateEmailVerificationSessionUseCase implements IValidateEmailVerificationSessionUseCase {
