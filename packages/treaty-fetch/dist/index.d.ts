@@ -422,12 +422,6 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 } | {
                     readonly code: "CAPTCHA_VERIFICATION_FAILED";
                     readonly message: "Verification failed.";
-                } | {
-                    readonly code: "USER_NOT_FOUND";
-                    readonly message: "User not found with this email address. Please check your email and try again.";
-                } | {
-                    readonly code: never;
-                    readonly message: "Password reset request failed. Please try again.";
                 };
                 422: {
                     type: "validation";
@@ -974,6 +968,9 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     } | {
                         readonly code: "PASSWORD_NOT_SET";
                         readonly message: "Cannot unlink account without a password set. Please set a password first.";
+                    } | {
+                        readonly code: never;
+                        readonly message: "Failed to unlink account connection. Please try again.";
                     };
                     422: {
                         type: "validation";
