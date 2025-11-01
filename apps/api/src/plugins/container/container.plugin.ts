@@ -9,7 +9,7 @@ import {
 import { AuthDIContainer, type IAuthDIContainer } from "../../features/auth";
 import { type IUserDIContainer, UserDIContainer } from "../../features/user";
 
-export type ContainerRegister = {
+export type DIContainers = {
 	core: ICoreDIContainer;
 	auth: IAuthDIContainer;
 	user: IUserDIContainer;
@@ -20,7 +20,7 @@ type EnvironmentOverride = {
 	cloudflareBindings: CloudflareBindings;
 };
 
-export const di = (override?: Partial<EnvironmentOverride> & Partial<ContainerRegister>) => {
+export const containerPlugin = (override?: Partial<EnvironmentOverride> & Partial<DIContainers>) => {
 	const _envVariables = override?.envVariables ?? envVariables;
 	const _cloudflareBindings = override?.cloudflareBindings ?? cloudflareBindings;
 
@@ -29,10 +29,10 @@ export const di = (override?: Partial<EnvironmentOverride> & Partial<ContainerRe
 	const user = override?.user ?? new UserDIContainer(_envVariables, core);
 
 	return new Elysia({
-		name: "@mona-ca/di",
+		name: "@mona-ca/container",
 	}).decorate("containers", {
 		core,
 		auth,
 		user,
-	} satisfies ContainerRegister);
+	} satisfies DIContainers);
 };
