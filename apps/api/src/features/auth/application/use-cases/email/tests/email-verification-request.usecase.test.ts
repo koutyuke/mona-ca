@@ -152,6 +152,14 @@ describe("EmailVerificationRequestUseCase", () => {
 
 		sessionMap.set(session.id, session);
 
+		const { emailVerificationSession: existingEmailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: userIdentity.id,
+				email: userIdentity.email,
+				code: "12345678",
+			},
+		});
+		emailVerificationSessionMap.set(existingEmailVerificationSession.id, existingEmailVerificationSession);
 		const result = await emailVerificationRequestUseCase.execute(userIdentity);
 
 		expect(result.isErr).toBe(false);
@@ -160,6 +168,7 @@ describe("EmailVerificationRequestUseCase", () => {
 			const { emailVerificationSession } = result.value;
 			const savedSession = emailVerificationSessionMap.get(emailVerificationSession.id);
 			expect(savedSession).toBeDefined();
+			expect(emailVerificationSessionMap.has(existingEmailVerificationSession.id)).toBe(false);
 		}
 	});
 });

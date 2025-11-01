@@ -44,7 +44,7 @@ const { userIdentity, userRegistration } = createAuthUserFixture({
 	},
 });
 
-describe("UpdateEmailUseCase", () => {
+describe("UpdateEmailConfirmUseCase", () => {
 	beforeEach(() => {
 		authUserMap.clear();
 		sessionMap.clear();
