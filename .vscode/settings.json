@@ -39,23 +39,18 @@
         },
         {
           "description": "Repair of existing features.",
-          "label": "🎈 feat (機能: 更新)",
-          "value": "🎈 feat"
+          "label": "🎈 improve (機能: 更新)",
+          "value": "🎈 improve"
         },
         {
           "description": "Deletion of features.",
-          "label": "🪦 feat (機能: 削除)",
-          "value": "🪦 feat"
+          "label": "🪦 remove (機能: 削除)",
+          "value": "🪦 remove"
         },
         {
           "description": "Bug fixes.",
           "label": "🐛 fix (修正)",
           "value": "🐛 fix"
-        },
-        {
-          "description": "Critical bug fixes or major changes.",
-          "label": "🔥 hotfix (修正: 緊急)",
-          "value": "🔥 hotfix"
         },
         {
           "description": "Documentation changes.",
@@ -88,54 +83,9 @@
           "value": "📦️ build"
         },
         {
-          "description": "Continuous Integration Configuration File Changes.",
-          "label": "🦺 ci (継続的インテグレーション)",
-          "value": "🦺 ci"
-        },
-        {
-          "description": "Continuous Delivery Configuration File changes.",
-          "label": "🚀 cd (継続的デリバリー)",
-          "value": "🚀 cd"
-        },
-        {
-          "description": "Update dependencies.",
-          "label": "📦 dep (依存関係)",
-          "value": "📦 dep"
-        },
-        {
           "description": "Other changes that don't modify src or test files.",
           "label": "🔧 chore (雑務)",
           "value": "🔧 chore"
-        },
-        {
-          "description": "Configuration changes.",
-          "label": "⚙️ chore (雑務: 設定)",
-          "value": "⚙️ chore"
-        },
-        {
-          "description": "Development script changes.",
-          "label": "🛠️ chore (雑務: スクリプト)",
-          "value": "🛠️ chore"
-        },
-        {
-          "description": "Removal of files or code.",
-          "label": "🗑 chore (雑務: 削除)",
-          "value": "🗑 chore"
-        },
-        {
-          "description": "Reversion of changes.",
-          "label": "⏪️ revert (取り消し)",
-          "value": "⏪️ revert"
-        },
-        {
-          "description": "The Dockerfile changes.",
-          "label": "🐳 container (コンテナ)",
-          "value": "🐳 container"
-        },
-        {
-          "description": "The docker-compose changes.",
-          "label": "🐙 compose (コンポーズ)",
-          "value": "🐙 compose"
         },
         {
           "description": "Changes that will be squashed.",
