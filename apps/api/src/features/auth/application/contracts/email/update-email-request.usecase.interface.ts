@@ -3,12 +3,12 @@ import type { EmailVerificationSession } from "../../../domain/entities/email-ve
 import type { UserIdentity } from "../../../domain/entities/user-identity";
 import type { EmailVerificationSessionToken } from "../../../domain/value-objects/session-token";
 
-export type Success = Ok<{
+type Success = Ok<{
 	emailVerificationSessionToken: EmailVerificationSessionToken;
 	emailVerificationSession: EmailVerificationSession;
 }>;
 
-export type Error = Err<"EMAIL_ALREADY_REGISTERED">;
+type Error = Err<"EMAIL_ALREADY_REGISTERED">;
 
 export type UpdateEmailRequestUseCaseResult = Result<Success, Error>;
 
