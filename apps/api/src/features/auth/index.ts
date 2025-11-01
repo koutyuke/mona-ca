@@ -1,7 +1,6 @@
-export {
-	AccountConnectionsResponseSchema,
-	toAccountConnectionsResponse,
-} from "./adapters/presenters/account-connections.presenter";
+export { toAccountConnectionsResponse } from "./adapters/presenters/account-connections.presenter";
+export { toAccountAssociationPreviewResponse } from "./adapters/presenters/account-association-preview.presenter";
+export { toAnySessionTokenResponse } from "./adapters/presenters/session-token.presenter";
 export { newAccountAssociationSessionToken } from "./domain/value-objects/session-token";
 export { externalIdentityProviderSchema, newExternalIdentityProvider } from "./domain/value-objects/external-identity";
 export { newEmailVerificationSessionToken } from "./domain/value-objects/session-token";

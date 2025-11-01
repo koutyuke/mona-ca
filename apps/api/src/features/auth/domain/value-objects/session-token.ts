@@ -36,7 +36,7 @@ type AnySessionId =
 	| AccountAssociationSessionId
 	| SignupSessionId;
 
-type AnySessionToken =
+export type AnySessionToken =
 	| SessionToken
 	| EmailVerificationSessionToken
 	| PasswordResetSessionToken

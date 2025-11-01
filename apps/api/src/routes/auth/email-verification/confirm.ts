@@ -1,28 +1,17 @@
 import { Elysia, t } from "elysia";
-import { env } from "../../../core/infra/config/env";
-import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	NoContentResponse,
-	NoContentResponseSchema,
-	ResponseTUnion,
-	UnauthorizedException,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newEmailVerificationSessionToken } from "../../../features/auth";
-import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { authPlugin } from "../../../plugins/auth";
+import { containerPlugin } from "../../../plugins/container";
+import { pathDetail } from "../../../plugins/openapi";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 const EmailVerificationConfirm = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(authGuard({ requireEmailVerification: false }))
+	.use(containerPlugin())
+	.use(authPlugin({ requireEmailVerification: false }))
 	.use(
-		rateLimit("email-verification-confirm", {
+		ratelimitPlugin("email-verification-confirm", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -31,6 +20,16 @@ const EmailVerificationConfirm = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
@@ -42,16 +41,13 @@ const EmailVerificationConfirm = new Elysia()
 			clientType,
 			rateLimit,
 			containers,
+			status,
 		}) => {
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
 			const rawEmailVerificationSessionToken =
-				clientType === "web"
-					? cookieManager.getCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME)
-					: bodyEmailVerificationSessionToken;
+				clientType === "web" ? cookie[EMAIL_VERIFICATION_SESSION_COOKIE_NAME].value : bodyEmailVerificationSessionToken;
 
 			if (!rawEmailVerificationSessionToken) {
-				throw new UnauthorizedException({
+				return status("Unauthorized", {
 					code: "EMAIL_VERIFICATION_SESSION_INVALID",
 					message: "Email verification session token not found. Please request email verification again.",
 				});
@@ -66,13 +62,13 @@ const EmailVerificationConfirm = new Elysia()
 				const { code } = validationResult;
 
 				if (code === "EMAIL_VERIFICATION_SESSION_INVALID") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Invalid email verification session. Please request email verification again.",
 					});
 				}
 				if (code === "EMAIL_VERIFICATION_SESSION_EXPIRED") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Email verification session has expired. Please request email verification again.",
 					});
@@ -81,7 +77,13 @@ const EmailVerificationConfirm = new Elysia()
 
 			const { emailVerificationSession } = validationResult.value;
 
-			await rateLimit.consume(emailVerificationSession.id, 100);
+			const ratelimitResult = await rateLimit.consume(userIdentity.id, 100);
+			if (ratelimitResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
 
 			const confirmResult = await containers.auth.emailVerificationConfirmUseCase.execute(
 				code,
@@ -93,47 +95,28 @@ const EmailVerificationConfirm = new Elysia()
 				const { code } = confirmResult;
 
 				if (code === "INVALID_VERIFICATION_CODE") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Invalid verification code. Please check your email and try again.",
 					});
 				}
 				if (code === "EMAIL_MISMATCH") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Email mismatch. Please use the email address you requested verification for.",
 					});
 				}
 			}
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			beforeHandle: async ({ rateLimit, userIdentity }) => {
-				await rateLimit.consume(userIdentity.id, 1);
-			},
-			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie({
-				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
 				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
 				code: t.String(),
 				emailVerificationSessionToken: t.Optional(t.String()),
-			}),
-			response: withBaseResponseSchema({
-				204: NoContentResponseSchema,
-				400: ResponseTUnion(
-					AuthGuardSchema.response[400],
-					ErrorResponseSchema("INVALID_VERIFICATION_CODE"),
-					ErrorResponseSchema("EMAIL_MISMATCH"),
-				),
-				401: ResponseTUnion(
-					AuthGuardSchema.response[401],
-					ErrorResponseSchema("EMAIL_VERIFICATION_SESSION_INVALID"),
-					ErrorResponseSchema("EMAIL_VERIFICATION_SESSION_EXPIRED"),
-				),
-				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
 				operationId: "auth-email-verification-confirm",

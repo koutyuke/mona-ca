@@ -1,27 +1,19 @@
 import { Elysia, t } from "elysia";
-import { env } from "../../core/infra/config/env";
-import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	NoContentResponse,
-	NoContentResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../core/infra/elysia";
+import { defaultCookieOptions } from "../../core/infra/elysia";
 import { SESSION_COOKIE_NAME } from "../../core/lib/http";
-import { CaptchaSchema, captcha } from "../../plugins/captcha";
-import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../plugins/with-client-type";
+import { toAnySessionTokenResponse } from "../../features/auth";
+import { captchaPlugin } from "../../plugins/captcha";
+import { clientTypePlugin } from "../../plugins/client-type";
+import { containerPlugin } from "../../plugins/container";
+import { pathDetail } from "../../plugins/openapi";
+import { ratelimitPlugin } from "../../plugins/ratelimit";
 
 export const Login = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(withClientType)
+	.use(containerPlugin())
+	.use(clientTypePlugin())
 	.use(
-		rateLimit("login", {
+		ratelimitPlugin("login", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -30,26 +22,24 @@ export const Login = new Elysia()
 			},
 		}),
 	)
-	.use(captcha)
+	.use(captchaPlugin())
 
 	// Route
 	.post(
 		"/login",
-		async ({ clientType, cookie, body: { email, password }, containers }) => {
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
+		async ({ clientType, cookie, body: { email, password }, containers, status }) => {
 			const result = await containers.auth.loginUseCase.execute(email, password);
 
 			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_CREDENTIALS") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: "INVALID_CREDENTIALS",
 						message: "Invalid email or password. Please check your credentials and try again.",
 					});
 				}
-				throw new BadRequestException({
+				return status("Bad Request", {
 					code: code,
 					message: "Login failed. Please try again.",
 				});
@@ -58,43 +48,40 @@ export const Login = new Elysia()
 
 			if (clientType === "mobile") {
 				return {
-					sessionToken,
+					sessionToken: toAnySessionTokenResponse(sessionToken),
 				};
 			}
 
-			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookie[SESSION_COOKIE_NAME].set({
+				...defaultCookieOptions,
+				value: sessionToken,
 				expires: session.expiresAt,
 			});
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			beforeHandle: async ({ rateLimit, ip, captcha, body: { email, cfTurnstileResponse } }) => {
-				await captcha.verify(cfTurnstileResponse);
-				await Promise.all([rateLimit.consume(ip, 1), rateLimit.consume(email, 100)]);
+			beforeHandle: async ({ rateLimit, ipAddress, body: { email }, status }) => {
+				const [ipAddressResult, emailResult] = await Promise.all([
+					rateLimit.consume(ipAddress, 1),
+					rateLimit.consume(email, 100),
+				]);
+				if (ipAddressResult.isErr || emailResult.isErr) {
+					return status("Too Many Requests", {
+						code: "TOO_MANY_REQUESTS",
+						message: "Too many requests. Please try again later.",
+					});
+				}
+				return;
 			},
-			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				cfTurnstileResponse: t.String(),
 				email: t.String({
 					format: "email",
 				}),
 				password: t.String(),
-			}),
-			response: withBaseResponseSchema({
-				200: t.Object({
-					sessionToken: t.String(),
-				}),
-				204: NoContentResponseSchema,
-				400: ResponseTUnion(
-					WithClientTypeSchema.response[400],
-					CaptchaSchema.response[400],
-					ErrorResponseSchema("INVALID_CREDENTIALS"),
-				),
-				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
 				operationId: "auth-login",

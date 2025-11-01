@@ -1,28 +1,17 @@
 import { Elysia, t } from "elysia";
-import { env } from "../../../core/infra/config/env";
-import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	NoContentResponse,
-	NoContentResponseSchema,
-	ResponseTUnion,
-	UnauthorizedException,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
 import { SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newSignupSessionToken } from "../../../features/auth";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { clientTypePlugin } from "../../../plugins/client-type";
+import { containerPlugin } from "../../../plugins/container";
+import { pathDetail } from "../../../plugins/openapi";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const SignupVerifyEmail = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(withClientType)
+	.use(containerPlugin())
+	.use(clientTypePlugin())
 	.use(
-		rateLimit("signup-verify-email", {
+		ratelimitPlugin("signup-verify-email", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -31,6 +20,16 @@ export const SignupVerifyEmail = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
@@ -41,14 +40,13 @@ export const SignupVerifyEmail = new Elysia()
 			body: { signupSessionToken: bodySignupSessionToken, code },
 			clientType,
 			rateLimit,
+			status,
 		}) => {
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
 			const rawSignupSessionToken =
-				clientType === "web" ? cookieManager.getCookie(SIGNUP_SESSION_COOKIE_NAME) : bodySignupSessionToken;
+				clientType === "web" ? cookie[SIGNUP_SESSION_COOKIE_NAME].value : bodySignupSessionToken;
 
 			if (!rawSignupSessionToken) {
-				throw new UnauthorizedException({
+				return status("Unauthorized", {
 					code: "SIGNUP_SESSION_INVALID",
 					message: "Signup session token not found. Please request signup again.",
 				});
@@ -62,13 +60,13 @@ export const SignupVerifyEmail = new Elysia()
 				const { code } = validationResult;
 
 				if (code === "SIGNUP_SESSION_INVALID") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Signup session token is invalid. Please request signup again.",
 					});
 				}
 				if (code === "SIGNUP_SESSION_EXPIRED") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Signup session token has expired. Please request signup again.",
 					});
@@ -77,7 +75,13 @@ export const SignupVerifyEmail = new Elysia()
 
 			const { signupSession } = validationResult.value;
 
-			await rateLimit.consume(signupSession.id, 100);
+			const ratelimitResult = await rateLimit.consume(signupSession.id, 100);
+			if (ratelimitResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
 
 			const verifyEmailResult = await containers.auth.signupVerifyEmailUseCase.execute(code, signupSession);
 
@@ -85,45 +89,28 @@ export const SignupVerifyEmail = new Elysia()
 				const { code } = verifyEmailResult;
 
 				if (code === "INVALID_VERIFICATION_CODE") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Invalid verification code. Please check your email and try again.",
 					});
 				}
 				if (code === "ALREADY_VERIFIED") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Email is already verified. Please login.",
 					});
 				}
 			}
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			beforeHandle: async ({ rateLimit, ip }) => {
-				await rateLimit.consume(ip, 1);
-			},
-			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({
 				[SIGNUP_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
 				signupSessionToken: t.Optional(t.String()),
 				code: t.String(),
-			}),
-			response: withBaseResponseSchema({
-				204: NoContentResponseSchema,
-				400: ResponseTUnion(
-					WithClientTypeSchema.response[400],
-					ErrorResponseSchema("INVALID_VERIFICATION_CODE"),
-					ErrorResponseSchema("ALREADY_VERIFIED"),
-				),
-				401: ResponseTUnion(
-					ErrorResponseSchema("SIGNUP_SESSION_INVALID"),
-					ErrorResponseSchema("SIGNUP_SESSION_EXPIRED"),
-				),
-				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
 				operationId: "auth-signup-verify-email",

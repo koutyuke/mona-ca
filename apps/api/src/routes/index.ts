@@ -1,38 +1,37 @@
+import { cors as corsPlugin } from "@elysiajs/cors";
 import { Elysia } from "elysia";
-import { PRODUCTION_BASE_DOMAIN } from "../core/lib/http";
-import { cors } from "../plugins/cors";
-import { di } from "../plugins/di";
-import { error } from "../plugins/error";
-import { openAPI } from "../plugins/open-api";
-import { pathDetail } from "../plugins/open-api";
-import { Auth } from "./auth";
-import { Me } from "./me";
+import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
+import { env } from "../core/infra/config/env";
+import { CLIENT_TYPE_HEADER_NAME, DEV_ORIGIN_REGEX, PROD_ORIGIN_REGEX } from "../core/lib/http";
+import { containerPlugin } from "../plugins/container";
+import { ipAddressPlugin } from "../plugins/ip-address";
+import { openapiPlugin } from "../plugins/openapi";
+import { pathDetail } from "../plugins/openapi";
+import { AuthRoutes } from "./auth";
+import { MeRoutes } from "./me";
 
 globalThis.Buffer = Buffer;
 
-const app = new Elysia({
-	aot: false,
-	strictPath: false,
+export default new Elysia({
+	adapter: CloudflareAdapter,
 })
 	// Global Middleware & Plugin
-	.use(di())
+	.use(containerPlugin())
+	.use(ipAddressPlugin())
 	.use(
-		cors({
-			origin: app_env => {
-				if (app_env === "production") {
-					return [PRODUCTION_BASE_DOMAIN];
-				}
-				return [/localhost:\d{4}$/];
-			},
-			allowedHeaders: ["content-type", "authorization", "cf-connecting-ip", "mc-client-type"],
+		corsPlugin({
+			origin: env.APP_ENV === "production" ? PROD_ORIGIN_REGEX : DEV_ORIGIN_REGEX,
+			methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+			allowedHeaders: ["content-type", "authorization", CLIENT_TYPE_HEADER_NAME],
+			credentials: true,
+			maxAge: 600,
 		}),
 	)
-	.use(error)
-	.use(openAPI)
+	.use(openapiPlugin())
 
 	// Other Routes
-	.use(Auth)
-	.use(Me)
+	.use(AuthRoutes)
+	.use(MeRoutes)
 
 	// Route
 	.get(
@@ -48,6 +47,5 @@ const app = new Elysia({
 				tag: "Hello",
 			}),
 		},
-	);
-
-export default app;
+	)
+	.compile();

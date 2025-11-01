@@ -1,28 +1,18 @@
 import { Elysia, t } from "elysia";
-import { env } from "../../../core/infra/config/env";
-import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	NoContentResponse,
-	NoContentResponseSchema,
-	ResponseTUnion,
-	UnauthorizedException,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
+import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { newAccountAssociationSessionToken } from "../../../features/auth";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { newAccountAssociationSessionToken, toAnySessionTokenResponse } from "../../../features/auth";
+import { clientTypePlugin } from "../../../plugins/client-type";
+import { containerPlugin } from "../../../plugins/container";
+import { pathDetail } from "../../../plugins/openapi";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const AccountAssociationConfirm = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(withClientType)
+	.use(containerPlugin())
+	.use(clientTypePlugin())
 	.use(
-		rateLimit("account-association-confirm", {
+		ratelimitPlugin("account-association-confirm", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -31,26 +21,35 @@ export const AccountAssociationConfirm = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
-		"/association/confirm",
+		"/confirm",
 		async ({
 			cookie,
 			body: { accountAssociationSessionToken: bodyAccountAssociationSessionToken, code },
 			clientType,
 			rateLimit,
 			containers,
+			status,
 		}) => {
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
 			const rawAccountAssociationSessionToken =
 				clientType === "web"
-					? cookieManager.getCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME)
+					? cookie[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME].value
 					: bodyAccountAssociationSessionToken;
 
 			if (!rawAccountAssociationSessionToken) {
-				throw new UnauthorizedException({
+				return status("Unauthorized", {
 					code: "ACCOUNT_ASSOCIATION_SESSION_INVALID",
 					message: "Account association session not found. Please login again.",
 				});
@@ -64,13 +63,13 @@ export const AccountAssociationConfirm = new Elysia()
 				const { code } = validateResult;
 
 				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Invalid account association session. Please login again.",
 					});
 				}
 				if (code === "ACCOUNT_ASSOCIATION_SESSION_EXPIRED") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Account association session has expired. Please login again.",
 					});
@@ -79,7 +78,13 @@ export const AccountAssociationConfirm = new Elysia()
 
 			const { accountAssociationSession, userIdentity } = validateResult.value;
 
-			await rateLimit.consume(userIdentity.id, 100);
+			const ratelimitResult = await rateLimit.consume(userIdentity.id, 100);
+			if (ratelimitResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
 
 			const confirmResult = await containers.auth.accountAssociationConfirmUseCase.execute(
 				code,
@@ -91,19 +96,19 @@ export const AccountAssociationConfirm = new Elysia()
 				const { code } = confirmResult;
 
 				if (code === "INVALID_ASSOCIATION_CODE") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code,
 						message: "Invalid association code. Please check your email and try again.",
 					});
 				}
 				if (code === "ACCOUNT_ALREADY_LINKED") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code,
 						message: "This OAuth provider is already linked to your account.",
 					});
 				}
 				if (code === "ACCOUNT_LINKED_ELSEWHERE") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code,
 						message: "This OAuth account is already linked to another user.",
 					});
@@ -114,22 +119,20 @@ export const AccountAssociationConfirm = new Elysia()
 
 			if (clientType === "mobile") {
 				return {
-					sessionToken,
+					sessionToken: toAnySessionTokenResponse(sessionToken),
 				};
 			}
 
-			cookieManager.deleteCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME);
-			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookie[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME].remove();
+			cookie[SESSION_COOKIE_NAME].set({
+				...defaultCookieOptions,
+				value: sessionToken,
 				expires: session.expiresAt,
 			});
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			beforeHandle: async ({ rateLimit, ip }) => {
-				await rateLimit.consume(ip, 1);
-			},
-			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
 				[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -137,24 +140,6 @@ export const AccountAssociationConfirm = new Elysia()
 			body: t.Object({
 				accountAssociationSessionToken: t.Optional(t.String()),
 				code: t.String(),
-			}),
-			response: withBaseResponseSchema({
-				200: t.Object({
-					sessionToken: t.String(),
-				}),
-				204: NoContentResponseSchema,
-				400: ResponseTUnion(
-					WithClientTypeSchema.response[400],
-					ErrorResponseSchema("INVALID_ASSOCIATION_CODE"),
-					ErrorResponseSchema("ACCOUNT_ALREADY_LINKED"),
-					ErrorResponseSchema("ACCOUNT_LINKED_ELSEWHERE"),
-					ErrorResponseSchema("USER_NOT_FOUND"),
-				),
-				401: ResponseTUnion(
-					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_INVALID"),
-					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_EXPIRED"),
-				),
-				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
 				tag: "Auth - Account Association",

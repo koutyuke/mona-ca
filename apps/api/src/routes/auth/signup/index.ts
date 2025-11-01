@@ -3,7 +3,7 @@ import { SignupConfirm } from "./confirm";
 import { SignupRequest } from "./request";
 import { SignupVerifyEmail } from "./verify-email";
 
-export const Signup = new Elysia({
+export const SignupRoutes = new Elysia({
 	prefix: "/signup",
 })
 	.use(SignupRequest)

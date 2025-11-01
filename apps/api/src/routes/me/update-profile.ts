@@ -1,25 +1,19 @@
 import { Elysia, t } from "elysia";
 import { genderSchema, newGender } from "../../core/domain/value-objects";
-import {
-	BadRequestException,
-	ErrorResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../core/infra/elysia";
-import { ProfileResponseSchema, type UpdateProfileDto, toProfileResponse } from "../../features/user";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
+import { type UpdateProfileDto, toProfileResponse } from "../../features/user";
+import { authPlugin } from "../../plugins/auth";
+import { containerPlugin } from "../../plugins/container";
+import { pathDetail } from "../../plugins/openapi";
 
 export const UpdateProfile = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(authGuard())
+	.use(containerPlugin())
+	.use(authPlugin())
 
 	// Route
 	.patch(
 		"",
-		async ({ body: { name, gender, iconUrl }, userIdentity, containers }) => {
+		async ({ body: { name, gender, iconUrl }, userIdentity, containers, status }) => {
 			const updateProfile: UpdateProfileDto = {};
 
 			if (name) {
@@ -37,7 +31,7 @@ export const UpdateProfile = new Elysia()
 			const updatedProfile = await containers.user.updateProfileUseCase.execute(userIdentity.id, updateProfile);
 
 			if (updatedProfile.isErr) {
-				throw new BadRequestException({
+				return status("Bad Request", {
 					code: updatedProfile.code,
 					message: "Failed to update profile",
 				});
@@ -46,7 +40,6 @@ export const UpdateProfile = new Elysia()
 			return toProfileResponse(updatedProfile.value.profile);
 		},
 		{
-			headers: AuthGuardSchema.headers,
 			body: t.Object({
 				name: t.Optional(
 					t.String({
@@ -56,11 +49,6 @@ export const UpdateProfile = new Elysia()
 				),
 				gender: t.Optional(genderSchema),
 				iconUrl: t.Optional(t.String()),
-			}),
-			response: withBaseResponseSchema({
-				200: ProfileResponseSchema,
-				400: ResponseTUnion(AuthGuardSchema.response[400], ErrorResponseSchema("PROFILE_NOT_FOUND")),
-				401: AuthGuardSchema.response[401],
 			}),
 			detail: pathDetail({
 				operationId: "me-update-profile",

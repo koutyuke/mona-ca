@@ -38,56 +38,56 @@
 
   {
     "name": "A-App",
-    "color": "0f302b",
+    "color": "0e8a16",
     "description": "area: app - アプリケーション全体",
     "ref": "A-App"
   },
   {
     "name": "A-Backend",
-    "color": "0f302b",
+    "color": "0e8a16",
     "description": "area: backend - バックエンド",
     "ref": "A-Backend"
   },
   {
     "name": "A-Web",
-    "color": "0f302b",
+    "color": "0e8a16",
     "description": "area: web - Web フロント",
     "ref": "A-Web"
   },
   {
     "name": "A-Mobile",
-    "color": "0f302b",
+    "color": "0e8a16",
     "description": "area: mobile - モバイルアプリ",
     "ref": "A-Mobile"
   },
   {
     "name": "A-Packages",
-    "color": "0f302b",
+    "color": "0e8a16",
     "description": "area: packages - パッケージ",
     "ref": "A-Packages"
   },
 
   {
     "name": "P-Critical",
-    "color": "f01cd9",
+    "color": "ff42a0",
     "description": "priority: critical - 最優先・即時対応",
     "ref": "P-Critical"
   },
   {
     "name": "P-High",
-    "color": "f01cd9",
+    "color": "ff42a0",
     "description": "priority: high - 高優先",
     "ref": "P-High"
   },
   {
     "name": "P-Medium",
-    "color": "f01cd9",
+    "color": "ff42a0",
     "description": "priority: medium - 中優先",
     "ref": "P-Medium"
   },
   {
     "name": "P-Low",
-    "color": "f01cd9",
+    "color": "ff42a0",
     "description": "priority: low - 低優先",
     "ref": "P-Low"
   },

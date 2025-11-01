@@ -1,21 +1,14 @@
 import { Elysia, t } from "elysia";
-import { env } from "../../core/infra/config/env";
-import {
-	CookieManager,
-	NoContentResponse,
-	NoContentResponseSchema,
-	withBaseResponseSchema,
-} from "../../core/infra/elysia";
 import { SESSION_COOKIE_NAME } from "../../core/lib/http";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
+import { authPlugin } from "../../plugins/auth";
+import { containerPlugin } from "../../plugins/container";
+import { pathDetail } from "../../plugins/openapi";
 
 export const Logout = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
+	.use(containerPlugin())
 	.use(
-		authGuard({
+		authPlugin({
 			requireEmailVerification: false,
 		}),
 	)
@@ -23,26 +16,18 @@ export const Logout = new Elysia()
 	// Route
 	.post(
 		"/logout",
-		async ({ cookie, session, clientType, containers }) => {
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
+		async ({ cookie, session, clientType, containers, status }) => {
 			await containers.auth.logoutUseCase.execute(session.id);
 
 			if (clientType === "web") {
-				cookieManager.deleteCookie(SESSION_COOKIE_NAME);
+				cookie[SESSION_COOKIE_NAME].remove();
 			}
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-			}),
-			response: withBaseResponseSchema({
-				204: NoContentResponseSchema,
-				400: AuthGuardSchema.response[400],
-				401: AuthGuardSchema.response[401],
 			}),
 			detail: pathDetail({
 				operationId: "auth-logout",

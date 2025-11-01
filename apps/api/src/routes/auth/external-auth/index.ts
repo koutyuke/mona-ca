@@ -4,7 +4,7 @@ import { ExternalAuthLoginRequest } from "./login-request";
 import { ExternalAuthSignupCallback } from "./signup-callback";
 import { ExternalAuthSignupRequest } from "./signup-request";
 
-export const ExternalAuth = new Elysia()
+export const ExternalAuthRoutes = new Elysia()
 	.use(ExternalAuthLoginRequest)
 	.use(ExternalAuthLoginCallback)
 	.use(ExternalAuthSignupRequest)

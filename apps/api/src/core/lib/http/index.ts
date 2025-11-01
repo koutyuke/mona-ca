@@ -12,4 +12,5 @@ export {
 } from "./constants";
 export { convertRedirectableMobileScheme } from "./convert-redirectable-mobile-scheme";
 export { readBearerToken } from "./read-bearer-token";
-export { getIP } from "./get-ip";
+export { getIP, DEVELOPMENT_IP_ADDRESS } from "./get-ip";
+export { PROD_ORIGIN_REGEX, DEV_ORIGIN_REGEX } from "./cors";

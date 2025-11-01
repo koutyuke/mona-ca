@@ -240,18 +240,18 @@ export const to[Entity]Response = (entity: [Entity]): [Entity]Response => {
 export const [Action][Resource] = new Elysia()
   // Local Middleware & Plugins
   .use(di())
-  .use(authGuard({ requireEmailVerification: true }))
+  .use(authPlugin({ requireEmailVerification: true }))
 
   // Routes
   .[method](
     "[path]",
-    async ({ [params], containers }) => {
+    async ({ [params], containers, status }) => {
       // 1. UseCaseを実行
       const result = await containers.[feature].[action]UseCase.execute(input);
 
       // 2. エラーハンドリング
       if (result.isErr) {
-        throw new BadRequestException({
+        return status("Bad Request", {
           code: result.code,
           message: "[Error message]",
         });
@@ -263,11 +263,6 @@ export const [Action][Resource] = new Elysia()
     {
       // スキーマ定義
       [params]: [Schema],
-      response: withBaseResponseSchema({
-        200: [Entity]ResponseSchema,
-        400: ErrorResponseSchema("[ERROR_CODE]"),
-        401: AuthGuardSchema.response[401],
-      }),
       // OpenAPI定義
       detail: pathDetail({
         operationId: "[operation-id]",
@@ -292,43 +287,6 @@ return ok({ data: someData });
 
 // エラー時
 return err("ERROR_CODE");
-```
-
-#### 例外クラス
-
-```typescript
-// core/infra/elysia/response/exceptions.ts
-export class BadRequestException extends Error {
-  constructor(public readonly detail: { code: string; message: string }) {
-    super(detail.message);
-  }
-}
-
-export class UnauthorizedException extends Error {
-  constructor(public readonly detail: { code: string; message: string }) {
-    super(detail.message);
-  }
-}
-
-// ...
-```
-
-#### Error Plugin
-
-```typescript
-// plugins/error/error.plugin.ts
-export const error = new Elysia()
-  .onError(({ error, code, set }) => {
-    if (error instanceof BadRequestException) {
-      set.status = 400;
-      return { success: false, error: error.detail };
-    }
-    if (error instanceof UnauthorizedException) {
-      set.status = 401;
-      return { success: false, error: error.detail };
-    }
-    // ...
-  });
 ```
 
 ## テスト戦略
@@ -588,15 +546,27 @@ to[Entity]Response
 ### Route
 
 ```text
-[Action][Resource]
+[Action][Resource]Route
 ```
 
 例:
 
-- `GetProfile`
-- `UpdateProfile`
-- `Login`
-- `SignupRequest`
+- `GetProfileRoute`
+- `UpdateProfileRoute`
+- `LoginRoute`
+- `SignupRequestRoute`
+
+### Plugin
+
+```text
+[Plugin]Plugin
+```
+
+例:
+
+- `AuthPlugin`
+- `RatelimitPlugin`
+- `ClientTypePlugin`
 
 ### エラーコード
 

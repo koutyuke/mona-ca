@@ -1,17 +1,15 @@
 import { Elysia } from "elysia";
-import { GetAccountConnections } from "./get-account-connections";
+import { ConnectionsRoutes } from "./connections";
 import { GetProfile } from "./get-profile";
-import { UnlinkAccountConnection } from "./unlink-account-connection";
-import { UpdateEmail } from "./update-email";
+import { UpdateEmailRoutes } from "./update-email";
 import { UpdatePassword } from "./update-password";
 import { UpdateProfile } from "./update-profile";
 
-export const Me = new Elysia({
+export const MeRoutes = new Elysia({
 	prefix: "/users/@me",
 })
 	.use(GetProfile)
-	.use(UpdateEmail)
 	.use(UpdateProfile)
 	.use(UpdatePassword)
-	.use(UnlinkAccountConnection)
-	.use(GetAccountConnections);
+	.use(ConnectionsRoutes)
+	.use(UpdateEmailRoutes);

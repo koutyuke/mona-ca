@@ -1,32 +1,26 @@
 import { Elysia } from "elysia";
-import {
-	BadRequestException,
-	ErrorResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../core/infra/elysia";
-import { ProfileResponseSchema, toProfileResponse } from "../../features/user";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
-import { pathDetail } from "../../plugins/open-api";
+import { toProfileResponse } from "../../features/user";
+import { authPlugin } from "../../plugins/auth";
+import { containerPlugin } from "../../plugins/container";
+import { pathDetail } from "../../plugins/openapi";
 
 export const GetProfile = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
+	.use(containerPlugin())
 	.use(
-		authGuard({
+		authPlugin({
 			requireEmailVerification: false,
 		}),
 	)
 
 	// Route
 	.get(
-		"",
-		async ({ userIdentity, containers }) => {
+		"/",
+		async ({ userIdentity, containers, status }) => {
 			const result = await containers.user.getProfileUseCase.execute(userIdentity.id);
 
 			if (result.isErr) {
-				throw new BadRequestException({
+				return status("Bad Request", {
 					code: result.code,
 					message: "Failed to get profile",
 				});
@@ -34,12 +28,6 @@ export const GetProfile = new Elysia()
 			return toProfileResponse(result.value.profile);
 		},
 		{
-			headers: AuthGuardSchema.headers,
-			response: withBaseResponseSchema({
-				200: ProfileResponseSchema,
-				400: ResponseTUnion(AuthGuardSchema.response[400], ErrorResponseSchema("PROFILE_NOT_FOUND")),
-				401: AuthGuardSchema.response[401],
-			}),
 			detail: pathDetail({
 				operationId: "me-get-profile",
 				summary: "Get Profile",

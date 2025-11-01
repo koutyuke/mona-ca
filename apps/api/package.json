@@ -19,7 +19,8 @@
     "db:std:remote": "drizzle-kit studio"
   },
   "dependencies": {
-    "@elysiajs/swagger": "~1.2.0",
+    "@elysiajs/cors": "~1.4.0",
+    "@elysiajs/openapi": "~1.4.11",
     "@mona-ca/argon2id": "workspace:*",
     "@mona-ca/core": "workspace:*",
     "@oslojs/crypto": "^1.0.1",
@@ -28,7 +29,7 @@
     "@upstash/redis": "^1.34.6",
     "arctic": "^3.6.0",
     "drizzle-orm": "~0.44.2",
-    "elysia": "~1.2.25",
+    "elysia": "~1.4.13",
     "resend": "^4.2.0",
     "ulid-workers": "^2.1.0"
   },

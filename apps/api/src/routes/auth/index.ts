@@ -1,21 +1,21 @@
 import { Elysia } from "elysia";
-import { AccountAssociation } from "./account-association";
-import { AccountLink } from "./account-link";
-import { EmailVerification } from "./email-verification";
-import { ExternalAuth } from "./external-auth";
-import { ForgotPassword } from "./forgot-password";
+import { AccountAssociationRoutes } from "./account-association";
+import { AccountLinkRoutes } from "./account-link";
+import { EmailVerificationRoutes } from "./email-verification";
+import { ExternalAuthRoutes } from "./external-auth";
+import { ForgotPasswordRoutes } from "./forgot-password";
 import { Login } from "./login";
 import { Logout } from "./logout";
-import { Signup } from "./signup";
+import { SignupRoutes } from "./signup";
 
-export const Auth = new Elysia({
+export const AuthRoutes = new Elysia({
 	prefix: "/auth",
 })
-	.use(EmailVerification)
-	.use(ForgotPassword)
-	.use(ExternalAuth)
-	.use(Signup)
 	.use(Login)
 	.use(Logout)
-	.use(AccountLink)
-	.use(AccountAssociation);
+	.use(EmailVerificationRoutes)
+	.use(ForgotPasswordRoutes)
+	.use(ExternalAuthRoutes)
+	.use(SignupRoutes)
+	.use(AccountLinkRoutes)
+	.use(AccountAssociationRoutes);

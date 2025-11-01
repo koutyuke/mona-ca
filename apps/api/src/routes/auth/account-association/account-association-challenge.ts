@@ -1,26 +1,17 @@
-import { Elysia, t } from "elysia";
-import { env } from "../../../core/infra/config/env";
-import {
-	CookieManager,
-	ErrorResponseSchema,
-	NoContentResponse,
-	NoContentResponseSchema,
-	ResponseTUnion,
-	UnauthorizedException,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
+import { Elysia, status, t } from "elysia";
+import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { newAccountAssociationSessionToken } from "../../../features/auth";
-import { di } from "../../../plugins/di";
-import { pathDetail } from "../../../plugins/open-api/path-detail";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
-import { WithClientTypeSchema, withClientType } from "../../../plugins/with-client-type";
+import { newAccountAssociationSessionToken, toAnySessionTokenResponse } from "../../../features/auth";
+import { clientTypePlugin } from "../../../plugins/client-type";
+import { containerPlugin } from "../../../plugins/container";
+import { pathDetail } from "../../../plugins/openapi/path-detail";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const AccountAssociationChallenge = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
+	.use(containerPlugin())
 	.use(
-		rateLimit("account-association-challenge", {
+		ratelimitPlugin("account-association-challenge", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -29,21 +20,29 @@ export const AccountAssociationChallenge = new Elysia()
 			},
 		}),
 	)
-	.use(withClientType)
+	.use(clientTypePlugin())
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
-		"/association",
+		"/",
 		async ({ containers, cookie, body, clientType, rateLimit }) => {
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
 			const rawAccountAssociationSessionToken =
 				clientType === "web"
-					? cookieManager.getCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME)
+					? cookie[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME].value
 					: body?.accountAssociationSessionToken;
 
 			if (!rawAccountAssociationSessionToken) {
-				throw new UnauthorizedException({
+				return status("Unauthorized", {
 					code: "ACCOUNT_ASSOCIATION_SESSION_INVALID",
 					message: "Account association session not found. Please login again.",
 				});
@@ -57,13 +56,13 @@ export const AccountAssociationChallenge = new Elysia()
 				const { code } = validateResult;
 
 				if (code === "ACCOUNT_ASSOCIATION_SESSION_INVALID") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Invalid account association session. Please login again.",
 					});
 				}
 				if (code === "ACCOUNT_ASSOCIATION_SESSION_EXPIRED") {
-					throw new UnauthorizedException({
+					return status("Unauthorized", {
 						code: code,
 						message: "Account association session has expired. Please login again.",
 					});
@@ -72,28 +71,33 @@ export const AccountAssociationChallenge = new Elysia()
 
 			const { accountAssociationSession: validateAccountAssociationSession } = validateResult.value;
 
-			await rateLimit.consume(validateAccountAssociationSession.userId, 100);
+			const ratelimitResult = await rateLimit.consume(validateAccountAssociationSession.userId, 100);
+
+			if (ratelimitResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
 
 			const { accountAssociationSessionToken, accountAssociationSession } =
 				await containers.auth.accountAssociationChallengeUseCase.execute(validateAccountAssociationSession);
 
 			if (clientType === "mobile") {
-				return {
-					accountAssociationSessionToken,
-				};
+				return status("OK", {
+					accountAssociationSessionToken: toAnySessionTokenResponse(accountAssociationSessionToken),
+				});
 			}
 
-			cookieManager.setCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, accountAssociationSessionToken, {
+			cookie[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME].set({
+				...defaultCookieOptions,
+				value: accountAssociationSessionToken,
 				expires: accountAssociationSession.expiresAt,
 			});
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			beforeHandle: async ({ rateLimit, ip }) => {
-				await rateLimit.consume(ip, 1);
-			},
-			headers: WithClientTypeSchema.headers,
 			cookie: t.Cookie({
 				[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
@@ -102,18 +106,6 @@ export const AccountAssociationChallenge = new Elysia()
 					accountAssociationSessionToken: t.Optional(t.String()),
 				}),
 			),
-			response: withBaseResponseSchema({
-				200: t.Object({
-					accountAssociationSessionToken: t.String(),
-				}),
-				204: NoContentResponseSchema,
-				400: WithClientTypeSchema.response[400],
-				401: ResponseTUnion(
-					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_INVALID"),
-					ErrorResponseSchema("ACCOUNT_ASSOCIATION_SESSION_EXPIRED"),
-				),
-				429: RateLimiterSchema.response[429],
-			}),
 			detail: pathDetail({
 				tag: "Auth - Account Association",
 				operationId: "account-association-challenge",

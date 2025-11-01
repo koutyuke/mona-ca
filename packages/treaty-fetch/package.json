@@ -1,0 +1,23 @@
+{
+  "name": "@mona-ca/treaty-fetch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "scripts": {
+    "check": "biome check --error-on-warnings --no-errors-on-unmatched",
+    "check:fix": "bun run check --write",
+    "typecheck": "tsc --noEmit",
+    "build:types": "tsup"
+  },
+  "dependencies": {
+    "@elysiajs/eden": "~1.4.4",
+    "@mona-ca/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@mona-ca/api": "workspace:*",
+    "@mona-ca/tsconfig": "workspace:*",
+    "tsup": "^8.5.0"
+  }
+}
