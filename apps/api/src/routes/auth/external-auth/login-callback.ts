@@ -119,6 +119,7 @@ export const ExternalAuthLoginCallback = new Elysia()
 
 					cookie[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME].set({
 						...defaultCookieOptions,
+						value: accountAssociationSessionToken,
 						expires: accountAssociationSession.expiresAt,
 					});
 
