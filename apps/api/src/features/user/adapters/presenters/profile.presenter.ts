@@ -1,24 +1,15 @@
-import { type Static, t } from "elysia";
 import type { Profile } from "../../domain/entities/profile";
 
-export const ProfileResponseSchema = t.Object({
-	id: t.String(),
-	email: t.String({
-		format: "email",
-	}),
-	emailVerified: t.Boolean(),
-	name: t.String(),
-	iconUrl: t.Union([t.String(), t.Null()]),
-	gender: t.Union([t.Literal("man"), t.Literal("woman")]),
-	createdAt: t.String({
-		format: "date-time",
-	}),
-	updatedAt: t.String({
-		format: "date-time",
-	}),
-});
-
-export type ProfileResponse = Static<typeof ProfileResponseSchema>;
+type ProfileResponse = {
+	id: string;
+	email: string;
+	emailVerified: boolean;
+	name: string;
+	iconUrl: string | null;
+	gender: "man" | "woman";
+	createdAt: string;
+	updatedAt: string;
+};
 
 export const toProfileResponse = (profile: Profile): ProfileResponse => {
 	return {
