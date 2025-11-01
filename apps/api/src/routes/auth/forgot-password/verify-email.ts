@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { noContent } from "../../../core/infra/elysia";
 import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newPasswordResetSessionToken } from "../../../features/auth";
 import { clientTypePlugin } from "../../../plugins/client-type";
@@ -93,7 +94,7 @@ export const PasswordResetVerifyEmail = new Elysia()
 				}
 			}
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			cookie: t.Cookie({

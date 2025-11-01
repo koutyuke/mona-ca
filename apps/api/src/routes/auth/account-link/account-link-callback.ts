@@ -1,5 +1,6 @@
 import { Elysia, t } from "elysia";
 import { env } from "../../../core/infra/config/env";
+import { redirect } from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
@@ -24,7 +25,6 @@ export const AccountLinkCallback = new Elysia()
 			query: { code, state: queryState, error },
 			containers,
 			status,
-			redirect,
 		}) => {
 			const provider = newExternalIdentityProvider(_provider);
 

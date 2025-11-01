@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { noContent } from "../../../core/infra/elysia";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newEmailVerificationSessionToken } from "../../../features/auth";
 import { authPlugin } from "../../../plugins/auth";
@@ -108,7 +109,7 @@ const EmailVerificationConfirm = new Elysia()
 				}
 			}
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			cookie: t.Cookie({

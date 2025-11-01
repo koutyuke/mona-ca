@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { genderSchema, newGender } from "../../../core/domain/value-objects";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { newSignupSessionToken, toAnySessionTokenResponse } from "../../../features/auth";
 import { clientTypePlugin } from "../../../plugins/client-type";
@@ -94,7 +94,7 @@ export const SignupConfirm = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return status("No Content");
+			return noContent();
 		},
 		{
 			cookie: t.Cookie({
