@@ -31,19 +31,7 @@ const PasswordResetRequest = new Elysia()
 			const result = await containers.auth.passwordResetRequestUseCase.execute(email);
 
 			if (result.isErr) {
-				const { code } = result;
-
-				if (code === "USER_NOT_FOUND") {
-					return status("Bad Request", {
-						code: code,
-						message: "User not found with this email address. Please check your email and try again.",
-					});
-				}
-
-				return status("Bad Request", {
-					code: code,
-					message: "Password reset request failed. Please try again.",
-				});
+				return status("No Content");
 			}
 
 			const { passwordResetSessionToken, passwordResetSession } = result.value;
