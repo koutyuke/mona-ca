@@ -2,10 +2,10 @@ import { Elysia, t } from "elysia";
 import {
 	externalIdentityProviderSchema,
 	newExternalIdentityProvider,
-} from "../../features/auth/domain/value-objects/external-identity";
-import { authPlugin } from "../../plugins/auth";
-import { containerPlugin } from "../../plugins/container";
-import { pathDetail } from "../../plugins/openapi";
+} from "../../../features/auth/domain/value-objects/external-identity";
+import { authPlugin } from "../../../plugins/auth";
+import { containerPlugin } from "../../../plugins/container";
+import { pathDetail } from "../../../plugins/openapi";
 
 export const UnlinkAccountConnection = new Elysia()
 	// Local Middleware & Plugin
@@ -14,7 +14,7 @@ export const UnlinkAccountConnection = new Elysia()
 
 	// Route
 	.delete(
-		"connections/:provider",
+		"/:provider",
 		async ({ params: { provider: _provider }, userIdentity, containers, status }) => {
 			const provider = newExternalIdentityProvider(_provider);
 			const result = await containers.auth.unlinkAccountConnectionUseCase.execute(provider, userIdentity);

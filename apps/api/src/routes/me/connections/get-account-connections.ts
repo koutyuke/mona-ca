@@ -1,8 +1,8 @@
 import { Elysia } from "elysia";
-import { toAccountConnectionsResponse } from "../../features/auth";
-import { authPlugin } from "../../plugins/auth";
-import { containerPlugin } from "../../plugins/container";
-import { pathDetail } from "../../plugins/openapi";
+import { toAccountConnectionsResponse } from "../../../features/auth";
+import { authPlugin } from "../../../plugins/auth";
+import { containerPlugin } from "../../../plugins/container";
+import { pathDetail } from "../../../plugins/openapi";
 
 export const GetAccountConnections = new Elysia()
 	// Local Middleware & Plugin
@@ -11,7 +11,7 @@ export const GetAccountConnections = new Elysia()
 
 	// Route
 	.get(
-		"connections",
+		"/",
 		async ({ userIdentity, containers }) => {
 			const result = await containers.auth.getConnectionsUseCase.execute(userIdentity);
 

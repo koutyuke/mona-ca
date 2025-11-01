@@ -1,11 +1,11 @@
 import { Elysia, t } from "elysia";
-import { defaultCookieOptions } from "../../core/infra/elysia";
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../core/lib/http";
-import { newEmailVerificationSessionToken } from "../../features/auth/domain/value-objects/session-token";
-import { authPlugin } from "../../plugins/auth";
-import { containerPlugin } from "../../plugins/container";
-import { pathDetail } from "../../plugins/openapi";
-import { ratelimitPlugin } from "../../plugins/ratelimit";
+import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { newEmailVerificationSessionToken } from "../../../features/auth/domain/value-objects/session-token";
+import { authPlugin } from "../../../plugins/auth";
+import { containerPlugin } from "../../../plugins/container";
+import { pathDetail } from "../../../plugins/openapi";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const UpdateEmail = new Elysia()
 	// Local Middleware & Plugin
