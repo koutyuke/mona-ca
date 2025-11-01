@@ -53,13 +53,13 @@ export const UpdateEmailRequest = new Elysia()
 
 				if (code === "EMAIL_ALREADY_REGISTERED") {
 					return status("Bad Request", {
-						code: code,
+						code,
 						message: "Email is already registered by another user. Please use a different email address.",
 					});
 				}
 
 				return status("Bad Request", {
-					code: code,
+					code,
 					message: "Failed to request to update email. Please try again.",
 				});
 			}
