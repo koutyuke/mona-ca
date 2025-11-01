@@ -67,13 +67,13 @@
 
 - 64字以内で記述する
 - 英語で記述する
-- 命令形を使用する（例: "add" ではなく "adds" ではない）
+- 命令形を使用する(例: "add" であり、"adds" や "added" ではない)
 - 先頭は小文字で始める
 
 ## コミットメッセージの例
 
 ```text
-🎈 feat(api/common/constant): add client type constant header and update session expires
+🎈 improve(api/common/constant): update client type constant header and session expires
 ```
 
 新機能の追加や改善を行った例。
