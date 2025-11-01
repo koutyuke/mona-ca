@@ -1,14 +1,13 @@
 import { Elysia } from "elysia";
-import { withBaseResponseSchema } from "../../core/infra/elysia";
-import { AccountConnectionsResponseSchema, toAccountConnectionsResponse } from "../../features/auth";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
+import { toAccountConnectionsResponse } from "../../features/auth";
+import { authPlugin } from "../../plugins/auth";
+import { containerPlugin } from "../../plugins/container";
 import { pathDetail } from "../../plugins/openapi";
 
 export const GetAccountConnections = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(authGuard())
+	.use(containerPlugin())
+	.use(authPlugin())
 
 	// Route
 	.get(
@@ -19,12 +18,6 @@ export const GetAccountConnections = new Elysia()
 			return toAccountConnectionsResponse(result);
 		},
 		{
-			headers: AuthGuardSchema.headers,
-			response: withBaseResponseSchema({
-				200: AccountConnectionsResponseSchema,
-				400: AuthGuardSchema.response[400],
-				401: AuthGuardSchema.response[401],
-			}),
 			detail: pathDetail({
 				operationId: "me-get-account-connections",
 				summary: "Get Account Connections",

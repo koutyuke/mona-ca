@@ -6,7 +6,7 @@ import { UpdateEmail } from "./update-email";
 import { UpdatePassword } from "./update-password";
 import { UpdateProfile } from "./update-profile";
 
-export const Me = new Elysia({
+export const MeRoutes = new Elysia({
 	prefix: "/users/@me",
 })
 	.use(GetProfile)

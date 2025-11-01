@@ -1,26 +1,22 @@
 import { Elysia, t } from "elysia";
 import { env } from "../../../core/infra/config/env";
-import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
+import { defaultCookieOptions } from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../core/lib/http";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
-import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { di } from "../../../plugins/di";
+import { authPlugin } from "../../../plugins/auth";
+import { clientTypePlugin } from "../../../plugins/client-type";
+import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 
 export const AccountLinkRequest = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(authGuard())
+	.use(containerPlugin())
+	.use(clientTypePlugin())
+	.use(authPlugin())
 
 	// Route
 	.get(
@@ -32,9 +28,9 @@ export const AccountLinkRequest = new Elysia()
 			clientType,
 			userIdentity,
 			containers,
+			status,
 		}) => {
 			const provider = newExternalIdentityProvider(_provider);
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
 			const result = containers.auth.accountLinkRequestUseCase.execute(
 				env.APP_ENV === "production",
@@ -48,12 +44,12 @@ export const AccountLinkRequest = new Elysia()
 				const { code } = result;
 
 				if (code === "INVALID_REDIRECT_URI") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Invalid redirect URI. Please check the URI and try again.",
 					});
 				}
-				throw new BadRequestException({
+				return status("Bad Request", {
 					code: code,
 					message: "Account link request failed. Please try again.",
 				});
@@ -61,15 +57,21 @@ export const AccountLinkRequest = new Elysia()
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
-			cookieManager.setCookie(OAUTH_STATE_COOKIE_NAME, state, {
+			cookie[OAUTH_STATE_COOKIE_NAME].set({
+				...defaultCookieOptions,
+				value: state,
 				maxAge: 60 * 10,
 			});
 
-			cookieManager.setCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME, codeVerifier, {
+			cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].set({
+				...defaultCookieOptions,
+				value: codeVerifier,
 				maxAge: 60 * 10,
 			});
 
-			cookieManager.setCookie(OAUTH_REDIRECT_URI_COOKIE_NAME, redirectToClientURL.toString(), {
+			cookie[OAUTH_REDIRECT_URI_COOKIE_NAME].set({
+				...defaultCookieOptions,
+				value: redirectToClientURL.toString(),
 				maxAge: 60 * 10,
 			});
 
@@ -78,19 +80,12 @@ export const AccountLinkRequest = new Elysia()
 			};
 		},
 		{
-			headers: AuthGuardSchema.headers,
+			requireAuth: true,
 			query: t.Object({
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({
 				provider: externalIdentityProviderSchema,
-			}),
-			response: withBaseResponseSchema({
-				200: t.Object({
-					url: t.String(),
-				}),
-				400: ResponseTUnion(ErrorResponseSchema("INVALID_REDIRECT_URI"), AuthGuardSchema.response[400]),
-				401: AuthGuardSchema.response[401],
 			}),
 			cookie: t.Cookie({
 				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),

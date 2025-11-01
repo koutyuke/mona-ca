@@ -1,15 +1,7 @@
 import { Elysia, t } from "elysia";
 import { newClientType } from "../../../core/domain/value-objects";
 import { env } from "../../../core/infra/config/env";
-import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	RedirectResponse,
-	RedirectResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
+import { defaultCookieOptions } from "../../../core/infra/elysia";
 import {
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
@@ -20,15 +12,15 @@ import {
 } from "../../../core/lib/http";
 import { timingSafeStringEqual } from "../../../core/lib/security";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
-import { di } from "../../../plugins/di";
+import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const ExternalAuthLoginCallback = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
+	.use(containerPlugin())
 	.use(
-		rateLimit("external-auth-login-callback", {
+		ratelimitPlugin("external-auth-login-callback", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -37,20 +29,37 @@ export const ExternalAuthLoginCallback = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.get(
 		"/:provider/login/callback",
-		async ({ cookie, params: { provider: _provider }, query: { code, state: queryState, error }, set, containers }) => {
+		async ({
+			cookie,
+			params: { provider: _provider },
+			query: { code, state: queryState, error },
+			set,
+			containers,
+			status,
+			redirect,
+		}) => {
 			const provider = newExternalIdentityProvider(_provider);
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
 
-			const signedState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
-			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			const redirectURI = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			const signedState = cookie[OAUTH_STATE_COOKIE_NAME].value;
+			const codeVerifier = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].value;
+			const redirectURI = cookie[OAUTH_REDIRECT_URI_COOKIE_NAME].value;
 
 			if (!queryState || !timingSafeStringEqual(queryState, signedState)) {
-				throw new BadRequestException({
+				return status("Bad Request", {
 					code: "INVALID_STATE",
 					message: "Invalid OAuth state. Please try again.",
 				});
@@ -66,29 +75,29 @@ export const ExternalAuthLoginCallback = new Elysia()
 				codeVerifier,
 			);
 
-			cookieManager.deleteCookie(OAUTH_STATE_COOKIE_NAME);
-			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			cookie[OAUTH_STATE_COOKIE_NAME].remove();
+			cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].remove();
+			cookie[OAUTH_REDIRECT_URI_COOKIE_NAME].remove();
 
 			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_STATE") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Invalid OAuth state. Please try again.",
 					});
 				}
 
 				if (code === "INVALID_REDIRECT_URI") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Invalid redirect URL. Please check the URL and try again.",
 					});
 				}
 
 				if (code === "TOKEN_EXCHANGE_FAILED") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "OAuth code is missing. Please try again.",
 					});
@@ -105,15 +114,16 @@ export const ExternalAuthLoginCallback = new Elysia()
 						redirectURL.searchParams.set("account-association-session-token", accountAssociationSessionToken);
 						redirectURL.searchParams.set("error", errorCode);
 						set.headers["referrer-policy"] = "strict-origin";
-						return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
+						return redirect(convertRedirectableMobileScheme(redirectURL));
 					}
 
-					cookieManager.setCookie(ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME, accountAssociationSessionToken, {
+					cookie[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME].set({
+						...defaultCookieOptions,
 						expires: accountAssociationSession.expiresAt,
 					});
 
 					redirectURL.searchParams.set("error", errorCode);
-					return RedirectResponse(redirectURL.toString());
+					return redirect(redirectURL.toString());
 				}
 				// エラーがある場合はリダイレクトURLにエラーを追加してリダイレクト
 				const {
@@ -122,7 +132,7 @@ export const ExternalAuthLoginCallback = new Elysia()
 				} = result;
 
 				redirectURL.searchParams.set("error", errorCode);
-				return RedirectResponse(redirectURL.toString());
+				return redirect(redirectURL.toString());
 			}
 
 			const { session, sessionToken, redirectURL, clientType } = result.value;
@@ -130,31 +140,22 @@ export const ExternalAuthLoginCallback = new Elysia()
 			if (clientType === newClientType("mobile")) {
 				redirectURL.searchParams.set("access-token", sessionToken);
 				set.headers["referrer-policy"] = "strict-origin";
-				return RedirectResponse(convertRedirectableMobileScheme(redirectURL));
+				return redirect(convertRedirectableMobileScheme(redirectURL));
 			}
 
-			cookieManager.setCookie(SESSION_COOKIE_NAME, sessionToken, {
+			cookie[SESSION_COOKIE_NAME].set({
+				...defaultCookieOptions,
+				value: sessionToken,
 				expires: session.expiresAt,
 			});
 
-			return RedirectResponse(redirectURI.toString());
+			return redirect(redirectURI.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimit, ip }) => {
-				await rateLimit.consume(ip, 1);
-			},
 			query: t.Object(
 				{
-					code: t.Optional(
-						t.String({
-							minLength: 1,
-						}),
-					),
-					state: t.Optional(
-						t.String({
-							minLength: 1,
-						}),
-					),
+					code: t.Optional(t.String()),
+					state: t.Optional(t.String()),
 					error: t.Optional(t.String()),
 				},
 				{ additionalProperties: true },
@@ -164,25 +165,10 @@ export const ExternalAuthLoginCallback = new Elysia()
 			}),
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-				[OAUTH_STATE_COOKIE_NAME]: t.String({
-					minLength: 1,
-				}),
-				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String({
-					minLength: 1,
-				}),
-				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
-					minLength: 1,
-				}),
+				[OAUTH_STATE_COOKIE_NAME]: t.String(),
+				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String(),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String(),
 				[ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
-			}),
-			response: withBaseResponseSchema({
-				302: RedirectResponseSchema,
-				400: ResponseTUnion(
-					ErrorResponseSchema("INVALID_STATE"),
-					ErrorResponseSchema("INVALID_REDIRECT_URI"),
-					ErrorResponseSchema("TOKEN_EXCHANGE_FAILED"),
-				),
-				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
 				operationId: "auth-external-auth-login-callback",

@@ -1,15 +1,6 @@
 import { Elysia, t } from "elysia";
 import { env } from "../../../core/infra/config/env";
 import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	RedirectResponse,
-	RedirectResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
-import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
@@ -17,27 +8,32 @@ import {
 } from "../../../core/lib/http";
 import { timingSafeStringEqual } from "../../../core/lib/security";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
-import { di } from "../../../plugins/di";
+import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 
 export const AccountLinkCallback = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
+	.use(containerPlugin())
 
 	// Route
 	.get(
 		"/:provider/link/callback",
-		async ({ cookie, params: { provider: _provider }, query: { code, state: queryState, error }, containers }) => {
+		async ({
+			cookie,
+			params: { provider: _provider },
+			query: { code, state: queryState, error },
+			containers,
+			status,
+			redirect,
+		}) => {
 			const provider = newExternalIdentityProvider(_provider);
 
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
-			const signedState = cookieManager.getCookie(OAUTH_STATE_COOKIE_NAME);
-			const codeVerifier = cookieManager.getCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			const redirectURI = cookieManager.getCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			const signedState = cookie[OAUTH_STATE_COOKIE_NAME].value;
+			const codeVerifier = cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].value;
+			const redirectURI = cookie[OAUTH_REDIRECT_URI_COOKIE_NAME].value;
 
 			if (!queryState || !timingSafeStringEqual(queryState, signedState)) {
-				throw new BadRequestException({
+				return status("Bad Request", {
 					code: "INVALID_STATE",
 				});
 			}
@@ -52,27 +48,27 @@ export const AccountLinkCallback = new Elysia()
 				codeVerifier,
 			);
 
-			cookieManager.deleteCookie(OAUTH_STATE_COOKIE_NAME);
-			cookieManager.deleteCookie(OAUTH_CODE_VERIFIER_COOKIE_NAME);
-			cookieManager.deleteCookie(OAUTH_REDIRECT_URI_COOKIE_NAME);
+			cookie[OAUTH_STATE_COOKIE_NAME].remove();
+			cookie[OAUTH_CODE_VERIFIER_COOKIE_NAME].remove();
+			cookie[OAUTH_REDIRECT_URI_COOKIE_NAME].remove();
 
 			if (result.isErr) {
 				const { code } = result;
 
 				if (code === "INVALID_STATE") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Invalid OAuth state. Please try again.",
 					});
 				}
 				if (code === "INVALID_REDIRECT_URI") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Invalid redirect URL. Please check the URL and try again.",
 					});
 				}
 				if (code === "TOKEN_EXCHANGE_FAILED") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "OAuth code is missing. Please try again.",
 					});
@@ -84,12 +80,12 @@ export const AccountLinkCallback = new Elysia()
 				} = result;
 
 				redirectURL.searchParams.set("error", errorCode);
-				return RedirectResponse(redirectURL.toString());
+				return redirect(redirectURL.toString());
 			}
 
 			const { redirectURL } = result.value;
 
-			return RedirectResponse(redirectURL.toString());
+			return redirect(redirectURL.toString());
 		},
 		{
 			query: t.Object(
@@ -113,23 +109,9 @@ export const AccountLinkCallback = new Elysia()
 			}),
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-				[OAUTH_STATE_COOKIE_NAME]: t.String({
-					minLength: 1,
-				}),
-				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String({
-					minLength: 1,
-				}),
-				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String({
-					minLength: 1,
-				}),
-			}),
-			response: withBaseResponseSchema({
-				302: RedirectResponseSchema,
-				400: ResponseTUnion(
-					ErrorResponseSchema("INVALID_STATE"),
-					ErrorResponseSchema("INVALID_REDIRECT_URI"),
-					ErrorResponseSchema("TOKEN_EXCHANGE_FAILED"),
-				),
+				[OAUTH_STATE_COOKIE_NAME]: t.String(),
+				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String(),
+				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String(),
 			}),
 			detail: pathDetail({
 				operationId: "auth-account-link-callback",
@@ -145,7 +127,6 @@ export const AccountLinkCallback = new Elysia()
 					"- **ACCOUNT_LINKED_ELSEWHERE**",
 				],
 				tag: "Auth - Account Link",
-				withAuth: true,
 			}),
 		},
 	);

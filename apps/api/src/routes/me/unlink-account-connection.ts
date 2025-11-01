@@ -1,29 +1,21 @@
 import { Elysia, t } from "elysia";
 import {
-	BadRequestException,
-	ErrorResponseSchema,
-	NoContentResponse,
-	NoContentResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../core/infra/elysia";
-import {
 	externalIdentityProviderSchema,
 	newExternalIdentityProvider,
 } from "../../features/auth/domain/value-objects/external-identity";
-import { AuthGuardSchema, authGuard } from "../../plugins/auth-guard";
-import { di } from "../../plugins/di";
+import { authPlugin } from "../../plugins/auth";
+import { containerPlugin } from "../../plugins/container";
 import { pathDetail } from "../../plugins/openapi";
 
 export const UnlinkAccountConnection = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(authGuard())
+	.use(containerPlugin())
+	.use(authPlugin())
 
 	// Route
 	.delete(
 		"connections/:provider",
-		async ({ params: { provider: _provider }, userIdentity, containers }) => {
+		async ({ params: { provider: _provider }, userIdentity, containers, status }) => {
 			const provider = newExternalIdentityProvider(_provider);
 			const result = await containers.auth.unlinkAccountConnectionUseCase.execute(provider, userIdentity);
 
@@ -31,35 +23,25 @@ export const UnlinkAccountConnection = new Elysia()
 				const { code } = result;
 
 				if (code === "PROVIDER_NOT_LINKED") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: "PROVIDER_NOT_LINKED",
 						message: "Account is not linked to this provider. Please check your account connections.",
 					});
 				}
 
 				if (code === "PASSWORD_NOT_SET") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: "PASSWORD_NOT_SET",
 						message: "Cannot unlink account without a password set. Please set a password first.",
 					});
 				}
 			}
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			headers: AuthGuardSchema.headers,
 			params: t.Object({
 				provider: externalIdentityProviderSchema,
-			}),
-			response: withBaseResponseSchema({
-				204: NoContentResponseSchema,
-				400: ResponseTUnion(
-					AuthGuardSchema.response[400],
-					ErrorResponseSchema("PROVIDER_NOT_LINKED"),
-					ErrorResponseSchema("UNLINK_OPERATION_FAILED"),
-				),
-				401: AuthGuardSchema.response[401],
 			}),
 			detail: pathDetail({
 				operationId: "me-unlink-account-connection",

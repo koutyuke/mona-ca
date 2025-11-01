@@ -1,26 +1,17 @@
 import { Elysia, t } from "elysia";
-import { env } from "../../../core/infra/config/env";
-import {
-	BadRequestException,
-	CookieManager,
-	ErrorResponseSchema,
-	NoContentResponse,
-	NoContentResponseSchema,
-	ResponseTUnion,
-	withBaseResponseSchema,
-} from "../../../core/infra/elysia";
+import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { AuthGuardSchema, authGuard } from "../../../plugins/auth-guard";
-import { di } from "../../../plugins/di";
+import { authPlugin } from "../../../plugins/auth";
+import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
-import { RateLimiterSchema, rateLimit } from "../../../plugins/rate-limit";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const EmailVerificationRequest = new Elysia()
 	// Local Middleware & Plugin
-	.use(di())
-	.use(authGuard({ requireEmailVerification: false }))
+	.use(containerPlugin())
+	.use(authPlugin({ requireEmailVerification: false }))
 	.use(
-		rateLimit("email-verification-request", {
+		ratelimitPlugin("email-verification-request", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -29,16 +20,30 @@ export const EmailVerificationRequest = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"",
-		async ({ cookie, body: { email: bodyEmail }, userIdentity, clientType, rateLimit, containers }) => {
-			const cookieManager = new CookieManager(env.APP_ENV === "production", cookie);
-
+		async ({ cookie, body: { email: bodyEmail }, userIdentity, clientType, rateLimit, containers, status }) => {
 			const email = bodyEmail ?? userIdentity.email;
 
-			await rateLimit.consume(email, 100);
+			const ratelimitResult = await rateLimit.consume(email, 100);
+			if (ratelimitResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
 
 			const result = await containers.auth.emailVerificationRequestUseCase.execute(email, userIdentity);
 
@@ -46,13 +51,13 @@ export const EmailVerificationRequest = new Elysia()
 				const { code } = result;
 
 				if (code === "EMAIL_ALREADY_VERIFIED") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Email is already verified. Please use a different email address.",
 					});
 				}
 				if (code === "EMAIL_ALREADY_REGISTERED") {
-					throw new BadRequestException({
+					return status("Bad Request", {
 						code: code,
 						message: "Email is already registered by another user. Please use a different email address.",
 					});
@@ -67,17 +72,15 @@ export const EmailVerificationRequest = new Elysia()
 				};
 			}
 
-			cookieManager.setCookie(EMAIL_VERIFICATION_SESSION_COOKIE_NAME, emailVerificationSessionToken, {
+			cookie[EMAIL_VERIFICATION_SESSION_COOKIE_NAME].set({
+				...defaultCookieOptions,
 				expires: emailVerificationSession.expiresAt,
+				value: emailVerificationSessionToken,
 			});
 
-			return NoContentResponse();
+			return status("No Content");
 		},
 		{
-			beforeHandle: async ({ rateLimit, userIdentity }) => {
-				await rateLimit.consume(userIdentity.id, 1);
-			},
-			headers: AuthGuardSchema.headers,
 			cookie: t.Cookie({
 				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
@@ -87,19 +90,6 @@ export const EmailVerificationRequest = new Elysia()
 						format: "email",
 					}),
 				),
-			}),
-			response: withBaseResponseSchema({
-				200: t.Object({
-					emailVerificationSessionToken: t.String(),
-				}),
-				204: NoContentResponseSchema,
-				400: ResponseTUnion(
-					AuthGuardSchema.response[400],
-					ErrorResponseSchema("EMAIL_ALREADY_VERIFIED"),
-					ErrorResponseSchema("EMAIL_ALREADY_REGISTERED"),
-				),
-				401: AuthGuardSchema.response[401],
-				429: RateLimiterSchema.response[429],
 			}),
 			detail: pathDetail({
 				operationId: "auth-email-verification-request",
