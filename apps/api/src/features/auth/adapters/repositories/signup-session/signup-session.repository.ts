@@ -54,13 +54,15 @@ export class SignupSessionRepository implements ISignupSessionRepository {
 	public async deleteById(id: SignupSessionId): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.signupSessions)
-			.where(eq(this.drizzleService.schema.signupSessions.id, id));
+			.where(eq(this.drizzleService.schema.signupSessions.id, id))
+			.execute();
 	}
 
 	public async deleteByEmail(email: string): Promise<void> {
 		await this.drizzleService.db
 			.delete(this.drizzleService.schema.signupSessions)
-			.where(eq(this.drizzleService.schema.signupSessions.email, email));
+			.where(eq(this.drizzleService.schema.signupSessions.email, email))
+			.execute();
 	}
 
 	private convertToSignupSession(dto: FoundSignupSessionDto): SignupSession {
