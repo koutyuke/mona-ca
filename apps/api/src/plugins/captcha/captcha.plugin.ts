@@ -1,7 +1,6 @@
 import Elysia, { t } from "elysia";
-import { BadRequestException, ErrorResponseSchema } from "../../core/infra/elysia";
-import { getIP } from "../../core/lib/http";
-import { di } from "../di";
+import { containerPlugin } from "../container";
+import { ipAddressPlugin } from "../ip-address";
 
 /**
  * Initializes a new instance of the ElysiaWithEnv class with the captcha plugin.
@@ -9,40 +8,26 @@ import { di } from "../di";
  *
  * @throws {BadRequestException} If the IP address is not found or verification fails.
  */
-export const captcha = new Elysia({
-	name: "@mona-ca/captcha",
-})
-	.use(di())
-	.derive({ as: "scoped" }, async ({ request, containers }) => {
-		const ip = getIP(request.headers);
-
-		if (!ip) {
-			throw new BadRequestException({
-				name: "IP_ADDRESS_NOT_FOUND",
-				message: "IP address not found",
-			});
-		}
-
-		const verify = async (token: string) => {
-			const { success } = await containers.core.turnstileGateway.verify(token, ip);
-
+export const captchaPlugin = () =>
+	new Elysia({
+		name: "@mona-ca/captcha",
+	})
+		.use(ipAddressPlugin())
+		.use(containerPlugin())
+		.guard({
+			schema: "standalone",
+			body: t.Object({
+				cfTurnstileResponse: t.String(),
+			}),
+		})
+		.onBeforeHandle(async ({ body: { cfTurnstileResponse }, containers, status, ipAddress }) => {
+			const { success } = await containers.core.turnstileGateway.verify(cfTurnstileResponse, ipAddress);
 			if (!success) {
-				throw new BadRequestException({
-					name: "CAPTCHA_VERIFICATION_FAILED",
+				return status("Bad Request", {
+					code: "CAPTCHA_VERIFICATION_FAILED" as const,
 					message: "Verification failed.",
 				});
 			}
-		};
-
-		return {
-			captcha: {
-				verify,
-			},
-		};
-	});
-
-export const CaptchaSchema = {
-	response: {
-		400: t.Union([ErrorResponseSchema("IP_ADDRESS_NOT_FOUND"), ErrorResponseSchema("CAPTCHA_VERIFICATION_FAILED")]),
-	},
-};
+			return;
+		})
+		.as("scoped");
