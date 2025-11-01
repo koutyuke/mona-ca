@@ -44,7 +44,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     query?: Record<string, unknown>;
                     fetch?: RequestInit;
                 } | undefined) => Promise<Treaty.TreatyResponse<{
-                    303: null;
+                    302: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
