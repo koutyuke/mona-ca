@@ -6,8 +6,8 @@ import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/
 import { SessionTableHelper, UserTableHelper } from "../../../core/testing/helpers";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
-import { di } from "../../../plugins/di";
-import { authGuard } from "../auth-guard.plugin";
+import { containerPlugin } from "../../container";
+import { authPlugin } from "../auth.plugin";
 
 const { DB } = env;
 
@@ -41,7 +41,7 @@ const { session: session2, sessionToken: sessionToken2 } = createSessionFixture(
 	},
 });
 
-describe("AuthGuard cookie test", () => {
+describe("AuthPlugin Cookie Test", () => {
 	beforeEach(async () => {
 		sessionTableHelper.deleteAll();
 		userTableHelper.deleteAll();
@@ -55,8 +55,8 @@ describe("AuthGuard cookie test", () => {
 
 	test("Pass with valid cookie that email verification is not required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: false }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: false }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -76,8 +76,8 @@ describe("AuthGuard cookie test", () => {
 
 	test("Pass with valid cookie that email verification is required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: true }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -97,8 +97,8 @@ describe("AuthGuard cookie test", () => {
 
 	test("Fail with not email verified yet", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: true }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -115,8 +115,8 @@ describe("AuthGuard cookie test", () => {
 
 	test("Fail with invalid cookie that email verification is not required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: false }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: false }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -133,8 +133,8 @@ describe("AuthGuard cookie test", () => {
 
 	test("Fail with invalid cookie that email verification is required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: true }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(

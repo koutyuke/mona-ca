@@ -7,8 +7,8 @@ import { SessionTableHelper, UserTableHelper } from "../../../core/testing/helpe
 import { sessionRefreshSpan } from "../../../features/auth/domain/entities/session";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
-import { di } from "../../../plugins/di";
-import { authGuard } from "../auth-guard.plugin";
+import { containerPlugin } from "../../container";
+import { authPlugin } from "../auth.plugin";
 
 const { DB } = env;
 
@@ -32,7 +32,7 @@ const { session, sessionToken } = createSessionFixture({
 	},
 });
 
-describe("AuthGuard enableSessionCookieRefresh option", () => {
+describe("AuthPlugin enableSessionCookieRefresh option", () => {
 	beforeEach(async () => {
 		sessionTableHelper.deleteAll();
 		userTableHelper.deleteAll();
@@ -43,8 +43,8 @@ describe("AuthGuard enableSessionCookieRefresh option", () => {
 
 	test("should refresh the session token", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ enableSessionCookieRefresh: true }))
+			.use(containerPlugin())
+			.use(authPlugin({ enableSessionCookieRefresh: true }))
 			.get("/", () => {
 				return "Test";
 			});

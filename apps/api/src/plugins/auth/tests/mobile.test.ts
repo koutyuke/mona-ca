@@ -6,8 +6,8 @@ import { CLIENT_TYPE_HEADER_NAME } from "../../../core/lib/http";
 import { SessionTableHelper, UserTableHelper } from "../../../core/testing/helpers";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
-import { di } from "../../../plugins/di";
-import { authGuard } from "../auth-guard.plugin";
+import { containerPlugin } from "../../container";
+import { authPlugin } from "../auth.plugin";
 
 const { DB } = env;
 
@@ -42,7 +42,7 @@ const { session: session2, sessionToken: sessionToken2 } = createSessionFixture(
 	},
 });
 
-describe("AuthGuard Authorization Header Test", () => {
+describe("AuthPlugin Mobile Authorization Header Test", () => {
 	beforeEach(async () => {
 		sessionTableHelper.deleteAll();
 		userTableHelper.deleteAll();
@@ -56,8 +56,8 @@ describe("AuthGuard Authorization Header Test", () => {
 
 	test("Pass with valid authorization header that email verification is not required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: false }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: false }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -76,8 +76,8 @@ describe("AuthGuard Authorization Header Test", () => {
 
 	test("Pass with valid authorization header that email verification is required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: true }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -96,8 +96,8 @@ describe("AuthGuard Authorization Header Test", () => {
 
 	test("Fail with not email verified yet", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: true }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -114,8 +114,8 @@ describe("AuthGuard Authorization Header Test", () => {
 
 	test("Fail with invalid authorization header that email verification is not required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: false }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: false }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
@@ -132,8 +132,8 @@ describe("AuthGuard Authorization Header Test", () => {
 
 	test("Fail with invalid authorization header that email verification is not required", async () => {
 		const app = new Elysia({ aot: false })
-			.use(di())
-			.use(authGuard({ requireEmailVerification: true }))
+			.use(containerPlugin())
+			.use(authPlugin({ requireEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
