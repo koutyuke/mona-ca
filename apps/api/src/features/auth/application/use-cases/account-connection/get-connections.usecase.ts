@@ -6,7 +6,7 @@ import type {
 	BasicAuthConnection,
 	IGetConnectionsUseCase,
 	ProviderConnections,
-} from "../../contracts/account-link/get-connections.usecase.interface";
+} from "../../contracts/account-connection/get-connections.usecase.interface";
 import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
 
 export class GetConnectionsUseCase implements IGetConnectionsUseCase {

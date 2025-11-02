@@ -9,7 +9,7 @@ import {
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
 } from "../../../../testing/mocks/repositories";
-import type { IGetConnectionsUseCase } from "../../../contracts/account-link/get-connections.usecase.interface";
+import type { IGetConnectionsUseCase } from "../../../contracts/account-connection/get-connections.usecase.interface";
 import { GetConnectionsUseCase } from "../get-connections.usecase";
 
 const externalIdentityMap = createExternalIdentitiesMap();

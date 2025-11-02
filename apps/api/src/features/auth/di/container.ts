@@ -11,11 +11,11 @@ import { HmacOAuthStateSigner } from "../application/infra/hmac-oauth-state-sign
 import { AccountAssociationChallengeUseCase } from "../application/use-cases/account-association/account-association-challenge.usecase";
 import { AccountAssociationConfirmUseCase } from "../application/use-cases/account-association/account-association-confirm.usecase";
 import { ValidateAccountAssociationSessionUseCase } from "../application/use-cases/account-association/validate-account-association-session.usecase";
+import { GetConnectionsUseCase } from "../application/use-cases/account-connection/get-connections.usecase";
+import { UnlinkAccountConnectionUseCase } from "../application/use-cases/account-connection/unlink-account-connection.usecase";
 import { AccountLinkCallbackUseCase } from "../application/use-cases/account-link/account-link-callback.usecase";
 import { AccountLinkRequestUseCase } from "../application/use-cases/account-link/account-link-request.usecase";
-import { GetConnectionsUseCase } from "../application/use-cases/account-link/get-connections.usecase";
 import { accountLinkStateSchema } from "../application/use-cases/account-link/schema";
-import { UnlinkAccountConnectionUseCase } from "../application/use-cases/account-link/unlink-account-connection.usecase";
 import { LoginUseCase } from "../application/use-cases/basic-auth/login.usecase";
 import { LogoutUseCase } from "../application/use-cases/basic-auth/logout.usecase";
 import { SignupConfirmUseCase } from "../application/use-cases/basic-auth/signup-confirm.usecase";
@@ -44,10 +44,10 @@ import type { ProviderGateways } from "../adapters/gateways/oauth-provider/type"
 import type { IAccountAssociationChallengeUseCase } from "../application/contracts/account-association/account-association-challenge.usecase.interface";
 import type { IAccountAssociationConfirmUseCase } from "../application/contracts/account-association/account-association-confirm.usecase.interface";
 import type { IValidateAccountAssociationSessionUseCase } from "../application/contracts/account-association/validate-account-association-session.usecase.interface";
+import type { IGetConnectionsUseCase } from "../application/contracts/account-connection/get-connections.usecase.interface";
+import type { IUnlinkAccountConnectionUseCase } from "../application/contracts/account-connection/unlink-account-connection.usecase.interface";
 import type { IAccountLinkCallbackUseCase } from "../application/contracts/account-link/account-link-callback.usecase.interface";
 import type { IAccountLinkRequestUseCase } from "../application/contracts/account-link/account-link-request.usecase.interface";
-import type { IGetConnectionsUseCase } from "../application/contracts/account-link/get-connections.usecase.interface";
-import type { IUnlinkAccountConnectionUseCase } from "../application/contracts/account-link/unlink-account-connection.usecase.interface";
 import type { ILoginUseCase } from "../application/contracts/basic-auth/login.usecase.interface";
 import type { ILogoutUseCase } from "../application/contracts/basic-auth/logout.usecase.interface";
 import type { ISignupConfirmUseCase } from "../application/contracts/basic-auth/signup-confirm.usecase.interface";
@@ -207,6 +207,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (overrides.accountLinkRequestUseCase) {
 			this._accountLinkRequestUseCase = overrides.accountLinkRequestUseCase;
 		}
+
 		if (overrides.getConnectionsUseCase) {
 			this._getConnectionsUseCase = overrides.getConnectionsUseCase;
 		}
@@ -439,6 +440,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		return this._accountLinkRequestUseCase;
 	}
+
 	get getConnectionsUseCase(): IGetConnectionsUseCase {
 		if (!this._getConnectionsUseCase) {
 			this._getConnectionsUseCase = new GetConnectionsUseCase(this.externalIdentityRepository);

@@ -2,10 +2,10 @@ import type { ProviderGateways } from "../adapters/gateways/oauth-provider/type"
 import type { IAccountAssociationChallengeUseCase } from "../application/contracts/account-association/account-association-challenge.usecase.interface";
 import type { IAccountAssociationConfirmUseCase } from "../application/contracts/account-association/account-association-confirm.usecase.interface";
 import type { IValidateAccountAssociationSessionUseCase } from "../application/contracts/account-association/validate-account-association-session.usecase.interface";
+import type { IGetConnectionsUseCase } from "../application/contracts/account-connection/get-connections.usecase.interface";
+import type { IUnlinkAccountConnectionUseCase } from "../application/contracts/account-connection/unlink-account-connection.usecase.interface";
 import type { IAccountLinkCallbackUseCase } from "../application/contracts/account-link/account-link-callback.usecase.interface";
 import type { IAccountLinkRequestUseCase } from "../application/contracts/account-link/account-link-request.usecase.interface";
-import type { IGetConnectionsUseCase } from "../application/contracts/account-link/get-connections.usecase.interface";
-import type { IUnlinkAccountConnectionUseCase } from "../application/contracts/account-link/unlink-account-connection.usecase.interface";
 import type { ILoginUseCase } from "../application/contracts/basic-auth/login.usecase.interface";
 import type { ILogoutUseCase } from "../application/contracts/basic-auth/logout.usecase.interface";
 import type { ISignupConfirmUseCase } from "../application/contracts/basic-auth/signup-confirm.usecase.interface";
@@ -62,6 +62,7 @@ export interface IAuthDIContainer {
 
 	readonly accountLinkCallbackUseCase: IAccountLinkCallbackUseCase;
 	readonly accountLinkRequestUseCase: IAccountLinkRequestUseCase;
+
 	readonly getConnectionsUseCase: IGetConnectionsUseCase;
 	readonly unlinkAccountConnectionUseCase: IUnlinkAccountConnectionUseCase;
 

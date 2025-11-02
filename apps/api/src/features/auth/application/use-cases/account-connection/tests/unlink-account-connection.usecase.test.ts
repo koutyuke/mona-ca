@@ -9,7 +9,7 @@ import {
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
 } from "../../../../testing/mocks/repositories";
-import type { IUnlinkAccountConnectionUseCase } from "../../../contracts/account-link/unlink-account-connection.usecase.interface";
+import type { IUnlinkAccountConnectionUseCase } from "../../../contracts/account-connection/unlink-account-connection.usecase.interface";
 import { UnlinkAccountConnectionUseCase } from "../unlink-account-connection.usecase";
 
 const externalIdentityMap = createExternalIdentitiesMap();

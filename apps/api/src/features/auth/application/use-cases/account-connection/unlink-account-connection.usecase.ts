@@ -5,7 +5,7 @@ import type { ExternalIdentityProvider } from "../../../domain/value-objects/ext
 import type {
 	IUnlinkAccountConnectionUseCase,
 	UnlinkAccountConnectionUseCaseResult,
-} from "../../contracts/account-link/unlink-account-connection.usecase.interface";
+} from "../../contracts/account-connection/unlink-account-connection.usecase.interface";
 import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
 
 export class UnlinkAccountConnectionUseCase implements IUnlinkAccountConnectionUseCase {
