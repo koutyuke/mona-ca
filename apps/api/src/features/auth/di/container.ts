@@ -1,6 +1,7 @@
 import { createDiscordGateways } from "../adapters/gateways/oauth-provider/discord.gateway";
 import { createGoogleGateways } from "../adapters/gateways/oauth-provider/google.gateway";
 import { AccountAssociationSessionRepository } from "../adapters/repositories/account-association-session/account-association-session.repository";
+import { AccountLinkSessionRepository } from "../adapters/repositories/account-link-session/account-link-session.repository";
 import { AuthUserRepository } from "../adapters/repositories/auth-user/auth-user.repository";
 import { EmailVerificationSessionRepository } from "../adapters/repositories/email-verification-session/email-verification-session.repository";
 import { ExternalIdentityRepository } from "../adapters/repositories/external-identity/external-identity.repository";
@@ -47,6 +48,7 @@ import type { IValidateAccountAssociationSessionUseCase } from "../application/c
 import type { IGetConnectionsUseCase } from "../application/contracts/account-connection/get-connections.usecase.interface";
 import type { IUnlinkAccountConnectionUseCase } from "../application/contracts/account-connection/unlink-account-connection.usecase.interface";
 import type { IAccountLinkCallbackUseCase } from "../application/contracts/account-link/account-link-callback.usecase.interface";
+import type { IAccountLinkPrepareUseCase } from "../application/contracts/account-link/account-link-prepare.usecase.interface";
 import type { IAccountLinkRequestUseCase } from "../application/contracts/account-link/account-link-request.usecase.interface";
 import type { ILoginUseCase } from "../application/contracts/basic-auth/login.usecase.interface";
 import type { ILogoutUseCase } from "../application/contracts/basic-auth/logout.usecase.interface";
@@ -70,12 +72,14 @@ import type { IUpdatePasswordUseCase } from "../application/contracts/password/u
 import type { IValidatePasswordResetSessionUseCase } from "../application/contracts/password/validate-password-reset-session.usecase.interface";
 import type { IHmacOAuthStateSigner } from "../application/ports/infra/hmac-oauth-state-signer.interface";
 import type { IAccountAssociationSessionRepository } from "../application/ports/repositories/account-association-session.repository.interface";
+import type { IAccountLinkSessionRepository } from "../application/ports/repositories/account-link-session.repository.interface";
 import type { IAuthUserRepository } from "../application/ports/repositories/auth-user.repository.interface";
 import type { IEmailVerificationSessionRepository } from "../application/ports/repositories/email-verification-session.repository.interface";
 import type { IExternalIdentityRepository } from "../application/ports/repositories/external-identity.repository.interface";
 import type { IPasswordResetSessionRepository } from "../application/ports/repositories/password-reset-session.repository.interface";
 import type { ISessionRepository } from "../application/ports/repositories/session.repository.interface";
 import type { ISignupSessionRepository } from "../application/ports/repositories/signup-session.repository.interface";
+import { AccountLinkPrepareUseCase } from "../application/use-cases/account-link/accoutn-link-prepare.usecase";
 import type { IAuthDIContainer } from "./container.interface";
 
 /**
@@ -101,13 +105,14 @@ export class AuthDIContainer implements IAuthDIContainer {
 	private _discordOAuthGateways: ProviderGateways | undefined;
 
 	// Repositories
+	private _accountAssociationSessionRepository: IAccountAssociationSessionRepository | undefined;
+	private _accountLinkSessionRepository: IAccountLinkSessionRepository | undefined;
 	private _authUserRepository: IAuthUserRepository | undefined;
 	private _sessionRepository: ISessionRepository | undefined;
 	private _signupSessionRepository: ISignupSessionRepository | undefined;
 	private _passwordResetSessionRepository: IPasswordResetSessionRepository | undefined;
 	private _emailVerificationSessionRepository: IEmailVerificationSessionRepository | undefined;
 	private _externalIdentityRepository: IExternalIdentityRepository | undefined;
-	private _accountAssociationSessionRepository: IAccountAssociationSessionRepository | undefined;
 
 	// Use Cases
 	private _accountAssociationChallengeUseCase: IAccountAssociationChallengeUseCase | undefined;
@@ -116,6 +121,8 @@ export class AuthDIContainer implements IAuthDIContainer {
 
 	private _accountLinkCallbackUseCase: IAccountLinkCallbackUseCase | undefined;
 	private _accountLinkRequestUseCase: IAccountLinkRequestUseCase | undefined;
+	private _accountLinkPrepareUseCase: IAccountLinkPrepareUseCase | undefined;
+
 	private _getConnectionsUseCase: IGetConnectionsUseCase | undefined;
 	private _unlinkAccountConnectionUseCase: IUnlinkAccountConnectionUseCase | undefined;
 
@@ -171,6 +178,9 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (overrides.accountAssociationSessionRepository) {
 			this._accountAssociationSessionRepository = overrides.accountAssociationSessionRepository;
 		}
+		if (overrides.accountLinkSessionRepository) {
+			this._accountLinkSessionRepository = overrides.accountLinkSessionRepository;
+		}
 		if (overrides.authUserRepository) {
 			this._authUserRepository = overrides.authUserRepository;
 		}
@@ -206,6 +216,9 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		if (overrides.accountLinkRequestUseCase) {
 			this._accountLinkRequestUseCase = overrides.accountLinkRequestUseCase;
+		}
+		if (overrides.accountLinkPrepareUseCase) {
+			this._accountLinkPrepareUseCase = overrides.accountLinkPrepareUseCase;
 		}
 
 		if (overrides.getConnectionsUseCase) {
@@ -382,6 +395,13 @@ export class AuthDIContainer implements IAuthDIContainer {
 		return this._accountAssociationSessionRepository;
 	}
 
+	get accountLinkSessionRepository(): IAccountLinkSessionRepository {
+		if (!this._accountLinkSessionRepository) {
+			this._accountLinkSessionRepository = new AccountLinkSessionRepository(this.coreContainer.drizzleService);
+		}
+		return this._accountLinkSessionRepository;
+	}
+
 	// ========================================
 	// Use Cases
 	// ========================================
@@ -426,6 +446,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 				this.discordOAuthGateways.link,
 				this.externalIdentityRepository,
 				this.accountLinkOAuthStateSigner,
+				this.accountLinkSessionRepository,
 			);
 		}
 		return this._accountLinkCallbackUseCase;
@@ -436,9 +457,20 @@ export class AuthDIContainer implements IAuthDIContainer {
 				this.googleOAuthGateways.link,
 				this.discordOAuthGateways.link,
 				this.accountLinkOAuthStateSigner,
+				this.accountLinkSessionRepository,
+				this.coreContainer.sessionSecretHasher,
 			);
 		}
 		return this._accountLinkRequestUseCase;
+	}
+	get accountLinkPrepareUseCase(): IAccountLinkPrepareUseCase {
+		if (!this._accountLinkPrepareUseCase) {
+			this._accountLinkPrepareUseCase = new AccountLinkPrepareUseCase(
+				this.accountLinkSessionRepository,
+				this.coreContainer.sessionSecretHasher,
+			);
+		}
+		return this._accountLinkPrepareUseCase;
 	}
 
 	get getConnectionsUseCase(): IGetConnectionsUseCase {
