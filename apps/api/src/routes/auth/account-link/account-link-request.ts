@@ -68,7 +68,8 @@ export const AccountLinkRequest = new Elysia()
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
-			headers["referrer-policy"] = "strict-origin";
+			headers["referrer-policy"] = "no-referrer";
+			headers["cache-control"] = "no-cache";
 
 			cookie[OAUTH_STATE_COOKIE_NAME].set({
 				...defaultCookieOptions,
