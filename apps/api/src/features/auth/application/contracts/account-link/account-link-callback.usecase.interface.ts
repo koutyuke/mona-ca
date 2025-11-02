@@ -10,8 +10,6 @@ type Success = Ok<{
 type Error =
 	| Err<"INVALID_STATE">
 	| Err<"INVALID_REDIRECT_URI">
-	| Err<"ACCOUNT_LINK_SESSION_INVALID">
-	| Err<"ACCOUNT_LINK_SESSION_EXPIRED">
 	| Err<"PROVIDER_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"TOKEN_EXCHANGE_FAILED">
