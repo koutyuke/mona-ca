@@ -1,5 +1,5 @@
 import type { ToPrimitive } from "@mona-ca/core/utils";
-import type { AccountConnections } from "../../application/contracts/account-link/get-connections.usecase.interface";
+import type { AccountConnections } from "../../application/contracts/account-connection/get-connections.usecase.interface";
 import type { ExternalIdentityProvider } from "../../domain/value-objects/external-identity";
 
 type ProviderConnection = {
