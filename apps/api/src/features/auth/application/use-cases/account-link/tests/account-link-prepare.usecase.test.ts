@@ -3,7 +3,7 @@ import { newUserId } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { SessionSecretHasherMock } from "../../../../../../core/testing/mocks/system";
 import { AccountLinkSessionRepositoryMock, createAccountLinkSessionsMap } from "../../../../testing/mocks/repositories";
-import { AccountLinkPrepareUseCase } from "../accoutn-link-prepare.usecase";
+import { AccountLinkPrepareUseCase } from "../account-link-prepare.usecase";
 
 const accountLinkSessionMap = createAccountLinkSessionsMap();
 const sessionSecretHasher = new SessionSecretHasherMock();

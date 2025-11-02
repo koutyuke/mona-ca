@@ -15,6 +15,7 @@ import { ValidateAccountAssociationSessionUseCase } from "../application/use-cas
 import { GetConnectionsUseCase } from "../application/use-cases/account-connection/get-connections.usecase";
 import { UnlinkAccountConnectionUseCase } from "../application/use-cases/account-connection/unlink-account-connection.usecase";
 import { AccountLinkCallbackUseCase } from "../application/use-cases/account-link/account-link-callback.usecase";
+import { AccountLinkPrepareUseCase } from "../application/use-cases/account-link/account-link-prepare.usecase";
 import { AccountLinkRequestUseCase } from "../application/use-cases/account-link/account-link-request.usecase";
 import { accountLinkStateSchema } from "../application/use-cases/account-link/schema";
 import { LoginUseCase } from "../application/use-cases/basic-auth/login.usecase";
@@ -79,7 +80,6 @@ import type { IExternalIdentityRepository } from "../application/ports/repositor
 import type { IPasswordResetSessionRepository } from "../application/ports/repositories/password-reset-session.repository.interface";
 import type { ISessionRepository } from "../application/ports/repositories/session.repository.interface";
 import type { ISignupSessionRepository } from "../application/ports/repositories/signup-session.repository.interface";
-import { AccountLinkPrepareUseCase } from "../application/use-cases/account-link/accoutn-link-prepare.usecase";
 import type { IAuthDIContainer } from "./container.interface";
 
 /**
