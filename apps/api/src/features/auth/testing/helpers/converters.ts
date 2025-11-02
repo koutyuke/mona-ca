@@ -1,5 +1,6 @@
 import {
 	type RawAccountAssociationSession,
+	type RawAccountLinkSession,
 	type RawEmailVerificationSession,
 	type RawExternalIdentity,
 	type RawPasswordResetSession,
@@ -11,6 +12,7 @@ import {
 	toRawSessionSecretHash,
 } from "../../../../core/testing/helpers";
 import type { AccountAssociationSession } from "../../domain/entities/account-association-session";
+import type { AccountLinkSession } from "../../domain/entities/account-link-session";
 import type { EmailVerificationSession } from "../../domain/entities/email-verification-session";
 import type { ExternalIdentity } from "../../domain/entities/external-identity";
 import type { PasswordResetSession } from "../../domain/entities/password-reset-session";
@@ -123,6 +125,15 @@ export const convertAccountAssociationSessionToRaw = (
 		email: session.email,
 		provider: session.provider,
 		provider_user_id: session.providerUserId,
+		expires_at: toRawDate(session.expiresAt),
+	};
+};
+
+export const convertAccountLinkSessionToRaw = (session: AccountLinkSession): RawAccountLinkSession => {
+	return {
+		id: session.id,
+		user_id: session.userId,
+		secret_hash: toRawSessionSecretHash(session.secretHash),
 		expires_at: toRawDate(session.expiresAt),
 	};
 };

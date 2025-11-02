@@ -1,5 +1,6 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
+import type { AccountLinkSession } from "../../../domain/entities/account-link-session";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import type { ExternalIdentity } from "../../../domain/entities/external-identity";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
@@ -12,6 +13,7 @@ import type {
 } from "../../../domain/value-objects/external-identity";
 import type {
 	AccountAssociationSessionId,
+	AccountLinkSessionId,
 	EmailVerificationSessionId,
 	PasswordResetSessionId,
 	SessionId,
@@ -63,5 +65,11 @@ export const createExternalIdentityKey = (
 };
 
 export const createSignupSessionsMap = (sessions: SignupSession[] = []): Map<SignupSessionId, SignupSession> => {
+	return new Map(sessions.map(session => [session.id, session]));
+};
+
+export const createAccountLinkSessionsMap = (
+	sessions: AccountLinkSession[] = [],
+): Map<AccountLinkSessionId, AccountLinkSession> => {
 	return new Map(sessions.map(session => [session.id, session]));
 };

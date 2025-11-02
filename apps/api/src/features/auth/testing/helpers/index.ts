@@ -7,4 +7,5 @@ export {
 	convertEmailVerificationSessionToRaw,
 	convertPasswordResetSessionToRaw,
 	convertAccountAssociationSessionToRaw,
+	convertAccountLinkSessionToRaw,
 } from "./converters";
