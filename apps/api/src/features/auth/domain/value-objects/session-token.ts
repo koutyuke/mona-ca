@@ -1,6 +1,7 @@
 import type { NewType } from "@mona-ca/core/utils";
 import type {
 	AccountAssociationSessionId,
+	AccountLinkSessionId,
 	EmailVerificationSessionId,
 	PasswordResetSessionId,
 	SessionId,
@@ -12,6 +13,7 @@ export type EmailVerificationSessionToken = NewType<"EmailVerificationSessionTok
 export type PasswordResetSessionToken = NewType<"PasswordResetSessionToken", string>;
 export type AccountAssociationSessionToken = NewType<"AccountAssociationSessionToken", string>;
 export type SignupSessionToken = NewType<"SignupSessionToken", string>;
+export type AccountLinkSessionToken = NewType<"AccountLinkSessionToken", string>;
 
 export const newSessionToken = (rawSessionToken: string) => {
 	return rawSessionToken as SessionToken;
@@ -28,27 +30,33 @@ export const newAccountAssociationSessionToken = (rawAccountAssociationSessionTo
 export const newSignupSessionToken = (rawSignupSessionToken: string) => {
 	return rawSignupSessionToken as SignupSessionToken;
 };
+export const newAccountLinkSessionToken = (rawAccountLinkSessionToken: string) => {
+	return rawAccountLinkSessionToken as AccountLinkSessionToken;
+};
 
 type AnySessionId =
 	| SessionId
 	| EmailVerificationSessionId
 	| PasswordResetSessionId
 	| AccountAssociationSessionId
-	| SignupSessionId;
+	| SignupSessionId
+	| AccountLinkSessionId;
 
 export type AnySessionToken =
 	| SessionToken
 	| EmailVerificationSessionToken
 	| PasswordResetSessionToken
 	| AccountAssociationSessionToken
-	| SignupSessionToken;
+	| SignupSessionToken
+	| AccountLinkSessionToken;
 
 type SessionTokenAndIdMap =
 	| [SessionToken, SessionId]
 	| [EmailVerificationSessionToken, EmailVerificationSessionId]
 	| [PasswordResetSessionToken, PasswordResetSessionId]
 	| [AccountAssociationSessionToken, AccountAssociationSessionId]
-	| [SignupSessionToken, SignupSessionId];
+	| [SignupSessionToken, SignupSessionId]
+	| [AccountLinkSessionToken, AccountLinkSessionId];
 
 type TokenToId<T extends AnySessionToken> = Extract<SessionTokenAndIdMap, [T, unknown]>[1];
 type IdToToken<T extends AnySessionId> = Extract<SessionTokenAndIdMap, [unknown, T]>[0];
