@@ -4,13 +4,16 @@ import { newClientType, newUserId } from "../../../../../core/domain/value-objec
 import { createExternalIdentity } from "../../../domain/entities/external-identity";
 import { newExternalIdentityProviderUserId } from "../../../domain/value-objects/external-identity";
 
+import { isExpiredAccountLinkSession } from "../../../domain/entities/account-link-session";
 import type { ExternalIdentityProvider } from "../../../domain/value-objects/external-identity";
+import { newAccountLinkSessionId } from "../../../domain/value-objects/ids";
 import type {
 	AccountLinkCallbackUseCaseResult,
 	IAccountLinkCallbackUseCase,
 } from "../../contracts/account-link/account-link-callback.usecase.interface";
 import type { IOAuthProviderGateway } from "../../ports/gateways/oauth-provider.gateway.interface";
 import type { IHmacOAuthStateSigner } from "../../ports/infra/hmac-oauth-state-signer.interface";
+import type { IAccountLinkSessionRepository } from "../../ports/repositories/account-link-session.repository.interface";
 import type { IExternalIdentityRepository } from "../../ports/repositories/external-identity.repository.interface";
 import type { accountLinkStateSchema } from "./schema";
 
@@ -20,6 +23,7 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 		private readonly discordOAuthGateway: IOAuthProviderGateway,
 		private readonly externalIdentityRepository: IExternalIdentityRepository,
 		private readonly accountLinkOAuthStateSigner: IHmacOAuthStateSigner<typeof accountLinkStateSchema>,
+		private readonly accountLinkSessionRepository: IAccountLinkSessionRepository,
 	) {}
 
 	public async execute(
@@ -38,10 +42,25 @@ export class AccountLinkCallbackUseCase implements IAccountLinkCallbackUseCase {
 			return err("INVALID_STATE");
 		}
 
-		const { client, uid } = validatedState.value;
+		const { client, uid, sid } = validatedState.value;
 
 		const clientType = newClientType(client);
 		const userId = newUserId(uid);
+		const accountLinkSessionId = newAccountLinkSessionId(sid);
+
+		const accountLinkSession = await this.accountLinkSessionRepository.findById(accountLinkSessionId);
+
+		if (!accountLinkSession) {
+			return err("ACCOUNT_LINK_SESSION_INVALID");
+		}
+		await this.accountLinkSessionRepository.deleteById(accountLinkSessionId);
+
+		if (accountLinkSession.userId !== userId) {
+			return err("ACCOUNT_LINK_SESSION_INVALID");
+		}
+		if (isExpiredAccountLinkSession(accountLinkSession)) {
+			return err("ACCOUNT_LINK_SESSION_EXPIRED");
+		}
 
 		const clientBaseURL = clientType === "web" ? getWebBaseURL(production) : getMobileScheme();
 
