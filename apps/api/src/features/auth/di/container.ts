@@ -446,7 +446,6 @@ export class AuthDIContainer implements IAuthDIContainer {
 				this.discordOAuthGateways.link,
 				this.externalIdentityRepository,
 				this.accountLinkOAuthStateSigner,
-				this.accountLinkSessionRepository,
 			);
 		}
 		return this._accountLinkCallbackUseCase;
