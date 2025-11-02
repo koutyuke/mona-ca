@@ -22,18 +22,14 @@ export const AccountLinkRequest = new Elysia()
 		async ({
 			cookie,
 			params: { provider: _provider },
-			query: {
-				"redirect-uri": queryRedirectURI = "/",
-				"client-type": _clientType,
-				"account-link-session-token": _accountLinkSessionToken,
-			},
+			query: { "redirect-uri": queryRedirectURI = "/", "client-type": _clientType, "link-token": _linkToken },
 			headers,
 			containers,
 			status,
 		}) => {
 			const provider = newExternalIdentityProvider(_provider);
 			const clientType = newClientType(_clientType);
-			const accountLinkSessionToken = newAccountLinkSessionToken(_accountLinkSessionToken);
+			const accountLinkSessionToken = newAccountLinkSessionToken(_linkToken);
 
 			const result = await containers.auth.accountLinkRequestUseCase.execute(
 				env.APP_ENV === "production",
@@ -92,10 +88,9 @@ export const AccountLinkRequest = new Elysia()
 			return redirect(redirectToProviderURL.toString());
 		},
 		{
-			requireAuth: true,
 			query: t.Object({
 				"client-type": clientTypeSchema,
-				"account-link-session-token": t.String(),
+				"link-token": t.String(),
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({

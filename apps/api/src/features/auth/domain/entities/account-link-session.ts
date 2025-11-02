@@ -2,7 +2,7 @@ import type { UserId } from "../../../../core/domain/value-objects";
 import { TimeSpan } from "../../../../core/lib/time";
 import type { AccountLinkSessionId } from "../value-objects/ids";
 
-export const ACCOUNT_LINK_SESSION_EXPIRES_SPAN_MINUTES = 10 as const;
+export const ACCOUNT_LINK_SESSION_EXPIRES_SPAN_MINUTES = 3 as const;
 
 export const accountLinkSessionExpiresSpan = new TimeSpan(ACCOUNT_LINK_SESSION_EXPIRES_SPAN_MINUTES, "m");
 

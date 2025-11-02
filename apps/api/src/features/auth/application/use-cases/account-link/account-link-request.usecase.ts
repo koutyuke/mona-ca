@@ -61,10 +61,11 @@ export class AccountLinkRequestUseCase implements IAccountLinkRequestUseCase {
 			return err("ACCOUNT_LINK_SESSION_INVALID");
 		}
 
+		await this.accountLinkSessionRepository.deleteById(accountLinkSessionId);
+
 		const state = this.accountLinkOAuthStateSigner.generate({
 			client: clientType,
 			uid: accountLinkSession.userId,
-			sid: accountLinkSessionId,
 		});
 		const codeVerifier = generateCodeVerifier();
 		const redirectToProviderURL = oauthProviderGateway.createAuthorizationURL(state, codeVerifier);
