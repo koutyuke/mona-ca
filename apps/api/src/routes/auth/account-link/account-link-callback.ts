@@ -74,6 +74,19 @@ export const AccountLinkCallback = new Elysia()
 					});
 				}
 
+				if (code === "ACCOUNT_LINK_SESSION_EXPIRED") {
+					return status("Bad Request", {
+						code: code,
+						message: "Account link session expired.",
+					});
+				}
+				if (code === "ACCOUNT_LINK_SESSION_INVALID") {
+					return status("Bad Request", {
+						code: code,
+						message: "Account link session invalid.",
+					});
+				}
+
 				const {
 					code: errorCode,
 					context: { redirectURL },
