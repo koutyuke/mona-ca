@@ -8,7 +8,6 @@ import { ExternalIdentityRepository } from "../adapters/repositories/external-id
 import { PasswordResetSessionRepository } from "../adapters/repositories/password-reset-session/password-reset-session.repository";
 import { SessionRepository } from "../adapters/repositories/session/session.repository";
 import { SignupSessionRepository } from "../adapters/repositories/signup-session/signup-session.repository";
-import { HmacOAuthStateSigner } from "../application/infra/hmac-oauth-state-signer/hmac-oauth-state-signer";
 import { AccountAssociationChallengeUseCase } from "../application/use-cases/account-association/account-association-challenge.usecase";
 import { AccountAssociationConfirmUseCase } from "../application/use-cases/account-association/account-association-confirm.usecase";
 import { ValidateAccountAssociationSessionUseCase } from "../application/use-cases/account-association/validate-account-association-session.usecase";
@@ -39,6 +38,7 @@ import { PasswordResetVerifyEmailUseCase } from "../application/use-cases/passwo
 import { ResetPasswordUseCase } from "../application/use-cases/password/reset-password.usecase";
 import { UpdatePasswordUseCase } from "../application/use-cases/password/update-password.usecase";
 import { ValidatePasswordResetSessionUseCase } from "../application/use-cases/password/validate-password-reset-session.usecase";
+import { HmacOAuthStateSigner } from "../infra/hmac-oauth-state-signer/hmac-oauth-state-signer";
 
 import type { ICoreDIContainer } from "../../../core/di/container";
 import type { EnvVariables } from "../../../core/infra/config/env";
