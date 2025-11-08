@@ -30,9 +30,7 @@ const accountLinkCallbackUseCase: IAccountLinkCallbackUseCase = new AccountLinkC
 );
 
 const PRODUCTION = false;
-
 const provider = newExternalIdentityProvider("discord");
-
 const { userRegistration } = createAuthUserFixture();
 
 describe("AccountLinkCallbackUseCase", () => {
@@ -61,7 +59,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return INVALID_REDIRECT_URI error for invalid redirect URI", async () => {
 		const userId = userRegistration.id;
-		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
+
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("web"),
+			uid: userId,
+		});
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -81,7 +83,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
 		const userId = userRegistration.id;
-		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
+
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("web"),
+			uid: userId,
+		});
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -101,7 +107,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
 		const userId = userRegistration.id;
-		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
+
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("web"),
+			uid: userId,
+		});
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -121,7 +131,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should return PROVIDER_ERROR error for provider error", async () => {
 		const userId = userRegistration.id;
-		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
+
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("web"),
+			uid: userId,
+		});
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -150,10 +164,12 @@ describe("AccountLinkCallbackUseCase", () => {
 				providerUserId: providerId,
 			},
 		});
-
 		externalIdentityMap.set(createExternalIdentityKey(provider, providerId), existingOAuthAccount);
 
-		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("web"),
+			uid: userId,
+		});
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -183,10 +199,12 @@ describe("AccountLinkCallbackUseCase", () => {
 				providerUserId: providerId,
 			},
 		});
-
 		externalIdentityMap.set(createExternalIdentityKey(provider, providerId), existingOAuthAccount);
 
-		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("web"),
+			uid: userId,
+		});
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -206,7 +224,11 @@ describe("AccountLinkCallbackUseCase", () => {
 
 	it("should successfully link account when no conflicts", async () => {
 		const userId = userRegistration.id;
-		const signedState = accountLinkOAuthStateSigner.generate({ client: newClientType("web"), uid: userId });
+
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("web"),
+			uid: userId,
+		});
 
 		const result = await accountLinkCallbackUseCase.execute(
 			PRODUCTION,
@@ -225,5 +247,26 @@ describe("AccountLinkCallbackUseCase", () => {
 			expect(clientType).toBe(newClientType("web"));
 			expect(externalIdentityMap.size).toBe(1);
 		}
+	});
+
+	it("should delete session even on success", async () => {
+		const userId = userRegistration.id;
+
+		const signedState = accountLinkOAuthStateSigner.generate({
+			client: newClientType("mobile"),
+			uid: userId,
+		});
+
+		const result = await accountLinkCallbackUseCase.execute(
+			PRODUCTION,
+			undefined,
+			"/dashboard",
+			provider,
+			signedState,
+			"auth_code",
+			"code_verifier",
+		);
+
+		expect(result.isErr).toBe(false);
 	});
 });

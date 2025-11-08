@@ -9,7 +9,7 @@ import {
 	createExternalIdentitiesMap,
 	createExternalIdentityKey,
 } from "../../../../testing/mocks/repositories";
-import type { IGetConnectionsUseCase } from "../../../contracts/account-link/get-connections.usecase.interface";
+import type { IGetConnectionsUseCase } from "../../../contracts/account-connection/get-connections.usecase.interface";
 import { GetConnectionsUseCase } from "../get-connections.usecase";
 
 const externalIdentityMap = createExternalIdentitiesMap();
@@ -36,34 +36,12 @@ describe("GetConnectionsUseCase", () => {
 		expect(discord).toBeNull();
 	});
 
-	it("should return connections with no password and no external identity connections for external identity-only user", async () => {
+	it("should return connections with password and external identity connection for user with both", async () => {
 		const { externalIdentity } = createExternalIdentityFixture({
 			externalIdentity: {
 				userId: userIdentity.id,
 				provider,
 				providerUserId: providerUserId,
-			},
-		});
-
-		externalIdentityMap.set(createExternalIdentityKey(provider, providerUserId), externalIdentity);
-
-		const result = await getConnectionsUseCase.execute(userIdentity);
-
-		expect(result.password).toBe(true);
-		expect(result.discord).not.toBeNull();
-		if (result.discord) {
-			expect(result.discord.provider).toBe(provider);
-			expect(result.discord.providerUserId).toBe(providerUserId);
-			expect(result.discord.linkedAt).toBeInstanceOf(Date);
-		}
-	});
-
-	it("should return connections with multiple external identity connections", async () => {
-		const { externalIdentity } = createExternalIdentityFixture({
-			externalIdentity: {
-				userId: userIdentity.id,
-				provider,
-				providerUserId,
 			},
 		});
 

@@ -1,3 +1,4 @@
+import { ok } from "@mona-ca/core/utils";
 import { ulid } from "../../../../../core/lib/id";
 import { createAccountAssociationSession } from "../../../domain/entities/account-association-session";
 import { newAccountAssociationSessionId } from "../../../domain/value-objects/ids";
@@ -47,10 +48,10 @@ export class AccountAssociationChallengeUseCase implements IAccountAssociationCh
 			accountAssociationSession.code ?? "",
 		);
 
-		return {
+		return ok({
 			accountAssociationSession,
 			accountAssociationSessionToken,
-		};
+		});
 	}
 
 	private createAccountAssociationSession(

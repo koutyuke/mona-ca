@@ -5,7 +5,7 @@ dotenv.config({ path: ".env.drizzle.local" });
 
 export default defineConfig({
 	out: "./drizzle/migrations",
-	schema: "./src/infrastructure/drizzle/schema/!(index).ts",
+	schema: "./src/core/infra/drizzle/schema/!(index).ts",
 	dialect: "sqlite",
 	driver: "d1-http",
 	dbCredentials: {

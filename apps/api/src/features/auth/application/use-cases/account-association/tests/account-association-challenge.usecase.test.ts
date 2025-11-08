@@ -45,7 +45,7 @@ describe("AccountAssociationChallengeUseCase", () => {
 
 		const result = await accountAssociationChallengeUseCase.execute(existingAccountAssociationSession);
 
-		const { accountAssociationSession } = result;
+		const { accountAssociationSession } = result.value;
 		expect(accountAssociationSession.id).not.toBe(existingAccountAssociationSession.id);
 		expect(accountAssociationSession.userId).toBe(userRegistration.id);
 		expect(accountAssociationSession.email).toBe(userRegistration.email);
@@ -70,7 +70,7 @@ describe("AccountAssociationChallengeUseCase", () => {
 		expect(accountAssociationSessionMap.has(existingAccountAssociationSession.id)).toBe(false);
 
 		// verify new session is created
-		const { accountAssociationSession } = result;
+		const { accountAssociationSession } = result.value;
 		const newSession = accountAssociationSessionMap.get(accountAssociationSession.id);
 		expect(newSession).toBeDefined();
 		expect(newSession?.userId).toBe(userRegistration.id);
@@ -88,7 +88,7 @@ describe("AccountAssociationChallengeUseCase", () => {
 
 		const result = await accountAssociationChallengeUseCase.execute(accountAssociationSession);
 
-		const code = result.accountAssociationSession.code;
+		const code = result.value.accountAssociationSession.code;
 		expect(code).toBe("01234567");
 	});
 
@@ -104,7 +104,7 @@ describe("AccountAssociationChallengeUseCase", () => {
 
 		const result = await accountAssociationChallengeUseCase.execute(existingAccountAssociationSession);
 
-		const { accountAssociationSessionToken } = result;
+		const { accountAssociationSessionToken } = result.value;
 		expect(typeof accountAssociationSessionToken).toBe("string");
 		expect(accountAssociationSessionToken.length).toBeGreaterThan(0);
 		expect(accountAssociationSessionToken.includes(".")).toBe(true);

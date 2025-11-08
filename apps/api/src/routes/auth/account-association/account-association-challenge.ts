@@ -80,8 +80,10 @@ export const AccountAssociationChallenge = new Elysia()
 				});
 			}
 
-			const { accountAssociationSessionToken, accountAssociationSession } =
-				await containers.auth.accountAssociationChallengeUseCase.execute(validateAccountAssociationSession);
+			const result = await containers.auth.accountAssociationChallengeUseCase.execute(
+				validateAccountAssociationSession,
+			);
+			const { accountAssociationSessionToken, accountAssociationSession } = result.value;
 
 			if (clientType === "mobile") {
 				return status("OK", {

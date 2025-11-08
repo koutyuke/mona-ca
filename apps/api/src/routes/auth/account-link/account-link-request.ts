@@ -1,22 +1,20 @@
 import { Elysia, t } from "elysia";
+import { clientTypeSchema, newClientType } from "../../../core/domain/value-objects";
 import { env } from "../../../core/infra/config/env";
-import { defaultCookieOptions } from "../../../core/infra/elysia";
+import { defaultCookieOptions, redirect } from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 } from "../../../core/lib/http";
 import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
-import { authPlugin } from "../../../plugins/auth";
-import { clientTypePlugin } from "../../../plugins/client-type";
+import { newAccountLinkSessionToken } from "../../../features/auth/domain/value-objects/session-token";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 
 export const AccountLinkRequest = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
-	.use(clientTypePlugin())
-	.use(authPlugin())
 
 	// Route
 	.get(
@@ -24,20 +22,21 @@ export const AccountLinkRequest = new Elysia()
 		async ({
 			cookie,
 			params: { provider: _provider },
-			query: { "redirect-uri": queryRedirectURI = "/" },
-			clientType,
-			userIdentity,
+			query: { "redirect-uri": queryRedirectURI = "/", "client-type": _clientType, "link-token": _linkToken },
+			headers,
 			containers,
 			status,
 		}) => {
 			const provider = newExternalIdentityProvider(_provider);
+			const clientType = newClientType(_clientType);
+			const accountLinkSessionToken = newAccountLinkSessionToken(_linkToken);
 
-			const result = containers.auth.accountLinkRequestUseCase.execute(
+			const result = await containers.auth.accountLinkRequestUseCase.execute(
 				env.APP_ENV === "production",
 				clientType,
 				provider,
 				queryRedirectURI,
-				userIdentity.id,
+				accountLinkSessionToken,
 			);
 
 			if (result.isErr) {
@@ -49,13 +48,24 @@ export const AccountLinkRequest = new Elysia()
 						message: "Invalid redirect URI. Please check the URI and try again.",
 					});
 				}
-				return status("Bad Request", {
-					code: code,
-					message: "Account link request failed. Please try again.",
-				});
+				if (code === "ACCOUNT_LINK_SESSION_EXPIRED") {
+					return status("Bad Request", {
+						code: code,
+						message: "Account link session expired.",
+					});
+				}
+				if (code === "ACCOUNT_LINK_SESSION_INVALID") {
+					return status("Bad Request", {
+						code: code,
+						message: "Account link session invalid.",
+					});
+				}
 			}
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
+
+			headers["referrer-policy"] = "no-referrer";
+			headers["cache-control"] = "no-cache";
 
 			cookie[OAUTH_STATE_COOKIE_NAME].set({
 				...defaultCookieOptions,
@@ -75,13 +85,12 @@ export const AccountLinkRequest = new Elysia()
 				maxAge: 60 * 10,
 			});
 
-			return {
-				url: redirectToProviderURL.toString(),
-			};
+			return redirect(redirectToProviderURL.toString());
 		},
 		{
-			requireAuth: true,
 			query: t.Object({
+				"client-type": clientTypeSchema,
+				"link-token": t.String(),
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({

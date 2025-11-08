@@ -6,7 +6,7 @@ export type Ok<T = never> = { [RESULT_TYPE]: "ok"; isErr: false; isOk: true; val
 export type Err<E extends string, D = {}> = { [RESULT_TYPE]: "err"; isErr: true; isOk: false; code: E; context: D };
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export type Result<T extends Ok<any>, E extends Err<string, any>> = T | E;
+export type Result<T extends Ok<any>, E extends Err<string, any> = never> = T | E;
 
 export function ok(): Ok<never>;
 export function ok<T>(value: T): Ok<T>;
