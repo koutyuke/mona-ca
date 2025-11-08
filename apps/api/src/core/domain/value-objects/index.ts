@@ -1,7 +1,28 @@
-export { newClientType, clientTypeSchema } from "./client-type";
-export { newGender, genderSchema } from "./gender";
+export {
+	newClientPlatform,
+	clientPlatformSchema,
+	newMobilePlatform,
+	newWebPlatform,
+	mobilePlatformSchema,
+	webPlatformSchema,
+} from "./client-platform";
+export {
+	newMaleGender,
+	newFemaleGender,
+	maleGenderSchema,
+	femaleGenderSchema,
+	genderSchema,
+} from "./gender";
 export { newUserId } from "./ids";
 
-export type { ClientType } from "./client-type";
-export type { Gender } from "./gender";
+export type {
+	ClientPlatform,
+	MobilePlatform,
+	WebPlatform,
+} from "./client-platform";
+export type {
+	MaleGender,
+	FemaleGender,
+	Gender,
+} from "./gender";
 export type { UserId } from "./ids";
