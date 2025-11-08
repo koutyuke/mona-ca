@@ -1,13 +1,13 @@
 import { blob, index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
-import { users } from "./users";
+import { usersTable } from "./users.table";
 
-export const accountAssociationSessions = sqliteTable(
-	"account_association_sessions",
+export const accountMergeSessionsTable = sqliteTable(
+	"account_merge_sessions",
 	{
 		id: text("id").primaryKey().notNull(),
 		userId: text("user_id")
 			.notNull()
-			.references(() => users.id, { onDelete: "cascade" }),
+			.references(() => usersTable.id, { onDelete: "cascade" }),
 		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		code: text("code"),
 		email: text("email").notNull(),
@@ -16,7 +16,7 @@ export const accountAssociationSessions = sqliteTable(
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
 	table => [
-		index("idx_account_association_sessions__expires_at").on(table.expiresAt),
-		unique("unq_account_association_sessions__provider_user").on(table.provider, table.userId),
+		index("idx_account_merge_sessions__expires_at").on(table.expiresAt),
+		unique("unq_account_merge_sessions__provider_user").on(table.provider, table.userId),
 	],
 );

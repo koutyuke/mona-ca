@@ -1,6 +1,6 @@
 import { blob, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const signupSessions = sqliteTable(
+export const signupSessionsTable = sqliteTable(
 	"signup_sessions",
 	{
 		id: text("id").primaryKey().notNull(),

@@ -1,7 +1,7 @@
 import { blob, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
-import { users } from "./users";
+import { usersTable } from "./users.table";
 
-export const emailVerificationSessions = sqliteTable(
+export const emailVerificationSessionsTable = sqliteTable(
 	"email_verification_sessions",
 	{
 		id: text("id").primaryKey().notNull(),
@@ -9,7 +9,7 @@ export const emailVerificationSessions = sqliteTable(
 		userId: text("user_id")
 			.unique()
 			.notNull()
-			.references(() => users.id, { onDelete: "cascade" }),
+			.references(() => usersTable.id, { onDelete: "cascade" }),
 		code: text("code").notNull().unique(),
 		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),

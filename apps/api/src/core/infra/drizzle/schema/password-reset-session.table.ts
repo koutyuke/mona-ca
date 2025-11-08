@@ -1,13 +1,13 @@
 import { blob, index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { users } from "./users";
+import { usersTable } from "./users.table";
 
-export const passwordResetSessions = sqliteTable(
+export const passwordResetSessionsTable = sqliteTable(
 	"password_reset_sessions",
 	{
 		id: text("id").primaryKey().notNull(),
 		userId: text("user_id")
 			.notNull()
-			.references(() => users.id, { onDelete: "cascade" }),
+			.references(() => usersTable.id, { onDelete: "cascade" }),
 		code: text("code").notNull(),
 		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		email: text("email").notNull(),
