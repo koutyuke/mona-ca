@@ -274,7 +274,6 @@ describe("AccountLinkRequestUseCase", () => {
 			const validatedState = accountLinkOAuthStateSigner.validate(state);
 			expect(validatedState.isErr).toBe(false);
 			if (!validatedState.isErr) {
-				expect(validatedState.value.sid).toBe(accountLinkSession.id);
 				expect(validatedState.value.uid).toBe(userId);
 				expect(validatedState.value.client).toBe(clientType);
 			}

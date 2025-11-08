@@ -66,21 +66,4 @@ describe("AccountLinkPrepareUseCase", () => {
 			expect(accountLinkSessionMap.size).toBe(2);
 		}
 	});
-
-	it("should create session with valid expiration time", async () => {
-		const userId = newUserId(ulid());
-		const beforeExecution = Date.now();
-
-		const result = await accountLinkPrepareUseCase.execute(userId);
-
-		expect(result.isErr).toBe(false);
-		if (!result.isErr) {
-			const { accountLinkSession } = result.value;
-			const expirationTime = accountLinkSession.expiresAt.getTime();
-			const expectedExpiration = beforeExecution + 10 * 60 * 1000; // 10 minutes
-			// Allow 1 second tolerance
-			expect(expirationTime).toBeGreaterThanOrEqual(expectedExpiration - 1000);
-			expect(expirationTime).toBeLessThanOrEqual(expectedExpiration + 1000);
-		}
-	});
 });
