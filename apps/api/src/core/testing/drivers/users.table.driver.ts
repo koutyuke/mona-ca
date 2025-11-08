@@ -10,7 +10,7 @@ export type RawUser = {
 	updated_at: number;
 };
 
-export class UserTableHelper {
+export class UsersTableDriver {
 	constructor(private readonly db: D1Database) {}
 
 	public async save(raw: RawUser): Promise<void> {

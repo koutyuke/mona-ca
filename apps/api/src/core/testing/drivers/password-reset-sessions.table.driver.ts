@@ -8,7 +8,7 @@ export type RawPasswordResetSession = {
 	expires_at: number;
 };
 
-export class PasswordResetSessionTableHelper {
+export class PasswordResetSessionsTableDriver {
 	constructor(private readonly db: D1Database) {}
 
 	public async save(raw: RawPasswordResetSession): Promise<void> {

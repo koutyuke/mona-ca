@@ -7,7 +7,7 @@ export type RawEmailVerificationSession = {
 	expires_at: number;
 };
 
-export class EmailVerificationSessionTableHelper {
+export class EmailVerificationSessionsTableDriver {
 	constructor(private readonly db: D1Database) {}
 
 	public async save(raw: RawEmailVerificationSession): Promise<void> {

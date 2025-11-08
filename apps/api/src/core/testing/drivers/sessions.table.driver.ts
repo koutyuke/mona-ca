@@ -5,7 +5,7 @@ export type RawSession = {
 	expires_at: number;
 };
 
-export class SessionTableHelper {
+export class SessionsTableDriver {
 	constructor(private readonly db: D1Database) {}
 
 	public async save(raw: RawSession): Promise<void> {
