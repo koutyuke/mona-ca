@@ -1,20 +1,11 @@
 import { EmailGateway } from "../adapters/gateways/email";
 import { TurnstileGateway } from "../adapters/gateways/turnstile";
 import type { CloudflareBindings, EnvVariables } from "../infra/config/env";
-import { HmacSha256, PasswordHasher, RandomGenerator, SessionSecretHasher } from "../infra/crypto";
+import { CryptoRandomService, HmacSha256Service, PasswordHashingService, TokenSecretService } from "../infra/crypto";
 import { DrizzleService } from "../infra/drizzle";
 import type { IEmailGateway, ITurnstileGateway } from "../ports/gateways";
-import type { IMac, IPasswordHasher, IRandomGenerator, ISessionSecretHasher } from "../ports/system";
-
-export interface ICoreDIContainer {
-	readonly drizzleService: DrizzleService;
-	readonly sessionSecretHasher: ISessionSecretHasher;
-	readonly passwordHasher: IPasswordHasher;
-	readonly randomGenerator: IRandomGenerator;
-	readonly hmacSha256: IMac;
-	readonly emailGateway: IEmailGateway;
-	readonly turnstileGateway: ITurnstileGateway;
-}
+import type { ICryptoRandomService, IHmacService, IPasswordHashingService, ITokenSecretService } from "../ports/system";
+import type { ICoreDIContainer } from "./container.interface";
 
 /**
  * SharedDIContainer
@@ -32,10 +23,10 @@ export class CoreDIContainer implements ICoreDIContainer {
 
 	// Infrastructure
 	private _drizzleService: DrizzleService | undefined;
-	private _sessionSecretHasher: ISessionSecretHasher | undefined;
-	private _passwordHasher: IPasswordHasher | undefined;
-	private _randomGenerator: IRandomGenerator | undefined;
-	private _hmacSha256: IMac | undefined;
+	private _tokenSecretService: ITokenSecretService | undefined;
+	private _passwordHashingService: IPasswordHashingService | undefined;
+	private _cryptoRandomService: ICryptoRandomService | undefined;
+	private _hmacService: IHmacService | undefined;
 
 	// Gateways
 	private _emailGateway: IEmailGateway | undefined;
@@ -55,17 +46,17 @@ export class CoreDIContainer implements ICoreDIContainer {
 		if (overrides.drizzleService) {
 			this._drizzleService = overrides.drizzleService;
 		}
-		if (overrides.sessionSecretHasher) {
-			this._sessionSecretHasher = overrides.sessionSecretHasher;
+		if (overrides.tokenSecretService) {
+			this._tokenSecretService = overrides.tokenSecretService;
 		}
-		if (overrides.passwordHasher) {
-			this._passwordHasher = overrides.passwordHasher;
+		if (overrides.passwordHashingService) {
+			this._passwordHashingService = overrides.passwordHashingService;
 		}
-		if (overrides.randomGenerator) {
-			this._randomGenerator = overrides.randomGenerator;
+		if (overrides.cryptoRandomService) {
+			this._cryptoRandomService = overrides.cryptoRandomService;
 		}
-		if (overrides.hmacSha256) {
-			this._hmacSha256 = overrides.hmacSha256;
+		if (overrides.hmacService) {
+			this._hmacService = overrides.hmacService;
 		}
 
 		// Gateways
@@ -84,32 +75,32 @@ export class CoreDIContainer implements ICoreDIContainer {
 		return this._drizzleService;
 	}
 
-	get sessionSecretHasher(): ISessionSecretHasher {
-		if (!this._sessionSecretHasher) {
-			this._sessionSecretHasher = new SessionSecretHasher();
+	get tokenSecretService(): ITokenSecretService {
+		if (!this._tokenSecretService) {
+			this._tokenSecretService = new TokenSecretService();
 		}
-		return this._sessionSecretHasher;
+		return this._tokenSecretService;
 	}
 
-	get passwordHasher(): IPasswordHasher {
-		if (!this._passwordHasher) {
-			this._passwordHasher = new PasswordHasher(this.envVariables.PASSWORD_PEPPER);
+	get passwordHashingService(): IPasswordHashingService {
+		if (!this._passwordHashingService) {
+			this._passwordHashingService = new PasswordHashingService(this.envVariables.PASSWORD_PEPPER);
 		}
-		return this._passwordHasher;
+		return this._passwordHashingService;
 	}
 
-	get randomGenerator(): IRandomGenerator {
-		if (!this._randomGenerator) {
-			this._randomGenerator = new RandomGenerator();
+	get cryptoRandomService(): ICryptoRandomService {
+		if (!this._cryptoRandomService) {
+			this._cryptoRandomService = new CryptoRandomService();
 		}
-		return this._randomGenerator;
+		return this._cryptoRandomService;
 	}
 
-	get hmacSha256(): IMac {
-		if (!this._hmacSha256) {
-			this._hmacSha256 = new HmacSha256(this.envVariables.OAUTH_STATE_HMAC_SECRET);
+	get hmacService(): IHmacService {
+		if (!this._hmacService) {
+			this._hmacService = new HmacSha256Service(this.envVariables.OAUTH_STATE_HMAC_SECRET);
 		}
-		return this._hmacSha256;
+		return this._hmacService;
 	}
 
 	get emailGateway(): IEmailGateway {
