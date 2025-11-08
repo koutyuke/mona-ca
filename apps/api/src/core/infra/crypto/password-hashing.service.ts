@@ -1,7 +1,7 @@
-import type { IPasswordHasher } from "../../ports/system";
+import type { IPasswordHashingService } from "../../ports/system";
 import { Argon2idService } from "./argon2id";
 
-export class PasswordHasher implements IPasswordHasher {
+export class PasswordHashingService implements IPasswordHashingService {
 	private readonly argon2idService: Argon2idService;
 	private readonly pepper: string;
 

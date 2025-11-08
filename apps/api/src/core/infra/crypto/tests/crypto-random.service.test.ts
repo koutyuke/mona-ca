@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { RandomGenerator } from "../random-generator";
+import { CryptoRandomService } from "../crypto-random.service";
 
-const generator = new RandomGenerator();
+const generator = new CryptoRandomService();
 
-describe("RandomGenerator", () => {
+describe("CryptoRandomService", () => {
 	describe("string", () => {
 		it("generates an alphanumeric string by default", () => {
 			const result = generator.string(16);

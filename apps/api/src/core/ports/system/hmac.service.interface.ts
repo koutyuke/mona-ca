@@ -4,7 +4,7 @@ export type MacOptions = {
 	encoding?: MacEncoding;
 };
 
-export interface IMac {
+export interface IHmacService {
 	sign(plaintext: string, opts?: MacOptions): string;
 	verify(plaintext: string, mac: string, opts?: MacOptions): boolean;
 }

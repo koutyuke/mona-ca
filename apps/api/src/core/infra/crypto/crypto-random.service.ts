@@ -5,7 +5,7 @@ import {
 	generateRandomIntegerNumber as osloGenerateRandomIntegerNumber,
 	generateRandomString as osloGenerateRandomString,
 } from "@oslojs/crypto/random";
-import type { IRandomGenerator, RandomStringOptions } from "../../ports/system";
+import type { ICryptoRandomService, RandomStringOptions } from "../../ports/system";
 
 const LOWER = "abcdefghijklmnopqrstuvwxyz";
 
@@ -19,7 +19,7 @@ const READER: RandomReader = {
 	},
 };
 
-export class RandomGenerator implements IRandomGenerator {
+export class CryptoRandomService implements ICryptoRandomService {
 	bytes(len: number): Uint8Array {
 		const buf = new Uint8Array(len);
 		READER.read(buf);
