@@ -1,8 +1,8 @@
-import type { IMac, MacOptions } from "../../../ports/system";
+import type { IHmacService, MacOptions } from "../../../ports/system";
 
-export class MacMock implements IMac {
+export class HmacServiceMock implements IHmacService {
 	sign(plaintext: string, _opts?: MacOptions): string {
-		return `__mac:${plaintext}`;
+		return `__hmac:${plaintext}`;
 	}
 
 	verify(plaintext: string, mac: string, _opts?: MacOptions): boolean {

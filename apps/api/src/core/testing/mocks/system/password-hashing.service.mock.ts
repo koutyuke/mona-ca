@@ -1,6 +1,6 @@
-import type { IPasswordHasher } from "../../../ports/system";
+import type { IPasswordHashingService } from "../../../ports/system";
 
-export class PasswordHasherMock implements IPasswordHasher {
+export class PasswordHashingServiceMock implements IPasswordHashingService {
 	async hash(password: string): Promise<string> {
 		const hash = `__password-hashed:${password}`;
 		return hash;

@@ -1,8 +1,8 @@
-import type { IRandomGenerator, RandomStringOptions } from "../../../ports/system";
+import type { ICryptoRandomService, RandomStringOptions } from "../../../ports/system";
 
 type Character = "lowercase" | "uppercase" | "digits";
 
-export class RandomGeneratorMock implements IRandomGenerator {
+export class CryptoRandomServiceMock implements ICryptoRandomService {
 	/** [1,2,...,len] を返す（Uint8Arrayなので256超は自然にラップ） */
 	bytes(len: number): Uint8Array {
 		if (len <= 0) return new Uint8Array();
