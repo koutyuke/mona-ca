@@ -4,7 +4,7 @@ export type RawUser = {
 	email: string;
 	email_verified: 0 | 1;
 	icon_url: string | null;
-	gender: "man" | "woman";
+	gender: "male" | "female";
 	password_hash: string | null;
 	created_at: number;
 	updated_at: number;

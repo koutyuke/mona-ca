@@ -9,6 +9,7 @@ export {
 export {
 	newMaleGender,
 	newFemaleGender,
+	newGender,
 	maleGenderSchema,
 	femaleGenderSchema,
 	genderSchema,
