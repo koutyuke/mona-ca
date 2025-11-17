@@ -1,8 +1,8 @@
 import { blob, index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-core";
 import { usersTable } from "./users.table";
 
-export const accountMergeSessionsTable = sqliteTable(
-	"account_merge_sessions",
+export const accountLinkSessionsTable = sqliteTable(
+	"account_link_sessions",
 	{
 		id: text("id").primaryKey().notNull(),
 		userId: text("user_id")
@@ -16,7 +16,7 @@ export const accountMergeSessionsTable = sqliteTable(
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},
 	table => [
-		index("idx_account_merge_sessions__expires_at").on(table.expiresAt),
-		unique("unq_account_merge_sessions__provider_user").on(table.provider, table.userId),
+		index("idx_account_link_sessions__expires_at").on(table.expiresAt),
+		unique("unq_account_link_sessions__provider_user").on(table.provider, table.userId),
 	],
 );
