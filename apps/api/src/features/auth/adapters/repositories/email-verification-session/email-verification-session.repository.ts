@@ -23,8 +23,8 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 	public async findById(id: EmailVerificationSessionId): Promise<EmailVerificationSession | null> {
 		const emailVerificationSessions = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.emailVerificationSessions)
-			.where(eq(this.drizzleService.schema.emailVerificationSessions.id, id));
+			.from(this.drizzleService.schema.emailVerificationSessionsTable)
+			.where(eq(this.drizzleService.schema.emailVerificationSessionsTable.id, id));
 
 		if (emailVerificationSessions.length > 1) {
 			throw new Error("Multiple email verifications found for the same user id");
@@ -37,7 +37,7 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 
 	public async save(emailVerificationSession: EmailVerificationSession): Promise<void> {
 		await this.drizzleService.db
-			.insert(this.drizzleService.schema.emailVerificationSessions)
+			.insert(this.drizzleService.schema.emailVerificationSessionsTable)
 			.values({
 				id: emailVerificationSession.id,
 				email: emailVerificationSession.email,
@@ -47,7 +47,7 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 				expiresAt: emailVerificationSession.expiresAt,
 			})
 			.onConflictDoUpdate({
-				target: this.drizzleService.schema.emailVerificationSessions.id,
+				target: this.drizzleService.schema.emailVerificationSessionsTable.id,
 				set: {
 					email: emailVerificationSession.email,
 					userId: emailVerificationSession.userId,
@@ -60,15 +60,15 @@ export class EmailVerificationSessionRepository implements IEmailVerificationSes
 
 	public async deleteByUserId(userId: UserId): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.emailVerificationSessions)
-			.where(eq(this.drizzleService.schema.emailVerificationSessions.userId, userId))
+			.delete(this.drizzleService.schema.emailVerificationSessionsTable)
+			.where(eq(this.drizzleService.schema.emailVerificationSessionsTable.userId, userId))
 			.execute();
 	}
 
 	public async deleteExpiredVerifications(): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.emailVerificationSessions)
-			.where(lte(this.drizzleService.schema.emailVerificationSessions.expiresAt, new Date()))
+			.delete(this.drizzleService.schema.emailVerificationSessionsTable)
+			.where(lte(this.drizzleService.schema.emailVerificationSessionsTable.expiresAt, new Date()))
 			.execute();
 	}
 

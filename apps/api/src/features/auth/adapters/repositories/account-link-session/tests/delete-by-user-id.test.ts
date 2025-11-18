@@ -12,30 +12,30 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const accountLinkSessionRepository = new AccountLinkSessionRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const accountLinkSessionTableHelper = new AccountLinkSessionsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const accountLinkSessionTableDriver = new AccountLinkSessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("AccountLinkSessionRepository.deleteByUserId", () => {
 	beforeEach(async () => {
-		await accountLinkSessionTableHelper.deleteAll();
+		await accountLinkSessionTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should delete a sessions for a user", async () => {
-		const { accountLinkSession: session } = createAccountLinkSessionFixture({
+		const { accountLinkSession } = createAccountLinkSessionFixture({
 			accountLinkSession: {
 				userId: userRegistration.id,
 			},
 		});
-		await accountLinkSessionTableHelper.save(convertAccountLinkSessionToRaw(session));
+		await accountLinkSessionTableDriver.save(convertAccountLinkSessionToRaw(accountLinkSession));
 
-		await accountLinkSessionRepository.deleteByUserId(userRegistration.id);
+		await accountLinkSessionRepository.deleteByUserId(accountLinkSession.userId);
 
-		const sessions = await accountLinkSessionTableHelper.findByUserId(userRegistration.id);
-		expect(sessions).toHaveLength(0);
+		const databaseSessions = await accountLinkSessionTableDriver.findByUserId(userRegistration.id);
+		expect(databaseSessions).toHaveLength(0);
 	});
 
 	test("should not throw error when deleting for a user with no sessions", async () => {

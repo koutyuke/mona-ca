@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { SignupSessionTableHelper, toRawDate, toRawSessionSecretHash } from "../../../../../../core/testing/helpers";
+import { SignupSessionsTableDriver, toRawDate, toRawUint8Array } from "../../../../../../core/testing/drivers";
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import { SignupSessionRepository } from "../signup-session.repository";
 
@@ -10,11 +10,11 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
-const signupSessionTableHelper = new SignupSessionTableHelper(DB);
+const signupSessionTableDriver = new SignupSessionsTableDriver(DB);
 
 describe("SignupSessionRepository.save", () => {
 	afterEach(async () => {
-		await signupSessionTableHelper.deleteAll();
+		await signupSessionTableDriver.deleteAll();
 	});
 
 	test("should create signup session in database", async () => {
@@ -22,7 +22,7 @@ describe("SignupSessionRepository.save", () => {
 
 		await signupSessionRepository.save(signupSession);
 
-		const results = await signupSessionTableHelper.findById(signupSession.id);
+		const results = await signupSessionTableDriver.findById(signupSession.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
@@ -30,7 +30,7 @@ describe("SignupSessionRepository.save", () => {
 			email: signupSession.email,
 			email_verified: Number(signupSession.emailVerified) as 0 | 1,
 			code: signupSession.code,
-			secret_hash: toRawSessionSecretHash(signupSession.secretHash),
+			secret_hash: toRawUint8Array(signupSession.secretHash),
 			expires_at: toRawDate(signupSession.expiresAt),
 		});
 	});
@@ -48,7 +48,7 @@ describe("SignupSessionRepository.save", () => {
 
 		await signupSessionRepository.save(updatedSignupSession);
 
-		const results = await signupSessionTableHelper.findById(signupSession.id);
+		const results = await signupSessionTableDriver.findById(signupSession.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({
@@ -56,7 +56,7 @@ describe("SignupSessionRepository.save", () => {
 			email: updatedSignupSession.email,
 			email_verified: 1,
 			code: updatedSignupSession.code,
-			secret_hash: toRawSessionSecretHash(updatedSignupSession.secretHash),
+			secret_hash: toRawUint8Array(updatedSignupSession.secretHash),
 			expires_at: toRawDate(expiresAt),
 		});
 	});

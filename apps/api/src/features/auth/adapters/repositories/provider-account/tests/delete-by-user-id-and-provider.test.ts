@@ -11,23 +11,23 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const providerAccountRepository = new ProviderAccountRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const providerAccountTableHelper = new ProviderAccountsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const providerAccountTableDriver = new ProviderAccountsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("ProviderAccountRepository.deleteByUserIdAndProvider", () => {
 	beforeEach(async () => {
-		await providerAccountTableHelper.deleteAll();
+		await providerAccountTableDriver.deleteAll();
 	});
 
 	beforeAll(async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	afterAll(async () => {
-		await userTableHelper.deleteAll();
-		await providerAccountTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
+		await providerAccountTableDriver.deleteAll();
 	});
 
 	test("should delete date in database", async () => {
@@ -36,10 +36,10 @@ describe("ProviderAccountRepository.deleteByUserIdAndProvider", () => {
 				userId: userRegistration.id,
 			},
 		});
-		await providerAccountTableHelper.save(convertProviderAccountToRaw(providerAccount));
+		await providerAccountTableDriver.save(convertProviderAccountToRaw(providerAccount));
 
 		await providerAccountRepository.deleteByUserIdAndProvider(providerAccount.userId, providerAccount.provider);
-		const results = await providerAccountTableHelper.findByUserIdAndProvider(
+		const results = await providerAccountTableDriver.findByUserIdAndProvider(
 			providerAccount.userId,
 			providerAccount.provider,
 		);

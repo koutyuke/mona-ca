@@ -11,17 +11,17 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const providerConnectionTicketRepository = new ProviderConnectionTicketRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const providerConnectionTicketTableHelper = new ProviderConnectionTicketsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const providerConnectionTicketTableDriver = new ProviderConnectionTicketsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("ProviderConnectionTicketRepository.findById", () => {
 	beforeEach(async () => {
-		await providerConnectionTicketTableHelper.deleteAll();
-		await userTableHelper.deleteAll();
+		await providerConnectionTicketTableDriver.deleteAll();
+		await userTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should find data in database", async () => {
@@ -31,7 +31,7 @@ describe("ProviderConnectionTicketRepository.findById", () => {
 			},
 		});
 
-		await providerConnectionTicketTableHelper.save(convertProviderConnectionTicketToRaw(ticket));
+		await providerConnectionTicketTableDriver.save(convertProviderConnectionTicketToRaw(ticket));
 
 		const result = await providerConnectionTicketRepository.findById(ticket.id);
 

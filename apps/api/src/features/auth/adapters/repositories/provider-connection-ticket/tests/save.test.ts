@@ -11,17 +11,17 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const providerConnectionTicketRepository = new ProviderConnectionTicketRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const providerConnectionTicketTableHelper = new ProviderConnectionTicketsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const providerConnectionTicketTableDriver = new ProviderConnectionTicketsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("ProviderConnectionTicketRepository.save", () => {
 	beforeEach(async () => {
-		await providerConnectionTicketTableHelper.deleteAll();
-		await userTableHelper.deleteAll();
+		await providerConnectionTicketTableDriver.deleteAll();
+		await userTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should create data in database", async () => {
@@ -33,7 +33,7 @@ describe("ProviderConnectionTicketRepository.save", () => {
 
 		await providerConnectionTicketRepository.save(ticket);
 
-		const results = await providerConnectionTicketTableHelper.findById(ticket.id);
+		const results = await providerConnectionTicketTableDriver.findById(ticket.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual(convertProviderConnectionTicketToRaw(ticket));

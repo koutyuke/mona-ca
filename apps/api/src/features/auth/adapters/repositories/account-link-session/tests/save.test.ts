@@ -11,29 +11,29 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const accountLinkSessionRepository = new AccountLinkSessionRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const accountLinkSessionTableHelper = new AccountLinkSessionsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const accountLinkSessionTableDriver = new AccountLinkSessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("AccountLinkSessionRepository.save", () => {
 	beforeEach(async () => {
-		await accountLinkSessionTableHelper.deleteAll();
+		await accountLinkSessionTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should create a new session in the database", async () => {
-		const { accountLinkSession: session } = createAccountLinkSessionFixture({
+		const { accountLinkSession } = createAccountLinkSessionFixture({
 			accountLinkSession: {
 				userId: userRegistration.id,
 			},
 		});
-		await accountLinkSessionRepository.save(session);
+		await accountLinkSessionRepository.save(accountLinkSession);
 
-		const databaseSessions = await accountLinkSessionTableHelper.findById(session.id);
+		const databaseSessions = await accountLinkSessionTableDriver.findById(accountLinkSession.id);
 
 		expect(databaseSessions.length).toBe(1);
-		expect(databaseSessions[0]).toStrictEqual(convertAccountLinkSessionToRaw(session));
+		expect(databaseSessions[0]).toStrictEqual(convertAccountLinkSessionToRaw(accountLinkSession));
 	});
 });

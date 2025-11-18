@@ -11,8 +11,8 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const accountLinkSessionRepository = new AccountLinkSessionRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const accountLinkSessionTableHelper = new AccountLinkSessionsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const accountLinkSessionTableDriver = new AccountLinkSessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 const { userRegistration: userRegistration2 } = createAuthUserFixture({
@@ -23,10 +23,10 @@ const { userRegistration: userRegistration2 } = createAuthUserFixture({
 
 describe("AccountLinkSessionRepository.deleteExpiredSessions", () => {
 	beforeEach(async () => {
-		await accountLinkSessionTableHelper.deleteAll();
+		await accountLinkSessionTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration2));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration2));
 	});
 
 	test("should delete expired sessions but keep valid ones", async () => {
@@ -43,17 +43,17 @@ describe("AccountLinkSessionRepository.deleteExpiredSessions", () => {
 			},
 		});
 
-		await accountLinkSessionTableHelper.save(convertAccountLinkSessionToRaw(expiredSession.accountLinkSession));
-		await accountLinkSessionTableHelper.save(convertAccountLinkSessionToRaw(validSession.accountLinkSession));
+		await accountLinkSessionTableDriver.save(convertAccountLinkSessionToRaw(expiredSession.accountLinkSession));
+		await accountLinkSessionTableDriver.save(convertAccountLinkSessionToRaw(validSession.accountLinkSession));
 
 		await accountLinkSessionRepository.deleteExpiredSessions();
 
-		const expiredSessionAfterDelete = await accountLinkSessionTableHelper.findById(
+		const expiredSessionAfterDelete = await accountLinkSessionTableDriver.findById(
 			expiredSession.accountLinkSession.id,
 		);
 		expect(expiredSessionAfterDelete).toHaveLength(0);
 
-		const validSessionAfterDelete = await accountLinkSessionTableHelper.findById(validSession.accountLinkSession.id);
+		const validSessionAfterDelete = await accountLinkSessionTableDriver.findById(validSession.accountLinkSession.id);
 
 		expect(validSessionAfterDelete).toHaveLength(1);
 		expect(validSessionAfterDelete[0]).toStrictEqual(convertAccountLinkSessionToRaw(validSession.accountLinkSession));
@@ -66,11 +66,11 @@ describe("AccountLinkSessionRepository.deleteExpiredSessions", () => {
 			},
 		});
 
-		await accountLinkSessionTableHelper.save(convertAccountLinkSessionToRaw(validSession.accountLinkSession));
+		await accountLinkSessionTableDriver.save(convertAccountLinkSessionToRaw(validSession.accountLinkSession));
 
 		await accountLinkSessionRepository.deleteExpiredSessions();
 
-		const validSessionAfterDelete = await accountLinkSessionTableHelper.findById(validSession.accountLinkSession.id);
+		const validSessionAfterDelete = await accountLinkSessionTableDriver.findById(validSession.accountLinkSession.id);
 
 		expect(validSessionAfterDelete).toHaveLength(1);
 		expect(validSessionAfterDelete[0]).toStrictEqual(convertAccountLinkSessionToRaw(validSession.accountLinkSession));

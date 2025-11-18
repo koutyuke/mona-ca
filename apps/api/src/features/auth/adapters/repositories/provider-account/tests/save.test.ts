@@ -12,23 +12,23 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const providerAccountRepository = new ProviderAccountRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const providerAccountTableHelper = new ProviderAccountsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const providerAccountTableDriver = new ProviderAccountsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("ProviderAccountRepository.save", () => {
 	beforeEach(async () => {
-		await providerAccountTableHelper.deleteAll();
+		await providerAccountTableDriver.deleteAll();
 	});
 
 	beforeAll(async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	afterAll(async () => {
-		await userTableHelper.deleteAll();
-		await providerAccountTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
+		await providerAccountTableDriver.deleteAll();
 	});
 
 	test("should set providerAccount in the database", async () => {
@@ -40,7 +40,7 @@ describe("ProviderAccountRepository.save", () => {
 
 		await providerAccountRepository.save(providerAccount);
 
-		const results = await providerAccountTableHelper.findByProviderAndProviderUserId(
+		const results = await providerAccountTableDriver.findByProviderAndProviderUserId(
 			providerAccount.provider,
 			providerAccount.providerUserId,
 		);
@@ -55,7 +55,7 @@ describe("ProviderAccountRepository.save", () => {
 				userId: userRegistration.id,
 			},
 		});
-		await providerAccountTableHelper.save(convertProviderAccountToRaw(providerAccount));
+		await providerAccountTableDriver.save(convertProviderAccountToRaw(providerAccount));
 
 		const updatedProviderAccount = {
 			...providerAccount,
@@ -64,7 +64,7 @@ describe("ProviderAccountRepository.save", () => {
 
 		await providerAccountRepository.save(updatedProviderAccount);
 
-		const results = await providerAccountTableHelper.findByProviderAndProviderUserId(
+		const results = await providerAccountTableDriver.findByProviderAndProviderUserId(
 			providerAccount.provider,
 			providerAccount.providerUserId,
 		);

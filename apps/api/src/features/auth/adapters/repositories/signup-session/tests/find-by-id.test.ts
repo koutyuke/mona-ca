@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { SignupSessionTableHelper } from "../../../../../../core/testing/helpers";
+import { SignupSessionsTableDriver } from "../../../../../../core/testing/drivers";
 import { newSignupSessionId } from "../../../../domain/value-objects/ids";
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import { SignupSessionRepository } from "../signup-session.repository";
@@ -11,11 +11,11 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const signupSessionRepository = new SignupSessionRepository(drizzleService);
 
-const signupSessionTableHelper = new SignupSessionTableHelper(DB);
+const signupSessionTableDriver = new SignupSessionsTableDriver(DB);
 
 describe("SignupSessionRepository.findById", () => {
 	afterEach(async () => {
-		await signupSessionTableHelper.deleteAll();
+		await signupSessionTableDriver.deleteAll();
 	});
 
 	test("should return SignupSession instance if exists", async () => {

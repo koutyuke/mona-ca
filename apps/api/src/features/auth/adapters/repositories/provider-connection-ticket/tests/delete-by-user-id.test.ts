@@ -11,17 +11,17 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const providerConnectionTicketRepository = new ProviderConnectionTicketRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const providerConnectionTicketTableHelper = new ProviderConnectionTicketsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const providerConnectionTicketTableDriver = new ProviderConnectionTicketsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("ProviderConnectionTicketRepository.deleteByUserId", () => {
 	beforeEach(async () => {
-		await providerConnectionTicketTableHelper.deleteAll();
-		await userTableHelper.deleteAll();
+		await providerConnectionTicketTableDriver.deleteAll();
+		await userTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should delete data in database", async () => {
@@ -30,11 +30,11 @@ describe("ProviderConnectionTicketRepository.deleteByUserId", () => {
 				userId: userRegistration.id,
 			},
 		});
-		await providerConnectionTicketTableHelper.save(convertProviderConnectionTicketToRaw(ticket));
+		await providerConnectionTicketTableDriver.save(convertProviderConnectionTicketToRaw(ticket));
 
 		await providerConnectionTicketRepository.deleteByUserId(ticket.userId);
 
-		const results = await providerConnectionTicketTableHelper.findByUserId(ticket.userId);
+		const results = await providerConnectionTicketTableDriver.findByUserId(ticket.userId);
 
 		expect(results.length).toBe(0);
 	});

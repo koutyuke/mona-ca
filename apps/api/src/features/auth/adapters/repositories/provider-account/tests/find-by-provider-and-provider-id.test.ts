@@ -13,23 +13,23 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const providerAccountRepository = new ProviderAccountRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const providerAccountTableHelper = new ProviderAccountsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const providerAccountTableDriver = new ProviderAccountsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("ProviderAccountRepository.findByProviderAndProviderId", () => {
 	beforeEach(async () => {
-		await providerAccountTableHelper.deleteAll();
+		await providerAccountTableDriver.deleteAll();
 	});
 
 	beforeAll(async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	afterAll(async () => {
-		await userTableHelper.deleteAll();
-		await providerAccountTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
+		await providerAccountTableDriver.deleteAll();
 	});
 
 	test("should return ProviderAccount instance", async () => {
@@ -38,7 +38,7 @@ describe("ProviderAccountRepository.findByProviderAndProviderId", () => {
 				userId: userRegistration.id,
 			},
 		});
-		await providerAccountTableHelper.save(convertProviderAccountToRaw(providerAccount));
+		await providerAccountTableDriver.save(convertProviderAccountToRaw(providerAccount));
 
 		const foundProviderAccount = await providerAccountRepository.findByProviderAndProviderUserId(
 			providerAccount.provider,

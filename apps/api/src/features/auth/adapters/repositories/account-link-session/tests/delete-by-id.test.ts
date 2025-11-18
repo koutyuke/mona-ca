@@ -12,29 +12,29 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const accountLinkSessionRepository = new AccountLinkSessionRepository(drizzleService);
 
-const userTableHelper = new UsersTableDriver(DB);
-const accountLinkSessionTableHelper = new AccountLinkSessionsTableDriver(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const accountLinkSessionTableDriver = new AccountLinkSessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("AccountLinkSessionRepository.delete", () => {
 	beforeEach(async () => {
-		await accountLinkSessionTableHelper.deleteAll();
+		await accountLinkSessionTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should delete session by id", async () => {
-		const { accountLinkSession: session } = createAccountLinkSessionFixture({
+		const { accountLinkSession } = createAccountLinkSessionFixture({
 			accountLinkSession: {
 				userId: userRegistration.id,
 			},
 		});
-		await accountLinkSessionTableHelper.save(convertAccountLinkSessionToRaw(session));
+		await accountLinkSessionTableDriver.save(convertAccountLinkSessionToRaw(accountLinkSession));
 
-		await accountLinkSessionRepository.deleteById(session.id);
+		await accountLinkSessionRepository.deleteById(accountLinkSession.id);
 
-		const databaseSessions = await accountLinkSessionTableHelper.findById(session.id);
+		const databaseSessions = await accountLinkSessionTableDriver.findById(accountLinkSession.id);
 		expect(databaseSessions).toHaveLength(0);
 	});
 

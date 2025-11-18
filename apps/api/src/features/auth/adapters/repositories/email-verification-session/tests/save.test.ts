@@ -1,9 +1,9 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { EmailVerificationSessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
+import { EmailVerificationSessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
 import { createAuthUserFixture, createEmailVerificationSessionFixture } from "../../../../testing/fixtures";
-import { convertEmailVerificationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
+import { convertEmailVerificationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
 
 const { DB } = env;
@@ -11,17 +11,17 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const emailVerificationSessionRepository = new EmailVerificationSessionRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
-const emailVerificationSessionTableHelper = new EmailVerificationSessionTableHelper(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const emailVerificationSessionTableDriver = new EmailVerificationSessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("EmailVerificationSessionRepository.create", () => {
 	beforeEach(async () => {
-		await emailVerificationSessionTableHelper.deleteAll();
-		await userTableHelper.deleteAll();
+		await emailVerificationSessionTableDriver.deleteAll();
+		await userTableDriver.deleteAll();
 
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	test("should create data in database", async () => {
@@ -33,7 +33,7 @@ describe("EmailVerificationSessionRepository.create", () => {
 
 		await emailVerificationSessionRepository.save(emailVerificationSession);
 
-		const results = await emailVerificationSessionTableHelper.findById(emailVerificationSession.id);
+		const results = await emailVerificationSessionTableDriver.findById(emailVerificationSession.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual(convertEmailVerificationSessionToRaw(emailVerificationSession));
