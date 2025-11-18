@@ -2,7 +2,7 @@ import type { Static } from "@sinclair/typebox";
 import { t } from "elysia";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../core/lib/encoding";
-import { MacMock } from "../../../../core/testing/mocks/system";
+import { HmacServiceMock } from "../../../../core/testing/mocks/system";
 import { HmacOAuthStateSigner } from "./hmac-oauth-state-signer";
 
 const payloadSchema = t.Object({
@@ -12,9 +12,9 @@ const payloadSchema = t.Object({
 
 type Payload = Static<typeof payloadSchema>;
 
-const mac = new MacMock();
+const hmacService = new HmacServiceMock();
 
-const createSigner = () => new HmacOAuthStateSigner<typeof payloadSchema>(payloadSchema, mac);
+const createSigner = () => new HmacOAuthStateSigner<typeof payloadSchema>(payloadSchema, hmacService);
 
 describe("HmacOAuthStateSigner", () => {
 	afterEach(() => {
@@ -85,7 +85,7 @@ describe("HmacOAuthStateSigner", () => {
 					unexpected: "value",
 				}),
 			);
-			const signature = mac.sign(invalidPayloadBase64);
+			const signature = hmacService.sign(invalidPayloadBase64);
 			const invalidState = `${invalidPayloadBase64}.${signature}`;
 
 			const result = signer.validate(invalidState);
@@ -102,7 +102,7 @@ describe("HmacOAuthStateSigner", () => {
 			const signer = createSigner();
 			const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 			const invalidJsonBase64 = encodeBase64URLSafe("not json");
-			const signature = mac.sign(invalidJsonBase64);
+			const signature = hmacService.sign(invalidJsonBase64);
 			const invalidState = `${invalidJsonBase64}.${signature}`;
 
 			const result = signer.validate(invalidState);

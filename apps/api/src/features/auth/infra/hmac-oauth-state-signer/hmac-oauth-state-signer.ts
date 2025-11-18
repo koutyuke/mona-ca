@@ -5,14 +5,14 @@ import { generateState } from "arctic";
 import { t } from "elysia";
 import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../core/lib/encoding";
 import { timingSafeStringEqual } from "../../../../core/lib/security";
-import type { IMac } from "../../../../core/ports/system";
+import type { IHmacService } from "../../../../core/ports/system";
 import type { IHmacOAuthStateSigner } from "../../application/ports/infra/hmac-oauth-state-signer.interface";
 
 export class HmacOAuthStateSigner<P extends TObject> implements IHmacOAuthStateSigner<P> {
 	private readonly schema: P;
-	private readonly hmacSha256: IMac;
+	private readonly hmacSha256: IHmacService;
 
-	constructor(schema: P, hmacSha256: IMac) {
+	constructor(schema: P, hmacSha256: IHmacService) {
 		this.schema = schema;
 		this.hmacSha256 = hmacSha256;
 	}
