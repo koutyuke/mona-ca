@@ -1,21 +1,18 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { AccountAssociationSession } from "../../../domain/entities/account-association-session";
 import type { AccountLinkSession } from "../../../domain/entities/account-link-session";
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
-import type { ExternalIdentity } from "../../../domain/entities/external-identity";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
+import type { ProviderAccount } from "../../../domain/entities/provider-account";
+import type { ProviderConnectionTicket } from "../../../domain/entities/provider-connection-ticket";
 import type { Session } from "../../../domain/entities/session";
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { UserRegistration } from "../../../domain/entities/user-registration";
+import type { IdentityProviders, IdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 import type {
-	ExternalIdentityProvider,
-	ExternalIdentityProviderUserId,
-} from "../../../domain/value-objects/external-identity";
-import type {
-	AccountAssociationSessionId,
 	AccountLinkSessionId,
 	EmailVerificationSessionId,
 	PasswordResetSessionId,
+	ProviderConnectionTicketId,
 	SessionId,
 	SignupSessionId,
 } from "../../../domain/value-objects/ids";
@@ -40,26 +37,24 @@ export const createEmailVerificationSessionsMap = (
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createAccountAssociationSessionsMap = (
-	sessions: AccountAssociationSession[] = [],
-): Map<AccountAssociationSessionId, AccountAssociationSession> => {
+export const createAccountLinkSessionsMap = (
+	sessions: AccountLinkSession[] = [],
+): Map<AccountLinkSessionId, AccountLinkSession> => {
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createExternalIdentitiesMap = (
-	externalIdentities: ExternalIdentity[] = [],
-): Map<string, ExternalIdentity> => {
+export const createProviderAccountsMap = (providerAccounts: ProviderAccount[] = []): Map<string, ProviderAccount> => {
 	return new Map(
-		externalIdentities.map(externalIdentity => [
-			`${externalIdentity.provider}-${externalIdentity.providerUserId}`,
-			externalIdentity,
+		providerAccounts.map(providerAccount => [
+			`${providerAccount.provider}-${providerAccount.providerUserId}`,
+			providerAccount,
 		]),
 	);
 };
 
-export const createExternalIdentityKey = (
-	provider: ExternalIdentityProvider,
-	providerUserId: ExternalIdentityProviderUserId,
+export const createProviderAccountKey = (
+	provider: IdentityProviders,
+	providerUserId: IdentityProvidersUserId,
 ): string => {
 	return `${provider}-${providerUserId}`;
 };
@@ -68,8 +63,8 @@ export const createSignupSessionsMap = (sessions: SignupSession[] = []): Map<Sig
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createAccountLinkSessionsMap = (
-	sessions: AccountLinkSession[] = [],
-): Map<AccountLinkSessionId, AccountLinkSession> => {
-	return new Map(sessions.map(session => [session.id, session]));
+export const createProviderConnectionTicketsMap = (
+	tickets: ProviderConnectionTicket[] = [],
+): Map<ProviderConnectionTicketId, ProviderConnectionTicket> => {
+	return new Map(tickets.map(ticket => [ticket.id, ticket]));
 };
