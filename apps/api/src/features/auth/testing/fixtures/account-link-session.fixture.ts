@@ -10,40 +10,40 @@ const tokenSecretService = new TokenSecretServiceMock();
 
 export const createAccountLinkSessionFixture = (override?: {
 	secretHasher?: (secret: string) => Uint8Array;
-	session?: Partial<AccountLinkSession>;
-	secret?: string;
+	accountLinkSession?: Partial<AccountLinkSession>;
+	accountLinkSessionSecret?: string;
 }): {
-	session: AccountLinkSession;
-	secret: string;
-	token: AccountLinkSessionToken;
+	accountLinkSession: AccountLinkSession;
+	accountLinkSessionSecret: string;
+	accountLinkSessionToken: AccountLinkSessionToken;
 } => {
 	const secretHasher = override?.secretHasher ?? tokenSecretService.hash;
 
-	const sessionSecret = override?.secret ?? "accountLinkSessionSecret";
-	const secretHash = secretHasher(sessionSecret);
+	const accountLinkSessionSecret = override?.accountLinkSessionSecret ?? "accountLinkSessionSecret";
+	const secretHash = secretHasher(accountLinkSessionSecret);
 
 	const expiresAt = new Date(
-		override?.session?.expiresAt?.getTime() ?? Date.now() + accountLinkSessionExpiresSpan.milliseconds(),
+		override?.accountLinkSession?.expiresAt?.getTime() ?? Date.now() + accountLinkSessionExpiresSpan.milliseconds(),
 	);
 	expiresAt.setMilliseconds(0);
 
-	const session: AccountLinkSession = {
+	const accountLinkSession: AccountLinkSession = {
 		id: newAccountLinkSessionId(ulid()),
 		userId: newUserId(ulid()),
 		code: "testCode",
-		secretHash: secretHash,
+		secretHash,
 		email: "test.email@example.com",
 		provider: newIdentityProviders("discord"),
 		providerUserId: newIdentityProvidersUserId(ulid()),
 		expiresAt,
-		...override?.session,
+		...override?.accountLinkSession,
 	};
 
-	const sessionToken = encodeToken(session.id, sessionSecret);
+	const accountLinkSessionToken = encodeToken(accountLinkSession.id, accountLinkSessionSecret);
 
 	return {
-		session,
-		secret: sessionSecret,
-		token: sessionToken,
+		accountLinkSession,
+		accountLinkSessionSecret,
+		accountLinkSessionToken,
 	};
 };

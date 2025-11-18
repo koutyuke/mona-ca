@@ -5,10 +5,10 @@ import type { UserRegistration } from "../../domain/entities/user-registration";
 
 export const createAuthUserFixture = (override?: {
 	userRegistration?: Partial<UserRegistration>;
-	userIdentity?: Partial<UserCredentials>;
+	userCredentials?: Partial<UserCredentials>;
 }): {
 	userRegistration: UserRegistration;
-	userIdentity: UserCredentials;
+	userCredentials: UserCredentials;
 } => {
 	const userRegistration = {
 		id: newUserId(ulid()),
@@ -23,18 +23,18 @@ export const createAuthUserFixture = (override?: {
 		...override?.userRegistration,
 	} satisfies UserRegistration;
 
-	const userIdentity = {
+	const userCredentials = {
 		id: userRegistration.id,
 		email: userRegistration.email,
 		emailVerified: userRegistration.emailVerified,
 		passwordHash: userRegistration.passwordHash,
 		createdAt: userRegistration.createdAt,
 		updatedAt: userRegistration.updatedAt,
-		...override?.userIdentity,
+		...override?.userCredentials,
 	} satisfies UserCredentials;
 
 	return {
 		userRegistration,
-		userIdentity,
+		userCredentials,
 	};
 };

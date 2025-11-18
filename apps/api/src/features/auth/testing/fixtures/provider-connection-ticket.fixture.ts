@@ -12,20 +12,21 @@ const tokenSecretService = new TokenSecretServiceMock();
 
 export const createProviderConnectionTicketFixture = (override?: {
 	secretHasher?: (secret: string) => Uint8Array;
-	ticket?: Partial<ProviderConnectionTicket>;
-	secret?: string;
+	providerConnectionTicket?: Partial<ProviderConnectionTicket>;
+	providerConnectionTicketSecret?: string;
 }): {
-	ticket: ProviderConnectionTicket;
-	secret: string;
-	token: ProviderConnectionTicketToken;
+	providerConnectionTicket: ProviderConnectionTicket;
+	providerConnectionSecret: string;
+	providerConnectionToken: ProviderConnectionTicketToken;
 } => {
 	const secretHasher = override?.secretHasher ?? tokenSecretService.hash;
 
-	const secret = override?.secret ?? "providerConnectionTicketSecret";
+	const secret = override?.providerConnectionTicketSecret ?? "providerConnectionTicketSecret";
 	const secretHash = secretHasher(secret);
 
 	const expiresAt = new Date(
-		override?.ticket?.expiresAt?.getTime() ?? Date.now() + providerConnectionTicketExpiresSpan.milliseconds(),
+		override?.providerConnectionTicket?.expiresAt?.getTime() ??
+			Date.now() + providerConnectionTicketExpiresSpan.milliseconds(),
 	);
 	expiresAt.setMilliseconds(0);
 
@@ -34,12 +35,12 @@ export const createProviderConnectionTicketFixture = (override?: {
 		userId: newUserId(ulid()),
 		secretHash: secretHash,
 		expiresAt,
-		...override?.ticket,
+		...override?.providerConnectionTicket,
 	} satisfies ProviderConnectionTicket;
 
 	return {
-		ticket,
-		secret,
-		token: encodeToken(ticket.id, secret),
+		providerConnectionTicket: ticket,
+		providerConnectionSecret: secret,
+		providerConnectionToken: encodeToken(ticket.id, secret),
 	};
 };

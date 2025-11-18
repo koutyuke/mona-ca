@@ -41,9 +41,11 @@ export const createPasswordResetSessionFixture = (override?: {
 		...override?.passwordResetSession,
 	};
 
+	const passwordResetSessionToken = encodeToken(passwordResetSession.id, passwordResetSessionSecret);
+
 	return {
 		passwordResetSession,
-		passwordResetSessionSecret: passwordResetSessionSecret,
-		passwordResetSessionToken: encodeToken(passwordResetSession.id, passwordResetSessionSecret),
+		passwordResetSessionSecret,
+		passwordResetSessionToken,
 	};
 };
