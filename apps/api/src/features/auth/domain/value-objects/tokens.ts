@@ -1,19 +1,19 @@
 import type { NewType } from "@mona-ca/core/utils";
 import type {
-	AccountAssociationSessionId,
 	AccountLinkSessionId,
 	EmailVerificationSessionId,
 	PasswordResetSessionId,
+	ProviderConnectionTicketId,
 	SessionId,
 	SignupSessionId,
 } from "./ids";
 
-export type SessionToken = NewType<"SessionToken", string>;
+export type AccountLinkSessionToken = NewType<"AccountLinkSessionToken", string>;
 export type EmailVerificationSessionToken = NewType<"EmailVerificationSessionToken", string>;
 export type PasswordResetSessionToken = NewType<"PasswordResetSessionToken", string>;
-export type AccountAssociationSessionToken = NewType<"AccountAssociationSessionToken", string>;
+export type ProviderConnectionTicketToken = NewType<"ProviderConnectionTicketToken", string>;
+export type SessionToken = NewType<"SessionToken", string>;
 export type SignupSessionToken = NewType<"SignupSessionToken", string>;
-export type AccountLinkSessionToken = NewType<"AccountLinkSessionToken", string>;
 
 export const newSessionToken = (rawSessionToken: string) => {
 	return rawSessionToken as SessionToken;
@@ -24,46 +24,44 @@ export const newEmailVerificationSessionToken = (rawEmailVerificationSessionToke
 export const newPasswordResetSessionToken = (rawPasswordResetSessionToken: string) => {
 	return rawPasswordResetSessionToken as PasswordResetSessionToken;
 };
-export const newAccountAssociationSessionToken = (rawAccountAssociationSessionToken: string) => {
-	return rawAccountAssociationSessionToken as AccountAssociationSessionToken;
+export const newAccountLinkSessionToken = (rawAccountLinkSessionToken: string) => {
+	return rawAccountLinkSessionToken as AccountLinkSessionToken;
 };
 export const newSignupSessionToken = (rawSignupSessionToken: string) => {
 	return rawSignupSessionToken as SignupSessionToken;
 };
-export const newAccountLinkSessionToken = (rawAccountLinkSessionToken: string) => {
-	return rawAccountLinkSessionToken as AccountLinkSessionToken;
+export const newProviderConnectionTicketToken = (rawProviderConnectionTicketToken: string) => {
+	return rawProviderConnectionTicketToken as ProviderConnectionTicketToken;
 };
 
-type AnySessionId =
-	| SessionId
+type AnyEntityId =
+	| AccountLinkSessionId
 	| EmailVerificationSessionId
 	| PasswordResetSessionId
-	| AccountAssociationSessionId
-	| SignupSessionId
-	| AccountLinkSessionId;
+	| ProviderConnectionTicketId
+	| SessionId
+	| SignupSessionId;
 
-export type AnySessionToken =
-	| SessionToken
+export type AnyToken =
+	| AccountLinkSessionToken
 	| EmailVerificationSessionToken
 	| PasswordResetSessionToken
-	| AccountAssociationSessionToken
-	| SignupSessionToken
-	| AccountLinkSessionToken;
+	| ProviderConnectionTicketToken
+	| SessionToken
+	| SignupSessionToken;
 
-type SessionTokenAndIdMap =
-	| [SessionToken, SessionId]
+type TokenAndIdMap =
+	| [AccountLinkSessionToken, AccountLinkSessionId]
 	| [EmailVerificationSessionToken, EmailVerificationSessionId]
 	| [PasswordResetSessionToken, PasswordResetSessionId]
-	| [AccountAssociationSessionToken, AccountAssociationSessionId]
-	| [SignupSessionToken, SignupSessionId]
-	| [AccountLinkSessionToken, AccountLinkSessionId];
+	| [ProviderConnectionTicketToken, ProviderConnectionTicketId]
+	| [SessionToken, SessionId]
+	| [SignupSessionToken, SignupSessionId];
 
-type TokenToId<T extends AnySessionToken> = Extract<SessionTokenAndIdMap, [T, unknown]>[1];
-type IdToToken<T extends AnySessionId> = Extract<SessionTokenAndIdMap, [unknown, T]>[0];
+type TokenToId<T extends AnyToken> = Extract<TokenAndIdMap, [T, unknown]>[1];
+type IdToToken<T extends AnyEntityId> = Extract<TokenAndIdMap, [unknown, T]>[0];
 
-export const parseAnySessionToken = <T extends AnySessionToken>(
-	token: T,
-): { id: TokenToId<T>; secret: string } | null => {
+export const decodeToken = <T extends AnyToken>(token: T): { id: TokenToId<T>; secret: string } | null => {
 	const dot = token.indexOf(".");
 	if (dot <= 0 || dot === token.length - 1) return null;
 	const id = token.slice(0, dot) as TokenToId<T>;
@@ -71,6 +69,6 @@ export const parseAnySessionToken = <T extends AnySessionToken>(
 	return { id, secret };
 };
 
-export const formatAnySessionToken = <T extends AnySessionId>(id: T, secret: string): IdToToken<T> => {
+export const encodeToken = <T extends AnyEntityId>(id: T, secret: string): IdToToken<T> => {
 	return `${id}.${secret}` as IdToToken<typeof id>;
 };

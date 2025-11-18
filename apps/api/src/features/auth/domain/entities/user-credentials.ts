@@ -1,6 +1,6 @@
 import type { UserId } from "../../../../core/domain/value-objects";
 
-export interface UserIdentity {
+export interface UserCredentials {
 	id: UserId;
 	email: string;
 	emailVerified: boolean;
@@ -9,21 +9,21 @@ export interface UserIdentity {
 	updatedAt: Date;
 }
 
-export const updateUserIdentity = (
-	userIdentity: UserIdentity,
+export const updateUserCredentials = (
+	userCredentials: UserCredentials,
 	args: {
 		email?: string;
 		emailVerified?: boolean;
 		passwordHash?: string | null;
 	},
-): UserIdentity => {
+): UserCredentials => {
 	const now = new Date();
 
 	return {
-		...userIdentity,
-		email: args.email ?? userIdentity.email,
-		emailVerified: args.emailVerified ?? userIdentity.emailVerified,
-		passwordHash: args.passwordHash ?? userIdentity.passwordHash,
+		...userCredentials,
+		email: args.email ?? userCredentials.email,
+		emailVerified: args.emailVerified ?? userCredentials.emailVerified,
+		passwordHash: args.passwordHash ?? userCredentials.passwordHash,
 		updatedAt: now,
 	};
 };

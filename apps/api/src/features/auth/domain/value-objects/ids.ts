@@ -18,16 +18,16 @@ export const newPasswordResetSessionId = (rawPasswordResetSessionId: string) => 
 	return rawPasswordResetSessionId as PasswordResetSessionId;
 };
 
-export type AccountAssociationSessionId = NewType<"AccountAssociationSessionId", string>;
-
-export const newAccountAssociationSessionId = (rawAccountAssociationSessionId: string) => {
-	return rawAccountAssociationSessionId as AccountAssociationSessionId;
-};
-
 export type SignupSessionId = NewType<"SignupSessionId", string>;
 
 export const newSignupSessionId = (rawSignupSessionId: string) => {
 	return rawSignupSessionId as SignupSessionId;
+};
+
+export type ProviderConnectionTicketId = NewType<"ProviderConnectionTicketId", string>;
+
+export const newProviderConnectionTicketId = (rawProviderConnectionTicketId: string) => {
+	return rawProviderConnectionTicketId as ProviderConnectionTicketId;
 };
 
 export type AccountLinkSessionId = NewType<"AccountLinkSessionId", string>;
