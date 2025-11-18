@@ -1,10 +1,10 @@
 import { ulid } from "../../../../core/lib/id";
-import { SessionSecretHasherMock } from "../../../../core/testing/mocks/system";
+import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
 import { type SignupSession, signupSessionEmailVerificationExpiresSpan } from "../../domain/entities/signup-session";
 import { newSignupSessionId } from "../../domain/value-objects/ids";
-import { type SignupSessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
+import { type SignupSessionToken, encodeToken } from "../../domain/value-objects/tokens";
 
-const sessionSecretHasher = new SessionSecretHasherMock();
+const tokenSecretService = new TokenSecretServiceMock();
 
 export const createSignupSessionFixture = (override?: {
 	secretHasher?: (secret: string) => Uint8Array;
@@ -15,7 +15,7 @@ export const createSignupSessionFixture = (override?: {
 	signupSessionSecret: string;
 	signupSessionToken: SignupSessionToken;
 } => {
-	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+	const secretHasher = override?.secretHasher ?? tokenSecretService.hash;
 
 	const signupSessionSecret = override?.signupSessionSecret ?? "signupSessionSecret";
 	const secretHash = secretHasher(signupSessionSecret);
@@ -39,6 +39,6 @@ export const createSignupSessionFixture = (override?: {
 	return {
 		signupSession,
 		signupSessionSecret,
-		signupSessionToken: formatAnySessionToken(signupSession.id, signupSessionSecret),
+		signupSessionToken: encodeToken(signupSession.id, signupSessionSecret),
 	};
 };

@@ -1,11 +1,11 @@
 export {
-	convertUserIdentityToRaw,
 	convertUserRegistrationToRaw,
 	convertSessionToRaw,
-	convertExternalIdentityToRaw,
+	convertUserCredentialsToRaw,
 	convertSignupSessionToRaw,
 	convertEmailVerificationSessionToRaw,
 	convertPasswordResetSessionToRaw,
-	convertAccountAssociationSessionToRaw,
 	convertAccountLinkSessionToRaw,
-} from "./converters";
+	convertProviderAccountToRaw,
+	convertProviderConnectionTicketToRaw,
+} from "./table-raw-converters";

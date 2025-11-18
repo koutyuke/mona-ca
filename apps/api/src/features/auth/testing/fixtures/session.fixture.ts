@@ -1,11 +1,11 @@
 import { newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
-import { SessionSecretHasherMock } from "../../../../core/testing/mocks/system";
+import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
 import { type Session, sessionExpiresSpan } from "../../domain/entities/session";
 import { newSessionId } from "../../domain/value-objects/ids";
-import { type SessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
+import { type SessionToken, encodeToken } from "../../domain/value-objects/tokens";
 
-const sessionSecretHasher = new SessionSecretHasherMock();
+const tokenSecretService = new TokenSecretServiceMock();
 
 export const createSessionFixture = (override?: {
 	secretHasher?: (secret: string) => Uint8Array;
@@ -16,7 +16,7 @@ export const createSessionFixture = (override?: {
 	sessionSecret: string;
 	sessionToken: SessionToken;
 } => {
-	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+	const secretHasher = override?.secretHasher ?? tokenSecretService.hash;
 
 	const sessionSecret = override?.sessionSecret ?? "sessionSecret";
 	const secretHash = secretHasher(sessionSecret);
@@ -35,6 +35,6 @@ export const createSessionFixture = (override?: {
 	return {
 		session,
 		sessionSecret,
-		sessionToken: formatAnySessionToken(session.id, sessionSecret),
+		sessionToken: encodeToken(session.id, sessionSecret),
 	};
 };
