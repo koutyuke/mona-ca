@@ -1,9 +1,10 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { AccountLinkSessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
+import { AccountLinkSessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { newAccountLinkSessionId } from "../../../../domain/value-objects/ids";
 import { createAccountLinkSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
-import { convertAccountLinkSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
+import { convertAccountLinkSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { AccountLinkSessionRepository } from "../account-link-session.repository";
 
 const { DB } = env;
@@ -11,31 +12,35 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const accountLinkSessionRepository = new AccountLinkSessionRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
-const accountLinkSessionTableHelper = new AccountLinkSessionTableHelper(DB);
+const userTableHelper = new UsersTableDriver(DB);
+const accountLinkSessionTableHelper = new AccountLinkSessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
-describe("AccountLinkSessionRepository.deleteById", () => {
+describe("AccountLinkSessionRepository.delete", () => {
 	beforeEach(async () => {
 		await accountLinkSessionTableHelper.deleteAll();
-		await userTableHelper.deleteAll();
 
 		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
-	test("should delete data in database", async () => {
-		const { accountLinkSession } = createAccountLinkSessionFixture({
-			accountLinkSession: {
+	test("should delete session by id", async () => {
+		const { session } = createAccountLinkSessionFixture({
+			session: {
 				userId: userRegistration.id,
 			},
 		});
-		await accountLinkSessionTableHelper.save(convertAccountLinkSessionToRaw(accountLinkSession));
+		await accountLinkSessionTableHelper.save(convertAccountLinkSessionToRaw(session));
 
-		await accountLinkSessionRepository.deleteById(accountLinkSession.id);
+		await accountLinkSessionRepository.deleteById(session.id);
 
-		const results = await accountLinkSessionTableHelper.findById(accountLinkSession.id);
+		const databaseSessions = await accountLinkSessionTableHelper.findById(session.id);
+		expect(databaseSessions).toHaveLength(0);
+	});
 
-		expect(results.length).toBe(0);
+	test("should not throw error when deleting non-existent session", async () => {
+		const nonExistentSessionId = newAccountLinkSessionId("nonExistentSessionId");
+
+		await expect(accountLinkSessionRepository.deleteById(nonExistentSessionId)).resolves.not.toThrow();
 	});
 });

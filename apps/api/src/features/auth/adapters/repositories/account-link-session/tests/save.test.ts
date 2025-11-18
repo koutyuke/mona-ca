@@ -1,9 +1,9 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { AccountLinkSessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
+import { AccountLinkSessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
 import { createAccountLinkSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
-import { convertAccountLinkSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
+import { convertAccountLinkSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { AccountLinkSessionRepository } from "../account-link-session.repository";
 
 const { DB } = env;
@@ -11,31 +11,29 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const accountLinkSessionRepository = new AccountLinkSessionRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
-const accountLinkSessionTableHelper = new AccountLinkSessionTableHelper(DB);
+const userTableHelper = new UsersTableDriver(DB);
+const accountLinkSessionTableHelper = new AccountLinkSessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("AccountLinkSessionRepository.save", () => {
 	beforeEach(async () => {
 		await accountLinkSessionTableHelper.deleteAll();
-		await userTableHelper.deleteAll();
 
 		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
-	test("should create data in database", async () => {
-		const { accountLinkSession } = createAccountLinkSessionFixture({
-			accountLinkSession: {
+	test("should create a new session in the database", async () => {
+		const { session } = createAccountLinkSessionFixture({
+			session: {
 				userId: userRegistration.id,
 			},
 		});
+		await accountLinkSessionRepository.save(session);
 
-		await accountLinkSessionRepository.save(accountLinkSession);
+		const databaseSessions = await accountLinkSessionTableHelper.findById(session.id);
 
-		const results = await accountLinkSessionTableHelper.findById(accountLinkSession.id);
-
-		expect(results).toHaveLength(1);
-		expect(results[0]).toStrictEqual(convertAccountLinkSessionToRaw(accountLinkSession));
+		expect(databaseSessions.length).toBe(1);
+		expect(databaseSessions[0]).toStrictEqual(convertAccountLinkSessionToRaw(session));
 	});
 });
