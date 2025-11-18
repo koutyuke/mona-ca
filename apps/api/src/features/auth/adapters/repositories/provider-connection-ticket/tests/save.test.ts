@@ -25,8 +25,8 @@ describe("ProviderConnectionTicketRepository.save", () => {
 	});
 
 	test("should create data in database", async () => {
-		const { ticket } = createProviderConnectionTicketFixture({
-			ticket: {
+		const { providerConnectionTicket: ticket } = createProviderConnectionTicketFixture({
+			providerConnectionTicket: {
 				userId: userRegistration.id,
 			},
 		});

@@ -25,8 +25,8 @@ describe("AccountLinkSessionRepository.deleteByUserId", () => {
 	});
 
 	test("should delete a sessions for a user", async () => {
-		const { session } = createAccountLinkSessionFixture({
-			session: {
+		const { accountLinkSession: session } = createAccountLinkSessionFixture({
+			accountLinkSession: {
 				userId: userRegistration.id,
 			},
 		});

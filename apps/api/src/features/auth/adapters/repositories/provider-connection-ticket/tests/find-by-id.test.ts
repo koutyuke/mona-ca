@@ -25,8 +25,8 @@ describe("ProviderConnectionTicketRepository.findById", () => {
 	});
 
 	test("should find data in database", async () => {
-		const { ticket } = createProviderConnectionTicketFixture({
-			ticket: {
+		const { providerConnectionTicket: ticket } = createProviderConnectionTicketFixture({
+			providerConnectionTicket: {
 				userId: userRegistration.id,
 			},
 		});
@@ -42,8 +42,8 @@ describe("ProviderConnectionTicketRepository.findById", () => {
 	});
 
 	test("should return null when not found", async () => {
-		const { ticket } = createProviderConnectionTicketFixture({
-			ticket: {
+		const { providerConnectionTicket: ticket } = createProviderConnectionTicketFixture({
+			providerConnectionTicket: {
 				userId: userRegistration.id,
 			},
 		});

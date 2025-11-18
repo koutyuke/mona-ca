@@ -25,8 +25,8 @@ describe("ProviderConnectionTicketRepository.deleteById", () => {
 	});
 
 	test("should delete data in database", async () => {
-		const { ticket } = createProviderConnectionTicketFixture({
-			ticket: {
+		const { providerConnectionTicket: ticket } = createProviderConnectionTicketFixture({
+			providerConnectionTicket: {
 				userId: userRegistration.id,
 			},
 		});

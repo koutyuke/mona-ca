@@ -24,8 +24,8 @@ describe("AccountLinkSessionRepository.save", () => {
 	});
 
 	test("should create a new session in the database", async () => {
-		const { session } = createAccountLinkSessionFixture({
-			session: {
+		const { accountLinkSession: session } = createAccountLinkSessionFixture({
+			accountLinkSession: {
 				userId: userRegistration.id,
 			},
 		});

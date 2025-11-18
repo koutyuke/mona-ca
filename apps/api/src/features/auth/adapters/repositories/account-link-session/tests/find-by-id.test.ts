@@ -25,8 +25,8 @@ describe("AccountLinkSessionRepository.findById", () => {
 	});
 
 	test("should return session from sessionId", async () => {
-		const { session } = createAccountLinkSessionFixture({
-			session: {
+		const { accountLinkSession: session } = createAccountLinkSessionFixture({
+			accountLinkSession: {
 				userId: userRegistration.id,
 			},
 		});
