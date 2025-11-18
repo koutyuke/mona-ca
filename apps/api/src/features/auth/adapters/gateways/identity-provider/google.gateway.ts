@@ -12,17 +12,18 @@ import {
 import { t } from "elysia";
 
 import type {
-	GetIdentityResult,
+	GetProviderUserResult,
 	GetTokensResult,
-	IOAuthProviderGateway,
-	Identity,
-} from "../../../application/ports/gateways/oauth-provider.gateway.interface";
+	IIdentityProviderGateway,
+	IdentityProviderUser,
+} from "../../../application/ports/gateways/identity-provider.gateway.interface";
+import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 import {
 	externalLinkRedirectURL,
 	externalLoginRedirectURL,
 	externalSignupRedirectURL,
 } from "../../../lib/redirect-url";
-import type { ProviderGateways } from "./type";
+import type { IdentityProviderGateways } from "./type";
 
 const googleIdTokenClaimsSchema = t.Object({
 	sub: t.String(),
@@ -32,7 +33,7 @@ const googleIdTokenClaimsSchema = t.Object({
 	email_verified: t.Optional(t.Boolean()),
 });
 
-export class GoogleOAuthGateway implements IOAuthProviderGateway {
+export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 	private readonly google: GoogleProvider;
 	private readonly scope = ["openid", "profile", "email"];
 
@@ -69,7 +70,7 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 		}
 	}
 
-	public async getIdentity(tokens: OAuth2Tokens): Promise<GetIdentityResult> {
+	public async getIdentityProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
 		try {
 			const idToken = tokens.idToken();
 
@@ -79,8 +80,8 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 				return err("IDENTITY_INVALID");
 			}
 
-			const providerIdentity: Identity = {
-				id: claims.sub,
+			const identityProviderUser: IdentityProviderUser = {
+				id: newIdentityProvidersUserId(claims.sub),
 				name: claims.name,
 				email: claims.email,
 				iconURL: claims.picture ?? null,
@@ -88,7 +89,7 @@ export class GoogleOAuthGateway implements IOAuthProviderGateway {
 			};
 
 			return ok({
-				providerIdentity,
+				identityProviderUser,
 			});
 		} catch (error) {
 			console.error("Error in getAccountInfo:", error);
@@ -110,19 +111,22 @@ export type GoogleSecrets = {
 	clientSecret: string;
 };
 
-export function createGoogleGateways(isProduction: boolean, secrets: GoogleSecrets): ProviderGateways {
+export function createGoogleIdentityProviderGateways(
+	isProduction: boolean,
+	secrets: GoogleSecrets,
+): IdentityProviderGateways {
 	return {
-		signup: new GoogleOAuthGateway(
+		signup: new GoogleIdentityProviderGateway(
 			secrets.clientId,
 			secrets.clientSecret,
 			externalSignupRedirectURL(isProduction, "google"),
 		),
-		login: new GoogleOAuthGateway(
+		login: new GoogleIdentityProviderGateway(
 			secrets.clientId,
 			secrets.clientSecret,
 			externalLoginRedirectURL(isProduction, "google"),
 		),
-		link: new GoogleOAuthGateway(
+		link: new GoogleIdentityProviderGateway(
 			secrets.clientId,
 			secrets.clientSecret,
 			externalLinkRedirectURL(isProduction, "google"),

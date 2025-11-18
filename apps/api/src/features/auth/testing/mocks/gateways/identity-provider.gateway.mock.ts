@@ -2,13 +2,13 @@ import { ok } from "@mona-ca/core/utils";
 import type { OAuth2Tokens } from "arctic";
 import { ulid } from "../../../../../core/lib/id";
 import type {
-	GetIdentityResult,
+	GetProviderUserResult,
 	GetTokensResult,
-	IFederatedAuthenticationProviderGateway,
-} from "../../../application/ports/gateways/federated-authentication-provider.gateway.interface";
+	IIdentityProviderGateway,
+} from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
-export class FederatedAuthenticationProviderGatewayMock implements IFederatedAuthenticationProviderGateway {
+export class IdentityProviderGatewayMock implements IIdentityProviderGateway {
 	public createAuthorizationURL(state: string, codeVerifier: string): URL {
 		return new URL(`https://provider.example.com/auth?state=${state}&code_verifier=${codeVerifier}`);
 	}
@@ -21,7 +21,7 @@ export class FederatedAuthenticationProviderGatewayMock implements IFederatedAut
 		} as unknown as OAuth2Tokens);
 	}
 
-	public async getIdentityProviderUser(_tokens: OAuth2Tokens): Promise<GetIdentityResult> {
+	public async getIdentityProviderUser(_tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
 		const identityProviderUser = {
 			id: newIdentityProvidersUserId(ulid()),
 			email: "test@example.com",

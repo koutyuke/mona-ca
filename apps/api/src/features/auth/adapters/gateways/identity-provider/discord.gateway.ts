@@ -11,19 +11,20 @@ import {
 import { t } from "elysia";
 
 import type {
-	GetIdentityResult,
+	GetProviderUserResult,
 	GetTokensResult,
-	IOAuthProviderGateway,
-	Identity,
-} from "../../../application/ports/gateways/oauth-provider.gateway.interface";
+	IIdentityProviderGateway,
+	IdentityProviderUser,
+} from "../../../application/ports/gateways/identity-provider.gateway.interface";
+import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 import {
 	externalLinkRedirectURL,
 	externalLoginRedirectURL,
 	externalSignupRedirectURL,
 } from "../../../lib/redirect-url";
-import type { ProviderGateways } from "./type";
+import type { IdentityProviderGateways } from "./type";
 
-const discordIdentifySchema = t.Object({
+const discordUserResponseSchema = t.Object({
 	id: t.String(),
 	username: t.String(),
 	discriminator: t.String(),
@@ -35,7 +36,7 @@ const discordIdentifySchema = t.Object({
 	email: t.String({ format: "email" }),
 });
 
-export class DiscordOAuthGateway implements IOAuthProviderGateway {
+export class DiscordIdentityProviderGateway implements IIdentityProviderGateway {
 	private readonly discord: DiscordProvider;
 	private readonly scope = ["identify", "email"];
 
@@ -71,7 +72,7 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 		}
 	}
 
-	public async getIdentity(tokens: OAuth2Tokens): Promise<GetIdentityResult> {
+	public async getIdentityProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
 		try {
 			const accessToken = tokens.accessToken();
 
@@ -90,12 +91,12 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 
 			const user = await response.json();
 
-			if (!Value.Check(discordIdentifySchema, user)) {
+			if (!Value.Check(discordUserResponseSchema, user)) {
 				return err("IDENTITY_INVALID");
 			}
 
-			const providerIdentity: Identity = {
-				id: user.id,
+			const identityProviderUser: IdentityProviderUser = {
+				id: newIdentityProvidersUserId(user.id),
 				name: user.username,
 				email: user.email,
 				iconURL: user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` : null,
@@ -103,7 +104,7 @@ export class DiscordOAuthGateway implements IOAuthProviderGateway {
 			};
 
 			return ok({
-				providerIdentity,
+				identityProviderUser,
 			});
 		} catch (error) {
 			console.error("Error in getAccountInfo:", error);
@@ -125,19 +126,22 @@ export type DiscordSecrets = {
 	clientSecret: string;
 };
 
-export function createDiscordGateways(isProduction: boolean, secrets: DiscordSecrets): ProviderGateways {
+export function createDiscordIdentityProviderGateways(
+	isProduction: boolean,
+	secrets: DiscordSecrets,
+): IdentityProviderGateways {
 	return {
-		signup: new DiscordOAuthGateway(
+		signup: new DiscordIdentityProviderGateway(
 			secrets.clientId,
 			secrets.clientSecret,
 			externalSignupRedirectURL(isProduction, "discord"),
 		),
-		login: new DiscordOAuthGateway(
+		login: new DiscordIdentityProviderGateway(
 			secrets.clientId,
 			secrets.clientSecret,
 			externalLoginRedirectURL(isProduction, "discord"),
 		),
-		link: new DiscordOAuthGateway(
+		link: new DiscordIdentityProviderGateway(
 			secrets.clientId,
 			secrets.clientSecret,
 			externalLinkRedirectURL(isProduction, "discord"),

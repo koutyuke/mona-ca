@@ -1,1 +1,1 @@
-export { FederatedAuthenticationProviderGatewayMock } from "./federated-authentication-provider.gateway.mock";
+export { IdentityProviderGatewayMock } from "./identity-provider.gateway.mock";
