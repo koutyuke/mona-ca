@@ -1,4 +1,4 @@
-import type { NewType } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/utils";
 import type {
 	AccountLinkSessionId,
 	EmailVerificationSessionId,
@@ -8,12 +8,12 @@ import type {
 	SignupSessionId,
 } from "./ids";
 
-export type AccountLinkSessionToken = NewType<"AccountLinkSessionToken", string>;
-export type EmailVerificationSessionToken = NewType<"EmailVerificationSessionToken", string>;
-export type PasswordResetSessionToken = NewType<"PasswordResetSessionToken", string>;
-export type ProviderConnectionTicketToken = NewType<"ProviderConnectionTicketToken", string>;
-export type SessionToken = NewType<"SessionToken", string>;
-export type SignupSessionToken = NewType<"SignupSessionToken", string>;
+export type AccountLinkSessionToken = Brand<"AccountLinkSessionToken", string>;
+export type EmailVerificationSessionToken = Brand<"EmailVerificationSessionToken", string>;
+export type PasswordResetSessionToken = Brand<"PasswordResetSessionToken", string>;
+export type ProviderConnectionTicketToken = Brand<"ProviderConnectionTicketToken", string>;
+export type SessionToken = Brand<"SessionToken", string>;
+export type SignupSessionToken = Brand<"SignupSessionToken", string>;
 
 export const newSessionToken = (rawSessionToken: string) => {
 	return rawSessionToken as SessionToken;

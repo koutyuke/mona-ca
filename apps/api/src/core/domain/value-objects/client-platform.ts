@@ -1,18 +1,23 @@
-import type { NewType } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/utils";
 import { t } from "elysia";
 
-export type MobilePlatform = NewType<"clientPlatform", "mobile">;
-export type WebPlatform = NewType<"clientPlatform", "web">;
+export type RawMobilePlatform = "mobile";
+export type MobilePlatform = Brand<"ClientPlatform", RawMobilePlatform>;
+
+export type RawWebPlatform = "web";
+export type WebPlatform = Brand<"ClientPlatform", RawWebPlatform>;
+
+export type RawClientPlatform = RawMobilePlatform | RawWebPlatform;
 export type ClientPlatform = MobilePlatform | WebPlatform;
 
-export const newMobilePlatform = (rawClientType: "mobile") => {
-	return rawClientType as MobilePlatform;
+export const newMobilePlatform = (rawClientPlatform: RawMobilePlatform) => {
+	return rawClientPlatform as MobilePlatform;
 };
-export const newWebPlatform = (rawClientType: "web") => {
-	return rawClientType as WebPlatform;
+export const newWebPlatform = (rawClientPlatform: RawWebPlatform) => {
+	return rawClientPlatform as WebPlatform;
 };
-export const newClientPlatform = (rawClientType: "web" | "mobile") => {
-	return rawClientType as ClientPlatform;
+export const newClientPlatform = (rawClientPlatform: RawClientPlatform) => {
+	return rawClientPlatform as ClientPlatform;
 };
 
 export const isMobilePlatform = (clientPlatform: ClientPlatform): clientPlatform is MobilePlatform => {

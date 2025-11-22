@@ -1,23 +1,25 @@
-import type { NewType } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/utils";
 import { t } from "elysia";
 
 // type
-export type DiscordProvider = NewType<"DiscordProvider", "discord">;
-export type GoogleProvider = NewType<"GoogleProvider", "google">;
+export type RawDiscordProvider = "discord";
+export type DiscordProvider = Brand<"IdentityProvider", RawDiscordProvider>;
+export type RawGoogleProvider = "google";
+export type GoogleProvider = Brand<"IdentityProvider", RawGoogleProvider>;
+
+export type RawIdentityProviders = RawDiscordProvider | RawGoogleProvider;
 export type IdentityProviders = DiscordProvider | GoogleProvider;
 
-export type IdentityProvidersUserId = NewType<"IdentityProvidersUserId", string>;
-
-export type RawIdentityProviders = "discord" | "google";
+export type IdentityProvidersUserId = Brand<"IdentityProvidersUserId", string>;
 
 // factory
-export const newDiscordProvider = (raw: "discord") => {
+export const newDiscordProvider = (raw: RawDiscordProvider): DiscordProvider => {
 	return raw as DiscordProvider;
 };
-export const newGoogleProvider = (raw: "google") => {
+export const newGoogleProvider = (raw: RawGoogleProvider): GoogleProvider => {
 	return raw as GoogleProvider;
 };
-export const newIdentityProviders = (raw: RawIdentityProviders) => {
+export const newIdentityProviders = (raw: RawIdentityProviders): IdentityProviders => {
 	return raw as IdentityProviders;
 };
 
@@ -33,6 +35,6 @@ export const isGoogleProvider = (provider: IdentityProviders): provider is Googl
 };
 
 // schema
-export const discordProviderSchema = t.Literal("discord");
-export const googleProviderSchema = t.Literal("google");
+export const discordProviderSchema = t.Literal<RawDiscordProvider>("discord");
+export const googleProviderSchema = t.Literal<RawGoogleProvider>("google");
 export const identityProvidersSchema = t.Union([discordProviderSchema, googleProviderSchema]);

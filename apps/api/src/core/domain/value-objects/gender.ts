@@ -1,8 +1,8 @@
-import type { NewType } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/utils";
 import { t } from "elysia";
 
-export type MaleGender = NewType<"gender", "male">;
-export type FemaleGender = NewType<"gender", "female">;
+export type MaleGender = Brand<"Gender", "male">;
+export type FemaleGender = Brand<"Gender", "female">;
 export type Gender = MaleGender | FemaleGender;
 
 export const newMaleGender = (rawGender: "male") => {
