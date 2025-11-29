@@ -7,7 +7,7 @@ export {
 	PASSWORD_RESET_SESSION_COOKIE_NAME,
 	EMAIL_VERIFICATION_SESSION_COOKIE_NAME,
 	ACCOUNT_ASSOCIATION_SESSION_COOKIE_NAME,
-	CLIENT_TYPE_HEADER_NAME,
+	CLIENT_PLATFORM_HEADER_NAME,
 	PRODUCTION_BASE_DOMAIN,
 } from "./constants";
 export { convertRedirectableMobileScheme } from "./convert-redirectable-mobile-scheme";
