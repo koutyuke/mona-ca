@@ -17,12 +17,6 @@ import type {
 	IdentityProviderUser,
 } from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
-import {
-	externalLinkRedirectURL,
-	externalLoginRedirectURL,
-	externalSignupRedirectURL,
-} from "../../../lib/redirect-url";
-import type { IdentityProviderGateways } from "./type";
 
 const discordUserResponseSchema = t.Object({
 	id: t.String(),
@@ -119,32 +113,4 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 			console.error("revokeToken request error", error);
 		}
 	}
-}
-
-export type DiscordSecrets = {
-	clientId: string;
-	clientSecret: string;
-};
-
-export function createDiscordIdentityProviderGateways(
-	isProduction: boolean,
-	secrets: DiscordSecrets,
-): IdentityProviderGateways {
-	return {
-		signup: new DiscordIdentityProviderGateway(
-			secrets.clientId,
-			secrets.clientSecret,
-			externalSignupRedirectURL(isProduction, "discord"),
-		),
-		login: new DiscordIdentityProviderGateway(
-			secrets.clientId,
-			secrets.clientSecret,
-			externalLoginRedirectURL(isProduction, "discord"),
-		),
-		link: new DiscordIdentityProviderGateway(
-			secrets.clientId,
-			secrets.clientSecret,
-			externalLinkRedirectURL(isProduction, "discord"),
-		),
-	};
 }

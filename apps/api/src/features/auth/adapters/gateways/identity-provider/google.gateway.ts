@@ -18,12 +18,6 @@ import type {
 	IdentityProviderUser,
 } from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
-import {
-	externalLinkRedirectURL,
-	externalLoginRedirectURL,
-	externalSignupRedirectURL,
-} from "../../../lib/redirect-url";
-import type { IdentityProviderGateways } from "./type";
 
 const googleIdTokenClaimsSchema = t.Object({
 	sub: t.String(),
@@ -104,32 +98,4 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 			console.error("revokeToken request error", error);
 		}
 	}
-}
-
-export type GoogleSecrets = {
-	clientId: string;
-	clientSecret: string;
-};
-
-export function createGoogleIdentityProviderGateways(
-	isProduction: boolean,
-	secrets: GoogleSecrets,
-): IdentityProviderGateways {
-	return {
-		signup: new GoogleIdentityProviderGateway(
-			secrets.clientId,
-			secrets.clientSecret,
-			externalSignupRedirectURL(isProduction, "google"),
-		),
-		login: new GoogleIdentityProviderGateway(
-			secrets.clientId,
-			secrets.clientSecret,
-			externalLoginRedirectURL(isProduction, "google"),
-		),
-		link: new GoogleIdentityProviderGateway(
-			secrets.clientId,
-			secrets.clientSecret,
-			externalLinkRedirectURL(isProduction, "google"),
-		),
-	};
 }
