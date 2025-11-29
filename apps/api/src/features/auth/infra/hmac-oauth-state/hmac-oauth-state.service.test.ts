@@ -3,7 +3,7 @@ import { t } from "elysia";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../core/lib/encoding";
 import { HmacServiceMock } from "../../../../core/testing/mocks/system";
-import { HmacOAuthStateSigner } from "./hmac-oauth-state-signer";
+import { HmacOAuthStateService } from "./hmac-oauth-state.service";
 
 const payloadSchema = t.Object({
 	clientType: t.String(),
@@ -14,9 +14,9 @@ type Payload = Static<typeof payloadSchema>;
 
 const hmacService = new HmacServiceMock();
 
-const createSigner = () => new HmacOAuthStateSigner<typeof payloadSchema>(payloadSchema, hmacService);
+const createSigner = () => new HmacOAuthStateService<typeof payloadSchema>(payloadSchema, hmacService);
 
-describe("HmacOAuthStateSigner", () => {
+describe("HmacOAuthStateService", () => {
 	afterEach(() => {
 		vi.restoreAllMocks();
 	});

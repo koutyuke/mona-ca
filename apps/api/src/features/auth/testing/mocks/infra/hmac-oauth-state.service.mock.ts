@@ -1,8 +1,8 @@
 import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/utils";
 import type { Static, TObject } from "@sinclair/typebox";
-import type { IHmacOAuthStateSigner } from "../../../application/ports/infra/hmac-oauth-state-signer.interface";
+import type { IHmacOAuthStateService } from "../../../application/ports/infra/hmac-oauth-state.service.interface";
 
-export class HmacOAuthStateSignerMock<P extends TObject> implements IHmacOAuthStateSigner<P> {
+export class HmacOAuthStateServiceMock<P extends TObject> implements IHmacOAuthStateService<P> {
 	generate(payload: Static<P>): string {
 		const payloadString = JSON.stringify(payload);
 		return `__hmac-oauth-state-signed:${payloadString}`;

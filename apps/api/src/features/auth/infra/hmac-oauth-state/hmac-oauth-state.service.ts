@@ -6,9 +6,9 @@ import { t } from "elysia";
 import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../core/lib/encoding";
 import { timingSafeStringEqual } from "../../../../core/lib/security";
 import type { IHmacService } from "../../../../core/ports/system";
-import type { IHmacOAuthStateSigner } from "../../application/ports/infra/hmac-oauth-state-signer.interface";
+import type { IHmacOAuthStateSigner } from "../../application/ports/infra/hmac-oauth-state.service.interface";
 
-export class HmacOAuthStateSigner<P extends TObject> implements IHmacOAuthStateSigner<P> {
+export class HmacOAuthStateService<P extends TObject> implements IHmacOAuthStateSigner<P> {
 	private readonly schema: P;
 	private readonly hmacSha256: IHmacService;
 

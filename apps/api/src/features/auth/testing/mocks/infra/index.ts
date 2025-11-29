@@ -1,1 +1,1 @@
-export { HmacOAuthStateSignerMock } from "./hmac-oauth-state-signer.mock";
+export { HmacOAuthStateServiceMock } from "./hmac-oauth-state.service.mock";
