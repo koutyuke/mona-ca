@@ -1,1 +1,1 @@
-export { createProfileFixture } from "./profile.fixture";
+export { createUserProfileFixture } from "./user-profile.fixture";

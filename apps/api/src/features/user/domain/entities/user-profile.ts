@@ -1,6 +1,6 @@
 import type { Gender, UserId } from "../../../../core/domain/value-objects";
 
-export interface Profile {
+export interface UserProfile {
 	id: UserId;
 	email: string;
 	emailVerified: boolean;
@@ -11,14 +11,14 @@ export interface Profile {
 	updatedAt: Date;
 }
 
-export const createProfile = (args: {
+export const createUserProfile = (args: {
 	id: UserId;
 	email: string;
 	emailVerified: boolean;
 	name: string;
 	iconUrl: string | null;
 	gender: Gender;
-}): Profile => {
+}): UserProfile => {
 	const now = new Date();
 
 	return {
@@ -33,14 +33,14 @@ export const createProfile = (args: {
 	};
 };
 
-export const updateProfile = (
-	user: Profile,
+export const updateUserProfile = (
+	user: UserProfile,
 	args: {
 		name?: string;
 		iconUrl?: string | null;
 		gender?: Gender;
 	},
-): Profile => {
+): UserProfile => {
 	const now = new Date();
 
 	return {

@@ -1,23 +1,23 @@
 import { newGender, newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
-import type { Profile } from "../../domain/entities/profile";
+import type { UserProfile } from "../../domain/entities/user-profile";
 
-export const createProfileFixture = (override?: {
-	profile?: Partial<Profile>;
+export const createUserProfileFixture = (override?: {
+	userProfile?: Partial<UserProfile>;
 }): {
-	profile: Profile;
+	userProfile: UserProfile;
 } => {
 	return {
-		profile: {
+		userProfile: {
 			id: newUserId(ulid()),
 			name: "testUser",
 			email: "test.email@example.com",
 			emailVerified: true,
 			iconUrl: "http://example.com/icon-url",
-			gender: newGender("man"),
+			gender: newGender("male"),
 			createdAt: new Date(1704067200 * 1000),
 			updatedAt: new Date(1704067200 * 1000),
-			...override?.profile,
+			...override?.userProfile,
 		},
 	};
 };

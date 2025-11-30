@@ -1,11 +1,10 @@
-export { toAccountConnectionsResponse } from "./adapters/presenters/account-connections.presenter";
-export { toAccountAssociationPreviewResponse } from "./adapters/presenters/account-association-preview.presenter";
-export { toAnySessionTokenResponse } from "./adapters/presenters/session-token.presenter";
-export { newAccountAssociationSessionToken } from "./domain/value-objects/session-token";
-export { externalIdentityProviderSchema, newExternalIdentityProvider } from "./domain/value-objects/external-identity";
-export { newEmailVerificationSessionToken } from "./domain/value-objects/session-token";
-export { newPasswordResetSessionToken } from "./domain/value-objects/session-token";
-export { newSignupSessionToken } from "./domain/value-objects/session-token";
+export { toAuthMethodsResponse } from "./adapters/presenters/auth-methods.presenter";
+export { toAccountLinkPreviewResponse } from "./adapters/presenters/account-link-preview.presenter";
+export { toAnyTokenResponse } from "./adapters/presenters/token.presenter";
+export { newAccountLinkSessionToken } from "./domain/value-objects/tokens";
+export { newEmailVerificationSessionToken } from "./domain/value-objects/tokens";
+export { newPasswordResetSessionToken } from "./domain/value-objects/tokens";
+export { newSignupSessionToken } from "./domain/value-objects/tokens";
 export { AuthDIContainer } from "./di/container";
 
 export type { IAuthDIContainer } from "./di/container.interface";

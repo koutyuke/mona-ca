@@ -1,12 +1,12 @@
-import type { IGetProfileUseCase } from "../application/contracts/profile/get-profile.usecase.interface";
-import type { IUpdateProfileUseCase } from "../application/contracts/profile/update-profile.usecase.interface";
-import type { IProfileRepository } from "../application/ports/repositories/profile.repository.interface";
+import type { IGetUserProfileUseCase } from "../application/contracts/user-profile/get-user-profile.usecase.interface";
+import type { IUpdateUserProfileUseCase } from "../application/contracts/user-profile/update-user-profile.usecase.interface";
+import type { IUserProfileRepository } from "../application/ports/repositories/user-profile.repository.interface";
 
 export interface IUserDIContainer {
-	// Repositories
-	readonly profileRepository: IProfileRepository;
+	// === Repositories ===
+	readonly userProfileRepository: IUserProfileRepository;
 
-	// Use Cases
-	readonly getProfileUseCase: IGetProfileUseCase;
-	readonly updateProfileUseCase: IUpdateProfileUseCase;
+	// === Use Cases ===
+	readonly getUserProfileUseCase: IGetUserProfileUseCase;
+	readonly updateUserProfileUseCase: IUpdateUserProfileUseCase;
 }
