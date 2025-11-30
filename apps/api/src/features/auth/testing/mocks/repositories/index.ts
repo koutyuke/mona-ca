@@ -1,3 +1,4 @@
+export { AccountLinkSessionRepositoryMock } from "./account-link-session.repository.mock";
 export { AuthUserRepositoryMock } from "./auth-user.repository.mock";
 export { EmailVerificationSessionRepositoryMock } from "./email-verification-session.repository.mock";
 export { PasswordResetSessionRepositoryMock } from "./password-reset-session.repository.mock";

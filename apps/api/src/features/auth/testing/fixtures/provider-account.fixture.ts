@@ -9,11 +9,10 @@ export const createProviderAccountFixture = (override?: {
 	providerAccount: ProviderAccount;
 } => {
 	const providerAccount: ProviderAccount = {
-		provider: newIdentityProviders("discord"),
-		providerUserId: newIdentityProvidersUserId("discord_provider_user_id"),
-		userId: newUserId(ulid()),
-		linkedAt: new Date(1704067200 * 1000),
-		...override?.providerAccount,
+		provider: override?.providerAccount?.provider ?? newIdentityProviders("discord"),
+		providerUserId: override?.providerAccount?.providerUserId ?? newIdentityProvidersUserId("discord_provider_user_id"),
+		userId: override?.providerAccount?.userId ?? newUserId(ulid()),
+		linkedAt: override?.providerAccount?.linkedAt ?? new Date(1704067200 * 1000),
 	};
 
 	return { providerAccount };
