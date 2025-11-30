@@ -2,8 +2,8 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { EmailVerificationSessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertEmailVerificationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createEmailVerificationSessionFixture } from "../../../../testing/fixtures";
-import { convertEmailVerificationSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { EmailVerificationSessionRepository } from "../email-verification-session.repository";
 
 const { DB } = env;

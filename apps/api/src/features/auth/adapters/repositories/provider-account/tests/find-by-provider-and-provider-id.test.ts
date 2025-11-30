@@ -4,8 +4,8 @@ import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { ProviderAccountsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
 import type { IdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import { newIdentityProviders, newIdentityProvidersUserId } from "../../../../domain/value-objects/identity-providers";
+import { convertProviderAccountToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createProviderAccountFixture } from "../../../../testing/fixtures";
-import { convertProviderAccountToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { ProviderAccountRepository } from "../provider-account.repository";
 
 const { DB } = env;

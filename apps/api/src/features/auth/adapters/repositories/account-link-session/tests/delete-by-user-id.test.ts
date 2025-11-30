@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, test } from "vitest";
 import { newUserId } from "../../../../../../core/domain/value-objects";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { AccountLinkSessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertAccountLinkSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAccountLinkSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
-import { convertAccountLinkSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { AccountLinkSessionRepository } from "../account-link-session.repository";
 
 const { DB } = env;

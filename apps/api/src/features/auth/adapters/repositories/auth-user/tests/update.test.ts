@@ -2,8 +2,8 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture } from "../../../../testing/fixtures";
-import { convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { AuthUserRepository } from "../auth-user.repository";
 
 const { DB } = env;

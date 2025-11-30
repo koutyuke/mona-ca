@@ -2,8 +2,8 @@ import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { PasswordResetSessionsTableDriver, UsersTableDriver, toRawDate } from "../../../../../../core/testing/drivers";
+import { convertPasswordResetSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
-import { convertPasswordResetSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { PasswordResetSessionRepository } from "../password-reset-session.repository";
 
 const { DB } = env;

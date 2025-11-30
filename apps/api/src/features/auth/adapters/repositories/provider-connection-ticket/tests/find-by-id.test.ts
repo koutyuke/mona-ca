@@ -2,8 +2,8 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { ProviderConnectionTicketsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertProviderConnectionTicketToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createProviderConnectionTicketFixture } from "../../../../testing/fixtures";
-import { convertProviderConnectionTicketToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { ProviderConnectionTicketRepository } from "../provider-connection-ticket.repository";
 
 const { DB } = env;

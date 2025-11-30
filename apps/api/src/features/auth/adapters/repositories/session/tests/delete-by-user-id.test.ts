@@ -2,8 +2,8 @@ import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { SessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
-import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;

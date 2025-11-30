@@ -3,8 +3,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest"
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { ProviderAccountsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
 import type { ProviderAccount } from "../../../../domain/entities/provider-account";
+import { convertProviderAccountToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createProviderAccountFixture } from "../../../../testing/fixtures";
-import { convertProviderAccountToRaw, convertUserRegistrationToRaw } from "../../../../testing/libs";
 import { ProviderAccountRepository } from "../provider-account.repository";
 
 const { DB } = env;
