@@ -1,0 +1,228 @@
+import { assert, beforeEach, describe, expect, it } from "vitest";
+import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
+import {
+	createAuthUserFixture,
+	createEmailVerificationSessionFixture,
+	createSessionFixture,
+} from "../../../../testing/fixtures";
+import {
+	AuthUserRepositoryMock,
+	EmailVerificationSessionRepositoryMock,
+	SessionRepositoryMock,
+	createAuthUsersMap,
+	createEmailVerificationSessionsMap,
+	createSessionsMap,
+} from "../../../../testing/mocks/repositories";
+import { UpdateEmailCompleteUseCase } from "../complete.usecase";
+
+const authUserMap = createAuthUsersMap();
+const sessionMap = createSessionsMap();
+const emailVerificationSessionMap = createEmailVerificationSessionsMap();
+
+const authUserRepository = new AuthUserRepositoryMock({
+	authUserMap,
+	sessionMap,
+});
+const sessionRepository = new SessionRepositoryMock({
+	sessionMap,
+});
+const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
+	emailVerificationSessionMap,
+});
+const tokenSecretService = new TokenSecretServiceMock();
+
+const updateEmailCompleteUseCase = new UpdateEmailCompleteUseCase(
+	authUserRepository,
+	sessionRepository,
+	emailVerificationSessionRepository,
+	tokenSecretService,
+);
+
+const CORRECT_CODE = "12345678";
+const WRONG_CODE = "87654321";
+const NEW_EMAIL = "new@example.com";
+const OLD_EMAIL = "old@example.com";
+
+const { userCredentials, userRegistration } = createAuthUserFixture({
+	userRegistration: {
+		email: OLD_EMAIL,
+	},
+});
+
+describe("UpdateEmailCompleteUseCase", () => {
+	beforeEach(() => {
+		authUserMap.clear();
+		sessionMap.clear();
+		emailVerificationSessionMap.clear();
+	});
+
+	it("Success: should change email and create new session with valid verification code", async () => {
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: userCredentials.id,
+				email: NEW_EMAIL,
+				code: CORRECT_CODE,
+			},
+		});
+
+		authUserMap.set(userRegistration.id, userRegistration);
+		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
+
+		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+
+		expect(result.isErr).toBe(false);
+		assert(result.isOk);
+
+		const { session, sessionToken } = result.value;
+
+		// check session
+		expect(session.userId).toBe(userCredentials.id);
+		expect(session.secretHash).toStrictEqual(new TextEncoder().encode("__token-secret-hashed:token-secret"));
+
+		// check session token
+		// Mockの固定値を確認: TokenSecretServiceMockは `"token-secret"` を返す
+		expect(sessionToken).toBe(`${session.id}.token-secret`);
+
+		// check email verification session is deleted
+		expect(emailVerificationSessionMap.has(emailVerificationSession.id)).toBe(false);
+
+		// check user email is updated
+		const updatedUserCredentials = authUserMap.get(userCredentials.id);
+		expect(updatedUserCredentials).toBeDefined();
+		assert(updatedUserCredentials);
+		expect(updatedUserCredentials.email).toBe(NEW_EMAIL);
+		expect(updatedUserCredentials.emailVerified).toBe(true);
+
+		// check session is saved
+		const savedSession = sessionMap.get(session.id);
+		expect(savedSession).toStrictEqual(session);
+	});
+
+	it("Success: should delete all existing sessions and create new session when email is changed", async () => {
+		const { session: existingSession1 } = createSessionFixture({
+			session: {
+				userId: userCredentials.id,
+			},
+		});
+		const { session: existingSession2 } = createSessionFixture({
+			session: {
+				userId: userCredentials.id,
+			},
+		});
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: userCredentials.id,
+				email: NEW_EMAIL,
+				code: CORRECT_CODE,
+			},
+		});
+
+		authUserMap.set(userRegistration.id, userRegistration);
+		sessionMap.set(existingSession1.id, existingSession1);
+		sessionMap.set(existingSession2.id, existingSession2);
+
+		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+
+		expect(result.isErr).toBe(false);
+		assert(result.isOk);
+
+		// セキュリティ: メール変更後、すべてのセッションが削除され、新しいセッションが作成されること（強制再ログイン）
+		expect(sessionMap.has(existingSession1.id)).toBe(false);
+		expect(sessionMap.has(existingSession2.id)).toBe(false);
+		expect(sessionMap.size).toBe(1);
+
+		const { session } = result.value;
+		const savedSession = sessionMap.get(session.id);
+		expect(savedSession).toBeDefined();
+	});
+
+	it("Error: should return INVALID_VERIFICATION_CODE error when verification code is incorrect", async () => {
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: userCredentials.id,
+				email: NEW_EMAIL,
+				code: CORRECT_CODE,
+			},
+		});
+
+		authUserMap.set(userRegistration.id, userRegistration);
+
+		const result = await updateEmailCompleteUseCase.execute(WRONG_CODE, userCredentials, emailVerificationSession);
+
+		expect(result.isErr).toBe(true);
+		assert(result.isErr);
+		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+
+		// メールが更新されていないこと
+		const updatedUserCredentials = authUserMap.get(userCredentials.id);
+		expect(updatedUserCredentials?.email).toBe(OLD_EMAIL);
+	});
+
+	it("Error: should return INVALID_VERIFICATION_CODE error when code is empty", async () => {
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: userCredentials.id,
+				email: NEW_EMAIL,
+				code: CORRECT_CODE,
+			},
+		});
+
+		authUserMap.set(userRegistration.id, userRegistration);
+
+		const result = await updateEmailCompleteUseCase.execute("", userCredentials, emailVerificationSession);
+
+		expect(result.isErr).toBe(true);
+		assert(result.isErr);
+		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+	});
+
+	it("Error: should return EMAIL_ALREADY_REGISTERED error when new email is already taken by another user", async () => {
+		const { userRegistration: anotherUserRegistration } = createAuthUserFixture({
+			userRegistration: {
+				email: NEW_EMAIL,
+			},
+		});
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: userCredentials.id,
+				email: NEW_EMAIL,
+				code: CORRECT_CODE,
+			},
+		});
+
+		authUserMap.set(userRegistration.id, userRegistration);
+		authUserMap.set(anotherUserRegistration.id, anotherUserRegistration);
+
+		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+
+		expect(result.isErr).toBe(true);
+		assert(result.isErr);
+		expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
+
+		// メールが更新されていないこと
+		const updatedUserCredentials = authUserMap.get(userCredentials.id);
+		expect(updatedUserCredentials?.email).toBe(OLD_EMAIL);
+	});
+
+	it("Error: should return EMAIL_ALREADY_REGISTERED error when trying to change to same email", async () => {
+		const { emailVerificationSession } = createEmailVerificationSessionFixture({
+			emailVerificationSession: {
+				userId: userCredentials.id,
+				email: OLD_EMAIL,
+				code: CORRECT_CODE,
+			},
+		});
+
+		authUserMap.set(userRegistration.id, userRegistration);
+
+		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+
+		expect(result.isErr).toBe(true);
+		assert(result.isErr);
+		expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
+
+		// メールが更新されていないこと
+		const updatedUserCredentials = authUserMap.get(userCredentials.id);
+		expect(updatedUserCredentials?.email).toBe(OLD_EMAIL);
+	});
+});

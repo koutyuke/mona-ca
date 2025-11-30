@@ -1,0 +1,50 @@
+import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
+import { generateCodeVerifier } from "arctic";
+
+import type { ClientPlatform } from "../../../../../core/domain/value-objects";
+import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
+import type {
+	FederatedAuthInitiateUseCaseResult,
+	IFederatedAuthInitiateUseCase,
+} from "../../contracts/federated-auth/initiate.usecase.interface";
+import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
+import type { IHmacOAuthStateService } from "../../ports/infra/hmac-oauth-state.service.interface";
+import type { oauthStateSchema } from "./schema";
+
+export class FederatedAuthInitiateUseCase implements IFederatedAuthInitiateUseCase {
+	constructor(
+		// gateways
+		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
+		private readonly discordIdentityProviderGateway: IIdentityProviderGateway,
+		// infra
+		private readonly federatedAuthHmacOAuthStateService: IHmacOAuthStateService<typeof oauthStateSchema>,
+	) {}
+
+	public execute(
+		production: boolean,
+		clientPlatform: ClientPlatform,
+		provider: IdentityProviders,
+		queryRedirectURI: string,
+	): FederatedAuthInitiateUseCaseResult {
+		const identityProviderGateway =
+			provider === "google" ? this.googleIdentityProviderGateway : this.discordIdentityProviderGateway;
+		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme();
+
+		const redirectToClientURL = validateRedirectURL(clientBaseURL, queryRedirectURI ?? "/");
+
+		if (!redirectToClientURL) {
+			return err("INVALID_REDIRECT_URI");
+		}
+
+		const state = this.federatedAuthHmacOAuthStateService.generate({ client: clientPlatform });
+		const codeVerifier = generateCodeVerifier();
+		const redirectToProviderURL = identityProviderGateway.createAuthorizationURL(state, codeVerifier);
+
+		return ok({
+			state,
+			codeVerifier,
+			redirectToClientURL,
+			redirectToProviderURL,
+		});
+	}
+}
