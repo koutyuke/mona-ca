@@ -9,7 +9,7 @@ import type { IFederatedAuthInitiateUseCase } from "../application/contracts/fed
 import type { IPasswordResetCompleteUseCase } from "../application/contracts/password-reset/complete.usecase.interface";
 import type { IPasswordResetInitiateUseCase } from "../application/contracts/password-reset/initiate.usecase.interface";
 import type { IPasswordResetValidateSessionUseCase } from "../application/contracts/password-reset/validate-session.usecase.interface";
-import type { IPasswordResetVerifyCodeUseCase } from "../application/contracts/password-reset/verify-code.usecase.interface";
+import type { IPasswordResetVerifyEmailUseCase } from "../application/contracts/password-reset/verify-email.usecase.interface";
 import type { IProviderConnectionCallbackUseCase } from "../application/contracts/provider-connection/callback.usecase.interface";
 import type { IProviderConnectionDisconnectUseCase } from "../application/contracts/provider-connection/disconnect.usecase.interface";
 import type { IProviderConnectionInitiateUseCase } from "../application/contracts/provider-connection/initiate.usecase.interface";
@@ -23,7 +23,7 @@ import type { IValidateSessionUseCase } from "../application/contracts/session/v
 import type { ISignupCompleteUseCase } from "../application/contracts/signup/complete.usecase.interface";
 import type { ISignupInitiateUseCase } from "../application/contracts/signup/initiate.usecase.interface";
 import type { ISignupValidateSessionUseCase } from "../application/contracts/signup/validate-session.usecase.interface";
-import type { ISignupVerifyCodeUseCase } from "../application/contracts/signup/verify-code.usecase.interface";
+import type { ISignupVerifyEmailUseCase } from "../application/contracts/signup/verify-email.usecase.interface";
 import type { IUpdateEmailCompleteUseCase } from "../application/contracts/update-email/complete.usecase.interface";
 import type { IUpdateEmailInitiateUseCase } from "../application/contracts/update-email/initiate.usecase.interface";
 import type { IIdentityProviderGateway } from "../application/ports/gateways/identity-provider.gateway.interface";
@@ -79,7 +79,7 @@ export interface IAuthDIContainer {
 	// Password Reset
 	readonly passwordResetCompleteUseCase: IPasswordResetCompleteUseCase;
 	readonly passwordResetInitiateUseCase: IPasswordResetInitiateUseCase;
-	readonly passwordResetVerifyCodeUseCase: IPasswordResetVerifyCodeUseCase;
+	readonly passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase;
 	readonly passwordResetValidateSessionUseCase: IPasswordResetValidateSessionUseCase;
 
 	// Provider Connection
@@ -99,7 +99,7 @@ export interface IAuthDIContainer {
 	// Signup
 	readonly signupCompleteUseCase: ISignupCompleteUseCase;
 	readonly signupInitiateUseCase: ISignupInitiateUseCase;
-	readonly signupVerifyCodeUseCase: ISignupVerifyCodeUseCase;
+	readonly signupVerifyEmailUseCase: ISignupVerifyEmailUseCase;
 	readonly signupValidateSessionUseCase: ISignupValidateSessionUseCase;
 
 	// Update Email
