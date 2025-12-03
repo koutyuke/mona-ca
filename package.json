@@ -5,7 +5,11 @@
     "type": "GitHub",
     "url": "https://github.com/koutyuke/mona-ca"
   },
-  "workspaces": ["apps/*", "packages/*", "tools/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
   "scripts": {
     "build": "turbo build",
     "check": "turbo check",
@@ -41,8 +45,5 @@
     "esbuild",
     "lefthook",
     "workerd"
-  ],
-  "overrides": {
-    "@scalar/types": "0.1.5"
-  }
+  ]
 }
