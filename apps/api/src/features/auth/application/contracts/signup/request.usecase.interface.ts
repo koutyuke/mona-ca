@@ -9,8 +9,8 @@ type Success = Ok<{
 
 type Error = Err<"EMAIL_ALREADY_USED">;
 
-export type SignupInitiateUseCaseResult = Result<Success, Error>;
+export type SignupRequestUseCaseResult = Result<Success, Error>;
 
-export interface ISignupInitiateUseCase {
-	execute(email: string): Promise<SignupInitiateUseCaseResult>;
+export interface ISignupRequestUseCase {
+	execute(email: string): Promise<SignupRequestUseCaseResult>;
 }

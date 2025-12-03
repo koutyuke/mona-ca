@@ -12,7 +12,7 @@ import {
 	createSessionsMap,
 	createSignupSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { SignupInitiateUseCase } from "../initiate.usecase";
+import { SignupRequestUseCase } from "../request.usecase";
 
 const sessionMap = createSessionsMap();
 const authUserMap = createAuthUsersMap();
@@ -29,7 +29,7 @@ const signupSessionRepository = new SignupSessionRepositoryMock({
 const cryptoRandomService = new CryptoRandomServiceMock();
 const tokenSecretService = new TokenSecretServiceMock();
 
-const signupInitiateUseCase = new SignupInitiateUseCase(
+const signupRequestUseCase = new SignupRequestUseCase(
 	emailGateway,
 	authUserRepository,
 	signupSessionRepository,
@@ -47,7 +47,7 @@ const { userRegistration } = createAuthUserFixture({
 const NEW_EMAIL = "new@example.com";
 const EXISTING_EMAIL = "existing@example.com";
 
-describe("SignupInitiateUseCase", () => {
+describe("SignupRequestUseCase", () => {
 	beforeEach(() => {
 		sessionMap.clear();
 		authUserMap.clear();
@@ -58,7 +58,7 @@ describe("SignupInitiateUseCase", () => {
 	});
 
 	it("Success: should create signup session with valid email", async () => {
-		const result = await signupInitiateUseCase.execute(NEW_EMAIL);
+		const result = await signupRequestUseCase.execute(NEW_EMAIL);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -98,7 +98,7 @@ describe("SignupInitiateUseCase", () => {
 		signupSessionMap.set(existingSignupSession.id, existingSignupSession);
 		expect(signupSessionMap.size).toBe(1);
 
-		const result = await signupInitiateUseCase.execute(NEW_EMAIL);
+		const result = await signupRequestUseCase.execute(NEW_EMAIL);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -112,7 +112,7 @@ describe("SignupInitiateUseCase", () => {
 	});
 
 	it("Error: should return EMAIL_ALREADY_USED error when email is already registered", async () => {
-		const result = await signupInitiateUseCase.execute(EXISTING_EMAIL);
+		const result = await signupRequestUseCase.execute(EXISTING_EMAIL);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -137,7 +137,7 @@ describe("SignupInitiateUseCase", () => {
 
 		authUserMap.set(existingUser.id, existingUser);
 
-		const result = await signupInitiateUseCase.execute(EXISTING_EMAIL);
+		const result = await signupRequestUseCase.execute(EXISTING_EMAIL);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);

@@ -11,13 +11,13 @@ import type { EmailVerificationSession } from "../../../domain/entities/email-ve
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { EmailVerificationSessionToken } from "../../../domain/value-objects/tokens";
 import type {
-	IUpdateEmailInitiateUseCase,
-	UpdateEmailInitiateUseCaseResult,
-} from "../../contracts/update-email/initiate.usecase.interface";
+	IUpdateEmailRequestUseCase,
+	UpdateEmailRequestUseCaseResult,
+} from "../../contracts/update-email/request.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
-export class UpdateEmailInitiateUseCase implements IUpdateEmailInitiateUseCase {
+export class UpdateEmailRequestUseCase implements IUpdateEmailRequestUseCase {
 	constructor(
 		// repositories
 		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
@@ -28,7 +28,7 @@ export class UpdateEmailInitiateUseCase implements IUpdateEmailInitiateUseCase {
 		private readonly emailGateway: IEmailGateway,
 	) {}
 
-	public async execute(email: string, userCredentials: UserCredentials): Promise<UpdateEmailInitiateUseCaseResult> {
+	public async execute(email: string, userCredentials: UserCredentials): Promise<UpdateEmailRequestUseCaseResult> {
 		const existingUserCredentialsForNewEmail = await this.authUserRepository.findByEmail(email);
 		if (existingUserCredentialsForNewEmail) {
 			return err("EMAIL_ALREADY_REGISTERED");

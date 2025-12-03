@@ -2,35 +2,33 @@ import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@m
 import { generateCodeVerifier } from "arctic";
 
 import type { ClientPlatform } from "../../../../../core/domain/value-objects";
-import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type {
-	IProviderConnectionInitiateUseCase,
-	ProviderConnectionInitiateUseCaseResult,
-} from "../../contracts/provider-connection/initiate.usecase.interface";
+	FederatedAuthRequestUseCaseResult,
+	IFederatedAuthRequestUseCase,
+} from "../../contracts/federated-auth/request.usecase.interface";
 import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
 import type { IHmacOAuthStateService } from "../../ports/infra/hmac-oauth-state.service.interface";
-import type { providerConnectionStateSchema } from "./schema";
+import type { oauthStateSchema } from "./schema";
 
-export class ProviderConnectionInitiateUseCase implements IProviderConnectionInitiateUseCase {
+export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase {
 	constructor(
 		// gateways
 		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
 		private readonly discordIdentityProviderGateway: IIdentityProviderGateway,
 		// infra
-		private readonly providerConnectionOAuthStateService: IHmacOAuthStateService<typeof providerConnectionStateSchema>,
+		private readonly federatedAuthHmacOAuthStateService: IHmacOAuthStateService<typeof oauthStateSchema>,
 	) {}
 
-	public async execute(
+	public execute(
 		production: boolean,
 		clientPlatform: ClientPlatform,
 		provider: IdentityProviders,
 		queryRedirectURI: string,
-		userCredentials: UserCredentials,
-	): Promise<ProviderConnectionInitiateUseCaseResult> {
-		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme();
+	): FederatedAuthRequestUseCaseResult {
 		const identityProviderGateway =
 			provider === "google" ? this.googleIdentityProviderGateway : this.discordIdentityProviderGateway;
+		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, queryRedirectURI ?? "/");
 
@@ -38,10 +36,7 @@ export class ProviderConnectionInitiateUseCase implements IProviderConnectionIni
 			return err("INVALID_REDIRECT_URI");
 		}
 
-		const state = this.providerConnectionOAuthStateService.generate({
-			client: clientPlatform,
-			uid: userCredentials.id,
-		});
+		const state = this.federatedAuthHmacOAuthStateService.generate({ client: clientPlatform });
 		const codeVerifier = generateCodeVerifier();
 		const redirectToProviderURL = identityProviderGateway.createAuthorizationURL(state, codeVerifier);
 

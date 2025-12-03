@@ -9,7 +9,7 @@ import {
 	createPasswordResetSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { PasswordResetInitiateUseCase } from "../initiate.usecase";
+import { PasswordResetRequestUseCase } from "../request.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
 const authUserMap = createAuthUsersMap();
@@ -26,7 +26,7 @@ const cryptoRandomService = new CryptoRandomServiceMock();
 const emailGateway = new EmailGatewayMock();
 const tokenSecretService = new TokenSecretServiceMock();
 
-const passwordResetInitiateUseCase = new PasswordResetInitiateUseCase(
+const passwordResetRequestUseCase = new PasswordResetRequestUseCase(
 	authUserRepository,
 	passwordResetSessionRepository,
 	cryptoRandomService,
@@ -41,7 +41,7 @@ const { userRegistration: user } = createAuthUserFixture({
 	},
 });
 
-describe("PasswordResetInitiateUseCase", () => {
+describe("PasswordResetRequestUseCase", () => {
 	beforeEach(() => {
 		passwordResetSessionMap.clear();
 		authUserMap.clear();
@@ -52,7 +52,7 @@ describe("PasswordResetInitiateUseCase", () => {
 	});
 
 	it("Success: should create password reset session with valid user email", async () => {
-		const result = await passwordResetInitiateUseCase.execute(user.email);
+		const result = await passwordResetRequestUseCase.execute(user.email);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -104,7 +104,7 @@ describe("PasswordResetInitiateUseCase", () => {
 		passwordResetSessionMap.set(existingSession1.id, existingSession1);
 		passwordResetSessionMap.set(existingSession2.id, existingSession2);
 
-		const result = await passwordResetInitiateUseCase.execute(user.email);
+		const result = await passwordResetRequestUseCase.execute(user.email);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -124,7 +124,7 @@ describe("PasswordResetInitiateUseCase", () => {
 
 	it("Error: should return USER_NOT_FOUND error for non-existent user", async () => {
 		authUserMap.clear();
-		const result = await passwordResetInitiateUseCase.execute("nonexistent@example.com");
+		const result = await passwordResetRequestUseCase.execute("nonexistent@example.com");
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -137,7 +137,7 @@ describe("PasswordResetInitiateUseCase", () => {
 	});
 
 	it("Error: should return USER_NOT_FOUND error for empty email", async () => {
-		const result = await passwordResetInitiateUseCase.execute("");
+		const result = await passwordResetRequestUseCase.execute("");
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -146,7 +146,7 @@ describe("PasswordResetInitiateUseCase", () => {
 
 	it("Error: should return USER_NOT_FOUND error for case insensitive email mismatch", async () => {
 		const uppercaseEmail = "TEST@EXAMPLE.COM";
-		const result = await passwordResetInitiateUseCase.execute(uppercaseEmail);
+		const result = await passwordResetRequestUseCase.execute(uppercaseEmail);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);

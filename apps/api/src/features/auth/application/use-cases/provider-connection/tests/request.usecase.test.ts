@@ -4,14 +4,14 @@ import { newIdentityProviders } from "../../../../domain/value-objects/identity-
 import { createAuthUserFixture } from "../../../../testing/fixtures";
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacOAuthStateServiceMock } from "../../../../testing/mocks/infra";
-import { ProviderConnectionInitiateUseCase } from "../initiate.usecase";
+import { ProviderConnectionRequestUseCase } from "../request.usecase";
 import type { providerConnectionStateSchema } from "../schema";
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock();
 const discordIdentityProviderGateway = new IdentityProviderGatewayMock();
 const providerConnectionOAuthStateService = new HmacOAuthStateServiceMock<typeof providerConnectionStateSchema>();
 
-const providerConnectionInitiateUseCase = new ProviderConnectionInitiateUseCase(
+const providerConnectionRequestUseCase = new ProviderConnectionRequestUseCase(
 	googleIdentityProviderGateway,
 	discordIdentityProviderGateway,
 	providerConnectionOAuthStateService,
@@ -20,10 +20,10 @@ const providerConnectionInitiateUseCase = new ProviderConnectionInitiateUseCase(
 const PRODUCTION = false;
 const { userCredentials } = createAuthUserFixture();
 
-describe("ProviderConnectionInitiateUseCase", () => {
+describe("ProviderConnectionRequestUseCase", () => {
 	it("Success: should generate provider connection request with valid redirect URI for web client", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionInitiateUseCase.execute(
+		const result = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -57,7 +57,7 @@ describe("ProviderConnectionInitiateUseCase", () => {
 
 	it("Success: should generate provider connection request with valid redirect URI for mobile client", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionInitiateUseCase.execute(
+		const result = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("mobile"),
 			provider,
@@ -82,7 +82,7 @@ describe("ProviderConnectionInitiateUseCase", () => {
 
 	it("Success: should use default path when redirect URI is empty", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionInitiateUseCase.execute(
+		const result = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -99,7 +99,7 @@ describe("ProviderConnectionInitiateUseCase", () => {
 
 	it("Success: should include userId in the generated state", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionInitiateUseCase.execute(
+		const result = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -122,14 +122,14 @@ describe("ProviderConnectionInitiateUseCase", () => {
 
 	it("Success: should generate different code verifiers for each request", async () => {
 		const provider = newIdentityProviders("google");
-		const result1 = await providerConnectionInitiateUseCase.execute(
+		const result1 = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
 			"/settings/connections",
 			userCredentials,
 		);
-		const result2 = await providerConnectionInitiateUseCase.execute(
+		const result2 = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -146,7 +146,7 @@ describe("ProviderConnectionInitiateUseCase", () => {
 
 	it("Error: should return INVALID_REDIRECT_URI error for external malicious redirect URI", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionInitiateUseCase.execute(
+		const result = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -161,7 +161,7 @@ describe("ProviderConnectionInitiateUseCase", () => {
 
 	it("Error: should return INVALID_REDIRECT_URI error for javascript: protocol", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionInitiateUseCase.execute(
+		const result = await providerConnectionRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,

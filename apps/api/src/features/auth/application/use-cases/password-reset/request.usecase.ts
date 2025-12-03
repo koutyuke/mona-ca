@@ -10,13 +10,13 @@ import type { ICryptoRandomService, ITokenSecretService } from "../../../../../c
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { PasswordResetSessionToken } from "../../../domain/value-objects/tokens";
 import type {
-	IPasswordResetInitiateUseCase,
-	PasswordResetInitiateUseCaseResult,
-} from "../../contracts/password-reset/initiate.usecase.interface";
+	IPasswordResetRequestUseCase,
+	PasswordResetRequestUseCaseResult,
+} from "../../contracts/password-reset/request.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IPasswordResetSessionRepository } from "../../ports/repositories/password-reset-session.repository.interface";
 
-export class PasswordResetInitiateUseCase implements IPasswordResetInitiateUseCase {
+export class PasswordResetRequestUseCase implements IPasswordResetRequestUseCase {
 	constructor(
 		// repositories
 		private readonly authUserRepository: IAuthUserRepository,
@@ -27,7 +27,7 @@ export class PasswordResetInitiateUseCase implements IPasswordResetInitiateUseCa
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
 
-	public async execute(email: string): Promise<PasswordResetInitiateUseCaseResult> {
+	public async execute(email: string): Promise<PasswordResetRequestUseCaseResult> {
 		const userIdentity = await this.authUserRepository.findByEmail(email);
 
 		if (!userIdentity) {

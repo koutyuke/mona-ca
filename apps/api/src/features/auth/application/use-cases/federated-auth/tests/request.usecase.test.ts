@@ -3,14 +3,14 @@ import { newClientPlatform } from "../../../../../../core/domain/value-objects";
 import { newIdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacOAuthStateServiceMock } from "../../../../testing/mocks/infra";
-import { FederatedAuthInitiateUseCase } from "../initiate.usecase";
+import { FederatedAuthRequestUseCase } from "../request.usecase";
 import type { oauthStateSchema } from "../schema";
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock();
 const discordIdentityProviderGateway = new IdentityProviderGatewayMock();
 const federatedAuthHmacOAuthStateService = new HmacOAuthStateServiceMock<typeof oauthStateSchema>();
 
-const federatedAuthInitiateUseCase = new FederatedAuthInitiateUseCase(
+const federatedAuthRequestUseCase = new FederatedAuthRequestUseCase(
 	googleIdentityProviderGateway,
 	discordIdentityProviderGateway,
 	federatedAuthHmacOAuthStateService,
@@ -18,10 +18,10 @@ const federatedAuthInitiateUseCase = new FederatedAuthInitiateUseCase(
 
 const PRODUCTION = true;
 
-describe("FederatedAuthInitiateUseCase", () => {
+describe("FederatedAuthRequestUseCase", () => {
 	it("Success: should generate federated auth request with valid redirect URI for web client", () => {
 		const provider = newIdentityProviders("google");
-		const result = federatedAuthInitiateUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "/dashboard");
+		const result = federatedAuthRequestUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "/dashboard");
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -51,7 +51,7 @@ describe("FederatedAuthInitiateUseCase", () => {
 
 	it("Success: should generate federated auth request with valid redirect URI for mobile client", () => {
 		const provider = newIdentityProviders("google");
-		const result = federatedAuthInitiateUseCase.execute(PRODUCTION, newClientPlatform("mobile"), provider, "/home");
+		const result = federatedAuthRequestUseCase.execute(PRODUCTION, newClientPlatform("mobile"), provider, "/home");
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -81,7 +81,7 @@ describe("FederatedAuthInitiateUseCase", () => {
 
 	it("Success: should use default path when redirect URI is empty", () => {
 		const provider = newIdentityProviders("google");
-		const result = federatedAuthInitiateUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "");
+		const result = federatedAuthRequestUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "");
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -92,8 +92,8 @@ describe("FederatedAuthInitiateUseCase", () => {
 
 	it("Success: should generate different code verifiers for each request", () => {
 		const provider = newIdentityProviders("google");
-		const result1 = federatedAuthInitiateUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "/dashboard");
-		const result2 = federatedAuthInitiateUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "/dashboard");
+		const result1 = federatedAuthRequestUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "/dashboard");
+		const result2 = federatedAuthRequestUseCase.execute(PRODUCTION, newClientPlatform("web"), provider, "/dashboard");
 
 		assert(result1.isOk);
 		assert(result2.isOk);
@@ -106,13 +106,13 @@ describe("FederatedAuthInitiateUseCase", () => {
 		const googleProvider = newIdentityProviders("google");
 		const discordProvider = newIdentityProviders("discord");
 
-		const googleResult = federatedAuthInitiateUseCase.execute(
+		const googleResult = federatedAuthRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			googleProvider,
 			"/dashboard",
 		);
-		const discordResult = federatedAuthInitiateUseCase.execute(
+		const discordResult = federatedAuthRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			discordProvider,
@@ -128,7 +128,7 @@ describe("FederatedAuthInitiateUseCase", () => {
 
 	it("Error: should return INVALID_REDIRECT_URI error for external malicious redirect URI", () => {
 		const provider = newIdentityProviders("google");
-		const result = federatedAuthInitiateUseCase.execute(
+		const result = federatedAuthRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -142,7 +142,7 @@ describe("FederatedAuthInitiateUseCase", () => {
 
 	it("Error: should return INVALID_REDIRECT_URI error for javascript: protocol", () => {
 		const provider = newIdentityProviders("google");
-		const result = federatedAuthInitiateUseCase.execute(
+		const result = federatedAuthRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,

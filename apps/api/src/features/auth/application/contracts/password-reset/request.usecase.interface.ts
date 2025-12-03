@@ -9,8 +9,8 @@ type Success = Ok<{
 
 type Error = Err<"USER_NOT_FOUND">;
 
-export type PasswordResetInitiateUseCaseResult = Result<Success, Error>;
+export type PasswordResetRequestUseCaseResult = Result<Success, Error>;
 
-export interface IPasswordResetInitiateUseCase {
-	execute(email: string): Promise<PasswordResetInitiateUseCaseResult>;
+export interface IPasswordResetRequestUseCase {
+	execute(email: string): Promise<PasswordResetRequestUseCaseResult>;
 }

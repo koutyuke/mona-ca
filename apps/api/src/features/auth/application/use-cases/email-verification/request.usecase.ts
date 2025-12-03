@@ -11,12 +11,12 @@ import type { EmailVerificationSession } from "../../../domain/entities/email-ve
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { EmailVerificationSessionToken } from "../../../domain/value-objects/tokens";
 import type {
-	EmailVerificationInitiateUseCaseResult,
-	IEmailVerificationInitiateUseCase,
-} from "../../contracts/email-verification/initiate.usecase.interface";
+	EmailVerificationRequestUseCaseResult,
+	IEmailVerificationRequestUseCase,
+} from "../../contracts/email-verification/request.usecase.interface";
 import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
-export class EmailVerificationInitiateUseCase implements IEmailVerificationInitiateUseCase {
+export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
 		// gateways
 		private readonly emailGateway: IEmailGateway,
@@ -27,7 +27,7 @@ export class EmailVerificationInitiateUseCase implements IEmailVerificationIniti
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
 
-	public async execute(userCredentials: UserCredentials): Promise<EmailVerificationInitiateUseCaseResult> {
+	public async execute(userCredentials: UserCredentials): Promise<EmailVerificationRequestUseCaseResult> {
 		if (userCredentials.emailVerified) {
 			return err("EMAIL_ALREADY_VERIFIED");
 		}

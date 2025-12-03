@@ -7,7 +7,7 @@ import {
 	EmailVerificationSessionRepositoryMock,
 	createEmailVerificationSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { EmailVerificationInitiateUseCase } from "../initiate.usecase";
+import { EmailVerificationRequestUseCase } from "../request.usecase";
 
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
 
@@ -19,7 +19,7 @@ const cryptoRandomService = new CryptoRandomServiceMock();
 const tokenSecretService = new TokenSecretServiceMock();
 const emailGateway = new EmailGatewayMock();
 
-const emailVerificationInitiateUseCase = new EmailVerificationInitiateUseCase(
+const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 	emailGateway,
 	emailVerificationSessionRepository,
 	cryptoRandomService,
@@ -41,14 +41,14 @@ const { userCredentials } = createAuthUserFixture({
 	},
 });
 
-describe("EmailVerificationInitiateUseCase", () => {
+describe("EmailVerificationRequestUseCase", () => {
 	beforeEach(() => {
 		emailVerificationSessionMap.clear();
 		emailGateway.sendVerificationEmailCalls = [];
 	});
 
 	it("Success: should create session and return token for unverified email address", async () => {
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -71,7 +71,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 	});
 
 	it("Success: should save session to repository", async () => {
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
 		const { emailVerificationSession } = result.value;
@@ -81,7 +81,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 	});
 
 	it("Success: should send verification email with correct recipient and code", async () => {
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
 
@@ -107,7 +107,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 		expect(emailVerificationSessionMap.get(existingSession.id)).toStrictEqual(existingSession);
 
 		// 新しいセッションを作成
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -123,12 +123,12 @@ describe("EmailVerificationInitiateUseCase", () => {
 
 	it("Success: should keep only the latest session when called multiple times consecutively", async () => {
 		// 1回目
-		const result1 = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result1 = await emailVerificationRequestUseCase.execute(userCredentials);
 		assert(result1.isOk);
 		const session1 = result1.value.emailVerificationSession;
 
 		// 2回目
-		const result2 = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result2 = await emailVerificationRequestUseCase.execute(userCredentials);
 		assert(result2.isOk);
 		const session2 = result2.value.emailVerificationSession;
 
@@ -139,7 +139,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 	});
 
 	it("Success: should generate 8-digit numeric verification code", async () => {
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
 		const { emailVerificationSession } = result.value;
@@ -155,7 +155,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 	});
 
 	it("Success: should include secret in session token", async () => {
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
 		const { emailVerificationSessionToken } = result.value;
@@ -170,7 +170,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 	});
 
 	it("Success: should save secret hash to session", async () => {
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
 		const { emailVerificationSession } = result.value;
@@ -187,7 +187,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 
 	it("Success: should set expiration time on session", async () => {
 		const beforeExecution = Date.now();
-		const result = await emailVerificationInitiateUseCase.execute(userCredentials);
+		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
 		const { emailVerificationSession } = result.value;
@@ -205,7 +205,7 @@ describe("EmailVerificationInitiateUseCase", () => {
 			},
 		});
 
-		const result = await emailVerificationInitiateUseCase.execute(verifiedUserCredentials);
+		const result = await emailVerificationRequestUseCase.execute(verifiedUserCredentials);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);

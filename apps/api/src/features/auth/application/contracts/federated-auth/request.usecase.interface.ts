@@ -11,13 +11,13 @@ type Success = Ok<{
 
 type Error = Err<"INVALID_REDIRECT_URI">;
 
-export type FederatedAuthInitiateUseCaseResult = Result<Success, Error>;
+export type FederatedAuthRequestUseCaseResult = Result<Success, Error>;
 
-export interface IFederatedAuthInitiateUseCase {
+export interface IFederatedAuthRequestUseCase {
 	execute(
 		production: boolean,
 		clientPlatform: ClientPlatform,
 		provider: IdentityProviders,
 		queryRedirectURI: string,
-	): FederatedAuthInitiateUseCaseResult;
+	): FederatedAuthRequestUseCaseResult;
 }

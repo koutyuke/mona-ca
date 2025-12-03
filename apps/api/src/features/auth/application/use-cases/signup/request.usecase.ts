@@ -9,13 +9,13 @@ import type { ICryptoRandomService, ITokenSecretService } from "../../../../../c
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { SignupSessionToken } from "../../../domain/value-objects/tokens";
 import type {
-	ISignupInitiateUseCase,
-	SignupInitiateUseCaseResult,
-} from "../../contracts/signup/initiate.usecase.interface";
+	ISignupRequestUseCase,
+	SignupRequestUseCaseResult,
+} from "../../contracts/signup/request.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 
-export class SignupInitiateUseCase implements ISignupInitiateUseCase {
+export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(
 		// gateways
 		private readonly emailGateway: IEmailGateway,
@@ -27,7 +27,7 @@ export class SignupInitiateUseCase implements ISignupInitiateUseCase {
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
 
-	async execute(email: string): Promise<SignupInitiateUseCaseResult> {
+	async execute(email: string): Promise<SignupRequestUseCaseResult> {
 		const userCredentials = await this.authUserRepository.findByEmail(email);
 
 		if (userCredentials) {

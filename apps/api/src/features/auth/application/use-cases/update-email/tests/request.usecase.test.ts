@@ -10,7 +10,7 @@ import {
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { UpdateEmailInitiateUseCase } from "../initiate.usecase";
+import { UpdateEmailRequestUseCase } from "../request.usecase";
 
 const emailVerificationSessionMap = createEmailVerificationSessionsMap();
 const authUserMap = createAuthUsersMap();
@@ -27,7 +27,7 @@ const cryptoRandomService = new CryptoRandomServiceMock();
 const tokenSecretService = new TokenSecretServiceMock();
 const emailGateway = new EmailGatewayMock();
 
-const updateEmailInitiateUseCase = new UpdateEmailInitiateUseCase(
+const updateEmailRequestUseCase = new UpdateEmailRequestUseCase(
 	emailVerificationSessionRepository,
 	authUserRepository,
 	cryptoRandomService,
@@ -49,7 +49,7 @@ const { userCredentials, userRegistration } = createAuthUserFixture({
 const NEW_EMAIL = "new@example.com";
 const EXISTING_EMAIL = "existing@example.com";
 
-describe("UpdateEmailInitiateUseCase", () => {
+describe("UpdateEmailRequestUseCase", () => {
 	beforeEach(() => {
 		emailVerificationSessionMap.clear();
 		authUserMap.clear();
@@ -60,7 +60,7 @@ describe("UpdateEmailInitiateUseCase", () => {
 	});
 
 	it("Success: should create email verification session with valid new email", async () => {
-		const result = await updateEmailInitiateUseCase.execute(NEW_EMAIL, userCredentials);
+		const result = await updateEmailRequestUseCase.execute(NEW_EMAIL, userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -111,7 +111,7 @@ describe("UpdateEmailInitiateUseCase", () => {
 		emailVerificationSessionMap.set(existingSession.id, existingSession);
 		expect(emailVerificationSessionMap.size).toBe(1);
 
-		const result = await updateEmailInitiateUseCase.execute(NEW_EMAIL, userCredentials);
+		const result = await updateEmailRequestUseCase.execute(NEW_EMAIL, userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -125,8 +125,8 @@ describe("UpdateEmailInitiateUseCase", () => {
 	});
 
 	it("Success: should generate different codes for each request", async () => {
-		const result1 = await updateEmailInitiateUseCase.execute(NEW_EMAIL, userCredentials);
-		const result2 = await updateEmailInitiateUseCase.execute("another@example.com", userCredentials);
+		const result1 = await updateEmailRequestUseCase.execute(NEW_EMAIL, userCredentials);
+		const result2 = await updateEmailRequestUseCase.execute("another@example.com", userCredentials);
 
 		assert(result1.isOk);
 		assert(result2.isOk);
@@ -147,7 +147,7 @@ describe("UpdateEmailInitiateUseCase", () => {
 
 		authUserMap.set(existingUser.id, existingUser);
 
-		const result = await updateEmailInitiateUseCase.execute(EXISTING_EMAIL, userCredentials);
+		const result = await updateEmailRequestUseCase.execute(EXISTING_EMAIL, userCredentials);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -160,7 +160,7 @@ describe("UpdateEmailInitiateUseCase", () => {
 	});
 
 	it("Error: should return EMAIL_ALREADY_REGISTERED error when new email is same as current email", async () => {
-		const result = await updateEmailInitiateUseCase.execute(userRegistration.email, userCredentials);
+		const result = await updateEmailRequestUseCase.execute(userRegistration.email, userCredentials);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
