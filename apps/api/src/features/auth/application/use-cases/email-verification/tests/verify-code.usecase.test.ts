@@ -7,7 +7,7 @@ import {
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { EmailVerificationCompleteUseCase } from "../complete.usecase";
+import { EmailVerificationVerifyCodeUseCase } from "../verify-code.usecase";
 
 const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
@@ -21,7 +21,7 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 	emailVerificationSessionMap,
 });
 
-const emailVerificationCompleteUseCase = new EmailVerificationCompleteUseCase(
+const emailVerificationVerifyCodeUseCase = new EmailVerificationVerifyCodeUseCase(
 	authUserRepository,
 	emailVerificationSessionRepository,
 );
@@ -38,7 +38,7 @@ const { userRegistration, userCredentials } = createAuthUserFixture({
 	},
 });
 
-describe("EmailVerificationCompleteUseCase", () => {
+describe("EmailVerificationVerifyCodeUseCase", () => {
 	beforeEach(() => {
 		authUserMap.clear();
 		sessionMap.clear();
@@ -57,7 +57,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		const result = await emailVerificationCompleteUseCase.execute(
+		const result = await emailVerificationVerifyCodeUseCase.execute(
 			CORRECT_CODE,
 			userCredentials,
 			emailVerificationSession,
@@ -77,7 +77,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		await emailVerificationCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		await emailVerificationVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		expect(emailVerificationSessionMap.has(emailVerificationSession.id)).toBe(false);
 		expect(emailVerificationSessionMap.size).toBe(0);
@@ -97,7 +97,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		const beforeUser = authUserMap.get(userCredentials.id);
 		expect(beforeUser?.emailVerified).toBe(false);
 
-		await emailVerificationCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		await emailVerificationVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		// 認証後の状態を確認
 		const afterUser = authUserMap.get(userCredentials.id);
@@ -121,7 +121,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		const result = await emailVerificationCompleteUseCase.execute(
+		const result = await emailVerificationVerifyCodeUseCase.execute(
 			CORRECT_CODE,
 			userCredentials,
 			emailVerificationSession,
@@ -147,7 +147,11 @@ describe("EmailVerificationCompleteUseCase", () => {
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
 		const wrongCode = "87654321";
-		const result = await emailVerificationCompleteUseCase.execute(wrongCode, userCredentials, emailVerificationSession);
+		const result = await emailVerificationVerifyCodeUseCase.execute(
+			wrongCode,
+			userCredentials,
+			emailVerificationSession,
+		);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -164,7 +168,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		const result = await emailVerificationCompleteUseCase.execute("", userCredentials, emailVerificationSession);
+		const result = await emailVerificationVerifyCodeUseCase.execute("", userCredentials, emailVerificationSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -182,7 +186,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
 		const partialCode = CORRECT_CODE.slice(0, 4);
-		const result = await emailVerificationCompleteUseCase.execute(
+		const result = await emailVerificationVerifyCodeUseCase.execute(
 			partialCode,
 			userCredentials,
 			emailVerificationSession,
@@ -203,7 +207,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		await emailVerificationCompleteUseCase.execute("wrongcode", userCredentials, emailVerificationSession);
+		await emailVerificationVerifyCodeUseCase.execute("wrongcode", userCredentials, emailVerificationSession);
 
 		const user = authUserMap.get(userCredentials.id);
 		expect(user?.emailVerified).toBe(false);
@@ -220,7 +224,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		const result = await emailVerificationCompleteUseCase.execute(
+		const result = await emailVerificationVerifyCodeUseCase.execute(
 			CORRECT_CODE,
 			userCredentials,
 			emailVerificationSession,
@@ -242,7 +246,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		await emailVerificationCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		await emailVerificationVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		// セキュリティ上の理由でセッションは削除されること
 		expect(emailVerificationSessionMap.has(emailVerificationSession.id)).toBe(false);
@@ -259,7 +263,7 @@ describe("EmailVerificationCompleteUseCase", () => {
 		});
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		await emailVerificationCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		await emailVerificationVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		const user = authUserMap.get(userCredentials.id);
 		expect(user?.emailVerified).toBe(false);

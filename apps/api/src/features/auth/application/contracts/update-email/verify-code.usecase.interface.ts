@@ -11,12 +11,12 @@ type Success = Ok<{
 
 type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"EMAIL_ALREADY_REGISTERED">;
 
-export type UpdateEmailCompleteUseCaseResult = Result<Success, Error>;
+export type UpdateEmailVerifyCodeUseCaseResult = Result<Success, Error>;
 
-export interface IUpdateEmailCompleteUseCase {
+export interface IUpdateEmailVerifyCodeUseCase {
 	execute(
 		code: string,
 		userCredentials: UserCredentials,
 		emailVerificationSession: EmailVerificationSession,
-	): Promise<UpdateEmailCompleteUseCaseResult>;
+	): Promise<UpdateEmailVerifyCodeUseCaseResult>;
 }

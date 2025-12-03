@@ -8,19 +8,19 @@ import { ProviderAccountRepository } from "../adapters/repositories/provider-acc
 import { ProviderConnectionTicketRepository } from "../adapters/repositories/provider-connection-ticket/provider-connection-ticket.repository";
 import { SessionRepository } from "../adapters/repositories/session/session.repository";
 import { SignupSessionRepository } from "../adapters/repositories/signup-session/signup-session.repository";
-import { AccountLinkCompleteUseCase } from "../application/use-cases/account-link/complete.usecase";
 import { AccountLinkReissueSessionUseCase } from "../application/use-cases/account-link/reissue-session.usecase";
 import { AccountLinkValidateSessionUseCase } from "../application/use-cases/account-link/validate-session.usecase";
-import { EmailVerificationCompleteUseCase } from "../application/use-cases/email-verification/complete.usecase";
+import { AccountLinkVerifyCodeUseCase } from "../application/use-cases/account-link/verify-code.usecase";
 import { EmailVerificationRequestUseCase } from "../application/use-cases/email-verification/request.usecase";
 import { EmailVerificationValidateSessionUseCase } from "../application/use-cases/email-verification/validate-session.usecase";
+import { EmailVerificationVerifyCodeUseCase } from "../application/use-cases/email-verification/verify-code.usecase";
 import { FederatedAuthCallbackUseCase } from "../application/use-cases/federated-auth/callback.usecase";
 import { FederatedAuthRequestUseCase } from "../application/use-cases/federated-auth/request.usecase";
 import { oauthStateSchema } from "../application/use-cases/federated-auth/schema";
-import { PasswordResetCompleteUseCase } from "../application/use-cases/password-reset/complete.usecase";
 import { PasswordResetRequestUseCase } from "../application/use-cases/password-reset/request.usecase";
+import { PasswordResetResetUseCase } from "../application/use-cases/password-reset/reset.usecase";
 import { PasswordResetValidateSessionUseCase } from "../application/use-cases/password-reset/validate-session.usecase";
-import { PasswordResetVerifyEmailUseCase } from "../application/use-cases/password-reset/verify-email.usecase";
+import { PasswordResetVerifyCodeUseCase } from "../application/use-cases/password-reset/verify-code.usecase";
 import { ProviderConnectionCallbackUseCase } from "../application/use-cases/provider-connection/callback.usecase";
 import { ProviderConnectionDisconnectUseCase } from "../application/use-cases/provider-connection/disconnect.usecase";
 import { ProviderConnectionPrepareUseCase } from "../application/use-cases/provider-connection/prepare.usecase";
@@ -32,29 +32,29 @@ import { LoginUseCase } from "../application/use-cases/session/login.usecase";
 import { LogoutUseCase } from "../application/use-cases/session/logout.usecase";
 import { UpdatePasswordUseCase } from "../application/use-cases/session/update-password.usecase";
 import { ValidateSessionUseCase } from "../application/use-cases/session/validate-session.usecase";
-import { SignupCompleteUseCase } from "../application/use-cases/signup/complete.usecase";
+import { SignupRegisterUseCase } from "../application/use-cases/signup/register.usecase";
 import { SignupRequestUseCase } from "../application/use-cases/signup/request.usecase";
 import { SignupValidateSessionUseCase } from "../application/use-cases/signup/validate-session.usecase";
-import { SignupVerifyEmailUseCase } from "../application/use-cases/signup/verify-email.usecase";
-import { UpdateEmailCompleteUseCase } from "../application/use-cases/update-email/complete.usecase";
+import { SignupVerifyCodeUseCase } from "../application/use-cases/signup/verify-code.usecase";
 import { UpdateEmailRequestUseCase } from "../application/use-cases/update-email/request.usecase";
+import { UpdateEmailVerifyCodeUseCase } from "../application/use-cases/update-email/verify-code.usecase";
 import { HmacOAuthStateService } from "../infra/hmac-oauth-state/hmac-oauth-state.service";
 import { federatedAuthRedirectURL, providerConnectionRedirectURL } from "../lib/redirect-url";
 
 import type { ICoreDIContainer } from "../../../core/di";
 import type { EnvVariables } from "../../../core/infra/config/env";
-import type { IAccountLinkCompleteUseCase } from "../application/contracts/account-link/complete.usecase.interface";
 import type { IAccountLinkReissueSessionUseCase } from "../application/contracts/account-link/reissue-session.usecase.interface";
 import type { IAccountLinkValidateSessionUseCase } from "../application/contracts/account-link/validate-session.usecase.interface";
-import type { IEmailVerificationCompleteUseCase } from "../application/contracts/email-verification/complete.usecase.interface";
+import type { IAccountLinkVerifyCodeUseCase } from "../application/contracts/account-link/verify-code.usecase.interface";
 import type { IEmailVerificationRequestUseCase } from "../application/contracts/email-verification/request.usecase.interface";
 import type { IEmailVerificationValidateSessionUseCase } from "../application/contracts/email-verification/validate-email-verification-session.usecase.interface";
+import type { IEmailVerificationVerifyCodeUseCase } from "../application/contracts/email-verification/verify-code.usecase.interface";
 import type { IFederatedAuthCallbackUseCase } from "../application/contracts/federated-auth/callback.usecase.interface";
 import type { IFederatedAuthRequestUseCase } from "../application/contracts/federated-auth/request.usecase.interface";
-import type { IPasswordResetCompleteUseCase } from "../application/contracts/password-reset/complete.usecase.interface";
 import type { IPasswordResetRequestUseCase } from "../application/contracts/password-reset/request.usecase.interface";
+import type { IPasswordResetResetUseCase } from "../application/contracts/password-reset/reset.usecase.interface";
 import type { IPasswordResetValidateSessionUseCase } from "../application/contracts/password-reset/validate-session.usecase.interface";
-import type { IPasswordResetVerifyEmailUseCase } from "../application/contracts/password-reset/verify-email.usecase.interface";
+import type { IPasswordResetVerifyCodeUseCase } from "../application/contracts/password-reset/verify-code.usecase.interface";
 import type { IProviderConnectionCallbackUseCase } from "../application/contracts/provider-connection/callback.usecase.interface";
 import type { IProviderConnectionDisconnectUseCase } from "../application/contracts/provider-connection/disconnect.usecase.interface";
 import type { IProviderConnectionPrepareUseCase } from "../application/contracts/provider-connection/prepare.usecase.interface";
@@ -65,12 +65,12 @@ import type { ILoginUseCase } from "../application/contracts/session/login.useca
 import type { ILogoutUseCase } from "../application/contracts/session/logout.usecase.interface";
 import type { IUpdatePasswordUseCase } from "../application/contracts/session/update-password.usecase.interface";
 import type { IValidateSessionUseCase } from "../application/contracts/session/validate-session.usecase.interface";
-import type { ISignupCompleteUseCase } from "../application/contracts/signup/complete.usecase.interface";
+import type { ISignupRegisterUseCase } from "../application/contracts/signup/register.usecase.interface";
 import type { ISignupRequestUseCase } from "../application/contracts/signup/request.usecase.interface";
 import type { ISignupValidateSessionUseCase } from "../application/contracts/signup/validate-session.usecase.interface";
-import type { ISignupVerifyEmailUseCase } from "../application/contracts/signup/verify-email.usecase.interface";
-import type { IUpdateEmailCompleteUseCase } from "../application/contracts/update-email/complete.usecase.interface";
+import type { ISignupVerifyCodeUseCase } from "../application/contracts/signup/verify-code.usecase.interface";
 import type { IUpdateEmailRequestUseCase } from "../application/contracts/update-email/request.usecase.interface";
+import type { IUpdateEmailVerifyCodeUseCase } from "../application/contracts/update-email/verify-code.usecase.interface";
 import type { IIdentityProviderGateway } from "../application/ports/gateways/identity-provider.gateway.interface";
 import type { IHmacOAuthStateService } from "../application/ports/infra/hmac-oauth-state.service.interface";
 import type { IAccountLinkSessionRepository } from "../application/ports/repositories/account-link-session.repository.interface";
@@ -122,12 +122,12 @@ export class AuthDIContainer implements IAuthDIContainer {
 	// === Use Cases ===
 
 	// Account Link
-	private _accountLinkCompleteUseCase: IAccountLinkCompleteUseCase | undefined;
+	private _accountLinkVerifyCodeUseCase: IAccountLinkVerifyCodeUseCase | undefined;
 	private _accountLinkReissueSessionUseCase: IAccountLinkReissueSessionUseCase | undefined;
 	private _accountLinkValidateSessionUseCase: IAccountLinkValidateSessionUseCase | undefined;
 
 	// Email Verification
-	private _emailVerificationCompleteUseCase: IEmailVerificationCompleteUseCase | undefined;
+	private _emailVerificationVerifyCodeUseCase: IEmailVerificationVerifyCodeUseCase | undefined;
 	private _emailVerificationRequestUseCase: IEmailVerificationRequestUseCase | undefined;
 	private _emailVerificationValidateSessionUseCase: IEmailVerificationValidateSessionUseCase | undefined;
 
@@ -136,9 +136,9 @@ export class AuthDIContainer implements IAuthDIContainer {
 	private _federatedAuthRequestUseCase: IFederatedAuthRequestUseCase | undefined;
 
 	// Password Reset
-	private _passwordResetCompleteUseCase: IPasswordResetCompleteUseCase | undefined;
+	private _passwordResetResetUseCase: IPasswordResetResetUseCase | undefined;
 	private _passwordResetRequestUseCase: IPasswordResetRequestUseCase | undefined;
-	private _passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase | undefined;
+	private _passwordResetVerifyCodeUseCase: IPasswordResetVerifyCodeUseCase | undefined;
 	private _passwordResetValidateSessionUseCase: IPasswordResetValidateSessionUseCase | undefined;
 
 	// Provider Connection
@@ -156,13 +156,13 @@ export class AuthDIContainer implements IAuthDIContainer {
 	private _validateSessionUseCase: IValidateSessionUseCase | undefined;
 
 	// Signup
-	private _signupCompleteUseCase: ISignupCompleteUseCase | undefined;
+	private _signupRegisterUseCase: ISignupRegisterUseCase | undefined;
 	private _signupRequestUseCase: ISignupRequestUseCase | undefined;
-	private _signupVerifyEmailUseCase: ISignupVerifyEmailUseCase | undefined;
+	private _signupVerifyCodeUseCase: ISignupVerifyCodeUseCase | undefined;
 	private _signupValidateSessionUseCase: ISignupValidateSessionUseCase | undefined;
 
 	// Update Email
-	private _updateEmailCompleteUseCase: IUpdateEmailCompleteUseCase | undefined;
+	private _updateEmailVerifyCodeUseCase: IUpdateEmailVerifyCodeUseCase | undefined;
 	private _updateEmailRequestUseCase: IUpdateEmailRequestUseCase | undefined;
 
 	constructor(envVariables: EnvVariables, coreContainer: ICoreDIContainer, override?: Partial<IAuthDIContainer>) {
@@ -227,8 +227,8 @@ export class AuthDIContainer implements IAuthDIContainer {
 		// #region === Use Cases ===
 
 		// Account Link
-		if (overrides.accountLinkCompleteUseCase) {
-			this._accountLinkCompleteUseCase = overrides.accountLinkCompleteUseCase;
+		if (overrides.accountLinkVerifyCodeUseCase) {
+			this._accountLinkVerifyCodeUseCase = overrides.accountLinkVerifyCodeUseCase;
 		}
 		if (overrides.accountLinkReissueSessionUseCase) {
 			this._accountLinkReissueSessionUseCase = overrides.accountLinkReissueSessionUseCase;
@@ -238,8 +238,8 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 
 		// Email Verification
-		if (overrides.emailVerificationCompleteUseCase) {
-			this._emailVerificationCompleteUseCase = overrides.emailVerificationCompleteUseCase;
+		if (overrides.emailVerificationVerifyCodeUseCase) {
+			this._emailVerificationVerifyCodeUseCase = overrides.emailVerificationVerifyCodeUseCase;
 		}
 		if (overrides.emailVerificationRequestUseCase) {
 			this._emailVerificationRequestUseCase = overrides.emailVerificationRequestUseCase;
@@ -257,14 +257,14 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 
 		// Password Reset
-		if (overrides.passwordResetCompleteUseCase) {
-			this._passwordResetCompleteUseCase = overrides.passwordResetCompleteUseCase;
+		if (overrides.passwordResetResetUseCase) {
+			this._passwordResetResetUseCase = overrides.passwordResetResetUseCase;
 		}
 		if (overrides.passwordResetRequestUseCase) {
 			this._passwordResetRequestUseCase = overrides.passwordResetRequestUseCase;
 		}
-		if (overrides.passwordResetVerifyEmailUseCase) {
-			this._passwordResetVerifyEmailUseCase = overrides.passwordResetVerifyEmailUseCase;
+		if (overrides.passwordResetVerifyCodeUseCase) {
+			this._passwordResetVerifyCodeUseCase = overrides.passwordResetVerifyCodeUseCase;
 		}
 		if (overrides.passwordResetValidateSessionUseCase) {
 			this._passwordResetValidateSessionUseCase = overrides.passwordResetValidateSessionUseCase;
@@ -305,22 +305,22 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 
 		// Signup
-		if (overrides.signupCompleteUseCase) {
-			this._signupCompleteUseCase = overrides.signupCompleteUseCase;
+		if (overrides.signupRegisterUseCase) {
+			this._signupRegisterUseCase = overrides.signupRegisterUseCase;
 		}
 		if (overrides.signupRequestUseCase) {
 			this._signupRequestUseCase = overrides.signupRequestUseCase;
 		}
-		if (overrides.signupVerifyEmailUseCase) {
-			this._signupVerifyEmailUseCase = overrides.signupVerifyEmailUseCase;
+		if (overrides.signupVerifyCodeUseCase) {
+			this._signupVerifyCodeUseCase = overrides.signupVerifyCodeUseCase;
 		}
 		if (overrides.signupValidateSessionUseCase) {
 			this._signupValidateSessionUseCase = overrides.signupValidateSessionUseCase;
 		}
 
 		// Update Email
-		if (overrides.updateEmailCompleteUseCase) {
-			this._updateEmailCompleteUseCase = overrides.updateEmailCompleteUseCase;
+		if (overrides.updateEmailVerifyCodeUseCase) {
+			this._updateEmailVerifyCodeUseCase = overrides.updateEmailVerifyCodeUseCase;
 		}
 		if (overrides.updateEmailRequestUseCase) {
 			this._updateEmailRequestUseCase = overrides.updateEmailRequestUseCase;
@@ -461,9 +461,9 @@ export class AuthDIContainer implements IAuthDIContainer {
 	// #region === Use Cases ===
 
 	// Account Link
-	get accountLinkCompleteUseCase(): IAccountLinkCompleteUseCase {
-		if (!this._accountLinkCompleteUseCase) {
-			this._accountLinkCompleteUseCase = new AccountLinkCompleteUseCase(
+	get accountLinkVerifyCodeUseCase(): IAccountLinkVerifyCodeUseCase {
+		if (!this._accountLinkVerifyCodeUseCase) {
+			this._accountLinkVerifyCodeUseCase = new AccountLinkVerifyCodeUseCase(
 				this.accountLinkSessionRepository,
 				this.authUserRepository,
 				this.providerAccountRepository,
@@ -471,7 +471,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._accountLinkCompleteUseCase;
+		return this._accountLinkVerifyCodeUseCase;
 	}
 	get accountLinkReissueSessionUseCase(): IAccountLinkReissueSessionUseCase {
 		if (!this._accountLinkReissueSessionUseCase) {
@@ -496,14 +496,14 @@ export class AuthDIContainer implements IAuthDIContainer {
 	}
 
 	// Email Verification
-	get emailVerificationCompleteUseCase(): IEmailVerificationCompleteUseCase {
-		if (!this._emailVerificationCompleteUseCase) {
-			this._emailVerificationCompleteUseCase = new EmailVerificationCompleteUseCase(
+	get emailVerificationVerifyCodeUseCase(): IEmailVerificationVerifyCodeUseCase {
+		if (!this._emailVerificationVerifyCodeUseCase) {
+			this._emailVerificationVerifyCodeUseCase = new EmailVerificationVerifyCodeUseCase(
 				this.authUserRepository,
 				this.emailVerificationSessionRepository,
 			);
 		}
-		return this._emailVerificationCompleteUseCase;
+		return this._emailVerificationVerifyCodeUseCase;
 	}
 	get emailVerificationRequestUseCase(): IEmailVerificationRequestUseCase {
 		if (!this._emailVerificationRequestUseCase) {
@@ -554,16 +554,16 @@ export class AuthDIContainer implements IAuthDIContainer {
 	}
 
 	// Password Reset
-	get passwordResetCompleteUseCase(): IPasswordResetCompleteUseCase {
-		if (!this._passwordResetCompleteUseCase) {
-			this._passwordResetCompleteUseCase = new PasswordResetCompleteUseCase(
+	get passwordResetResetUseCase(): IPasswordResetResetUseCase {
+		if (!this._passwordResetResetUseCase) {
+			this._passwordResetResetUseCase = new PasswordResetResetUseCase(
 				this.authUserRepository,
 				this.passwordResetSessionRepository,
 				this.sessionRepository,
 				this.coreContainer.passwordHashingService,
 			);
 		}
-		return this._passwordResetCompleteUseCase;
+		return this._passwordResetResetUseCase;
 	}
 	get passwordResetRequestUseCase(): IPasswordResetRequestUseCase {
 		if (!this._passwordResetRequestUseCase) {
@@ -577,11 +577,11 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		return this._passwordResetRequestUseCase;
 	}
-	get passwordResetVerifyEmailUseCase(): IPasswordResetVerifyEmailUseCase {
-		if (!this._passwordResetVerifyEmailUseCase) {
-			this._passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(this.passwordResetSessionRepository);
+	get passwordResetVerifyCodeUseCase(): IPasswordResetVerifyCodeUseCase {
+		if (!this._passwordResetVerifyCodeUseCase) {
+			this._passwordResetVerifyCodeUseCase = new PasswordResetVerifyCodeUseCase(this.passwordResetSessionRepository);
 		}
-		return this._passwordResetVerifyEmailUseCase;
+		return this._passwordResetVerifyCodeUseCase;
 	}
 	get passwordResetValidateSessionUseCase(): IPasswordResetValidateSessionUseCase {
 		if (!this._passwordResetValidateSessionUseCase) {
@@ -691,9 +691,9 @@ export class AuthDIContainer implements IAuthDIContainer {
 	}
 
 	// Signup
-	get signupCompleteUseCase(): ISignupCompleteUseCase {
-		if (!this._signupCompleteUseCase) {
-			this._signupCompleteUseCase = new SignupCompleteUseCase(
+	get signupRegisterUseCase(): ISignupRegisterUseCase {
+		if (!this._signupRegisterUseCase) {
+			this._signupRegisterUseCase = new SignupRegisterUseCase(
 				this.authUserRepository,
 				this.sessionRepository,
 				this.signupSessionRepository,
@@ -701,7 +701,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 				this.coreContainer.passwordHashingService,
 			);
 		}
-		return this._signupCompleteUseCase;
+		return this._signupRegisterUseCase;
 	}
 	get signupRequestUseCase(): ISignupRequestUseCase {
 		if (!this._signupRequestUseCase) {
@@ -715,11 +715,11 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		return this._signupRequestUseCase;
 	}
-	get signupVerifyEmailUseCase(): ISignupVerifyEmailUseCase {
-		if (!this._signupVerifyEmailUseCase) {
-			this._signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(this.signupSessionRepository);
+	get signupVerifyCodeUseCase(): ISignupVerifyCodeUseCase {
+		if (!this._signupVerifyCodeUseCase) {
+			this._signupVerifyCodeUseCase = new SignupVerifyCodeUseCase(this.signupSessionRepository);
 		}
-		return this._signupVerifyEmailUseCase;
+		return this._signupVerifyCodeUseCase;
 	}
 	get signupValidateSessionUseCase(): ISignupValidateSessionUseCase {
 		if (!this._signupValidateSessionUseCase) {
@@ -732,16 +732,16 @@ export class AuthDIContainer implements IAuthDIContainer {
 	}
 
 	// Update Email
-	get updateEmailCompleteUseCase(): IUpdateEmailCompleteUseCase {
-		if (!this._updateEmailCompleteUseCase) {
-			this._updateEmailCompleteUseCase = new UpdateEmailCompleteUseCase(
+	get updateEmailVerifyCodeUseCase(): IUpdateEmailVerifyCodeUseCase {
+		if (!this._updateEmailVerifyCodeUseCase) {
+			this._updateEmailVerifyCodeUseCase = new UpdateEmailVerifyCodeUseCase(
 				this.authUserRepository,
 				this.sessionRepository,
 				this.emailVerificationSessionRepository,
 				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._updateEmailCompleteUseCase;
+		return this._updateEmailVerifyCodeUseCase;
 	}
 	get updateEmailRequestUseCase(): IUpdateEmailRequestUseCase {
 		if (!this._updateEmailRequestUseCase) {

@@ -5,16 +5,16 @@ import type { IPasswordHashingService } from "../../../../../core/ports/system";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type {
-	IPasswordResetCompleteUseCase,
-	PasswordResetCompleteUseCaseResult,
-} from "../../contracts/password-reset/complete.usecase.interface";
+	IPasswordResetResetUseCase,
+	PasswordResetResetUseCaseResult,
+} from "../../contracts/password-reset/reset.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IPasswordResetSessionRepository } from "../../ports/repositories/password-reset-session.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
 // this use case will be called after the validate password reset session use case.
 // so we don't need to check the expired password reset session.
-export class PasswordResetCompleteUseCase implements IPasswordResetCompleteUseCase {
+export class PasswordResetResetUseCase implements IPasswordResetResetUseCase {
 	constructor(
 		// repositories
 		private readonly authUserRepository: IAuthUserRepository,
@@ -28,7 +28,7 @@ export class PasswordResetCompleteUseCase implements IPasswordResetCompleteUseCa
 		newPassword: string,
 		passwordResetSession: PasswordResetSession,
 		userCredentials: UserCredentials,
-	): Promise<PasswordResetCompleteUseCaseResult> {
+	): Promise<PasswordResetResetUseCaseResult> {
 		if (!passwordResetSession.emailVerified) {
 			return err("REQUIRED_EMAIL_VERIFICATION");
 		}

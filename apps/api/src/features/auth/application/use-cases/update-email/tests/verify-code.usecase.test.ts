@@ -13,7 +13,7 @@ import {
 	createEmailVerificationSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { UpdateEmailCompleteUseCase } from "../complete.usecase";
+import { UpdateEmailVerifyCodeUseCase } from "../verify-code.usecase";
 
 const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
@@ -31,7 +31,7 @@ const emailVerificationSessionRepository = new EmailVerificationSessionRepositor
 });
 const tokenSecretService = new TokenSecretServiceMock();
 
-const updateEmailCompleteUseCase = new UpdateEmailCompleteUseCase(
+const updateEmailVerifyCodeUseCase = new UpdateEmailVerifyCodeUseCase(
 	authUserRepository,
 	sessionRepository,
 	emailVerificationSessionRepository,
@@ -49,7 +49,7 @@ const { userCredentials, userRegistration } = createAuthUserFixture({
 	},
 });
 
-describe("UpdateEmailCompleteUseCase", () => {
+describe("UpdateEmailVerifyCodeUseCase", () => {
 	beforeEach(() => {
 		authUserMap.clear();
 		sessionMap.clear();
@@ -68,7 +68,7 @@ describe("UpdateEmailCompleteUseCase", () => {
 		authUserMap.set(userRegistration.id, userRegistration);
 		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
 
-		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -121,7 +121,7 @@ describe("UpdateEmailCompleteUseCase", () => {
 		sessionMap.set(existingSession1.id, existingSession1);
 		sessionMap.set(existingSession2.id, existingSession2);
 
-		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -147,7 +147,7 @@ describe("UpdateEmailCompleteUseCase", () => {
 
 		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await updateEmailCompleteUseCase.execute(WRONG_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyCodeUseCase.execute(WRONG_CODE, userCredentials, emailVerificationSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -169,7 +169,7 @@ describe("UpdateEmailCompleteUseCase", () => {
 
 		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await updateEmailCompleteUseCase.execute("", userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyCodeUseCase.execute("", userCredentials, emailVerificationSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -193,7 +193,7 @@ describe("UpdateEmailCompleteUseCase", () => {
 		authUserMap.set(userRegistration.id, userRegistration);
 		authUserMap.set(anotherUserRegistration.id, anotherUserRegistration);
 
-		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -215,7 +215,7 @@ describe("UpdateEmailCompleteUseCase", () => {
 
 		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await updateEmailCompleteUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyCodeUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);

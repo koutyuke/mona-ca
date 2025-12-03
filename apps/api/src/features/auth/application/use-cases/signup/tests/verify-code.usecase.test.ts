@@ -1,13 +1,13 @@
 import { assert, afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../testing/mocks/repositories";
-import { SignupVerifyEmailUseCase } from "../verify-email.usecase";
+import { SignupVerifyCodeUseCase } from "../verify-code.usecase";
 
 const signupSessionMap = createSignupSessionsMap();
 const signupSessionRepositoryMock = new SignupSessionRepositoryMock({
 	signupSessionMap,
 });
-const signupVerifyEmailUseCase = new SignupVerifyEmailUseCase(signupSessionRepositoryMock);
+const signupVerifyCodeUseCase = new SignupVerifyCodeUseCase(signupSessionRepositoryMock);
 
 const { signupSession: baseSignupSession } = createSignupSessionFixture({
 	signupSession: {
@@ -19,7 +19,7 @@ const { signupSession: baseSignupSession } = createSignupSessionFixture({
 const CORRECT_CODE = "12345678";
 const WRONG_CODE = "87654321";
 
-describe("SignupVerifyEmailUseCase", () => {
+describe("SignupVerifyCodeUseCase", () => {
 	beforeEach(() => {
 		signupSessionMap.set(baseSignupSession.id, baseSignupSession);
 	});
@@ -29,7 +29,7 @@ describe("SignupVerifyEmailUseCase", () => {
 	});
 
 	it("Success: should verify code and update emailVerified to true", async () => {
-		const result = await signupVerifyEmailUseCase.execute(CORRECT_CODE, baseSignupSession);
+		const result = await signupVerifyCodeUseCase.execute(CORRECT_CODE, baseSignupSession);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -56,7 +56,7 @@ describe("SignupVerifyEmailUseCase", () => {
 
 		signupSessionMap.set(session.id, session);
 
-		const result = await signupVerifyEmailUseCase.execute(CORRECT_CODE, session);
+		const result = await signupVerifyCodeUseCase.execute(CORRECT_CODE, session);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -71,7 +71,7 @@ describe("SignupVerifyEmailUseCase", () => {
 	});
 
 	it("Error: should return INVALID_VERIFICATION_CODE error when code does not match", async () => {
-		const result = await signupVerifyEmailUseCase.execute(WRONG_CODE, baseSignupSession);
+		const result = await signupVerifyCodeUseCase.execute(WRONG_CODE, baseSignupSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -86,7 +86,7 @@ describe("SignupVerifyEmailUseCase", () => {
 	});
 
 	it("Error: should return INVALID_VERIFICATION_CODE error when code is empty", async () => {
-		const result = await signupVerifyEmailUseCase.execute("", baseSignupSession);
+		const result = await signupVerifyCodeUseCase.execute("", baseSignupSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -98,7 +98,7 @@ describe("SignupVerifyEmailUseCase", () => {
 
 	it("Error: should return INVALID_VERIFICATION_CODE error when code is partially matched", async () => {
 		const partialCode = CORRECT_CODE.slice(0, 4);
-		const result = await signupVerifyEmailUseCase.execute(partialCode, baseSignupSession);
+		const result = await signupVerifyCodeUseCase.execute(partialCode, baseSignupSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -115,7 +115,7 @@ describe("SignupVerifyEmailUseCase", () => {
 		};
 		signupSessionMap.set(baseSignupSession.id, updatedSignupSession);
 
-		const result = await signupVerifyEmailUseCase.execute(CORRECT_CODE, updatedSignupSession);
+		const result = await signupVerifyCodeUseCase.execute(CORRECT_CODE, updatedSignupSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);

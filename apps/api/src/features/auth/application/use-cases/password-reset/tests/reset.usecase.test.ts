@@ -13,7 +13,7 @@ import {
 	createPasswordResetSessionsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { PasswordResetCompleteUseCase } from "../complete.usecase";
+import { PasswordResetResetUseCase } from "../reset.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
 const sessionMap = createSessionsMap();
@@ -31,7 +31,7 @@ const authUserRepository = new AuthUserRepositoryMock({
 });
 const passwordHashingService = new PasswordHashingServiceMock();
 
-const passwordResetCompleteUseCase = new PasswordResetCompleteUseCase(
+const passwordResetResetUseCase = new PasswordResetResetUseCase(
 	authUserRepository,
 	passwordResetSessionRepository,
 	sessionRepository,
@@ -47,7 +47,7 @@ const { userRegistration: user, userCredentials } = createAuthUserFixture({
 
 const NEW_PASSWORD = "new_password123";
 
-describe("PasswordResetCompleteUseCase", () => {
+describe("PasswordResetResetUseCase", () => {
 	beforeEach(() => {
 		passwordResetSessionMap.clear();
 		sessionMap.clear();
@@ -65,7 +65,7 @@ describe("PasswordResetCompleteUseCase", () => {
 
 		authUserMap.set(user.id, user);
 
-		const result = await passwordResetCompleteUseCase.execute(NEW_PASSWORD, session, userCredentials);
+		const result = await passwordResetResetUseCase.execute(NEW_PASSWORD, session, userCredentials);
 
 		expect(result.isErr).toBe(false);
 
@@ -109,7 +109,7 @@ describe("PasswordResetCompleteUseCase", () => {
 
 		authUserMap.set(user.id, user);
 
-		const result = await passwordResetCompleteUseCase.execute(NEW_PASSWORD, session, userCredentials);
+		const result = await passwordResetResetUseCase.execute(NEW_PASSWORD, session, userCredentials);
 
 		expect(result.isErr).toBe(false);
 
@@ -139,7 +139,7 @@ describe("PasswordResetCompleteUseCase", () => {
 		passwordResetSessionMap.set(session.id, session);
 		passwordResetSessionMap.set(anotherSession.id, anotherSession);
 
-		const result = await passwordResetCompleteUseCase.execute(NEW_PASSWORD, session, userCredentials);
+		const result = await passwordResetResetUseCase.execute(NEW_PASSWORD, session, userCredentials);
 
 		expect(result.isErr).toBe(false);
 
@@ -160,7 +160,7 @@ describe("PasswordResetCompleteUseCase", () => {
 
 		authUserMap.set(user.id, user);
 
-		const result = await passwordResetCompleteUseCase.execute(NEW_PASSWORD, session, userCredentials);
+		const result = await passwordResetResetUseCase.execute(NEW_PASSWORD, session, userCredentials);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -188,7 +188,7 @@ describe("PasswordResetCompleteUseCase", () => {
 
 		authUserMap.set(user.id, user);
 
-		const result = await passwordResetCompleteUseCase.execute(NEW_PASSWORD, session, userCredentials);
+		const result = await passwordResetResetUseCase.execute(NEW_PASSWORD, session, userCredentials);
 
 		expect(result.isErr).toBe(true);
 

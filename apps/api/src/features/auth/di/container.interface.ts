@@ -1,15 +1,15 @@
-import type { IAccountLinkCompleteUseCase } from "../application/contracts/account-link/complete.usecase.interface";
 import type { IAccountLinkReissueSessionUseCase } from "../application/contracts/account-link/reissue-session.usecase.interface";
 import type { IAccountLinkValidateSessionUseCase } from "../application/contracts/account-link/validate-session.usecase.interface";
-import type { IEmailVerificationCompleteUseCase } from "../application/contracts/email-verification/complete.usecase.interface";
+import type { IAccountLinkVerifyCodeUseCase } from "../application/contracts/account-link/verify-code.usecase.interface";
 import type { IEmailVerificationRequestUseCase } from "../application/contracts/email-verification/request.usecase.interface";
 import type { IEmailVerificationValidateSessionUseCase } from "../application/contracts/email-verification/validate-email-verification-session.usecase.interface";
+import type { IEmailVerificationVerifyCodeUseCase } from "../application/contracts/email-verification/verify-code.usecase.interface";
 import type { IFederatedAuthCallbackUseCase } from "../application/contracts/federated-auth/callback.usecase.interface";
 import type { IFederatedAuthRequestUseCase } from "../application/contracts/federated-auth/request.usecase.interface";
-import type { IPasswordResetCompleteUseCase } from "../application/contracts/password-reset/complete.usecase.interface";
 import type { IPasswordResetRequestUseCase } from "../application/contracts/password-reset/request.usecase.interface";
+import type { IPasswordResetResetUseCase } from "../application/contracts/password-reset/reset.usecase.interface";
 import type { IPasswordResetValidateSessionUseCase } from "../application/contracts/password-reset/validate-session.usecase.interface";
-import type { IPasswordResetVerifyEmailUseCase } from "../application/contracts/password-reset/verify-email.usecase.interface";
+import type { IPasswordResetVerifyCodeUseCase } from "../application/contracts/password-reset/verify-code.usecase.interface";
 import type { IProviderConnectionCallbackUseCase } from "../application/contracts/provider-connection/callback.usecase.interface";
 import type { IProviderConnectionDisconnectUseCase } from "../application/contracts/provider-connection/disconnect.usecase.interface";
 import type { IProviderConnectionPrepareUseCase } from "../application/contracts/provider-connection/prepare.usecase.interface";
@@ -20,12 +20,12 @@ import type { ILoginUseCase } from "../application/contracts/session/login.useca
 import type { ILogoutUseCase } from "../application/contracts/session/logout.usecase.interface";
 import type { IUpdatePasswordUseCase } from "../application/contracts/session/update-password.usecase.interface";
 import type { IValidateSessionUseCase } from "../application/contracts/session/validate-session.usecase.interface";
-import type { ISignupCompleteUseCase } from "../application/contracts/signup/complete.usecase.interface";
+import type { ISignupRegisterUseCase } from "../application/contracts/signup/register.usecase.interface";
 import type { ISignupRequestUseCase } from "../application/contracts/signup/request.usecase.interface";
 import type { ISignupValidateSessionUseCase } from "../application/contracts/signup/validate-session.usecase.interface";
-import type { ISignupVerifyEmailUseCase } from "../application/contracts/signup/verify-email.usecase.interface";
-import type { IUpdateEmailCompleteUseCase } from "../application/contracts/update-email/complete.usecase.interface";
+import type { ISignupVerifyCodeUseCase } from "../application/contracts/signup/verify-code.usecase.interface";
 import type { IUpdateEmailRequestUseCase } from "../application/contracts/update-email/request.usecase.interface";
+import type { IUpdateEmailVerifyCodeUseCase } from "../application/contracts/update-email/verify-code.usecase.interface";
 import type { IIdentityProviderGateway } from "../application/ports/gateways/identity-provider.gateway.interface";
 import type { IHmacOAuthStateService } from "../application/ports/infra/hmac-oauth-state.service.interface";
 import type { IAccountLinkSessionRepository } from "../application/ports/repositories/account-link-session.repository.interface";
@@ -63,12 +63,12 @@ export interface IAuthDIContainer {
 	// === Use Cases ===
 
 	// Account Link
-	readonly accountLinkCompleteUseCase: IAccountLinkCompleteUseCase;
+	readonly accountLinkVerifyCodeUseCase: IAccountLinkVerifyCodeUseCase;
 	readonly accountLinkReissueSessionUseCase: IAccountLinkReissueSessionUseCase;
 	readonly accountLinkValidateSessionUseCase: IAccountLinkValidateSessionUseCase;
 
 	// Email Verification
-	readonly emailVerificationCompleteUseCase: IEmailVerificationCompleteUseCase;
+	readonly emailVerificationVerifyCodeUseCase: IEmailVerificationVerifyCodeUseCase;
 	readonly emailVerificationRequestUseCase: IEmailVerificationRequestUseCase;
 	readonly emailVerificationValidateSessionUseCase: IEmailVerificationValidateSessionUseCase;
 
@@ -77,9 +77,9 @@ export interface IAuthDIContainer {
 	readonly federatedAuthRequestUseCase: IFederatedAuthRequestUseCase;
 
 	// Password Reset
-	readonly passwordResetCompleteUseCase: IPasswordResetCompleteUseCase;
+	readonly passwordResetResetUseCase: IPasswordResetResetUseCase;
 	readonly passwordResetRequestUseCase: IPasswordResetRequestUseCase;
-	readonly passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase;
+	readonly passwordResetVerifyCodeUseCase: IPasswordResetVerifyCodeUseCase;
 	readonly passwordResetValidateSessionUseCase: IPasswordResetValidateSessionUseCase;
 
 	// Provider Connection
@@ -97,12 +97,12 @@ export interface IAuthDIContainer {
 	readonly validateSessionUseCase: IValidateSessionUseCase;
 
 	// Signup
-	readonly signupCompleteUseCase: ISignupCompleteUseCase;
+	readonly signupRegisterUseCase: ISignupRegisterUseCase;
 	readonly signupRequestUseCase: ISignupRequestUseCase;
-	readonly signupVerifyEmailUseCase: ISignupVerifyEmailUseCase;
+	readonly signupVerifyCodeUseCase: ISignupVerifyCodeUseCase;
 	readonly signupValidateSessionUseCase: ISignupValidateSessionUseCase;
 
 	// Update Email
-	readonly updateEmailCompleteUseCase: IUpdateEmailCompleteUseCase;
+	readonly updateEmailVerifyCodeUseCase: IUpdateEmailVerifyCodeUseCase;
 	readonly updateEmailRequestUseCase: IUpdateEmailRequestUseCase;
 }

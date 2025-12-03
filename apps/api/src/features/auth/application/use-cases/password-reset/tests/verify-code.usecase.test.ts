@@ -4,18 +4,18 @@ import {
 	PasswordResetSessionRepositoryMock,
 	createPasswordResetSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { PasswordResetVerifyEmailUseCase } from "../verify-email.usecase";
+import { PasswordResetVerifyCodeUseCase } from "../verify-code.usecase";
 
 const passwordResetSessionMap = createPasswordResetSessionsMap();
 const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });
-const passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(passwordResetSessionRepository);
+const passwordResetVerifyCodeUseCase = new PasswordResetVerifyCodeUseCase(passwordResetSessionRepository);
 
 const CORRECT_CODE = "12345678";
 const WRONG_CODE = "87654321";
 
-describe("PasswordResetVerifyEmailUseCase", () => {
+describe("PasswordResetVerifyCodeUseCase", () => {
 	afterEach(() => {
 		passwordResetSessionMap.clear();
 	});
@@ -31,7 +31,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		passwordResetSessionMap.set(session.id, session);
 
-		const result = await passwordResetVerifyEmailUseCase.execute(CORRECT_CODE, session);
+		const result = await passwordResetVerifyCodeUseCase.execute(CORRECT_CODE, session);
 
 		expect(result.isErr).toBe(false);
 
@@ -58,7 +58,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		passwordResetSessionMap.set(session.id, session);
 
-		const result = await passwordResetVerifyEmailUseCase.execute(CORRECT_CODE, session);
+		const result = await passwordResetVerifyCodeUseCase.execute(CORRECT_CODE, session);
 
 		expect(result.isErr).toBe(false);
 
@@ -82,7 +82,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		passwordResetSessionMap.set(session.id, session);
 
-		const result = await passwordResetVerifyEmailUseCase.execute(WRONG_CODE, session);
+		const result = await passwordResetVerifyCodeUseCase.execute(WRONG_CODE, session);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -107,7 +107,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		passwordResetSessionMap.set(session.id, session);
 
-		const result = await passwordResetVerifyEmailUseCase.execute("", session);
+		const result = await passwordResetVerifyCodeUseCase.execute("", session);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -129,7 +129,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 		passwordResetSessionMap.set(session.id, session);
 
 		const partialCode = CORRECT_CODE.slice(0, 4);
-		const result = await passwordResetVerifyEmailUseCase.execute(partialCode, session);
+		const result = await passwordResetVerifyCodeUseCase.execute(partialCode, session);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -152,7 +152,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		passwordResetSessionMap.set(session.id, session);
 
-		const result = await passwordResetVerifyEmailUseCase.execute(WRONG_CODE, session);
+		const result = await passwordResetVerifyCodeUseCase.execute(WRONG_CODE, session);
 
 		expect(result.isErr).toBe(true);
 

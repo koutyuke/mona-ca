@@ -11,13 +11,13 @@ type Success = Ok<{
 
 type Error = Err<"EMAIL_ALREADY_REGISTERED"> | Err<"EMAIL_VERIFICATION_REQUIRED">;
 
-export type SignupCompleteUseCaseResult = Result<Success, Error>;
+export type SignupRegisterUseCaseResult = Result<Success, Error>;
 
-export interface ISignupCompleteUseCase {
+export interface ISignupRegisterUseCase {
 	execute(
 		signupSession: SignupSession,
 		name: string,
 		password: string,
 		gender: Gender,
-	): Promise<SignupCompleteUseCaseResult>;
+	): Promise<SignupRegisterUseCaseResult>;
 }

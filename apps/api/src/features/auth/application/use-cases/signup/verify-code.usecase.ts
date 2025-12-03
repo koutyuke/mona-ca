@@ -4,18 +4,18 @@ import { completeEmailVerificationForSignupSession } from "../../../domain/entit
 
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type {
-	ISignupVerifyEmailUseCase,
-	SignupVerifyEmailUseCaseResult,
-} from "../../contracts/signup/verify-email.usecase.interface";
+	ISignupVerifyCodeUseCase,
+	SignupVerifyCodeUseCaseResult,
+} from "../../contracts/signup/verify-code.usecase.interface";
 import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 
-export class SignupVerifyEmailUseCase implements ISignupVerifyEmailUseCase {
+export class SignupVerifyCodeUseCase implements ISignupVerifyCodeUseCase {
 	constructor(
 		// repositories
 		private readonly signupSessionRepository: ISignupSessionRepository,
 	) {}
 
-	async execute(code: string, signupSession: SignupSession): Promise<SignupVerifyEmailUseCaseResult> {
+	async execute(code: string, signupSession: SignupSession): Promise<SignupVerifyCodeUseCaseResult> {
 		if (signupSession.emailVerified) {
 			return err("ALREADY_VERIFIED");
 		}

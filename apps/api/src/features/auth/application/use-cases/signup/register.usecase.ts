@@ -12,14 +12,14 @@ import type { SignupSession } from "../../../domain/entities/signup-session";
 import { createUserRegistration } from "../../../domain/entities/user-registration";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
 import type {
-	ISignupCompleteUseCase,
-	SignupCompleteUseCaseResult,
-} from "../../contracts/signup/complete.usecase.interface";
+	ISignupRegisterUseCase,
+	SignupRegisterUseCaseResult,
+} from "../../contracts/signup/register.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
 
-export class SignupCompleteUseCase implements ISignupCompleteUseCase {
+export class SignupRegisterUseCase implements ISignupRegisterUseCase {
 	constructor(
 		// repositories
 		private readonly authUserRepository: IAuthUserRepository,
@@ -35,7 +35,7 @@ export class SignupCompleteUseCase implements ISignupCompleteUseCase {
 		name: string,
 		password: string,
 		gender: Gender,
-	): Promise<SignupCompleteUseCaseResult> {
+	): Promise<SignupRegisterUseCaseResult> {
 		if (!signupSession.emailVerified) {
 			return err("EMAIL_VERIFICATION_REQUIRED");
 		}

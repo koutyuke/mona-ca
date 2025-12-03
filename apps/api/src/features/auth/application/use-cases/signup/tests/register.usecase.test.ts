@@ -12,7 +12,7 @@ import {
 	createSessionsMap,
 	createSignupSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { SignupCompleteUseCase } from "../complete.usecase";
+import { SignupRegisterUseCase } from "../register.usecase";
 
 const sessionMap = createSessionsMap();
 const authUserMap = createAuthUsersMap();
@@ -31,7 +31,7 @@ const signupSessionRepository = new SignupSessionRepositoryMock({
 const tokenSecretService = new TokenSecretServiceMock();
 const passwordHashingService = new PasswordHashingServiceMock();
 
-const signupCompleteUseCase = new SignupCompleteUseCase(
+const signupRegisterUseCase = new SignupRegisterUseCase(
 	authUserRepository,
 	sessionRepository,
 	signupSessionRepository,
@@ -44,7 +44,7 @@ const USER_EMAIL = "test@example.com";
 const PASSWORD = "password123";
 const GENDER = newGender("female" as const);
 
-describe("SignupCompleteUseCase", () => {
+describe("SignupRegisterUseCase", () => {
 	afterEach(() => {
 		sessionMap.clear();
 		authUserMap.clear();
@@ -62,7 +62,7 @@ describe("SignupCompleteUseCase", () => {
 
 		signupSessionMap.set(signupSession.id, signupSession);
 
-		const result = await signupCompleteUseCase.execute(signupSession, USER_NAME, PASSWORD, GENDER);
+		const result = await signupRegisterUseCase.execute(signupSession, USER_NAME, PASSWORD, GENDER);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -107,7 +107,7 @@ describe("SignupCompleteUseCase", () => {
 
 		signupSessionMap.set(signupSession.id, signupSession);
 
-		const result = await signupCompleteUseCase.execute(
+		const result = await signupRegisterUseCase.execute(
 			signupSession,
 			"Hashed User",
 			"securePassword",
@@ -142,7 +142,7 @@ describe("SignupCompleteUseCase", () => {
 			},
 		});
 
-		const result = await signupCompleteUseCase.execute(signupSession, USER_NAME, PASSWORD, GENDER);
+		const result = await signupRegisterUseCase.execute(signupSession, USER_NAME, PASSWORD, GENDER);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -178,7 +178,7 @@ describe("SignupCompleteUseCase", () => {
 
 		authUserMap.set(existingUser.id, existingUser);
 
-		const result = await signupCompleteUseCase.execute(signupSession, "Another User", PASSWORD, newGender("male"));
+		const result = await signupRegisterUseCase.execute(signupSession, "Another User", PASSWORD, newGender("male"));
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);

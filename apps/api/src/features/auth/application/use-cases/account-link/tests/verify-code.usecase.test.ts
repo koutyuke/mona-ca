@@ -15,7 +15,7 @@ import {
 	createProviderAccountsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { AccountLinkCompleteUseCase } from "../complete.usecase";
+import { AccountLinkVerifyCodeUseCase } from "../verify-code.usecase";
 
 const sessionMap = createSessionsMap();
 const authUserMap = createAuthUsersMap();
@@ -37,7 +37,7 @@ const accountLinkSessionRepository = new AccountLinkSessionRepositoryMock({
 });
 const tokenSecretService = new TokenSecretServiceMock();
 
-const accountLinkCompleteUseCase = new AccountLinkCompleteUseCase(
+const accountLinkVerifyCodeUseCase = new AccountLinkVerifyCodeUseCase(
 	accountLinkSessionRepository,
 	authUserRepository,
 	providerAccountRepository,
@@ -47,7 +47,7 @@ const accountLinkCompleteUseCase = new AccountLinkCompleteUseCase(
 
 const { userRegistration, userCredentials } = createAuthUserFixture();
 
-describe("AccountLinkCompleteUseCase", () => {
+describe("AccountLinkVerifyCodeUseCase", () => {
 	beforeEach(() => {
 		authUserMap.set(userRegistration.id, userRegistration);
 	});
@@ -69,7 +69,7 @@ describe("AccountLinkCompleteUseCase", () => {
 		});
 		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
 
-		const result = await accountLinkCompleteUseCase.execute(
+		const result = await accountLinkVerifyCodeUseCase.execute(
 			accountLinkSession.code ?? "",
 			userCredentials,
 			accountLinkSession,
@@ -124,7 +124,7 @@ describe("AccountLinkCompleteUseCase", () => {
 		});
 		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
 
-		const result = await accountLinkCompleteUseCase.execute("12345678", userCredentials, accountLinkSession);
+		const result = await accountLinkVerifyCodeUseCase.execute("12345678", userCredentials, accountLinkSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -143,7 +143,7 @@ describe("AccountLinkCompleteUseCase", () => {
 		});
 		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
 
-		const result = await accountLinkCompleteUseCase.execute("87654321", userCredentials, accountLinkSession);
+		const result = await accountLinkVerifyCodeUseCase.execute("87654321", userCredentials, accountLinkSession);
 
 		expect(result.isErr).toBe(true);
 
@@ -174,7 +174,7 @@ describe("AccountLinkCompleteUseCase", () => {
 			existingProviderAccount,
 		);
 
-		const result = await accountLinkCompleteUseCase.execute("12345678", userCredentials, accountLinkSession);
+		const result = await accountLinkVerifyCodeUseCase.execute("12345678", userCredentials, accountLinkSession);
 
 		expect(result.isErr).toBe(true);
 
@@ -204,7 +204,7 @@ describe("AccountLinkCompleteUseCase", () => {
 			existingProviderAccount,
 		);
 
-		const result = await accountLinkCompleteUseCase.execute("12345678", userCredentials, accountLinkSession);
+		const result = await accountLinkVerifyCodeUseCase.execute("12345678", userCredentials, accountLinkSession);
 
 		expect(result.isErr).toBe(true);
 

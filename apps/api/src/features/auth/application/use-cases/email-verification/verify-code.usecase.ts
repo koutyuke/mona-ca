@@ -5,13 +5,13 @@ import { updateUserCredentials } from "../../../domain/entities/user-credentials
 import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type {
-	EmailVerificationCompleteUseCaseResult,
-	IEmailVerificationCompleteUseCase,
-} from "../../contracts/email-verification/complete.usecase.interface";
+	EmailVerificationVerifyCodeUseCaseResult,
+	IEmailVerificationVerifyCodeUseCase,
+} from "../../contracts/email-verification/verify-code.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
 
-export class EmailVerificationCompleteUseCase implements IEmailVerificationCompleteUseCase {
+export class EmailVerificationVerifyCodeUseCase implements IEmailVerificationVerifyCodeUseCase {
 	constructor(
 		// repositories
 		private readonly authUserRepository: IAuthUserRepository,
@@ -27,7 +27,7 @@ export class EmailVerificationCompleteUseCase implements IEmailVerificationCompl
 		code: string,
 		userCredentials: UserCredentials,
 		emailVerificationSession: EmailVerificationSession,
-	): Promise<EmailVerificationCompleteUseCaseResult> {
+	): Promise<EmailVerificationVerifyCodeUseCaseResult> {
 		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
 			return err("INVALID_VERIFICATION_CODE");
 		}

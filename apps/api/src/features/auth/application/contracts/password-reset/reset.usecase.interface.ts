@@ -6,12 +6,12 @@ type Success = Ok;
 
 type Error = Err<"REQUIRED_EMAIL_VERIFICATION">;
 
-export type PasswordResetCompleteUseCaseResult = Result<Success, Error>;
+export type PasswordResetResetUseCaseResult = Result<Success, Error>;
 
-export interface IPasswordResetCompleteUseCase {
+export interface IPasswordResetResetUseCase {
 	execute(
 		newPassword: string,
 		passwordResetSession: PasswordResetSession,
 		userCredentials: UserCredentials,
-	): Promise<PasswordResetCompleteUseCaseResult>;
+	): Promise<PasswordResetResetUseCaseResult>;
 }
