@@ -1,5 +1,5 @@
 import type { DocumentDecoration } from "elysia";
-import { SESSION_COOKIE_NAME } from "../../core/lib/http";
+import { CLIENT_PLATFORM_HEADER_NAME, SESSION_COOKIE_NAME } from "../../core/lib/http";
 import type { Tag } from "./tag";
 
 type PathDocumentProps = {
@@ -23,9 +23,11 @@ export const pathDetail = (props: PathDocumentProps): DocumentDecoration => {
 			...description,
 			"### **Authentication**",
 			"---",
-			"#### **Bearer Authentication**",
 			"#### **Cookie Authentication**",
-			`   _in: cookie, key: \`${SESSION_COOKIE_NAME}\`_`,
+			`   If the \`${CLIENT_PLATFORM_HEADER_NAME}\` header is \`web\` or not provided, the session cookie to authenticate the request`,
+			`   _Cookie Name: \`${SESSION_COOKIE_NAME}\`_`,
+			"#### **Bearer Authentication**",
+			`   If the \`${CLIENT_PLATFORM_HEADER_NAME}\` header is \`mobile\`, the bearer token to authenticate the request`,
 		];
 	}
 

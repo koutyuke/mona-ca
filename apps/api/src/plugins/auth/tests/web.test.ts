@@ -1,19 +1,19 @@
 import { env } from "cloudflare:test";
 import { Elysia } from "elysia";
-import { beforeEach, describe, expect, test } from "vitest";
-import { SessionSecretHasher } from "../../../core/infra/crypto";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { SessionTableHelper, UserTableHelper } from "../../../core/testing/helpers";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { TokenSecretService } from "../../../core/infra/crypto";
+import { SESSION_COOKIE_NAME } from "../../../core/lib/http";
+import { SessionsTableDriver, UsersTableDriver } from "../../../core/testing/drivers";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
-import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
 import { containerPlugin } from "../../container";
 import { authPlugin } from "../auth.plugin";
 
 const { DB } = env;
 
-const userTableHelper = new UserTableHelper(DB);
-const sessionTableHelper = new SessionTableHelper(DB);
-const sessionSecretHasher = new SessionSecretHasher();
+const userTableDriver = new UsersTableDriver(DB);
+const sessionTableDriver = new SessionsTableDriver(DB);
+const tokenSecretService = new TokenSecretService();
 
 const { userRegistration: user1 } = createAuthUserFixture({
 	userRegistration: {
@@ -29,13 +29,13 @@ const { userRegistration: user2 } = createAuthUserFixture({
 });
 
 const { session: session1, sessionToken: sessionToken1 } = createSessionFixture({
-	secretHasher: sessionSecretHasher.hash,
+	secretHasher: tokenSecretService.hash,
 	session: {
 		userId: user1.id,
 	},
 });
 const { session: session2, sessionToken: sessionToken2 } = createSessionFixture({
-	secretHasher: sessionSecretHasher.hash,
+	secretHasher: tokenSecretService.hash,
 	session: {
 		userId: user2.id,
 	},
@@ -43,27 +43,28 @@ const { session: session2, sessionToken: sessionToken2 } = createSessionFixture(
 
 describe("AuthPlugin Cookie Test", () => {
 	beforeEach(async () => {
-		sessionTableHelper.deleteAll();
-		userTableHelper.deleteAll();
+		await userTableDriver.save(convertUserRegistrationToRaw(user1));
+		await userTableDriver.save(convertUserRegistrationToRaw(user2));
 
-		await userTableHelper.save(convertUserRegistrationToRaw(user1));
-		await userTableHelper.save(convertUserRegistrationToRaw(user2));
-
-		await sessionTableHelper.save(convertSessionToRaw(session1));
-		await sessionTableHelper.save(convertSessionToRaw(session2));
+		await sessionTableDriver.save(convertSessionToRaw(session1));
+		await sessionTableDriver.save(convertSessionToRaw(session2));
 	});
 
-	test("Pass with valid cookie that email verification is not required", async () => {
-		const app = new Elysia({ aot: false })
+	afterEach(async () => {
+		await sessionTableDriver.deleteAll();
+		await userTableDriver.deleteAll();
+	});
+
+	test("Success: pass with valid cookie that email verification is not required", async () => {
+		const app = new Elysia({ aot: false, normalize: false })
 			.use(containerPlugin())
-			.use(authPlugin({ requireEmailVerification: false }))
+			.use(authPlugin({ withEmailVerification: false }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
 					cookie: `${SESSION_COOKIE_NAME}=${sessionToken1};`,
-					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
@@ -75,16 +76,15 @@ describe("AuthPlugin Cookie Test", () => {
 	});
 
 	test("Pass with valid cookie that email verification is required", async () => {
-		const app = new Elysia({ aot: false })
+		const app = new Elysia({ aot: false, normalize: false })
 			.use(containerPlugin())
-			.use(authPlugin({ requireEmailVerification: true }))
+			.use(authPlugin({ withEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
 					cookie: `${SESSION_COOKIE_NAME}=${sessionToken2};`,
-					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
@@ -96,16 +96,15 @@ describe("AuthPlugin Cookie Test", () => {
 	});
 
 	test("Fail with not email verified yet", async () => {
-		const app = new Elysia({ aot: false })
+		const app = new Elysia({ aot: false, normalize: false })
 			.use(containerPlugin())
-			.use(authPlugin({ requireEmailVerification: true }))
+			.use(authPlugin({ withEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
 					cookie: `${SESSION_COOKIE_NAME}=${sessionToken1};`,
-					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
@@ -114,16 +113,15 @@ describe("AuthPlugin Cookie Test", () => {
 	});
 
 	test("Fail with invalid cookie that email verification is not required", async () => {
-		const app = new Elysia({ aot: false })
+		const app = new Elysia({ aot: false, normalize: false })
 			.use(containerPlugin())
-			.use(authPlugin({ requireEmailVerification: false }))
+			.use(authPlugin({ withEmailVerification: false }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
 					cookie: `${SESSION_COOKIE_NAME}=invalidSessionId1;`,
-					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
@@ -132,16 +130,15 @@ describe("AuthPlugin Cookie Test", () => {
 	});
 
 	test("Fail with invalid cookie that email verification is required", async () => {
-		const app = new Elysia({ aot: false })
+		const app = new Elysia({ aot: false, normalize: false })
 			.use(containerPlugin())
-			.use(authPlugin({ requireEmailVerification: true }))
+			.use(authPlugin({ withEmailVerification: true }))
 			.get("/", () => "Test");
 
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
 					cookie: `${SESSION_COOKIE_NAME}=invalidSessionId2;`,
-					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
