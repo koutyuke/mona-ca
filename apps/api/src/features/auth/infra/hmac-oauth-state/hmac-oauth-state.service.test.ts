@@ -37,7 +37,7 @@ describe("HmacOAuthStateService", () => {
 			expect(parsedPayload.clientType).toBe("web");
 			expect(typeof parsedPayload.nonce).toBe("string");
 			expect(parsedPayload.nonce).not.toHaveLength(0);
-			expect(signature).toMatch(/^__mac:.*$/i);
+			expect(signature).toMatch(/^__hmac:.*$/i);
 
 			// Should not leak the nonce back to consumers
 			expect(parsedPayload.locale).toBeUndefined();
