@@ -80,8 +80,7 @@ export class ProviderAccountRepository implements IProviderAccountRepository {
 					this.drizzleService.schema.providerAccountsTable.provider,
 					this.drizzleService.schema.providerAccountsTable.providerUserId,
 				],
-			})
-			.onConflictDoNothing();
+			});
 	}
 
 	public async deleteByUserIdAndProvider(userId: UserId, provider: IdentityProviders): Promise<void> {
