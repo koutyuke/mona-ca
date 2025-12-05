@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { updateUserCredentials } from "../../../domain/entities/user-credentials";
 
 import type { IPasswordHashingService } from "../../../../../core/ports/system";

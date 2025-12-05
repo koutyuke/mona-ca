@@ -1,4 +1,4 @@
-import { getAPIBaseURL } from "@mona-ca/core/utils";
+import { getAPIBaseURL } from "@mona-ca/core/result";
 import type { RawIdentityProviders } from "../domain/value-objects/identity-providers";
 
 export const federatedAuthRedirectURL = (production: boolean, provider: RawIdentityProviders) => {

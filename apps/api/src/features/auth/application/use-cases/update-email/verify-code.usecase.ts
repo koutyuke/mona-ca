@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { ulid } from "../../../../../core/lib/id";
 import { timingSafeStringEqual } from "../../../../../core/lib/security";
 import { createSession } from "../../../domain/entities/session";

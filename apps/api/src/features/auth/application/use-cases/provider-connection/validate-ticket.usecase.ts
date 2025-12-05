@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
 import { isExpiredProviderConnectionTicket } from "../../../domain/entities/provider-connection-ticket";
 import { type ProviderConnectionTicketToken, decodeToken } from "../../../domain/value-objects/tokens";

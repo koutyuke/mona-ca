@@ -1,4 +1,4 @@
-import type { Ok, Result } from "@mona-ca/core/utils";
+import type { Ok, Result } from "@mona-ca/core/result";
 import type { AccountLinkSession } from "../../../domain/entities/account-link-session";
 import type { AccountLinkSessionToken } from "../../../domain/value-objects/tokens";
 

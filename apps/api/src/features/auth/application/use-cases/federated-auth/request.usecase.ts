@@ -1,4 +1,5 @@
-import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
+import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/http";
+import { err, ok } from "@mona-ca/core/result";
 import { generateCodeVerifier } from "arctic";
 
 import type { ClientPlatform } from "../../../../../core/domain/value-objects";
@@ -28,7 +29,7 @@ export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase
 	): FederatedAuthRequestUseCaseResult {
 		const identityProviderGateway =
 			provider === "google" ? this.googleIdentityProviderGateway : this.discordIdentityProviderGateway;
-		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme();
+		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme(production);
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, queryRedirectURI ?? "/");
 

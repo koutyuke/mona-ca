@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { newUserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
 import { createSession } from "../../../domain/entities/session";

@@ -1,4 +1,4 @@
-import type { Err, Ok, Result } from "@mona-ca/core/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { Gender } from "../../../../../core/domain/value-objects";
 import type { Session } from "../../../domain/entities/session";
 import type { SignupSession } from "../../../domain/entities/signup-session";

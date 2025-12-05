@@ -1,4 +1,5 @@
-import { err, getMobileScheme, getWebBaseURL, ok, validateRedirectURL } from "@mona-ca/core/utils";
+import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/http";
+import { err, ok } from "@mona-ca/core/result";
 import { newClientPlatform, newGender, newUserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
 import { createAccountLinkSession } from "../../../domain/entities/account-link-session";
@@ -66,7 +67,7 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 
 		const clientPlatform = newClientPlatform(client);
 
-		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme();
+		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme(production);
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 

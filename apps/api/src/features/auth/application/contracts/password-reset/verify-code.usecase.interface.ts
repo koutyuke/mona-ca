@@ -1,4 +1,4 @@
-import type { Err, Ok, Result } from "@mona-ca/core/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 
 type Success = Ok;

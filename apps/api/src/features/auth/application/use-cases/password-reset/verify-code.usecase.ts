@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { timingSafeStringEqual } from "../../../../../core/lib/security";
 import { completeEmailVerificationForPasswordResetSession } from "../../../domain/entities/password-reset-session";
 

@@ -1,4 +1,4 @@
-import type { Err, Ok, Result } from "@mona-ca/core/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { AccountLinkSession } from "../../../domain/entities/account-link-session";
 import type { Session } from "../../../domain/entities/session";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";

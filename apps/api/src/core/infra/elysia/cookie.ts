@@ -1,4 +1,4 @@
-import { getWebBaseURL } from "@mona-ca/core/utils";
+import { getWebBaseURL } from "@mona-ca/core/http";
 import { env } from "../config/env";
 
 export const defaultCookieOptions = {

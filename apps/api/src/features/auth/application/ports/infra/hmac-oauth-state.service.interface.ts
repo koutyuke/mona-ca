@@ -1,4 +1,4 @@
-import type { Err, Ok, Result } from "@mona-ca/core/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { Static, TObject } from "@sinclair/typebox";
 
 export interface IHmacOAuthStateService<P extends TObject> {

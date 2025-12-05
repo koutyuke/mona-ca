@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { ulid } from "../../../../../core/lib/id";
 import { createPasswordResetSession } from "../../../domain/entities/password-reset-session";
 import { newPasswordResetSessionId } from "../../../domain/value-objects/ids";

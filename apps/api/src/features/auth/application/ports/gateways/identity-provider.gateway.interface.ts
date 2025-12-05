@@ -1,4 +1,4 @@
-import type { Err, Ok, Result } from "@mona-ca/core/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { OAuth2Tokens } from "arctic";
 import type { IdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 

@@ -1,4 +1,4 @@
-import { ok } from "@mona-ca/core/utils";
+import { ok } from "@mona-ca/core/result";
 import { ulid } from "../../../../../core/lib/id";
 import { createAccountLinkSession } from "../../../domain/entities/account-link-session";
 import { newAccountLinkSessionId } from "../../../domain/value-objects/ids";

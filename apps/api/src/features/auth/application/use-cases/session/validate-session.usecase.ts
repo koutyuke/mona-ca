@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities/session";
 import { decodeToken } from "../../../domain/value-objects/tokens";
 

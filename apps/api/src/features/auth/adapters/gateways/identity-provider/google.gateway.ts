@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { Value } from "@sinclair/typebox/value";
 import {
 	ArcticFetchError,

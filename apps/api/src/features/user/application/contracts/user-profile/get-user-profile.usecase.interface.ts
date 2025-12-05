@@ -1,4 +1,4 @@
-import type { Err, Ok, Result } from "@mona-ca/core/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { UserProfile } from "../../../domain/entities/user-profile";
 

@@ -1,4 +1,4 @@
-import type { Brand } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/types";
 
 export type UserId = Brand<"UserId", string>;
 

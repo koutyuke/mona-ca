@@ -1,4 +1,4 @@
-import type { Err, Ok, Result } from "@mona-ca/core/utils";
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { Session } from "../../../domain/entities/session";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
 

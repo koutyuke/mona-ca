@@ -1,4 +1,4 @@
-import type { Brand } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/types";
 import { t } from "elysia";
 
 // type

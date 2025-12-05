@@ -1,4 +1,4 @@
-import { ok } from "@mona-ca/core/utils";
+import { ok } from "@mona-ca/core/result";
 import type { UserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
 import type { ITokenSecretService } from "../../../../../core/ports/system";

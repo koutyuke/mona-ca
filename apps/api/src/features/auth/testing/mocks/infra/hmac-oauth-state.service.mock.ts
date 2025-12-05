@@ -1,4 +1,4 @@
-import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/utils";
+import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/result";
 import type { Static, TObject } from "@sinclair/typebox";
 import type { IHmacOAuthStateService } from "../../../application/ports/infra/hmac-oauth-state.service.interface";
 

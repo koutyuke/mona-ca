@@ -1,4 +1,4 @@
-import { err, ok } from "@mona-ca/core/utils";
+import { err, ok } from "@mona-ca/core/result";
 import { isExpiredEmailVerificationSession } from "../../../domain/entities/email-verification-session";
 import { decodeToken } from "../../../domain/value-objects/tokens";
 

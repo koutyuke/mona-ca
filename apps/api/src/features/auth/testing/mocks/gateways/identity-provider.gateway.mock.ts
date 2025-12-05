@@ -1,4 +1,4 @@
-import { ok } from "@mona-ca/core/utils";
+import { ok } from "@mona-ca/core/result";
 import type { OAuth2Tokens } from "arctic";
 import { ulid } from "../../../../../core/lib/id";
 import type {

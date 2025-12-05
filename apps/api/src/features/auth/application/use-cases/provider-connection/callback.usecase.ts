@@ -1,5 +1,5 @@
-import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/utils";
-import { err, ok } from "@mona-ca/core/utils";
+import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/http";
+import { err, ok } from "@mona-ca/core/result";
 import { newClientPlatform, newUserId } from "../../../../../core/domain/value-objects";
 import { createProviderAccount } from "../../../domain/entities/provider-account";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
@@ -46,7 +46,7 @@ export class ProviderConnectionCallbackUseCase implements IProviderConnectionCal
 		const clientPlatform = newClientPlatform(client);
 		const userId = newUserId(uid);
 
-		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme();
+		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme(production);
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 
