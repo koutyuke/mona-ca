@@ -31,6 +31,7 @@
     "drizzle-orm": "~0.44.2",
     "elysia": "~1.4.17",
     "resend": "^4.2.0",
+    "ts-pattern": "^5.9.0",
     "ulid-workers": "^2.1.0"
   },
   "devDependencies": {
