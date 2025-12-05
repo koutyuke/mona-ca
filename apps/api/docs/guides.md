@@ -280,7 +280,7 @@ export const [Action][Resource] = new Elysia()
 #### Result型
 
 ```typescript
-import { ok, err, type Result } from "@mona-ca/core/utils";
+import { ok, err, type Result } from "@mona-ca/core/result";
 
 // 成功時
 return ok({ data: someData });

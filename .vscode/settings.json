@@ -2,6 +2,9 @@
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
   "[properties]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
@@ -24,7 +27,13 @@
     "",
     "{breaking_change_footer}{footer}"
   ],
-  "commit-message-editor.staticTemplate": ["label: emoji (scope) short-description", "", "body", "", "footer"],
+  "commit-message-editor.staticTemplate": [
+    "label: emoji (scope) short-description",
+    "",
+    "body",
+    "",
+    "footer"
+  ],
   "commit-message-editor.tokens": [
     {
       "combobox": true,
@@ -155,26 +164,36 @@
   "npm.packageManager": "bun",
   "svg.preview.background": "custom",
   "tailwindCSS.experimental.classRegex": [
-    ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
-    ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
-    ["twMerge\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
-    ["tv\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
-    ["twMerge\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
-    ["[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?`([^`]*).*?`", "[\"']([^\"']*).*?[\"']"]
+    [
+      "clsx\\(([^)]*)\\)",
+      "(?:'|\"|`)([^']*)(?:'|\"|`)"
+    ],
+    [
+      "tv\\(([\\s\\S]*?)\\);",
+      "[\"']([^\"']*).*?[\"']"
+    ],
+    [
+      "twMerge\\(([\\s\\S]*?)\\);",
+      "[\"']([^\"']*).*?[\"']"
+    ],
+    [
+      "tv\\(([\\s\\S]*?)\\)",
+      "[\"']([^\"']*).*?[\"']"
+    ],
+    [
+      "twMerge\\(([\\s\\S]*?)\\)",
+      "[\"']([^\"']*).*?[\"']"
+    ],
+    [
+      "[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?[\"'`]([^\"'`]*).*?[\"'`]"
+    ],
+    [
+      "[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?`([^`]*).*?`",
+      "[\"']([^\"']*).*?[\"']"
+    ]
   ],
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",
     "typescriptreact": "javascript"
-  },
-  "workbench.editor.customLabels.enabled": true,
-  "workbench.editor.customLabels.patterns": {
-    "**/apps/api/**": "${filename}.${extname} ← API",
-    "**/apps/mobile/**": "${filename}.${extname} ← MOBILE",
-    "**/apps/web/**": "${filename}.${extname} ← WEB",
-    "**/packages/**": "${filename}.${extname} ← PACKAGE",
-    "**/packages/core/**": "${filename}.${extname} ← CORE",
-    "**/packages/ui/**": "${filename}.${extname} ← UI",
-    "**/tools/**": "${filename}.${extname} ← TOOL"
   }
 }
