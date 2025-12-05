@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { err, ok } from "../result";
+import { err, ok } from "./result";
 
 describe("result", () => {
 	test("okが成功状態を返す", () => {
