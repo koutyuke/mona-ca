@@ -95,13 +95,10 @@ describe("AccountLinkVerifyCodeUseCase", () => {
 		const savedProviderAccount = providerAccountMap.get(
 			createProviderAccountKey(accountLinkSession.provider, accountLinkSession.providerUserId),
 		);
-		expect(savedProviderAccount).toStrictEqual(
-			createProviderAccount({
-				provider: accountLinkSession.provider,
-				providerUserId: accountLinkSession.providerUserId,
-				userId: userRegistration.id,
-			}),
-		);
+		expect(savedProviderAccount?.provider).toBe(accountLinkSession.provider);
+		expect(savedProviderAccount?.providerUserId).toBe(accountLinkSession.providerUserId);
+		expect(savedProviderAccount?.userId).toBe(userRegistration.id);
+		expect(savedProviderAccount?.linkedAt).toBeDefined();
 
 		// check session is saved
 		const savedSession = sessionMap.get(session.id);
