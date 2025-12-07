@@ -1,5 +1,5 @@
+import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import type { OpenAPIV3 } from "openapi-types";
-import { SESSION_COOKIE_NAME } from "../../core/lib/http";
 
 export const securitySchemes = {
 	BearerAuth: {

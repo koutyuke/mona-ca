@@ -1,6 +1,6 @@
+import { CLIENT_PLATFORM_HEADER_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { clientPlatformSchema, newClientPlatform } from "../../core/domain/value-objects";
-import { CLIENT_PLATFORM_HEADER_NAME } from "../../core/lib/http";
 
 export const clientPlatformPlugin = () =>
 	new Elysia({

@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from "@scalar/types";
+import type { OpenAPIV3 } from "openapi-types";
 
 export const tags = [
 	{ name: "Hello", description: "Hello, mona-ca!" },

@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
+import { AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME } from "@mona-ca/core/http";
 import { Elysia } from "elysia";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { TokenSecretService } from "../../../core/infra/crypto";
-import { AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME } from "../../../core/lib/http/constants";
 import { SessionsTableDriver, UsersTableDriver } from "../../../core/testing/drivers";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
@@ -61,7 +61,7 @@ describe("AuthPlugin Mobile Authorization Header Test", () => {
 	});
 
 	test("Pass with valid authorization header that email verification is not required", async () => {
-		const app = new Elysia({ aot: false, normalize: false })
+		const app = new Elysia({ aot: false })
 			.use(containerPlugin())
 			.use(authPlugin({ withEmailVerification: false }))
 			.get("/", () => "Test");
@@ -69,8 +69,8 @@ describe("AuthPlugin Mobile Authorization Header Test", () => {
 		const res = await app.fetch(
 			new Request("http://localhost/", {
 				headers: {
-					[AUTHORIZATION_HEADER_NAME]: withBearer(sessionToken1),
 					[CLIENT_PLATFORM_HEADER_NAME]: "mobile",
+					[AUTHORIZATION_HEADER_NAME]: withBearer(sessionToken1),
 				},
 			}),
 		);

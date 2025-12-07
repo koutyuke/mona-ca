@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
+import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia } from "elysia";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { TokenSecretService } from "../../../core/infra/crypto";
-import { SESSION_COOKIE_NAME } from "../../../core/lib/http";
 import { SessionsTableDriver, UsersTableDriver } from "../../../core/testing/drivers";
 import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
