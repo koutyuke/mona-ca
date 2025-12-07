@@ -33,7 +33,7 @@ export const authPlugin = (options?: {
 		.guard({
 			schema: "standalone",
 			headers: t.Object({
-				[AUTHORIZATION_HEADER_NAME]: t.Optional(t.String()),
+				[AUTHORIZATION_HEADER_NAME]: t.Optional(t.TemplateLiteral("Bearer ${string}")),
 			}),
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
@@ -52,7 +52,7 @@ export const authPlugin = (options?: {
 					.when(isMobilePlatform, () => {
 						return readBearerToken(authorizationHeader ?? "");
 					})
-					.otherwise(() => null);
+					.exhaustive();
 
 				if (!rawSessionToken) {
 					return status("Unauthorized", {
