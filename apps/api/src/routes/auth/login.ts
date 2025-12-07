@@ -1,9 +1,11 @@
+import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
+import { match } from "ts-pattern";
+import { isMobilePlatform } from "../../core/domain/value-objects/client-platform";
 import { defaultCookieOptions, noContent } from "../../core/infra/elysia";
-import { SESSION_COOKIE_NAME } from "../../core/lib/http";
-import { toAnySessionTokenResponse } from "../../features/auth";
+import { toAnyTokenResponse } from "../../features/auth";
 import { captchaPlugin } from "../../plugins/captcha";
-import { clientTypePlugin } from "../../plugins/client-type";
+import { clientPlatformPlugin } from "../../plugins/client-platform";
 import { containerPlugin } from "../../plugins/container";
 import { pathDetail } from "../../plugins/openapi";
 import { ratelimitPlugin } from "../../plugins/ratelimit";
@@ -11,7 +13,7 @@ import { ratelimitPlugin } from "../../plugins/ratelimit";
 export const Login = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
-	.use(clientTypePlugin())
+	.use(clientPlatformPlugin())
 	.use(
 		ratelimitPlugin("login", {
 			maxTokens: 1000,
@@ -27,34 +29,31 @@ export const Login = new Elysia()
 	// Route
 	.post(
 		"/login",
-		async ({ clientType, cookie, body: { email, password }, containers, status }) => {
+		async ({ clientPlatform, cookie, body: { email, password }, containers, status }) => {
 			const result = await containers.auth.loginUseCase.execute(email, password);
 
 			if (result.isErr) {
-				const { code } = result;
-
-				if (code === "INVALID_CREDENTIALS") {
-					return status("Bad Request", {
-						code: "INVALID_CREDENTIALS",
-						message: "Invalid email or password. Please check your credentials and try again.",
-					});
-				}
-				return status("Bad Request", {
-					code: code,
-					message: "Login failed. Please try again.",
-				});
+				return match(result)
+					.with({ code: "INVALID_CREDENTIALS" }, () =>
+						status("Bad Request", {
+							code: "INVALID_CREDENTIALS",
+							message: "Invalid email or password. Please check your credentials and try again.",
+						}),
+					)
+					.exhaustive();
 			}
+
 			const { session, sessionToken } = result.value;
 
-			if (clientType === "mobile") {
+			if (isMobilePlatform(clientPlatform)) {
 				return {
-					sessionToken: toAnySessionTokenResponse(sessionToken),
+					sessionToken: toAnyTokenResponse(sessionToken),
 				};
 			}
 
 			cookie[SESSION_COOKIE_NAME].set({
 				...defaultCookieOptions,
-				value: sessionToken,
+				value: toAnyTokenResponse(sessionToken),
 				expires: session.expiresAt,
 			});
 

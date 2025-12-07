@@ -1,6 +1,7 @@
-import { Elysia, t } from "elysia";
+import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
+import { Elysia } from "elysia";
+import { isWebPlatform } from "../../core/domain/value-objects/client-platform";
 import { noContent } from "../../core/infra/elysia";
-import { SESSION_COOKIE_NAME } from "../../core/lib/http";
 import { authPlugin } from "../../plugins/auth";
 import { containerPlugin } from "../../plugins/container";
 import { pathDetail } from "../../plugins/openapi";
@@ -10,26 +11,23 @@ export const Logout = new Elysia()
 	.use(containerPlugin())
 	.use(
 		authPlugin({
-			requireEmailVerification: false,
+			withEmailVerification: false,
 		}),
 	)
 
 	// Route
 	.post(
 		"/logout",
-		async ({ cookie, session, clientType, containers }) => {
+		async ({ cookie, session, clientPlatform, containers }) => {
 			await containers.auth.logoutUseCase.execute(session.id);
 
-			if (clientType === "web") {
+			if (isWebPlatform(clientPlatform)) {
 				cookie[SESSION_COOKIE_NAME].remove();
 			}
 
 			return noContent();
 		},
 		{
-			cookie: t.Cookie({
-				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-			}),
 			detail: pathDetail({
 				operationId: "auth-logout",
 				summary: "Logout",
