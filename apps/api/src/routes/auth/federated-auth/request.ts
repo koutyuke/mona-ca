@@ -1,22 +1,23 @@
-import { Elysia, t } from "elysia";
-import { clientTypeSchema, newClientType } from "../../../core/domain/value-objects";
-import { env } from "../../../core/infra/config/env";
-import { defaultCookieOptions, redirect } from "../../../core/infra/elysia";
 import {
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
-} from "../../../core/lib/http";
-import { externalIdentityProviderSchema, newExternalIdentityProvider } from "../../../features/auth";
+} from "@mona-ca/core/http";
+import { Elysia, t } from "elysia";
+import { match } from "ts-pattern";
+import { clientPlatformSchema, newClientPlatform } from "../../../core/domain/value-objects";
+import { env } from "../../../core/infra/config/env";
+import { defaultCookieOptions, redirect } from "../../../core/infra/elysia";
+import { identityProvidersSchema, newIdentityProviders } from "../../../features/auth";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-export const ExternalAuthLoginRequest = new Elysia()
+export const FederatedAuthRequest = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(
-		ratelimitPlugin("external-auth-login-request", {
+		ratelimitPlugin("federated-auth-request", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -25,16 +26,6 @@ export const ExternalAuthLoginRequest = new Elysia()
 			},
 		}),
 	)
-	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
-		const result = await rateLimit.consume(ipAddress, 1);
-		if (result.isErr) {
-			return status("Too Many Requests", {
-				code: "TOO_MANY_REQUESTS",
-				message: "Too many requests. Please try again later.",
-			});
-		}
-		return;
-	})
 
 	// Route
 	.get(
@@ -46,10 +37,10 @@ export const ExternalAuthLoginRequest = new Elysia()
 			containers,
 			status,
 		}) => {
-			const provider = newExternalIdentityProvider(_provider);
-			const clientType = newClientType(_clientType);
+			const provider = newIdentityProviders(_provider);
+			const clientType = newClientPlatform(_clientType);
 
-			const result = containers.auth.externalAuthLoginRequestUseCase.execute(
+			const result = containers.auth.federatedAuthRequestUseCase.execute(
 				env.APP_ENV === "production",
 				clientType,
 				provider,
@@ -57,18 +48,14 @@ export const ExternalAuthLoginRequest = new Elysia()
 			);
 
 			if (result.isErr) {
-				const { code } = result;
-
-				if (code === "INVALID_REDIRECT_URI") {
-					return status("Bad Request", {
-						code: code,
-						message: "Invalid redirect URI. Please check the URI and try again.",
-					});
-				}
-				return status("Bad Request", {
-					code: code,
-					message: "External Auth login request failed. Please try again.",
-				});
+				return match(result)
+					.with({ code: "INVALID_REDIRECT_URI" }, () =>
+						status("Bad Request", {
+							code: "INVALID_REDIRECT_URI",
+							message: "Invalid redirect URI. Please check the URI and try again.",
+						}),
+					)
+					.exhaustive();
 			}
 
 			const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
@@ -94,12 +81,22 @@ export const ExternalAuthLoginRequest = new Elysia()
 			return redirect(redirectToProviderURL.toString());
 		},
 		{
+			beforeHandle: async ({ rateLimit, ipAddress, status }) => {
+				const result = await rateLimit.consume(ipAddress, 1);
+				if (result.isErr) {
+					return status("Too Many Requests", {
+						code: "TOO_MANY_REQUESTS",
+						message: "Too many requests. Please try again later.",
+					});
+				}
+				return;
+			},
 			query: t.Object({
-				"client-type": clientTypeSchema,
+				"client-type": clientPlatformSchema,
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({
-				provider: externalIdentityProviderSchema,
+				provider: identityProvidersSchema,
 			}),
 			cookie: t.Cookie({
 				[OAUTH_STATE_COOKIE_NAME]: t.Optional(t.String()),
@@ -107,10 +104,10 @@ export const ExternalAuthLoginRequest = new Elysia()
 				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
-				operationId: "auth-external-auth-login-request",
-				summary: "External Auth Login Request",
-				description: "External Auth Login Request for the provider",
-				tag: "Auth - External Auth",
+				operationId: "auth-federated-auth-request",
+				summary: "Federated Auth Request",
+				description: "Federated Auth Request for the provider",
+				tag: "Auth - Federated Auth",
 			}),
 		},
 	);

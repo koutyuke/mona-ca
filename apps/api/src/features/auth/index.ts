@@ -6,5 +6,6 @@ export { newEmailVerificationSessionToken } from "./domain/value-objects/tokens"
 export { newPasswordResetSessionToken } from "./domain/value-objects/tokens";
 export { newSignupSessionToken } from "./domain/value-objects/tokens";
 export { AuthDIContainer } from "./di/container";
+export { identityProvidersSchema, newIdentityProviders } from "./domain/value-objects/identity-providers";
 
 export type { IAuthDIContainer } from "./di/container.interface";
