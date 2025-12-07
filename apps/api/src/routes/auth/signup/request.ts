@@ -1,18 +1,19 @@
+import { SIGNUP_SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
+import { match } from "ts-pattern";
+import { isMobilePlatform } from "../../../core/domain/value-objects/client-platform";
 import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
-import { SIGNUP_SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { toAnySessionTokenResponse } from "../../../features/auth";
+import { toAnyTokenResponse } from "../../../features/auth";
 import { captchaPlugin } from "../../../plugins/captcha";
-import { clientTypePlugin } from "../../../plugins/client-type";
+import { clientPlatformPlugin } from "../../../plugins/client-platform";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const SignupRequest = new Elysia()
-
 	// Local Middleware & Plugin
 	.use(containerPlugin())
-	.use(clientTypePlugin())
+	.use(clientPlatformPlugin())
 	.use(
 		ratelimitPlugin("signup-request", {
 			maxTokens: 1000,
@@ -28,30 +29,25 @@ export const SignupRequest = new Elysia()
 	// Route
 	.post(
 		"/",
-		async ({ containers, cookie, body: { email }, clientType, status }) => {
+		async ({ containers, cookie, body: { email }, clientPlatform, status }) => {
 			const result = await containers.auth.signupRequestUseCase.execute(email);
 
 			if (result.isErr) {
-				const { code } = result;
-
-				if (code === "EMAIL_ALREADY_USED") {
-					return status("Bad Request", {
-						code: code,
-						message: "Email is already used. Please use a different email address or try logging in.",
-					});
-				}
-
-				return status("Bad Request", {
-					code: code,
-					message: "Signup request failed. Please try again.",
-				});
+				return match(result)
+					.with({ code: "EMAIL_ALREADY_USED" }, () =>
+						status("Bad Request", {
+							code: "EMAIL_ALREADY_USED",
+							message: "Email is already used. Please use a different email address or try logging in.",
+						}),
+					)
+					.exhaustive();
 			}
 
 			const { signupSessionToken, signupSession } = result.value;
 
-			if (clientType === "mobile") {
+			if (isMobilePlatform(clientPlatform)) {
 				return {
-					signupSessionToken: toAnySessionTokenResponse(signupSessionToken),
+					signupSessionToken: toAnyTokenResponse(signupSessionToken),
 				};
 			}
 

@@ -1,11 +1,11 @@
 import { Elysia } from "elysia";
-import { SignupConfirm } from "./confirm";
+import { SignupRegister } from "./register";
 import { SignupRequest } from "./request";
-import { SignupVerifyEmail } from "./verify-email";
+import { SignupVerifyCode } from "./verify-code";
 
 export const SignupRoutes = new Elysia({
 	prefix: "/signup",
 })
 	.use(SignupRequest)
-	.use(SignupVerifyEmail)
-	.use(SignupConfirm);
+	.use(SignupVerifyCode)
+	.use(SignupRegister);
