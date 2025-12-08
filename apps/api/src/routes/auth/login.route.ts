@@ -10,7 +10,7 @@ import { containerPlugin } from "../../plugins/container";
 import { pathDetail } from "../../plugins/openapi";
 import { ratelimitPlugin } from "../../plugins/ratelimit";
 
-export const Login = new Elysia()
+export const LoginRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(clientPlatformPlugin())

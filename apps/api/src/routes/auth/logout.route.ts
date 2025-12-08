@@ -6,7 +6,7 @@ import { authPlugin } from "../../plugins/auth";
 import { containerPlugin } from "../../plugins/container";
 import { pathDetail } from "../../plugins/openapi";
 
-export const Logout = new Elysia()
+export const LogoutRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(
