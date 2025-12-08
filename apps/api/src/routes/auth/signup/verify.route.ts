@@ -9,12 +9,12 @@ import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-export const SignupVerifyCode = new Elysia()
+export const SignupVerifyRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(clientPlatformPlugin())
 	.use(
-		ratelimitPlugin("signup-verify-code", {
+		ratelimitPlugin("signup-verify", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -26,7 +26,7 @@ export const SignupVerifyCode = new Elysia()
 
 	// Route
 	.post(
-		"/verify-code",
+		"/verify",
 		async ({
 			containers,
 			cookie,
@@ -82,23 +82,23 @@ export const SignupVerifyCode = new Elysia()
 
 			// Main Logic
 
-			const verifyResult = await containers.auth.signupVerifyCodeUseCase.execute(code, signupSession);
+			const verifyEmailResult = await containers.auth.signupVerifyEmailUseCase.execute(code, signupSession);
 
-			if (verifyResult.isErr) {
-				const { code } = verifyResult;
-
-				if (code === "INVALID_VERIFICATION_CODE") {
-					return status("Bad Request", {
-						code: code,
-						message: "Invalid verification code. Please check your email and try again.",
-					});
-				}
-				if (code === "ALREADY_VERIFIED") {
-					return status("Bad Request", {
-						code: code,
-						message: "Email is already verified. Please login.",
-					});
-				}
+			if (verifyEmailResult.isErr) {
+				return match(verifyEmailResult)
+					.with({ code: "INVALID_VERIFICATION_CODE" }, () =>
+						status("Bad Request", {
+							code: "INVALID_VERIFICATION_CODE",
+							message: "Invalid verification code. Please check your email and try again.",
+						}),
+					)
+					.with({ code: "ALREADY_VERIFIED" }, () =>
+						status("Bad Request", {
+							code: "ALREADY_VERIFIED",
+							message: "Email is already verified. Please login.",
+						}),
+					)
+					.exhaustive();
 			}
 
 			return noContent();
@@ -123,8 +123,8 @@ export const SignupVerifyCode = new Elysia()
 				code: t.String(),
 			}),
 			detail: pathDetail({
-				operationId: "auth-signup-verify-code",
-				summary: "Signup Verify Code",
+				operationId: "auth-signup-verify",
+				summary: "Signup Verify",
 				description: "Signup Verify Email endpoint for the User",
 				tag: "Auth",
 			}),

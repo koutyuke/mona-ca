@@ -9,7 +9,7 @@ import { clientPlatformPlugin } from "../../../plugins/client-platform";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 
-export const SignupRegister = new Elysia()
+export const SignupRegisterRoute = new Elysia()
 
 	// Local Middleware & Plugin
 	.use(containerPlugin())
