@@ -17,7 +17,7 @@ import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-export const FederatedAuthCallback = new Elysia()
+export const FederatedAuthCallbackRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(

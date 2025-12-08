@@ -13,7 +13,7 @@ import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-export const FederatedAuthRequest = new Elysia()
+export const FederatedAuthRequestRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(
