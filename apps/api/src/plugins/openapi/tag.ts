@@ -7,7 +7,7 @@ export const tags = [
 	{ name: "Auth - Account Link", description: "Endpoints for account link" },
 	{ name: "Auth - Account Association", description: "Endpoints for account association" },
 	{ name: "Auth - Email Verification", description: "Endpoints for email verification" },
-	{ name: "Auth - Forgot Password", description: "Endpoints for forgot password" },
+	{ name: "Auth - Password Reset", description: "Endpoints for password reset" },
 	{ name: "Me", description: "Endpoints for the current user" },
 	{ name: "User", description: "Endpoints for the other users" },
 ] as const satisfies OpenAPIV3.TagObject[];

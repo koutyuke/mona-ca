@@ -1,19 +1,20 @@
+import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import Elysia, { t } from "elysia";
+import { isMobilePlatform } from "../../../core/domain/value-objects/client-platform";
 import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
-import { PASSWORD_RESET_SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { toAnySessionTokenResponse } from "../../../features/auth";
+import { toAnyTokenResponse } from "../../../features/auth";
 import { captchaPlugin } from "../../../plugins/captcha";
-import { clientTypePlugin } from "../../../plugins/client-type";
+import { clientPlatformPlugin } from "../../../plugins/client-platform";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-const PasswordResetRequest = new Elysia()
+export const PasswordResetRequestRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
-	.use(clientTypePlugin)
+	.use(clientPlatformPlugin)
 	.use(
-		ratelimitPlugin("forgot-password-request", {
+		ratelimitPlugin("password-reset-request", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -27,7 +28,7 @@ const PasswordResetRequest = new Elysia()
 	// Route
 	.post(
 		"/",
-		async ({ cookie, body: { email }, clientType, containers }) => {
+		async ({ cookie, body: { email }, clientPlatform, containers }) => {
 			const result = await containers.auth.passwordResetRequestUseCase.execute(email);
 
 			if (result.isErr) {
@@ -36,15 +37,15 @@ const PasswordResetRequest = new Elysia()
 
 			const { passwordResetSessionToken, passwordResetSession } = result.value;
 
-			if (clientType === "mobile") {
+			if (isMobilePlatform(clientPlatform)) {
 				return {
-					passwordResetSessionToken: toAnySessionTokenResponse(passwordResetSessionToken),
+					passwordResetSessionToken: toAnyTokenResponse(passwordResetSessionToken),
 				};
 			}
 
 			cookie[PASSWORD_RESET_SESSION_COOKIE_NAME].set({
 				...defaultCookieOptions,
-				value: passwordResetSessionToken,
+				value: toAnyTokenResponse(passwordResetSessionToken),
 				expires: passwordResetSession.expiresAt,
 			});
 
@@ -73,12 +74,10 @@ const PasswordResetRequest = new Elysia()
 				}),
 			}),
 			detail: pathDetail({
-				tag: "Auth - Forgot Password",
-				operationId: "auth-forgot-password-request",
-				summary: "Forgot Password Request",
+				tag: "Auth - Password Reset",
+				operationId: "auth-password-reset-request",
+				summary: "Password Reset Request",
 				description: "Password Reset Request endpoint for the User",
 			}),
 		},
 	);
-
-export { PasswordResetRequest };
