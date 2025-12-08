@@ -4,8 +4,8 @@ import type { SignupSession } from "../../../domain/entities/signup-session";
 type Success = Ok;
 type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"ALREADY_VERIFIED">;
 
-export type SignupVerifyCodeUseCaseResult = Result<Success, Error>;
+export type SignupVerifyEmailUseCaseResult = Result<Success, Error>;
 
-export interface ISignupVerifyCodeUseCase {
-	execute(code: string, signupSession: SignupSession): Promise<SignupVerifyCodeUseCaseResult>;
+export interface ISignupVerifyEmailUseCase {
+	execute(code: string, signupSession: SignupSession): Promise<SignupVerifyEmailUseCaseResult>;
 }

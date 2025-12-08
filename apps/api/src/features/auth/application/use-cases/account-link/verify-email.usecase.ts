@@ -13,9 +13,9 @@ import type { Session } from "../../../domain/entities/session";
 import { type UserCredentials, updateUserCredentials } from "../../../domain/entities/user-credentials";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
 import type {
-	AccountLinkVerifyCodeUseCaseResult,
-	IAccountLinkVerifyCodeUseCase,
-} from "../../contracts/account-link/verify-code.usecase.interface";
+	AccountLinkVerifyEmailUseCaseResult,
+	IAccountLinkVerifyEmailUseCase,
+} from "../../contracts/account-link/verify-email.usecase.interface";
 import type { IAccountLinkSessionRepository } from "../../ports/repositories/account-link-session.repository.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
@@ -23,7 +23,7 @@ import type { ISessionRepository } from "../../ports/repositories/session.reposi
 
 // this use case will be called after the validate account association session use case.
 // so we don't need to check the expired account association session.
-export class AccountLinkVerifyCodeUseCase implements IAccountLinkVerifyCodeUseCase {
+export class AccountLinkVerifyEmailUseCase implements IAccountLinkVerifyEmailUseCase {
 	constructor(
 		// repositories
 		private readonly accountLinkSessionRepository: IAccountLinkSessionRepository,
@@ -38,7 +38,7 @@ export class AccountLinkVerifyCodeUseCase implements IAccountLinkVerifyCodeUseCa
 		code: string,
 		userCredentials: UserCredentials,
 		accountLinkSession: AccountLinkSession,
-	): Promise<AccountLinkVerifyCodeUseCaseResult> {
+	): Promise<AccountLinkVerifyEmailUseCaseResult> {
 		if (accountLinkSession.code === null) {
 			return err("INVALID_ASSOCIATION_CODE");
 		}

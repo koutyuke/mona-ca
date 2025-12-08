@@ -6,11 +6,11 @@ type Success = Ok;
 
 type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"EMAIL_MISMATCH">;
 
-export type EmailVerificationVerifyCodeUseCaseResult = Result<Success, Error>;
-export interface IEmailVerificationVerifyCodeUseCase {
+export type EmailVerificationVerifyEmailUseCaseResult = Result<Success, Error>;
+export interface IEmailVerificationVerifyEmailUseCase {
 	execute(
 		code: string,
 		userCredentials: UserCredentials,
 		emailVerificationSession: EmailVerificationSession,
-	): Promise<EmailVerificationVerifyCodeUseCaseResult>;
+	): Promise<EmailVerificationVerifyEmailUseCaseResult>;
 }

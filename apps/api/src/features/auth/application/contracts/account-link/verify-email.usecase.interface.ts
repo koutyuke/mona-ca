@@ -11,12 +11,12 @@ type Success = Ok<{
 
 type Error = Err<"INVALID_ASSOCIATION_CODE"> | Err<"ACCOUNT_ALREADY_LINKED"> | Err<"ACCOUNT_LINKED_ELSEWHERE">;
 
-export type AccountLinkVerifyCodeUseCaseResult = Result<Success, Error>;
+export type AccountLinkVerifyEmailUseCaseResult = Result<Success, Error>;
 
-export interface IAccountLinkVerifyCodeUseCase {
+export interface IAccountLinkVerifyEmailUseCase {
 	execute(
 		code: string,
 		userIdentity: UserCredentials,
 		accountLinkSession: AccountLinkSession,
-	): Promise<AccountLinkVerifyCodeUseCaseResult>;
+	): Promise<AccountLinkVerifyEmailUseCaseResult>;
 }
