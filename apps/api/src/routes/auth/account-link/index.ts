@@ -1,5 +1,11 @@
-import { Elysia } from "elysia";
-import { AccountLinkCallback } from "./account-link-callback";
-import { AccountLinkRequest } from "./account-link-request";
+import Elysia from "elysia";
+import { AccountLinkPreviewRoute } from "./preview.route";
+import { AccountLinkResendRoute } from "./resend.route";
+import { AccountLinkVerifyRoute } from "./verify.route";
 
-export const AccountLinkRoutes = new Elysia().use(AccountLinkRequest).use(AccountLinkCallback);
+export const AccountLinkRoutes = new Elysia({
+	prefix: "/account-link",
+})
+	.use(AccountLinkResendRoute)
+	.use(AccountLinkVerifyRoute)
+	.use(AccountLinkPreviewRoute);

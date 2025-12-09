@@ -16,7 +16,7 @@ export type AccountLinkVerifyEmailUseCaseResult = Result<Success, Error>;
 export interface IAccountLinkVerifyEmailUseCase {
 	execute(
 		code: string,
-		userIdentity: UserCredentials,
+		userCredentials: UserCredentials,
 		accountLinkSession: AccountLinkSession,
 	): Promise<AccountLinkVerifyEmailUseCaseResult>;
 }
