@@ -3,6 +3,8 @@ export {
 	clientPlatformSchema,
 	newMobilePlatform,
 	newWebPlatform,
+	isMobilePlatform,
+	isWebPlatform,
 	mobilePlatformSchema,
 	webPlatformSchema,
 } from "./client-platform";

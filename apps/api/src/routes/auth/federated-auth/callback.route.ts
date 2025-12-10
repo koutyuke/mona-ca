@@ -8,7 +8,7 @@ import {
 } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
-import { isMobilePlatform } from "../../../core/domain/value-objects/client-platform";
+import { isMobilePlatform } from "../../../core/domain/value-objects";
 import { env } from "../../../core/infra/config/env";
 import { defaultCookieOptions, redirect } from "../../../core/infra/elysia";
 import { timingSafeStringEqual } from "../../../core/lib/security";

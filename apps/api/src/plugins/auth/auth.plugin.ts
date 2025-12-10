@@ -1,7 +1,7 @@
 import { AUTHORIZATION_HEADER_NAME, SESSION_COOKIE_NAME, readBearerToken } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
-import { isMobilePlatform, isWebPlatform } from "../../core/domain/value-objects/client-platform";
+import { isMobilePlatform, isWebPlatform } from "../../core/domain/value-objects";
 import { newSessionToken } from "../../features/auth/domain/value-objects/tokens";
 import { clientPlatformPlugin } from "../client-platform";
 import { containerPlugin } from "../container";

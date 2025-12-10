@@ -1,6 +1,6 @@
 import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia } from "elysia";
-import { isWebPlatform } from "../../core/domain/value-objects/client-platform";
+import { isWebPlatform } from "../../core/domain/value-objects";
 import { noContent } from "../../core/infra/elysia";
 import { authPlugin } from "../../plugins/auth";
 import { containerPlugin } from "../../plugins/container";

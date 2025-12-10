@@ -1,7 +1,7 @@
 import { ACCOUNT_LINK_SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, status, t } from "elysia";
 import { match } from "ts-pattern";
-import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects/client-platform";
+import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects";
 import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
 import { newAccountLinkSessionToken, toAnyTokenResponse } from "../../../features/auth";
 import { clientPlatformPlugin } from "../../../plugins/client-platform";

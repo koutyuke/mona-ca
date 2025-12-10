@@ -1,7 +1,7 @@
 import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
-import { isMobilePlatform } from "../../../core/domain/value-objects/client-platform";
+import { isMobilePlatform } from "../../../core/domain/value-objects";
 import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
 import { toAnyTokenResponse } from "../../../features/auth";
 import { authPlugin } from "../../../plugins/auth";

@@ -1,7 +1,7 @@
 import { PASSWORD_RESET_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
-import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects/client-platform";
+import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects";
 import { noContent } from "../../../core/infra/elysia";
 import { newPasswordResetSessionToken } from "../../../features/auth";
 import { clientPlatformPlugin } from "../../../plugins/client-platform";
