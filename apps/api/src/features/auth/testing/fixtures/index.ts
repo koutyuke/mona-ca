@@ -1,6 +1,6 @@
-export { createAccountLinkSessionFixture } from "./account-link-session.fixture";
-export { createProviderConnectionTicketFixture } from "./provider-connection-ticket.fixture";
-export { createEmailVerificationSessionFixture } from "./email-verification-session.fixture";
+export { createProviderLinkProposalFixture } from "./provider-link-proposal.fixture";
+export { createProviderLinkRequestFixture } from "./provider-link-request.fixture";
+export { createEmailVerificationRequestFixture } from "./email-verification-request.fixture";
 export { createProviderAccountFixture } from "./provider-account.fixture";
 export { createPasswordResetSessionFixture } from "./password-reset-session.fixture";
 export { createSessionFixture } from "./session.fixture";

@@ -1,9 +1,9 @@
 import {
-	type RawAccountLinkSession,
-	type RawEmailVerificationSession,
+	type RawEmailVerificationRequest,
 	type RawPasswordResetSession,
 	type RawProviderAccount,
-	type RawProviderConnectionTicket,
+	type RawProviderLinkProposal,
+	type RawProviderLinkRequest,
 	type RawSession,
 	type RawSignupSession,
 	type RawUser,
@@ -11,11 +11,11 @@ import {
 	toRawDate,
 	toRawUint8Array,
 } from "../../../../core/testing/drivers";
-import type { AccountLinkSession } from "../../domain/entities/account-link-session";
-import type { EmailVerificationSession } from "../../domain/entities/email-verification-session";
+import type { EmailVerificationRequest } from "../../domain/entities/email-verification-request";
 import type { PasswordResetSession } from "../../domain/entities/password-reset-session";
 import type { ProviderAccount } from "../../domain/entities/provider-account";
-import type { ProviderConnectionTicket } from "../../domain/entities/provider-connection-ticket";
+import type { ProviderLinkProposal } from "../../domain/entities/provider-link-proposal";
+import type { ProviderLinkRequest } from "../../domain/entities/provider-link-request";
 import type { Session } from "../../domain/entities/session";
 import type { SignupSession } from "../../domain/entities/signup-session";
 import type { UserCredentials } from "../../domain/entities/user-credentials";
@@ -89,16 +89,16 @@ export const convertSignupSessionToRaw = (signupSession: SignupSession): RawSign
 	};
 };
 
-export const convertEmailVerificationSessionToRaw = (
-	session: EmailVerificationSession,
-): RawEmailVerificationSession => {
+export const convertEmailVerificationRequestToRaw = (
+	request: EmailVerificationRequest,
+): RawEmailVerificationRequest => {
 	return {
-		id: session.id,
-		email: session.email,
-		user_id: session.userId,
-		code: session.code,
-		secret_hash: toRawUint8Array(session.secretHash),
-		expires_at: toRawDate(session.expiresAt),
+		id: request.id,
+		email: request.email,
+		user_id: request.userId,
+		code: request.code,
+		secret_hash: toRawUint8Array(request.secretHash),
+		expires_at: toRawDate(request.expiresAt),
 	};
 };
 
@@ -114,24 +114,24 @@ export const convertPasswordResetSessionToRaw = (session: PasswordResetSession):
 	};
 };
 
-export const convertAccountLinkSessionToRaw = (session: AccountLinkSession): RawAccountLinkSession => {
+export const convertProviderLinkProposalToRaw = (proposal: ProviderLinkProposal): RawProviderLinkProposal => {
 	return {
-		id: session.id,
-		user_id: session.userId,
-		code: session.code,
-		secret_hash: toRawUint8Array(session.secretHash),
-		email: session.email,
-		provider: session.provider,
-		provider_user_id: session.providerUserId,
-		expires_at: toRawDate(session.expiresAt),
+		id: proposal.id,
+		user_id: proposal.userId,
+		code: proposal.code,
+		secret_hash: toRawUint8Array(proposal.secretHash),
+		email: proposal.email,
+		provider: proposal.provider,
+		provider_user_id: proposal.providerUserId,
+		expires_at: toRawDate(proposal.expiresAt),
 	};
 };
 
-export const convertProviderConnectionTicketToRaw = (ticket: ProviderConnectionTicket): RawProviderConnectionTicket => {
+export const convertProviderLinkRequestToRaw = (request: ProviderLinkRequest): RawProviderLinkRequest => {
 	return {
-		id: ticket.id,
-		user_id: ticket.userId,
-		secret_hash: toRawUint8Array(ticket.secretHash),
-		expires_at: toRawDate(ticket.expiresAt),
+		id: request.id,
+		user_id: request.userId,
+		secret_hash: toRawUint8Array(request.secretHash),
+		expires_at: toRawDate(request.expiresAt),
 	};
 };
