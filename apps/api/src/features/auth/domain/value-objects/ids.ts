@@ -6,10 +6,10 @@ export const newSessionId = (rawSessionId: string) => {
 	return rawSessionId as SessionId;
 };
 
-export type EmailVerificationSessionId = Brand<"EmailVerificationSessionId", string>;
+export type EmailVerificationRequestId = Brand<"EmailVerificationRequestId", string>;
 
-export const newEmailVerificationSessionId = (rawEmailVerificationSessionId: string) => {
-	return rawEmailVerificationSessionId as EmailVerificationSessionId;
+export const newEmailVerificationRequestId = (rawEmailVerificationRequestId: string) => {
+	return rawEmailVerificationRequestId as EmailVerificationRequestId;
 };
 
 export type PasswordResetSessionId = Brand<"PasswordResetSessionId", string>;
@@ -24,14 +24,14 @@ export const newSignupSessionId = (rawSignupSessionId: string) => {
 	return rawSignupSessionId as SignupSessionId;
 };
 
-export type ProviderConnectionTicketId = Brand<"ProviderConnectionTicketId", string>;
+export type ProviderLinkRequestId = Brand<"ProviderLinkRequestId", string>;
 
-export const newProviderConnectionTicketId = (rawProviderConnectionTicketId: string) => {
-	return rawProviderConnectionTicketId as ProviderConnectionTicketId;
+export const newProviderLinkRequestId = (rawProviderLinkRequestId: string) => {
+	return rawProviderLinkRequestId as ProviderLinkRequestId;
 };
 
-export type AccountLinkSessionId = Brand<"AccountLinkSessionId", string>;
+export type ProviderLinkProposalId = Brand<"ProviderLinkProposalId", string>;
 
-export const newAccountLinkSessionId = (rawAccountLinkSessionId: string) => {
-	return rawAccountLinkSessionId as AccountLinkSessionId;
+export const newProviderLinkProposalId = (rawProviderLinkProposalId: string) => {
+	return rawProviderLinkProposalId as ProviderLinkProposalId;
 };

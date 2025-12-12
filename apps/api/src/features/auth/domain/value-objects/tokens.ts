@@ -1,60 +1,60 @@
 import type { Brand } from "@mona-ca/core/types";
 import type {
-	AccountLinkSessionId,
-	EmailVerificationSessionId,
+	EmailVerificationRequestId,
 	PasswordResetSessionId,
-	ProviderConnectionTicketId,
+	ProviderLinkProposalId,
+	ProviderLinkRequestId,
 	SessionId,
 	SignupSessionId,
 } from "./ids";
 
-export type AccountLinkSessionToken = Brand<"AccountLinkSessionToken", string>;
-export type EmailVerificationSessionToken = Brand<"EmailVerificationSessionToken", string>;
+export type ProviderLinkProposalToken = Brand<"ProviderLinkProposalToken", string>;
+export type EmailVerificationRequestToken = Brand<"EmailVerificationRequestToken", string>;
 export type PasswordResetSessionToken = Brand<"PasswordResetSessionToken", string>;
-export type ProviderConnectionTicketToken = Brand<"ProviderConnectionTicketToken", string>;
+export type ProviderLinkRequestToken = Brand<"ProviderLinkRequestToken", string>;
 export type SessionToken = Brand<"SessionToken", string>;
 export type SignupSessionToken = Brand<"SignupSessionToken", string>;
 
 export const newSessionToken = (rawSessionToken: string) => {
 	return rawSessionToken as SessionToken;
 };
-export const newEmailVerificationSessionToken = (rawEmailVerificationSessionToken: string) => {
-	return rawEmailVerificationSessionToken as EmailVerificationSessionToken;
+export const newEmailVerificationRequestToken = (rawEmailVerificationRequestToken: string) => {
+	return rawEmailVerificationRequestToken as EmailVerificationRequestToken;
 };
 export const newPasswordResetSessionToken = (rawPasswordResetSessionToken: string) => {
 	return rawPasswordResetSessionToken as PasswordResetSessionToken;
 };
-export const newAccountLinkSessionToken = (rawAccountLinkSessionToken: string) => {
-	return rawAccountLinkSessionToken as AccountLinkSessionToken;
+export const newProviderLinkProposalToken = (rawProviderLinkProposalToken: string) => {
+	return rawProviderLinkProposalToken as ProviderLinkProposalToken;
 };
 export const newSignupSessionToken = (rawSignupSessionToken: string) => {
 	return rawSignupSessionToken as SignupSessionToken;
 };
-export const newProviderConnectionTicketToken = (rawProviderConnectionTicketToken: string) => {
-	return rawProviderConnectionTicketToken as ProviderConnectionTicketToken;
+export const newProviderLinkRequestToken = (rawProviderLinkRequestToken: string) => {
+	return rawProviderLinkRequestToken as ProviderLinkRequestToken;
 };
 
 type AnyEntityId =
-	| AccountLinkSessionId
-	| EmailVerificationSessionId
+	| EmailVerificationRequestId
 	| PasswordResetSessionId
-	| ProviderConnectionTicketId
+	| ProviderLinkProposalId
+	| ProviderLinkRequestId
 	| SessionId
 	| SignupSessionId;
 
 export type AnyToken =
-	| AccountLinkSessionToken
-	| EmailVerificationSessionToken
+	| EmailVerificationRequestToken
 	| PasswordResetSessionToken
-	| ProviderConnectionTicketToken
+	| ProviderLinkProposalToken
+	| ProviderLinkRequestToken
 	| SessionToken
 	| SignupSessionToken;
 
 type TokenAndIdMap =
-	| [AccountLinkSessionToken, AccountLinkSessionId]
-	| [EmailVerificationSessionToken, EmailVerificationSessionId]
+	| [EmailVerificationRequestToken, EmailVerificationRequestId]
 	| [PasswordResetSessionToken, PasswordResetSessionId]
-	| [ProviderConnectionTicketToken, ProviderConnectionTicketId]
+	| [ProviderLinkProposalToken, ProviderLinkProposalId]
+	| [ProviderLinkRequestToken, ProviderLinkRequestId]
 	| [SessionToken, SessionId]
 	| [SignupSessionToken, SignupSessionId];
 
