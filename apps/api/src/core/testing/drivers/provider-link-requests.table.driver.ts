@@ -1,0 +1,39 @@
+export type RawProviderLinkRequest = {
+	id: string;
+	user_id: string;
+	secret_hash: Array<number>;
+	expires_at: number;
+};
+
+export class ProviderLinkRequestsTableDriver {
+	constructor(private readonly db: D1Database) {}
+
+	public async save(raw: RawProviderLinkRequest): Promise<void> {
+		await this.db
+			.prepare("INSERT INTO provider_link_requests (id, user_id, secret_hash, expires_at) VALUES (?1, ?2, ?3, ?4)")
+			.bind(raw.id, raw.user_id, raw.secret_hash, raw.expires_at)
+			.run();
+	}
+
+	public async findById(id: string): Promise<RawProviderLinkRequest[]> {
+		const { results } = await this.db
+			.prepare("SELECT * FROM provider_link_requests WHERE id = ?1")
+			.bind(id)
+			.all<RawProviderLinkRequest>();
+
+		return results;
+	}
+
+	public async findByUserId(userId: string): Promise<RawProviderLinkRequest[]> {
+		const { results } = await this.db
+			.prepare("SELECT * FROM provider_link_requests WHERE user_id = ?1")
+			.bind(userId)
+			.all<RawProviderLinkRequest>();
+
+		return results;
+	}
+
+	public async deleteAll(): Promise<void> {
+		await this.db.prepare("DELETE FROM provider_link_requests").run();
+	}
+}
