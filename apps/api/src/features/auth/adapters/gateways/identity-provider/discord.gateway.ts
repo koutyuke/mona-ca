@@ -11,10 +11,10 @@ import {
 import { t } from "elysia";
 
 import type {
-	GetProviderUserResult,
 	GetTokensResult,
+	GetUserInfoResult,
 	IIdentityProviderGateway,
-	ProviderUser,
+	UserInfo,
 } from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
@@ -66,7 +66,7 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 		}
 	}
 
-	public async getProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
+	public async getUserInfo(tokens: OAuth2Tokens): Promise<GetUserInfoResult> {
 		try {
 			const accessToken = tokens.accessToken();
 
@@ -77,16 +77,16 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 			});
 
 			if (!response.ok) {
-				return err("GET_PROVIDER_USER_FAILED");
+				return err("USER_INFO_GET_FAILED");
 			}
 
 			const user = await response.json();
 
 			if (!Value.Check(discordUserDtoSchema, user)) {
-				return err("PROVIDER_USER_INVALID");
+				return err("INVALID_USER_INFO");
 			}
 
-			const providerUser: ProviderUser = {
+			const userInfo: UserInfo = {
 				id: newIdentityProvidersUserId(user.id),
 				name: user.username,
 				email: user.email,
@@ -95,11 +95,11 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 			};
 
 			return ok({
-				providerUser,
+				userInfo,
 			});
 		} catch (error) {
-			console.error("Error in getProviderUser:", error);
-			return err("GET_PROVIDER_USER_FAILED");
+			console.error("Error in getUserInfo:", error);
+			return err("USER_INFO_GET_FAILED");
 		}
 	}
 

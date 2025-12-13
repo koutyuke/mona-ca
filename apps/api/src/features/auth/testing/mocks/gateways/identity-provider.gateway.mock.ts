@@ -2,15 +2,15 @@ import { ok } from "@mona-ca/core/result";
 import type { OAuth2Tokens } from "arctic";
 import { ulid } from "../../../../../core/lib/id";
 import type {
-	GetProviderUserResult,
 	GetTokensResult,
+	GetUserInfoResult,
 	IIdentityProviderGateway,
-	IdentityProviderUser,
+	UserInfo,
 } from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
 export class IdentityProviderGatewayMock implements IIdentityProviderGateway {
-	private readonly identityProviderUser: IdentityProviderUser = {
+	private readonly userInfo: UserInfo = {
 		id: newIdentityProvidersUserId(ulid()),
 		email: "test@example.com",
 		name: "Test User",
@@ -18,11 +18,11 @@ export class IdentityProviderGatewayMock implements IIdentityProviderGateway {
 		emailVerified: true,
 	};
 	constructor(override?: {
-		identityProviderUser?: Partial<IdentityProviderUser>;
+		userInfo?: Partial<UserInfo>;
 	}) {
-		this.identityProviderUser = {
-			...this.identityProviderUser,
-			...override?.identityProviderUser,
+		this.userInfo = {
+			...this.userInfo,
+			...override?.userInfo,
 		};
 	}
 
@@ -38,8 +38,8 @@ export class IdentityProviderGatewayMock implements IIdentityProviderGateway {
 		} as unknown as OAuth2Tokens);
 	}
 
-	public async getIdentityProviderUser(_tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
-		return ok({ identityProviderUser: this.identityProviderUser });
+	public async getUserInfo(_tokens: OAuth2Tokens): Promise<GetUserInfoResult> {
+		return ok({ userInfo: this.userInfo });
 	}
 
 	public async revokeToken(_tokens: OAuth2Tokens): Promise<void> {
