@@ -21,7 +21,7 @@ type Error =
 	| Err<"PROVIDER_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"TOKEN_EXCHANGE_FAILED">
-	| Err<"GET_PROVIDER_USER_FAILED", { redirectURL: URL }>
+	| Err<"USER_INFO_GET_FAILED", { redirectURL: URL }>
 	| Err<
 			"PROVIDER_LINK_PROPOSAL",
 			{

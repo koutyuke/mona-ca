@@ -98,24 +98,24 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 
 		const tokens = tokensResult.value;
 
-		const getIdentityProviderUserResult = await identityProviderGateway.getProviderUser(tokens);
+		const getIdentityProviderUserResult = await identityProviderGateway.getUserInfo(tokens);
 
 		await identityProviderGateway.revokeToken(tokens);
 
 		if (getIdentityProviderUserResult.isErr) {
 			const { code } = getIdentityProviderUserResult;
 
-			if (code === "PROVIDER_USER_INVALID" || code === "GET_PROVIDER_USER_FAILED") {
-				return err("GET_PROVIDER_USER_FAILED", { redirectURL: redirectToClientURL });
+			if (code === "INVALID_USER_INFO" || code === "USER_INFO_GET_FAILED") {
+				return err("USER_INFO_GET_FAILED", { redirectURL: redirectToClientURL });
 			}
 		}
 
-		const { providerUser } = getIdentityProviderUserResult.value;
-		const providerUserId = newIdentityProvidersUserId(providerUser.id);
+		const { userInfo } = getIdentityProviderUserResult.value;
+		const providerUserId = newIdentityProvidersUserId(userInfo.id);
 
 		const [existingProviderAccount, existingUserCredentialsForSameEmail] = await Promise.all([
 			this.providerAccountRepository.findByProviderAndProviderUserId(provider, providerUserId),
-			this.authUserRepository.findByEmail(providerUser.email),
+			this.authUserRepository.findByEmail(userInfo.email),
 		]);
 
 		if (existingProviderAccount) {
@@ -159,11 +159,11 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		const userId = newUserId(ulid());
 		const userRegistration = createUserRegistration({
 			id: userId,
-			email: providerUser.email,
+			email: userInfo.email,
 			emailVerified: true,
 			passwordHash: null,
-			name: providerUser.name,
-			iconUrl: providerUser.iconURL,
+			name: userInfo.name,
+			iconUrl: userInfo.iconURL,
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
 		await this.authUserRepository.create(userRegistration);

@@ -18,7 +18,7 @@ import {
 	createProviderLinkProposalsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import type { ProviderUser } from "../../../ports/gateways/identity-provider.gateway.interface";
+import type { UserInfo } from "../../../ports/gateways/identity-provider.gateway.interface";
 import { FederatedAuthCallbackUseCase } from "../callback.usecase";
 import type { oauthStateSchema } from "../schema";
 
@@ -49,16 +49,16 @@ const { userRegistration } = createAuthUserFixture({
 	},
 });
 
-const identityProviderUser = {
+const userInfo = {
 	id: newIdentityProvidersUserId(ulid()),
 	email: userRegistration.email,
 	name: "Test User",
 	iconURL: "https://example.com/icon.png",
 	emailVerified: true,
-} satisfies ProviderUser;
+} satisfies UserInfo;
 
-const googleIdentityProviderGateway = new IdentityProviderGatewayMock({ identityProviderUser });
-const discordIdentityProviderGateway = new IdentityProviderGatewayMock({ identityProviderUser });
+const googleIdentityProviderGateway = new IdentityProviderGatewayMock({ userInfo });
+const discordIdentityProviderGateway = new IdentityProviderGatewayMock({ userInfo });
 
 const federatedAuthCallbackUseCase = new FederatedAuthCallbackUseCase(
 	discordIdentityProviderGateway,
@@ -87,7 +87,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 			providerAccount: {
 				userId: userRegistration.id,
 				provider: PROVIDER,
-				providerUserId: identityProviderUser.id,
+				providerUserId: userInfo.id,
 			},
 		});
 
@@ -194,7 +194,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 		assert(savedProviderAccount);
 		expect(savedProviderAccount.userId).toBe(savedUser.id);
 		expect(savedProviderAccount.provider).toBe(PROVIDER);
-		expect(savedProviderAccount.providerUserId).toBe(identityProviderUser.id);
+		expect(savedProviderAccount.providerUserId).toBe(userInfo.id);
 		expect(savedProviderAccount.linkedAt).toBeDefined();
 
 		// check session is saved
