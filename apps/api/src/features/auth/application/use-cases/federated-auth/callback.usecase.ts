@@ -2,32 +2,31 @@ import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/co
 import { err, ok } from "@mona-ca/core/result";
 import { newClientPlatform, newGender, newUserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
-import { createAccountLinkSession } from "../../../domain/entities/account-link-session";
 import { createProviderAccount } from "../../../domain/entities/provider-account";
+import { type ProviderLinkProposal, createProviderLinkProposal } from "../../../domain/entities/provider-link-proposal";
 import { createSession } from "../../../domain/entities/session";
 import { DEFAULT_USER_GENDER, createUserRegistration } from "../../../domain/entities/user-registration";
 import {
 	type IdentityProvidersUserId,
 	newIdentityProvidersUserId,
 } from "../../../domain/value-objects/identity-providers";
-import { newAccountLinkSessionId, newSessionId } from "../../../domain/value-objects/ids";
+import { newProviderLinkProposalId, newSessionId } from "../../../domain/value-objects/ids";
 import { encodeToken } from "../../../domain/value-objects/tokens";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
-import type { AccountLinkSession } from "../../../domain/entities/account-link-session";
 import type { Session } from "../../../domain/entities/session";
 import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
-import type { AccountLinkSessionToken, SessionToken } from "../../../domain/value-objects/tokens";
+import type { ProviderLinkProposalToken, SessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	FederatedAuthCallbackUseCaseResult,
 	IFederatedAuthCallbackUseCase,
 } from "../../contracts/federated-auth/callback.usecase.interface";
 import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
 import type { IHmacOAuthStateService } from "../../ports/infra/hmac-oauth-state.service.interface";
-import type { IAccountLinkSessionRepository } from "../../ports/repositories/account-link-session.repository.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
+import type { IProviderLinkProposalRepository } from "../../ports/repositories/provider-link-proposal.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 import type { oauthStateSchema } from "./schema";
 
@@ -37,7 +36,7 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		private readonly discordIdentityProviderGateway: IIdentityProviderGateway,
 		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
 		// repositories
-		private readonly accountLinkSessionRepository: IAccountLinkSessionRepository,
+		private readonly providerLinkProposalRepository: IProviderLinkProposalRepository,
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly providerAccountRepository: IProviderAccountRepository,
 		private readonly sessionRepository: ISessionRepository,
@@ -99,24 +98,24 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 
 		const tokens = tokensResult.value;
 
-		const getIdentityProviderUserResult = await identityProviderGateway.getIdentityProviderUser(tokens);
+		const getIdentityProviderUserResult = await identityProviderGateway.getProviderUser(tokens);
 
 		await identityProviderGateway.revokeToken(tokens);
 
 		if (getIdentityProviderUserResult.isErr) {
 			const { code } = getIdentityProviderUserResult;
 
-			if (code === "ACCESS_TOKEN_INVALID" || code === "IDENTITY_INVALID" || code === "FETCH_IDENTITY_FAILED") {
-				return err("FETCH_IDENTITY_PROVIDER_USER_FAILED", { redirectURL: redirectToClientURL });
+			if (code === "PROVIDER_USER_INVALID" || code === "GET_PROVIDER_USER_FAILED") {
+				return err("GET_PROVIDER_USER_FAILED", { redirectURL: redirectToClientURL });
 			}
 		}
 
-		const { identityProviderUser } = getIdentityProviderUserResult.value;
-		const providerUserId = newIdentityProvidersUserId(identityProviderUser.id);
+		const { providerUser } = getIdentityProviderUserResult.value;
+		const providerUserId = newIdentityProvidersUserId(providerUser.id);
 
 		const [existingProviderAccount, existingUserCredentialsForSameEmail] = await Promise.all([
 			this.providerAccountRepository.findByProviderAndProviderUserId(provider, providerUserId),
-			this.authUserRepository.findByEmail(identityProviderUser.email),
+			this.authUserRepository.findByEmail(providerUser.email),
 		]);
 
 		if (existingProviderAccount) {
@@ -137,21 +136,21 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		if (existingUserCredentialsForSameEmail) {
 			// Link flow
 
-			const { accountLinkSession, accountLinkSessionToken } = this.createAccountLinkSession(
+			const { providerLinkProposal, providerLinkProposalToken } = this.createProviderLinkProposal(
 				existingUserCredentialsForSameEmail.id,
 				existingUserCredentialsForSameEmail.email,
 				provider,
 				providerUserId,
 			);
 
-			await this.accountLinkSessionRepository.deleteByUserId(existingUserCredentialsForSameEmail.id);
-			await this.accountLinkSessionRepository.save(accountLinkSession);
+			await this.providerLinkProposalRepository.deleteByUserId(existingUserCredentialsForSameEmail.id);
+			await this.providerLinkProposalRepository.save(providerLinkProposal);
 
-			return err("ACCOUNT_LINK_AVAILABLE", {
+			return err("PROVIDER_LINK_PROPOSAL", {
 				redirectURL: redirectToClientURL,
 				clientPlatform,
-				accountLinkSessionToken,
-				accountLinkSession,
+				providerLinkProposal,
+				providerLinkProposalToken,
 			});
 		}
 
@@ -160,11 +159,11 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		const userId = newUserId(ulid());
 		const userRegistration = createUserRegistration({
 			id: userId,
-			email: identityProviderUser.email,
+			email: providerUser.email,
 			emailVerified: true,
 			passwordHash: null,
-			name: identityProviderUser.name,
-			iconUrl: identityProviderUser.iconURL,
+			name: providerUser.name,
+			iconUrl: providerUser.iconURL,
 			gender: newGender(DEFAULT_USER_GENDER),
 		});
 		await this.authUserRepository.create(userRegistration);
@@ -205,20 +204,20 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		return { session, sessionToken };
 	}
 
-	private createAccountLinkSession(
+	private createProviderLinkProposal(
 		userId: UserId,
 		email: string,
 		provider: IdentityProviders,
 		providerUserId: IdentityProvidersUserId,
 	): {
-		accountLinkSession: AccountLinkSession;
-		accountLinkSessionToken: AccountLinkSessionToken;
+		providerLinkProposal: ProviderLinkProposal;
+		providerLinkProposalToken: ProviderLinkProposalToken;
 	} {
-		const id = newAccountLinkSessionId(ulid());
+		const id = newProviderLinkProposalId(ulid());
 		const secret = this.tokenSecretService.generateSecret();
 		const secretHash = this.tokenSecretService.hash(secret);
 
-		const accountLinkSession = createAccountLinkSession({
+		const providerLinkProposal = createProviderLinkProposal({
 			id,
 			userId,
 			code: null,
@@ -227,8 +226,8 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 			provider,
 			providerUserId,
 		});
-		const accountLinkSessionToken = encodeToken(id, secret);
+		const providerLinkProposalToken = encodeToken(id, secret);
 
-		return { accountLinkSession, accountLinkSessionToken };
+		return { providerLinkProposal, providerLinkProposalToken };
 	}
 }

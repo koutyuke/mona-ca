@@ -1,9 +1,9 @@
 import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { ClientPlatform } from "../../../../../core/domain/value-objects";
-import type { AccountLinkSession } from "../../../domain/entities/account-link-session";
+import type { ProviderLinkProposal } from "../../../domain/entities/provider-link-proposal";
 import type { Session } from "../../../domain/entities/session";
 import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
-import type { AccountLinkSessionToken, SessionToken } from "../../../domain/value-objects/tokens";
+import type { ProviderLinkProposalToken, SessionToken } from "../../../domain/value-objects/tokens";
 
 type FederatedAuthFlow = "signup" | "login";
 
@@ -21,14 +21,14 @@ type Error =
 	| Err<"PROVIDER_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
 	| Err<"TOKEN_EXCHANGE_FAILED">
-	| Err<"FETCH_IDENTITY_PROVIDER_USER_FAILED", { redirectURL: URL }>
+	| Err<"GET_PROVIDER_USER_FAILED", { redirectURL: URL }>
 	| Err<
-			"ACCOUNT_LINK_AVAILABLE",
+			"PROVIDER_LINK_PROPOSAL",
 			{
 				redirectURL: URL;
 				clientPlatform: ClientPlatform;
-				accountLinkSession: AccountLinkSession;
-				accountLinkSessionToken: AccountLinkSessionToken;
+				providerLinkProposal: ProviderLinkProposal;
+				providerLinkProposalToken: ProviderLinkProposalToken;
 			}
 	  >;
 

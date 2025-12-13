@@ -8,24 +8,24 @@ import { createAuthUserFixture, createProviderAccountFixture } from "../../../..
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacOAuthStateServiceMock } from "../../../../testing/mocks/infra";
 import {
-	AccountLinkSessionRepositoryMock,
 	AuthUserRepositoryMock,
 	ProviderAccountRepositoryMock,
+	ProviderLinkProposalRepositoryMock,
 	SessionRepositoryMock,
-	createAccountLinkSessionsMap,
 	createAuthUsersMap,
 	createProviderAccountKey,
 	createProviderAccountsMap,
+	createProviderLinkProposalsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import type { IdentityProviderUser } from "../../../ports/gateways/identity-provider.gateway.interface";
+import type { ProviderUser } from "../../../ports/gateways/identity-provider.gateway.interface";
 import { FederatedAuthCallbackUseCase } from "../callback.usecase";
 import type { oauthStateSchema } from "../schema";
 
 const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
 const providerAccountMap = createProviderAccountsMap();
-const accountLinkSessionMap = createAccountLinkSessionsMap();
+const providerLinkProposalMap = createProviderLinkProposalsMap();
 
 const sessionRepository = new SessionRepositoryMock({ sessionMap });
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });
@@ -33,8 +33,8 @@ const authUserRepository = new AuthUserRepositoryMock({
 	authUserMap,
 	sessionMap,
 });
-const accountLinkSessionRepository = new AccountLinkSessionRepositoryMock({
-	accountLinkSessionMap,
+const providerLinkProposalRepository = new ProviderLinkProposalRepositoryMock({
+	providerLinkProposalMap,
 });
 
 const tokenSecretService = new TokenSecretServiceMock();
@@ -55,7 +55,7 @@ const identityProviderUser = {
 	name: "Test User",
 	iconURL: "https://example.com/icon.png",
 	emailVerified: true,
-} satisfies IdentityProviderUser;
+} satisfies ProviderUser;
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock({ identityProviderUser });
 const discordIdentityProviderGateway = new IdentityProviderGatewayMock({ identityProviderUser });
@@ -63,7 +63,7 @@ const discordIdentityProviderGateway = new IdentityProviderGatewayMock({ identit
 const federatedAuthCallbackUseCase = new FederatedAuthCallbackUseCase(
 	discordIdentityProviderGateway,
 	googleIdentityProviderGateway,
-	accountLinkSessionRepository,
+	providerLinkProposalRepository,
 	authUserRepository,
 	providerAccountRepository,
 	sessionRepository,
@@ -79,7 +79,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 		authUserMap.clear();
 		sessionMap.clear();
 		providerAccountMap.clear();
-		accountLinkSessionMap.clear();
+		providerLinkProposalMap.clear();
 	});
 
 	it("Success: should process login flow when provider account exists", async () => {
@@ -202,7 +202,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 		expect(savedSession).toStrictEqual(session);
 	});
 
-	it("Error: should return ACCOUNT_LINK_AVAILABLE error when user with same email exists but no provider account", async () => {
+	it("Error: should return PROVIDER_LINK_PROPOSAL error when user with same email exists but no provider account", async () => {
 		const signedState = federatedAuthHmacOAuthStateService.generate({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
@@ -217,13 +217,13 @@ describe("FederatedAuthCallbackUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("ACCOUNT_LINK_AVAILABLE");
-		assert(result.code === "ACCOUNT_LINK_AVAILABLE");
+		expect(result.code).toBe("PROVIDER_LINK_PROPOSAL");
+		assert(result.code === "PROVIDER_LINK_PROPOSAL");
 
-		const { redirectURL, clientPlatform, accountLinkSessionToken, accountLinkSession } = result.context;
+		const { redirectURL, clientPlatform, providerLinkProposalToken, providerLinkProposal } = result.context;
 
-		// check account link session token
-		expect(accountLinkSessionToken).toBe(`${accountLinkSession.id}.token-secret`);
+		// check provider link proposal token
+		expect(providerLinkProposalToken).toBe(`${providerLinkProposal.id}.token-secret`);
 
 		// check redirect URL
 		expect(redirectURL).toBeInstanceOf(URL);
@@ -232,16 +232,16 @@ describe("FederatedAuthCallbackUseCase", () => {
 		// check client platform
 		expect(clientPlatform).toBe(newClientPlatform("web"));
 
-		// check account link session
-		expect(accountLinkSession.userId).toBe(userRegistration.id);
-		expect(accountLinkSession.email).toBe(userRegistration.email);
-		expect(accountLinkSession.provider).toBe(PROVIDER);
+		// check provider link proposal
+		expect(providerLinkProposal.userId).toBe(userRegistration.id);
+		expect(providerLinkProposal.email).toBe(userRegistration.email);
+		expect(providerLinkProposal.provider).toBe(PROVIDER);
 
-		// check account link session is saved
-		expect(accountLinkSessionMap.size).toBe(1);
-		const savedAccountLinkSession = Array.from(accountLinkSessionMap.values())[0];
-		assert(savedAccountLinkSession);
-		expect(savedAccountLinkSession).toStrictEqual(accountLinkSession);
+		// check provider link proposal is saved
+		expect(providerLinkProposalMap.size).toBe(1);
+		const savedProviderLinkProposal = Array.from(providerLinkProposalMap.values())[0];
+		assert(savedProviderLinkProposal);
+		expect(savedProviderLinkProposal).toStrictEqual(providerLinkProposal);
 	});
 
 	it("Error: should return INVALID_STATE error for invalid state format", async () => {
