@@ -2,17 +2,17 @@ import { assert, beforeEach, describe, expect, it } from "vitest";
 import { EmailGatewayMock } from "../../../../../../core/testing/mocks/gateways";
 import { CryptoRandomServiceMock, TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import { decodeToken } from "../../../../domain/value-objects/tokens";
-import { createAuthUserFixture, createEmailVerificationSessionFixture } from "../../../../testing/fixtures";
+import { createAuthUserFixture, createEmailVerificationRequestFixture } from "../../../../testing/fixtures";
 import {
-	EmailVerificationSessionRepositoryMock,
-	createEmailVerificationSessionsMap,
+	EmailVerificationRequestRepositoryMock,
+	createEmailVerificationRequestsMap,
 } from "../../../../testing/mocks/repositories";
 import { EmailVerificationRequestUseCase } from "../request.usecase";
 
-const emailVerificationSessionMap = createEmailVerificationSessionsMap();
+const emailVerificationRequestMap = createEmailVerificationRequestsMap();
 
-const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
-	emailVerificationSessionMap,
+const emailVerificationRequestRepository = new EmailVerificationRequestRepositoryMock({
+	emailVerificationRequestMap,
 });
 
 const cryptoRandomService = new CryptoRandomServiceMock();
@@ -21,14 +21,13 @@ const emailGateway = new EmailGatewayMock();
 
 const emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 	emailGateway,
-	emailVerificationSessionRepository,
+	emailVerificationRequestRepository,
 	cryptoRandomService,
 	tokenSecretService,
 );
 
-// モックの固定値
-const MOCK_VERIFICATION_CODE = "01234567"; // CryptoRandomServiceMockがdigits: trueで8文字生成する値
-const MOCK_SECRET = "token-secret"; // TokenSecretServiceMockが生成するシークレット
+const MOCK_VERIFICATION_CODE = "01234567";
+const MOCK_SECRET = "token-secret";
 
 const TEST_EMAIL = "test@example.com";
 const TEST_NAME = "test_user";
@@ -43,7 +42,7 @@ const { userCredentials } = createAuthUserFixture({
 
 describe("EmailVerificationRequestUseCase", () => {
 	beforeEach(() => {
-		emailVerificationSessionMap.clear();
+		emailVerificationRequestMap.clear();
 		emailGateway.sendVerificationEmailCalls = [];
 	});
 
@@ -53,31 +52,31 @@ describe("EmailVerificationRequestUseCase", () => {
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
 
-		const { emailVerificationSession, emailVerificationSessionToken } = result.value;
+		const { emailVerificationRequest, emailVerificationRequestToken } = result.value;
 
-		// セッションのプロパティを検証
-		expect(emailVerificationSession.email).toBe(TEST_EMAIL);
-		expect(emailVerificationSession.userId).toBe(userCredentials.id);
-		expect(emailVerificationSession.code).toBe(MOCK_VERIFICATION_CODE);
-		expect(emailVerificationSession.expiresAt).toBeInstanceOf(Date);
-		expect(emailVerificationSession.expiresAt.getTime()).toBeGreaterThan(Date.now());
+		// check properties
+		expect(emailVerificationRequest.email).toBe(TEST_EMAIL);
+		expect(emailVerificationRequest.userId).toBe(userCredentials.id);
+		expect(emailVerificationRequest.code).toBe(MOCK_VERIFICATION_CODE);
+		expect(emailVerificationRequest.expiresAt).toBeInstanceOf(Date);
+		expect(emailVerificationRequest.expiresAt.getTime()).toBeGreaterThan(Date.now());
 
-		// トークンのフォーマットを検証
-		const decoded = decodeToken(emailVerificationSessionToken);
+		// check token format
+		const decoded = decodeToken(emailVerificationRequestToken);
 		expect(decoded).not.toBeNull();
 		assert(decoded !== null);
-		expect(decoded.id).toBe(emailVerificationSession.id);
+		expect(decoded.id).toBe(emailVerificationRequest.id);
 		expect(decoded.secret).toBe(MOCK_SECRET);
 	});
 
-	it("Success: should save session to repository", async () => {
+	it("Success: should save request to repository", async () => {
 		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
-		const { emailVerificationSession } = result.value;
+		const { emailVerificationRequest } = result.value;
 
-		const savedSession = emailVerificationSessionMap.get(emailVerificationSession.id);
-		expect(savedSession).toStrictEqual(emailVerificationSession);
+		const savedRequest = emailVerificationRequestMap.get(emailVerificationRequest.id);
+		expect(savedRequest).toStrictEqual(emailVerificationRequest);
 	});
 
 	it("Success: should send verification email with correct recipient and code", async () => {
@@ -92,108 +91,108 @@ describe("EmailVerificationRequestUseCase", () => {
 		expect(emailCall?.code).toBe(MOCK_VERIFICATION_CODE);
 	});
 
-	it("Success: should delete existing session before creating new session", async () => {
-		// 既存のセッションを作成
-		const { emailVerificationSession: existingSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+	it("Success: should delete existing request before creating new request", async () => {
+		// create existing request
+		const { emailVerificationRequest: existingRequest } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: userCredentials.email,
 				code: "87654321",
 			},
 		});
-		emailVerificationSessionMap.set(existingSession.id, existingSession);
+		emailVerificationRequestMap.set(existingRequest.id, existingRequest);
 
-		expect(emailVerificationSessionMap.size).toBe(1);
-		expect(emailVerificationSessionMap.get(existingSession.id)).toStrictEqual(existingSession);
+		expect(emailVerificationRequestMap.size).toBe(1);
+		expect(emailVerificationRequestMap.get(existingRequest.id)).toStrictEqual(existingRequest);
 
-		// 新しいセッションを作成
+		// create new request
 		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
 
-		// 古いセッションが削除されていること
-		expect(emailVerificationSessionMap.has(existingSession.id)).toBe(false);
+		// old request is deleted
+		expect(emailVerificationRequestMap.has(existingRequest.id)).toBe(false);
 
-		// 新しいセッションのみが存在すること
-		expect(emailVerificationSessionMap.size).toBe(1);
-		const { emailVerificationSession } = result.value;
-		expect(emailVerificationSessionMap.get(emailVerificationSession.id)).toStrictEqual(emailVerificationSession);
+		// new request is only exists
+		expect(emailVerificationRequestMap.size).toBe(1);
+		const { emailVerificationRequest } = result.value;
+		expect(emailVerificationRequestMap.get(emailVerificationRequest.id)).toStrictEqual(emailVerificationRequest);
 	});
 
-	it("Success: should keep only the latest session when called multiple times consecutively", async () => {
-		// 1回目
+	it("Success: should keep only the latest request when called multiple times consecutively", async () => {
+		// first time
 		const result1 = await emailVerificationRequestUseCase.execute(userCredentials);
 		assert(result1.isOk);
-		const session1 = result1.value.emailVerificationSession;
+		const request1 = result1.value.emailVerificationRequest;
 
-		// 2回目
+		// second time
 		const result2 = await emailVerificationRequestUseCase.execute(userCredentials);
 		assert(result2.isOk);
-		const session2 = result2.value.emailVerificationSession;
+		const request2 = result2.value.emailVerificationRequest;
 
-		// 古いセッションは削除され、新しいセッションのみ存在
-		expect(emailVerificationSessionMap.has(session1.id)).toBe(false);
-		expect(emailVerificationSessionMap.has(session2.id)).toBe(true);
-		expect(emailVerificationSessionMap.size).toBe(1);
+		// old request is deleted, new request is only exists
+		expect(emailVerificationRequestMap.has(request1.id)).toBe(false);
+		expect(emailVerificationRequestMap.has(request2.id)).toBe(true);
+		expect(emailVerificationRequestMap.size).toBe(1);
 	});
 
 	it("Success: should generate 8-digit numeric verification code", async () => {
 		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
-		const { emailVerificationSession } = result.value;
+		const { emailVerificationRequest } = result.value;
 
-		// 固定値と一致することを確認
-		expect(emailVerificationSession.code).toBe(MOCK_VERIFICATION_CODE);
+		// check fixed value
+		expect(emailVerificationRequest.code).toBe(MOCK_VERIFICATION_CODE);
 
-		// 8桁であること
-		expect(emailVerificationSession.code).toHaveLength(8);
+		// check 8 digits
+		expect(emailVerificationRequest.code).toHaveLength(8);
 
-		// 数字のみであること
-		expect(emailVerificationSession.code).toMatch(/^\d{8}$/);
+		// check only digits
+		expect(emailVerificationRequest.code).toMatch(/^\d{8}$/);
 	});
 
-	it("Success: should include secret in session token", async () => {
+	it("Success: should include secret in request token", async () => {
 		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
-		const { emailVerificationSessionToken } = result.value;
+		const { emailVerificationRequestToken } = result.value;
 
-		const decoded = decodeToken(emailVerificationSessionToken);
+		const decoded = decodeToken(emailVerificationRequestToken);
 		expect(decoded).not.toBeNull();
 		assert(decoded !== null);
 
-		// シークレットが空でないこと
+		// check secret is not empty
 		expect(decoded.secret).toBeTruthy();
 		expect(decoded.secret).toBe(MOCK_SECRET);
 	});
 
-	it("Success: should save secret hash to session", async () => {
+	it("Success: should save secret hash to request", async () => {
 		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
-		const { emailVerificationSession } = result.value;
+		const { emailVerificationRequest } = result.value;
 
-		// secretHashが存在すること
-		expect(emailVerificationSession.secretHash).toBeDefined();
-		expect(emailVerificationSession.secretHash).toBeInstanceOf(Uint8Array);
-		expect(emailVerificationSession.secretHash.length).toBeGreaterThan(0);
+		// check secretHash exists
+		expect(emailVerificationRequest.secretHash).toBeDefined();
+		expect(emailVerificationRequest.secretHash).toBeInstanceOf(Uint8Array);
+		expect(emailVerificationRequest.secretHash.length).toBeGreaterThan(0);
 
-		// 生のシークレットではなくハッシュが保存されていること
+		// check secretHash is not raw secret
 		const secretBytes = new TextEncoder().encode(MOCK_SECRET);
-		expect(emailVerificationSession.secretHash).not.toEqual(secretBytes);
+		expect(emailVerificationRequest.secretHash).not.toEqual(secretBytes);
 	});
 
-	it("Success: should set expiration time on session", async () => {
+	it("Success: should set expiration time on request", async () => {
 		const beforeExecution = Date.now();
 		const result = await emailVerificationRequestUseCase.execute(userCredentials);
 
 		assert(result.isOk);
-		const { emailVerificationSession } = result.value;
+		const { emailVerificationRequest } = result.value;
 
-		// 現在時刻より後に設定されていること
-		expect(emailVerificationSession.expiresAt.getTime()).toBeGreaterThan(beforeExecution);
+		// check expiresAt is after current time
+		expect(emailVerificationRequest.expiresAt.getTime()).toBeGreaterThan(beforeExecution);
 	});
 
 	it("Error(email already verified): should return EMAIL_ALREADY_VERIFIED error when email is already verified", async () => {
@@ -211,10 +210,10 @@ describe("EmailVerificationRequestUseCase", () => {
 		assert(result.isErr);
 		expect(result.code).toBe("EMAIL_ALREADY_VERIFIED");
 
-		// メールが送信されないこと
+		// check email is not sent
 		expect(emailGateway.sendVerificationEmailCalls).toHaveLength(0);
 
-		// セッションが作成されないこと
-		expect(emailVerificationSessionMap.size).toBe(0);
+		// check request is not created
+		expect(emailVerificationRequestMap.size).toBe(0);
 	});
 });

@@ -1,27 +1,27 @@
 import { err, ok } from "@mona-ca/core/result";
 import { ulid } from "../../../../../core/lib/id";
-import { createEmailVerificationSession } from "../../../domain/entities/email-verification-session";
-import { newEmailVerificationSessionId } from "../../../domain/value-objects/ids";
+import { createEmailVerificationRequest } from "../../../domain/entities/email-verification-request";
+import { newEmailVerificationRequestId } from "../../../domain/value-objects/ids";
 import { encodeToken } from "../../../domain/value-objects/tokens";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { IEmailGateway } from "../../../../../core/ports/gateways";
 import type { ICryptoRandomService, ITokenSecretService } from "../../../../../core/ports/system";
-import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
-import type { EmailVerificationSessionToken } from "../../../domain/value-objects/tokens";
+import type { EmailVerificationRequestToken } from "../../../domain/value-objects/tokens";
 import type {
 	EmailVerificationRequestUseCaseResult,
 	IEmailVerificationRequestUseCase,
 } from "../../contracts/email-verification/request.usecase.interface";
-import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(
 		// gateways
 		private readonly emailGateway: IEmailGateway,
 		// repositories
-		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly emailVerificationRequestRepository: IEmailVerificationRequestRepository,
 		// system
 		private readonly cryptoRandomService: ICryptoRandomService,
 		private readonly tokenSecretService: ITokenSecretService,
@@ -32,43 +32,43 @@ export class EmailVerificationRequestUseCase implements IEmailVerificationReques
 			return err("EMAIL_ALREADY_VERIFIED");
 		}
 
-		const { emailVerificationSessionToken, emailVerificationSession } = this.createEmailVerificationSession(
+		const { emailVerificationRequestToken, emailVerificationRequest } = this.createEmailVerificationRequest(
 			userCredentials.email,
 			userCredentials.id,
 		);
 
-		await this.emailVerificationSessionRepository.deleteByUserId(userCredentials.id);
-		await this.emailVerificationSessionRepository.save(emailVerificationSession);
+		await this.emailVerificationRequestRepository.deleteByUserId(userCredentials.id);
+		await this.emailVerificationRequestRepository.save(emailVerificationRequest);
 
-		await this.emailGateway.sendVerificationEmail(emailVerificationSession.email, emailVerificationSession.code);
+		await this.emailGateway.sendVerificationEmail(emailVerificationRequest.email, emailVerificationRequest.code);
 
 		return ok({
-			emailVerificationSessionToken,
-			emailVerificationSession,
+			emailVerificationRequestToken,
+			emailVerificationRequest,
 		});
 	}
 
-	private createEmailVerificationSession(
+	private createEmailVerificationRequest(
 		email: string,
 		userId: UserId,
 	): {
-		emailVerificationSessionToken: EmailVerificationSessionToken;
-		emailVerificationSession: EmailVerificationSession;
+		emailVerificationRequestToken: EmailVerificationRequestToken;
+		emailVerificationRequest: EmailVerificationRequest;
 	} {
 		const code = this.cryptoRandomService.string(8, {
 			digits: true,
 		});
-		const emailVerificationSessionSecret = this.tokenSecretService.generateSecret();
-		const secretHash = this.tokenSecretService.hash(emailVerificationSessionSecret);
-		const emailVerificationSessionId = newEmailVerificationSessionId(ulid());
-		const emailVerificationSessionToken = encodeToken(emailVerificationSessionId, emailVerificationSessionSecret);
-		const emailVerificationSession = createEmailVerificationSession({
-			id: emailVerificationSessionId,
+		const emailVerificationRequestSecret = this.tokenSecretService.generateSecret();
+		const secretHash = this.tokenSecretService.hash(emailVerificationRequestSecret);
+		const emailVerificationRequestId = newEmailVerificationRequestId(ulid());
+		const emailVerificationRequestToken = encodeToken(emailVerificationRequestId, emailVerificationRequestSecret);
+		const emailVerificationRequest = createEmailVerificationRequest({
+			id: emailVerificationRequestId,
 			email,
 			userId,
 			code,
-			secretHash,
+			secretHash: Buffer.from(secretHash),
 		});
-		return { emailVerificationSessionToken, emailVerificationSession };
+		return { emailVerificationRequestToken, emailVerificationRequest };
 	}
 }

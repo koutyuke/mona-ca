@@ -1,16 +1,16 @@
 import type { Err, Ok, Result } from "@mona-ca/core/result";
-import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 
 type Success = Ok;
 
-type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"EMAIL_MISMATCH">;
+type Error = Err<"INVALID_CODE"> | Err<"INVALID_EMAIL">;
 
 export type EmailVerificationVerifyEmailUseCaseResult = Result<Success, Error>;
 export interface IEmailVerificationVerifyEmailUseCase {
 	execute(
 		code: string,
 		userCredentials: UserCredentials,
-		emailVerificationSession: EmailVerificationSession,
+		emailVerificationRequest: EmailVerificationRequest,
 	): Promise<EmailVerificationVerifyEmailUseCaseResult>;
 }

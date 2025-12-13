@@ -1,11 +1,11 @@
 import type { Err, Ok, Result } from "@mona-ca/core/result";
-import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
-import type { EmailVerificationSessionToken } from "../../../domain/value-objects/tokens";
+import type { EmailVerificationRequestToken } from "../../../domain/value-objects/tokens";
 
 export type Success = Ok<{
-	emailVerificationSession: EmailVerificationSession;
-	emailVerificationSessionToken: EmailVerificationSessionToken;
+	emailVerificationRequest: EmailVerificationRequest;
+	emailVerificationRequestToken: EmailVerificationRequestToken;
 }>;
 
 export type Error = Err<"EMAIL_ALREADY_VERIFIED"> | Err<"EMAIL_ALREADY_REGISTERED">;

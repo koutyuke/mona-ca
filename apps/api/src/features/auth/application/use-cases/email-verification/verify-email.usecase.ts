@@ -2,20 +2,20 @@ import { err, ok } from "@mona-ca/core/result";
 import { timingSafeStringEqual } from "../../../../../core/lib/security";
 import { updateUserCredentials } from "../../../domain/entities/user-credentials";
 
-import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type {
 	EmailVerificationVerifyEmailUseCaseResult,
 	IEmailVerificationVerifyEmailUseCase,
 } from "../../contracts/email-verification/verify-email.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
 
 export class EmailVerificationVerifyEmailUseCase implements IEmailVerificationVerifyEmailUseCase {
 	constructor(
 		// repositories
 		private readonly authUserRepository: IAuthUserRepository,
-		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly emailVerificationRequestRepository: IEmailVerificationRequestRepository,
 	) {}
 
 	/**
@@ -26,15 +26,15 @@ export class EmailVerificationVerifyEmailUseCase implements IEmailVerificationVe
 	public async execute(
 		code: string,
 		userCredentials: UserCredentials,
-		emailVerificationSession: EmailVerificationSession,
+		emailVerificationRequest: EmailVerificationRequest,
 	): Promise<EmailVerificationVerifyEmailUseCaseResult> {
-		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
-			return err("INVALID_VERIFICATION_CODE");
+		if (!timingSafeStringEqual(emailVerificationRequest.code, code)) {
+			return err("INVALID_CODE");
 		}
 
-		if (emailVerificationSession.email !== userCredentials.email) {
-			await this.emailVerificationSessionRepository.deleteByUserId(userCredentials.id);
-			return err("EMAIL_MISMATCH");
+		if (emailVerificationRequest.email !== userCredentials.email) {
+			await this.emailVerificationRequestRepository.deleteByUserId(userCredentials.id);
+			return err("INVALID_EMAIL");
 		}
 
 		const updatedUserCredentials = updateUserCredentials(userCredentials, {
@@ -42,7 +42,7 @@ export class EmailVerificationVerifyEmailUseCase implements IEmailVerificationVe
 		});
 
 		await Promise.all([
-			this.emailVerificationSessionRepository.deleteByUserId(userCredentials.id),
+			this.emailVerificationRequestRepository.deleteByUserId(userCredentials.id),
 			this.authUserRepository.update(updatedUserCredentials),
 		]);
 
