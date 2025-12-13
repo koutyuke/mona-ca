@@ -23,8 +23,8 @@ export const newIdentityProviders = (raw: RawIdentityProviders): IdentityProvide
 	return raw as IdentityProviders;
 };
 
-export const newIdentityProvidersUserId = (rawIdentityProvidersUserId: string) => {
-	return rawIdentityProvidersUserId as IdentityProvidersUserId;
+export const newIdentityProvidersUserId = (raw: string) => {
+	return raw as IdentityProvidersUserId;
 };
 
 export const isDiscordProvider = (provider: IdentityProviders): provider is DiscordProvider => {
