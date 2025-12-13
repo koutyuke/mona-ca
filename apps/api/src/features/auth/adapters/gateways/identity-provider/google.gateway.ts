@@ -15,7 +15,7 @@ import type {
 	GetProviderUserResult,
 	GetTokensResult,
 	IIdentityProviderGateway,
-	IdentityProviderUser,
+	ProviderUser,
 } from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
@@ -74,7 +74,7 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 				return err("PROVIDER_USER_INVALID");
 			}
 
-			const identityProviderUser: IdentityProviderUser = {
+			const providerUser: ProviderUser = {
 				id: newIdentityProvidersUserId(claims.sub),
 				name: claims.name,
 				email: claims.email,
@@ -83,7 +83,7 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 			};
 
 			return ok({
-				identityProviderUser,
+				providerUser,
 			});
 		} catch (error) {
 			console.error("Error in getProviderUser:", error);

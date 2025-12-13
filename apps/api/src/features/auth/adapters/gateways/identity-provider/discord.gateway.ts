@@ -14,7 +14,7 @@ import type {
 	GetProviderUserResult,
 	GetTokensResult,
 	IIdentityProviderGateway,
-	IdentityProviderUser,
+	ProviderUser,
 } from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
@@ -86,7 +86,7 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 				return err("PROVIDER_USER_INVALID");
 			}
 
-			const identityProviderUser: IdentityProviderUser = {
+			const providerUser: ProviderUser = {
 				id: newIdentityProvidersUserId(user.id),
 				name: user.username,
 				email: user.email,
@@ -95,7 +95,7 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 			};
 
 			return ok({
-				identityProviderUser,
+				providerUser,
 			});
 		} catch (error) {
 			console.error("Error in getProviderUser:", error);
