@@ -23,12 +23,12 @@ import type {
 	IFederatedAuthCallbackUseCase,
 } from "../../contracts/federated-auth/callback.usecase.interface";
 import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
-import type { IHmacOAuthStateService } from "../../ports/infra/hmac-oauth-state.service.interface";
+import type { IHmacSignedStateService } from "../../ports/infra/hmac-signed-state.service.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
 import type { IProviderLinkProposalRepository } from "../../ports/repositories/provider-link-proposal.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
-import type { oauthStateSchema } from "./schema";
+import type { federatedAuthStateSchema } from "./schema";
 
 export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCase {
 	constructor(
@@ -41,7 +41,7 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		private readonly providerAccountRepository: IProviderAccountRepository,
 		private readonly sessionRepository: ISessionRepository,
 		// system
-		private readonly federatedAuthHmacOAuthStateService: IHmacOAuthStateService<typeof oauthStateSchema>,
+		private readonly federatedAuthHmacOAuthStateService: IHmacSignedStateService<typeof federatedAuthStateSchema>,
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
 
@@ -56,7 +56,7 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 	): Promise<FederatedAuthCallbackUseCaseResult> {
 		const identityProviderGateway =
 			provider === "google" ? this.googleIdentityProviderGateway : this.discordIdentityProviderGateway;
-		const validatedState = this.federatedAuthHmacOAuthStateService.validate(signedState);
+		const validatedState = this.federatedAuthHmacOAuthStateService.verify(signedState);
 
 		if (validatedState.isErr) {
 			return err("INVALID_STATE");

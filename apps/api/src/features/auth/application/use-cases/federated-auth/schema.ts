@@ -1,6 +1,6 @@
 import { t } from "elysia";
 import { clientPlatformSchema } from "../../../../../core/domain/value-objects";
 
-export const oauthStateSchema = t.Object({
+export const federatedAuthStateSchema = t.Object({
 	client: clientPlatformSchema,
 });

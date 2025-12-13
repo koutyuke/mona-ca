@@ -9,8 +9,8 @@ import type {
 	IFederatedAuthRequestUseCase,
 } from "../../contracts/federated-auth/request.usecase.interface";
 import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
-import type { IHmacOAuthStateService } from "../../ports/infra/hmac-oauth-state.service.interface";
-import type { oauthStateSchema } from "./schema";
+import type { IHmacSignedStateService } from "../../ports/infra/hmac-signed-state.service.interface";
+import type { federatedAuthStateSchema } from "./schema";
 
 export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase {
 	constructor(
@@ -18,7 +18,7 @@ export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase
 		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
 		private readonly discordIdentityProviderGateway: IIdentityProviderGateway,
 		// infra
-		private readonly federatedAuthHmacOAuthStateService: IHmacOAuthStateService<typeof oauthStateSchema>,
+		private readonly federatedAuthHmacSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema>,
 	) {}
 
 	public execute(
@@ -37,7 +37,7 @@ export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase
 			return err("INVALID_REDIRECT_URI");
 		}
 
-		const state = this.federatedAuthHmacOAuthStateService.generate({ client: clientPlatform });
+		const state = this.federatedAuthHmacSignedStateService.sign({ client: clientPlatform });
 		const codeVerifier = generateCodeVerifier();
 		const redirectToProviderURL = identityProviderGateway.createAuthorizationURL(state, codeVerifier);
 

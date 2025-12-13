@@ -2,18 +2,18 @@ import { assert, describe, expect, it } from "vitest";
 import { newClientPlatform } from "../../../../../../core/domain/value-objects";
 import { newIdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
-import { HmacOAuthStateServiceMock } from "../../../../testing/mocks/infra";
+import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
 import { FederatedAuthRequestUseCase } from "../request.usecase";
-import type { oauthStateSchema } from "../schema";
+import type { federatedAuthStateSchema } from "../schema";
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock();
 const discordIdentityProviderGateway = new IdentityProviderGatewayMock();
-const federatedAuthHmacOAuthStateService = new HmacOAuthStateServiceMock<typeof oauthStateSchema>();
+const federatedAuthHmacSignedStateService = new HmacSignedStateServiceMock<typeof federatedAuthStateSchema>();
 
 const federatedAuthRequestUseCase = new FederatedAuthRequestUseCase(
 	googleIdentityProviderGateway,
 	discordIdentityProviderGateway,
-	federatedAuthHmacOAuthStateService,
+	federatedAuthHmacSignedStateService,
 );
 
 const PRODUCTION = true;
@@ -29,7 +29,7 @@ describe("FederatedAuthRequestUseCase", () => {
 		const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 		// check state
-		expect(state).toBe('__hmac-oauth-state-signed:{"client":"web"}');
+		expect(state).toBe(`${federatedAuthHmacSignedStateService.signPrefix}:${JSON.stringify({ client: "web" })}`);
 
 		// check code verifier
 		expect(codeVerifier).toBeDefined();
@@ -59,7 +59,7 @@ describe("FederatedAuthRequestUseCase", () => {
 		const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 		// check state
-		expect(state).toBe('__hmac-oauth-state-signed:{"client":"mobile"}');
+		expect(state).toBe(`${federatedAuthHmacSignedStateService.signPrefix}:${JSON.stringify({ client: "mobile" })}`);
 
 		// check code verifier
 		expect(codeVerifier).toBeDefined();
