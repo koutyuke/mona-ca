@@ -18,7 +18,7 @@ import type {
 } from "../../../application/ports/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
-const discordUserResponseSchema = t.Object({
+const discordUserDtoSchema = t.Object({
 	id: t.String(),
 	username: t.String(),
 	discriminator: t.String(),
@@ -66,7 +66,7 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 		}
 	}
 
-	public async getIdentityProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
+	public async getProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
 		try {
 			const accessToken = tokens.accessToken();
 
@@ -77,16 +77,13 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 			});
 
 			if (!response.ok) {
-				if (response.status === 401) {
-					return err("ACCESS_TOKEN_INVALID");
-				}
-				return err("FETCH_IDENTITY_FAILED");
+				return err("GET_PROVIDER_USER_FAILED");
 			}
 
 			const user = await response.json();
 
-			if (!Value.Check(discordUserResponseSchema, user)) {
-				return err("IDENTITY_INVALID");
+			if (!Value.Check(discordUserDtoSchema, user)) {
+				return err("PROVIDER_USER_INVALID");
 			}
 
 			const identityProviderUser: IdentityProviderUser = {
@@ -101,8 +98,8 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 				identityProviderUser,
 			});
 		} catch (error) {
-			console.error("Error in getAccountInfo:", error);
-			return err("FETCH_IDENTITY_FAILED");
+			console.error("Error in getProviderUser:", error);
+			return err("GET_PROVIDER_USER_FAILED");
 		}
 	}
 

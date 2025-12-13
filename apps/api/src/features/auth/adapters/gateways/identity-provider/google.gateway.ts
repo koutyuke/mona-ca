@@ -64,14 +64,14 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 		}
 	}
 
-	public async getIdentityProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
+	public async getProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult> {
 		try {
 			const idToken = tokens.idToken();
 
 			const claims = decodeIdToken(idToken);
 
 			if (!Value.Check(googleIdTokenClaimsSchema, claims)) {
-				return err("IDENTITY_INVALID");
+				return err("PROVIDER_USER_INVALID");
 			}
 
 			const identityProviderUser: IdentityProviderUser = {
@@ -86,8 +86,8 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 				identityProviderUser,
 			});
 		} catch (error) {
-			console.error("Error in getAccountInfo:", error);
-			return err("FETCH_IDENTITY_FAILED");
+			console.error("Error in getProviderUser:", error);
+			return err("GET_PROVIDER_USER_FAILED");
 		}
 	}
 

@@ -16,12 +16,12 @@ export type GetProviderUserResult = Result<
 	Ok<{
 		identityProviderUser: IdentityProviderUser;
 	}>,
-	Err<"FETCH_IDENTITY_FAILED"> | Err<"ACCESS_TOKEN_INVALID"> | Err<"IDENTITY_INVALID">
+	Err<"GET_PROVIDER_USER_FAILED"> | Err<"PROVIDER_USER_INVALID">
 >;
 
 export interface IIdentityProviderGateway {
 	createAuthorizationURL(state: string, codeVerifier: string): URL;
 	exchangeCodeForTokens(code: string, codeVerifier: string): Promise<GetTokensResult>;
-	getIdentityProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult>;
+	getProviderUser(tokens: OAuth2Tokens): Promise<GetProviderUserResult>;
 	revokeToken(tokens: OAuth2Tokens): Promise<void>;
 }
