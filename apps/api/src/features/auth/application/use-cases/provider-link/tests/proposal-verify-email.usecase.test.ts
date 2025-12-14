@@ -3,24 +3,24 @@ import { newUserId } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import { createProviderAccount } from "../../../../domain/entities/provider-account";
-import { createAccountLinkSessionFixture, createAuthUserFixture } from "../../../../testing/fixtures";
+import { createAuthUserFixture, createProviderLinkProposalFixture } from "../../../../testing/fixtures";
 import {
-	AccountLinkSessionRepositoryMock,
 	AuthUserRepositoryMock,
 	ProviderAccountRepositoryMock,
+	ProviderLinkProposalRepositoryMock,
 	SessionRepositoryMock,
-	createAccountLinkSessionsMap,
 	createAuthUsersMap,
 	createProviderAccountKey,
 	createProviderAccountsMap,
+	createProviderLinkProposalsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import { AccountLinkVerifyEmailUseCase } from "../verify-email.usecase";
+import { ProviderLinkProposalVerifyEmailUseCase } from "../proposal-verify-email.usecase";
 
 const sessionMap = createSessionsMap();
 const authUserMap = createAuthUsersMap();
 const providerAccountMap = createProviderAccountsMap();
-const accountLinkSessionMap = createAccountLinkSessionsMap();
+const providerLinkProposalMap = createProviderLinkProposalsMap();
 
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
@@ -32,13 +32,13 @@ const authUserRepository = new AuthUserRepositoryMock({
 const providerAccountRepository = new ProviderAccountRepositoryMock({
 	providerAccountMap,
 });
-const accountLinkSessionRepository = new AccountLinkSessionRepositoryMock({
-	accountLinkSessionMap,
+const providerLinkProposalRepository = new ProviderLinkProposalRepositoryMock({
+	providerLinkProposalMap,
 });
 const tokenSecretService = new TokenSecretServiceMock();
 
-const accountLinkVerifyEmailUseCase = new AccountLinkVerifyEmailUseCase(
-	accountLinkSessionRepository,
+const providerLinkProposalVerifyEmailUseCase = new ProviderLinkProposalVerifyEmailUseCase(
+	providerLinkProposalRepository,
 	authUserRepository,
 	providerAccountRepository,
 	sessionRepository,
@@ -47,32 +47,32 @@ const accountLinkVerifyEmailUseCase = new AccountLinkVerifyEmailUseCase(
 
 const { userRegistration, userCredentials } = createAuthUserFixture();
 
-describe("AccountLinkVerifyEmailUseCase", () => {
+describe("ProviderLinkProposalVerifyEmailUseCase", () => {
 	beforeEach(() => {
 		authUserMap.set(userRegistration.id, userRegistration);
 	});
 
 	afterEach(() => {
-		accountLinkSessionMap.clear();
+		providerLinkProposalMap.clear();
 		providerAccountMap.clear();
 		authUserMap.clear();
 		sessionMap.clear();
 	});
 
-	it("should complete account link successfully with valid code", async () => {
-		const { accountLinkSession } = createAccountLinkSessionFixture({
-			accountLinkSession: {
+	it("should complete provider link proposal successfully with valid code", async () => {
+		const { providerLinkProposal } = createProviderLinkProposalFixture({
+			providerLinkProposal: {
 				userId: userRegistration.id,
 				code: "12345678",
 				email: userRegistration.email,
 			},
 		});
-		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
+		providerLinkProposalMap.set(providerLinkProposal.id, providerLinkProposal);
 
-		const result = await accountLinkVerifyEmailUseCase.execute(
-			accountLinkSession.code ?? "",
+		const result = await providerLinkProposalVerifyEmailUseCase.execute(
+			providerLinkProposal.code ?? "",
 			userCredentials,
-			accountLinkSession,
+			providerLinkProposal,
 		);
 
 		expect(result.isErr).toBe(false);
@@ -88,15 +88,15 @@ describe("AccountLinkVerifyEmailUseCase", () => {
 		// check session token
 		expect(sessionToken).toBe(`${session.id}.token-secret`);
 
-		// check account link session is deleted
-		expect(accountLinkSessionMap.has(accountLinkSession.id)).toBe(false);
+		// check provider link proposal is deleted
+		expect(providerLinkProposalMap.has(providerLinkProposal.id)).toBe(false);
 
 		// check provider account is created
 		const savedProviderAccount = providerAccountMap.get(
-			createProviderAccountKey(accountLinkSession.provider, accountLinkSession.providerUserId),
+			createProviderAccountKey(providerLinkProposal.provider, providerLinkProposal.providerUserId),
 		);
-		expect(savedProviderAccount?.provider).toBe(accountLinkSession.provider);
-		expect(savedProviderAccount?.providerUserId).toBe(accountLinkSession.providerUserId);
+		expect(savedProviderAccount?.provider).toBe(providerLinkProposal.provider);
+		expect(savedProviderAccount?.providerUserId).toBe(providerLinkProposal.providerUserId);
 		expect(savedProviderAccount?.userId).toBe(userRegistration.id);
 		expect(savedProviderAccount?.linkedAt).toBeDefined();
 
@@ -111,17 +111,21 @@ describe("AccountLinkVerifyEmailUseCase", () => {
 	});
 
 	it("should return INVALID_ASSOCIATION_CODE error when code is null", async () => {
-		// create account link session without code
-		const { accountLinkSession } = createAccountLinkSessionFixture({
-			accountLinkSession: {
+		// create provider link proposal without code
+		const { providerLinkProposal } = createProviderLinkProposalFixture({
+			providerLinkProposal: {
 				userId: userRegistration.id,
 				code: null,
 				email: userRegistration.email,
 			},
 		});
-		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
+		providerLinkProposalMap.set(providerLinkProposal.id, providerLinkProposal);
 
-		const result = await accountLinkVerifyEmailUseCase.execute("12345678", userCredentials, accountLinkSession);
+		const result = await providerLinkProposalVerifyEmailUseCase.execute(
+			"12345678",
+			userCredentials,
+			providerLinkProposal,
+		);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -130,17 +134,21 @@ describe("AccountLinkVerifyEmailUseCase", () => {
 	});
 
 	it("should return INVALID_ASSOCIATION_CODE error when code does not match", async () => {
-		// create account link session
-		const { accountLinkSession } = createAccountLinkSessionFixture({
-			accountLinkSession: {
+		// create provider link proposal
+		const { providerLinkProposal } = createProviderLinkProposalFixture({
+			providerLinkProposal: {
 				userId: userRegistration.id,
 				code: "12345678",
 				email: userRegistration.email,
 			},
 		});
-		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
+		providerLinkProposalMap.set(providerLinkProposal.id, providerLinkProposal);
 
-		const result = await accountLinkVerifyEmailUseCase.execute("87654321", userCredentials, accountLinkSession);
+		const result = await providerLinkProposalVerifyEmailUseCase.execute(
+			"87654321",
+			userCredentials,
+			providerLinkProposal,
+		);
 
 		expect(result.isErr).toBe(true);
 
@@ -149,29 +157,33 @@ describe("AccountLinkVerifyEmailUseCase", () => {
 	});
 
 	it("should return ACCOUNT_ALREADY_LINKED error when user already has account for the provider", async () => {
-		// create account link session
-		const { accountLinkSession } = createAccountLinkSessionFixture({
-			accountLinkSession: {
+		// create provider link proposal
+		const { providerLinkProposal } = createProviderLinkProposalFixture({
+			providerLinkProposal: {
 				userId: userRegistration.id,
 				code: "12345678",
 				email: userRegistration.email,
 			},
 		});
-		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
+		providerLinkProposalMap.set(providerLinkProposal.id, providerLinkProposal);
 
 		// create existing provider account for the user and provider
 		const existingProviderAccount = createProviderAccount({
-			provider: accountLinkSession.provider,
-			providerUserId: accountLinkSession.providerUserId,
+			provider: providerLinkProposal.provider,
+			providerUserId: providerLinkProposal.providerUserId,
 			userId: userRegistration.id,
 		});
 
 		providerAccountMap.set(
-			createProviderAccountKey(accountLinkSession.provider, accountLinkSession.providerUserId),
+			createProviderAccountKey(providerLinkProposal.provider, providerLinkProposal.providerUserId),
 			existingProviderAccount,
 		);
 
-		const result = await accountLinkVerifyEmailUseCase.execute("12345678", userCredentials, accountLinkSession);
+		const result = await providerLinkProposalVerifyEmailUseCase.execute(
+			"12345678",
+			userCredentials,
+			providerLinkProposal,
+		);
 
 		expect(result.isErr).toBe(true);
 
@@ -180,28 +192,32 @@ describe("AccountLinkVerifyEmailUseCase", () => {
 	});
 
 	it("should return ACCOUNT_LINKED_ELSEWHERE error when provider account is linked to another user", async () => {
-		const { accountLinkSession } = createAccountLinkSessionFixture({
-			accountLinkSession: {
+		const { providerLinkProposal } = createProviderLinkProposalFixture({
+			providerLinkProposal: {
 				userId: userRegistration.id,
 				code: "12345678",
 				email: userRegistration.email,
 			},
 		});
-		accountLinkSessionMap.set(accountLinkSession.id, accountLinkSession);
+		providerLinkProposalMap.set(providerLinkProposal.id, providerLinkProposal);
 
 		// create existing provider account linked to another user
 		const existingProviderAccount = createProviderAccount({
-			provider: accountLinkSession.provider,
-			providerUserId: accountLinkSession.providerUserId,
+			provider: providerLinkProposal.provider,
+			providerUserId: providerLinkProposal.providerUserId,
 			userId: newUserId(ulid()),
 		});
 
 		providerAccountMap.set(
-			createProviderAccountKey(accountLinkSession.provider, accountLinkSession.providerUserId),
+			createProviderAccountKey(providerLinkProposal.provider, providerLinkProposal.providerUserId),
 			existingProviderAccount,
 		);
 
-		const result = await accountLinkVerifyEmailUseCase.execute("12345678", userCredentials, accountLinkSession);
+		const result = await providerLinkProposalVerifyEmailUseCase.execute(
+			"12345678",
+			userCredentials,
+			providerLinkProposal,
+		);
 
 		expect(result.isErr).toBe(true);
 

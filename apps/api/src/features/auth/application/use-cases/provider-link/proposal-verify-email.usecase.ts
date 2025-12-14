@@ -8,25 +8,25 @@ import { encodeToken } from "../../../domain/value-objects/tokens";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
-import type { AccountLinkSession } from "../../../domain/entities/account-link-session";
+import type { ProviderLinkProposal } from "../../../domain/entities/provider-link-proposal";
 import type { Session } from "../../../domain/entities/session";
 import { type UserCredentials, updateUserCredentials } from "../../../domain/entities/user-credentials";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
 import type {
-	AccountLinkVerifyEmailUseCaseResult,
-	IAccountLinkVerifyEmailUseCase,
-} from "../../contracts/account-link/verify-email.usecase.interface";
-import type { IAccountLinkSessionRepository } from "../../ports/repositories/account-link-session.repository.interface";
+	IProviderLinkProposalVerifyEmailUseCase,
+	ProviderLinkProposalVerifyEmailUseCaseResult,
+} from "../../contracts/provider-link/proposal-verify-email.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
 import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
+import type { IProviderLinkProposalRepository } from "../../ports/repositories/provider-link-proposal.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
-// this use case will be called after the validate account association session use case.
-// so we don't need to check the expired account association session.
-export class AccountLinkVerifyEmailUseCase implements IAccountLinkVerifyEmailUseCase {
+// this use case will be called after the validate provider link proposal use case.
+// so we don't need to check the expired provider link proposal.
+export class ProviderLinkProposalVerifyEmailUseCase implements IProviderLinkProposalVerifyEmailUseCase {
 	constructor(
 		// repositories
-		private readonly accountLinkSessionRepository: IAccountLinkSessionRepository,
+		private readonly providerLinkProposalRepository: IProviderLinkProposalRepository,
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly providerAccountRepository: IProviderAccountRepository,
 		private readonly sessionRepository: ISessionRepository,
@@ -37,24 +37,27 @@ export class AccountLinkVerifyEmailUseCase implements IAccountLinkVerifyEmailUse
 	public async execute(
 		code: string,
 		userCredentials: UserCredentials,
-		accountLinkSession: AccountLinkSession,
-	): Promise<AccountLinkVerifyEmailUseCaseResult> {
-		if (accountLinkSession.code === null) {
+		providerLinkProposal: ProviderLinkProposal,
+	): Promise<ProviderLinkProposalVerifyEmailUseCaseResult> {
+		if (providerLinkProposal.code === null) {
 			return err("INVALID_ASSOCIATION_CODE");
 		}
 
-		if (!timingSafeStringEqual(accountLinkSession.code, code)) {
+		if (!timingSafeStringEqual(providerLinkProposal.code, code)) {
 			return err("INVALID_ASSOCIATION_CODE");
 		}
 
-		await this.accountLinkSessionRepository.deleteById(accountLinkSession.id);
+		await this.providerLinkProposalRepository.deleteById(providerLinkProposal.id);
 
 		const [existingProviderAccount, currentUserProviderAccount] = await Promise.all([
 			this.providerAccountRepository.findByProviderAndProviderUserId(
-				accountLinkSession.provider,
-				accountLinkSession.providerUserId,
+				providerLinkProposal.provider,
+				providerLinkProposal.providerUserId,
 			),
-			this.providerAccountRepository.findByUserIdAndProvider(accountLinkSession.userId, accountLinkSession.provider),
+			this.providerAccountRepository.findByUserIdAndProvider(
+				providerLinkProposal.userId,
+				providerLinkProposal.provider,
+			),
 		]);
 
 		if (currentUserProviderAccount) {
@@ -72,8 +75,8 @@ export class AccountLinkVerifyEmailUseCase implements IAccountLinkVerifyEmailUse
 		const { session, sessionToken } = this.createSession(userCredentials.id);
 
 		const providerAccount = createProviderAccount({
-			provider: accountLinkSession.provider,
-			providerUserId: accountLinkSession.providerUserId,
+			provider: providerLinkProposal.provider,
+			providerUserId: providerLinkProposal.providerUserId,
 			userId: userCredentials.id,
 		});
 
@@ -98,7 +101,7 @@ export class AccountLinkVerifyEmailUseCase implements IAccountLinkVerifyEmailUse
 		const secretHash = this.tokenSecretService.hash(secret);
 
 		const session = createSession({
-			id: id,
+			id,
 			userId,
 			secretHash,
 		});
