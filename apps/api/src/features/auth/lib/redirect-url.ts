@@ -9,7 +9,7 @@ export const federatedAuthRedirectURL = (production: boolean, provider: RawIdent
 	return providerRedirectURL.toString();
 };
 
-export const providerConnectionRedirectURL = (production: boolean, provider: RawIdentityProviders) => {
+export const providerLinkRedirectURL = (production: boolean, provider: RawIdentityProviders) => {
 	const apiBaseURL = getAPIBaseURL(production);
 
 	const providerRedirectURL = new URL(`me/connections/${provider}/callback`, apiBaseURL);
