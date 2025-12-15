@@ -8,12 +8,12 @@ import type { federatedAuthStateSchema } from "../schema";
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock();
 const discordIdentityProviderGateway = new IdentityProviderGatewayMock();
-const federatedAuthHmacSignedStateService = new HmacSignedStateServiceMock<typeof federatedAuthStateSchema>();
+const federatedAuthSignedStateService = new HmacSignedStateServiceMock<typeof federatedAuthStateSchema>();
 
 const federatedAuthRequestUseCase = new FederatedAuthRequestUseCase(
 	googleIdentityProviderGateway,
 	discordIdentityProviderGateway,
-	federatedAuthHmacSignedStateService,
+	federatedAuthSignedStateService,
 );
 
 const PRODUCTION = true;
@@ -29,7 +29,7 @@ describe("FederatedAuthRequestUseCase", () => {
 		const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 		// check state
-		expect(state).toBe(`${federatedAuthHmacSignedStateService.signPrefix}:${JSON.stringify({ client: "web" })}`);
+		expect(state).toBe(`${federatedAuthSignedStateService.signPrefix}:${JSON.stringify({ client: "web" })}`);
 
 		// check code verifier
 		expect(codeVerifier).toBeDefined();
@@ -59,7 +59,7 @@ describe("FederatedAuthRequestUseCase", () => {
 		const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 		// check state
-		expect(state).toBe(`${federatedAuthHmacSignedStateService.signPrefix}:${JSON.stringify({ client: "mobile" })}`);
+		expect(state).toBe(`${federatedAuthSignedStateService.signPrefix}:${JSON.stringify({ client: "mobile" })}`);
 
 		// check code verifier
 		expect(codeVerifier).toBeDefined();
@@ -98,7 +98,7 @@ describe("FederatedAuthRequestUseCase", () => {
 		assert(result1.isOk);
 		assert(result2.isOk);
 
-		// セキュリティ: 各リクエストで異なるcode verifierが生成されること
+		// check different code verifiers are generated for each request for security
 		expect(result1.value.codeVerifier).not.toBe(result2.value.codeVerifier);
 	});
 

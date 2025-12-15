@@ -41,7 +41,7 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		private readonly providerAccountRepository: IProviderAccountRepository,
 		private readonly sessionRepository: ISessionRepository,
 		// system
-		private readonly federatedAuthHmacSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema>,
+		private readonly federatedAuthSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema>,
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
 
@@ -56,7 +56,7 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 	): Promise<FederatedAuthCallbackUseCaseResult> {
 		const identityProviderGateway =
 			provider === "google" ? this.googleIdentityProviderGateway : this.discordIdentityProviderGateway;
-		const validatedState = this.federatedAuthHmacSignedStateService.verify(signedState);
+		const validatedState = this.federatedAuthSignedStateService.verify(signedState);
 
 		if (validatedState.isErr) {
 			return err("INVALID_STATE");

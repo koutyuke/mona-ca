@@ -18,7 +18,7 @@ export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase
 		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
 		private readonly discordIdentityProviderGateway: IIdentityProviderGateway,
 		// infra
-		private readonly federatedAuthHmacSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema>,
+		private readonly federatedAuthSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema>,
 	) {}
 
 	public execute(
@@ -37,7 +37,7 @@ export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase
 			return err("INVALID_REDIRECT_URI");
 		}
 
-		const state = this.federatedAuthHmacSignedStateService.sign({ client: clientPlatform });
+		const state = this.federatedAuthSignedStateService.sign({ client: clientPlatform });
 		const codeVerifier = generateCodeVerifier();
 		const redirectToProviderURL = identityProviderGateway.createAuthorizationURL(state, codeVerifier);
 

@@ -38,7 +38,7 @@ const providerLinkProposalRepository = new ProviderLinkProposalRepositoryMock({
 });
 
 const tokenSecretService = new TokenSecretServiceMock();
-const federatedAuthHmacSignedStateService = new HmacSignedStateServiceMock<typeof federatedAuthStateSchema>();
+const federatedAuthSignedStateService = new HmacSignedStateServiceMock<typeof federatedAuthStateSchema>();
 
 const PRODUCTION = false;
 const PROVIDER = newIdentityProviders("discord");
@@ -67,7 +67,7 @@ const federatedAuthCallbackUseCase = new FederatedAuthCallbackUseCase(
 	authUserRepository,
 	providerAccountRepository,
 	sessionRepository,
-	federatedAuthHmacSignedStateService,
+	federatedAuthSignedStateService,
 	tokenSecretService,
 );
 
@@ -97,7 +97,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 			providerAccount,
 		);
 
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -141,7 +141,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 		// clear auth user map to simulate no existing account or user found
 		authUserMap.clear();
 
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -203,7 +203,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 	});
 
 	it("Error: should return PROVIDER_LINK_PROPOSAL error when user with same email exists but no provider account", async () => {
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -277,7 +277,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_REDIRECT_URI error for external malicious redirect URI", async () => {
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -295,7 +295,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_REDIRECT_URI error for javascript: protocol", async () => {
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -313,7 +313,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 	});
 
 	it("Error: should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -336,7 +336,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 	});
 
 	it("Error: should return PROVIDER_ERROR error for provider error", async () => {
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -359,7 +359,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 	});
 
 	it("Error: should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,
@@ -377,7 +377,7 @@ describe("FederatedAuthCallbackUseCase", () => {
 	});
 
 	it("Error: should return TOKEN_EXCHANGE_FAILED error when code is empty string", async () => {
-		const signedState = federatedAuthHmacSignedStateService.sign({ client: newClientPlatform("web") });
+		const signedState = federatedAuthSignedStateService.sign({ client: newClientPlatform("web") });
 
 		const result = await federatedAuthCallbackUseCase.execute(
 			PRODUCTION,

@@ -17,7 +17,7 @@ import type { providerLinkStateSchema } from "../schema";
 const providerAccountMap = createProviderAccountsMap();
 
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });
-const providerLinkOAuthStateService = new HmacSignedStateServiceMock<typeof providerLinkStateSchema>();
+const providerLinkSignedStateService = new HmacSignedStateServiceMock<typeof providerLinkStateSchema>();
 
 const PRODUCTION = false;
 const PROVIDER = newIdentityProviders("discord");
@@ -38,7 +38,7 @@ const providerLinkCallbackUseCase = new ProviderLinkCallbackUseCase(
 	discordIdentityProviderGateway,
 	googleIdentityProviderGateway,
 	providerAccountRepository,
-	providerLinkOAuthStateService,
+	providerLinkSignedStateService,
 );
 
 describe("ProviderLinkCallbackUseCase", () => {
@@ -47,7 +47,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 	});
 
 	it("Success: should link provider account when no conflicts exist", async () => {
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -113,7 +113,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_REDIRECT_URI error for external malicious redirect URI", async () => {
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -134,7 +134,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_REDIRECT_URI error for javascript: protocol", async () => {
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -155,7 +155,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 	});
 
 	it("Error: should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -179,7 +179,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 	});
 
 	it("Error: should return PROVIDER_ERROR error for provider error", async () => {
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -203,7 +203,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 	});
 
 	it("Error: should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -224,7 +224,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 	});
 
 	it("Error: should return TOKEN_EXCHANGE_FAILED error when code is empty string", async () => {
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -259,7 +259,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 			existingProviderAccount,
 		);
 
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
@@ -297,7 +297,7 @@ describe("ProviderLinkCallbackUseCase", () => {
 			existingProviderAccount,
 		);
 
-		const signedState = providerLinkOAuthStateService.sign({
+		const signedState = providerLinkSignedStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
