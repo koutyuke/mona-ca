@@ -4,9 +4,9 @@ import { UpdateUserProfileUseCase } from "../application/use-cases/user-profile/
 
 import type { ICoreDIContainer } from "../../../core/di";
 import type { EnvVariables } from "../../../core/infra/config/env";
-import type { IGetUserProfileUseCase } from "../application/contracts/user-profile/get-user-profile.usecase.interface";
-import type { IUpdateUserProfileUseCase } from "../application/contracts/user-profile/update-user-profile.usecase.interface";
-import type { IUserProfileRepository } from "../application/ports/repositories/user-profile.repository.interface";
+import type { IGetUserProfileUseCase } from "../application/ports/in/user-profile/get-user-profile.usecase.interface";
+import type { IUpdateUserProfileUseCase } from "../application/ports/in/user-profile/update-user-profile.usecase.interface";
+import type { IUserProfileRepository } from "../application/ports/out/repositories/user-profile.repository.interface";
 import type { IUserDIContainer } from "./container.interface";
 
 /**

@@ -1,5 +1,5 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { IEmailVerificationRequestRepository } from "../../../application/ports/repositories/email-verification-request.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../../application/ports/out/repositories/email-verification-request.repository.interface";
 import {
 	type EmailVerificationRequest,
 	isExpiredEmailVerificationRequest,

@@ -7,9 +7,9 @@ import type { PasswordResetSessionToken } from "../../../domain/value-objects/to
 import type {
 	IPasswordResetValidateSessionUseCase,
 	PasswordResetValidateSessionUseCaseResult,
-} from "../../contracts/password-reset/validate-session.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IPasswordResetSessionRepository } from "../../ports/repositories/password-reset-session.repository.interface";
+} from "../../ports/in/password-reset/validate-session.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IPasswordResetSessionRepository } from "../../ports/out/repositories/password-reset-session.repository.interface";
 
 export class PasswordResetValidateSessionUseCase implements IPasswordResetValidateSessionUseCase {
 	constructor(

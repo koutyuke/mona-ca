@@ -3,7 +3,7 @@ import { newUserId } from "../../../../../core/domain/value-objects";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { IProviderAccountRepository } from "../../../application/ports/repositories/provider-account.repository.interface";
+import type { IProviderAccountRepository } from "../../../application/ports/out/repositories/provider-account.repository.interface";
 import type { ProviderAccount } from "../../../domain/entities/provider-account";
 import {
 	type IdentityProviders,

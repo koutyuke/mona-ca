@@ -4,7 +4,7 @@ import { newEmailVerificationRequestId } from "../../../domain/value-objects/ids
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { IEmailVerificationRequestRepository } from "../../../application/ports/repositories/email-verification-request.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../../application/ports/out/repositories/email-verification-request.repository.interface";
 import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { EmailVerificationRequestId } from "../../../domain/value-objects/ids";
 

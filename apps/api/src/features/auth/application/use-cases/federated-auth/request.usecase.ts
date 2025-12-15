@@ -7,9 +7,9 @@ import type { IdentityProviders } from "../../../domain/value-objects/identity-p
 import type {
 	FederatedAuthRequestUseCaseResult,
 	IFederatedAuthRequestUseCase,
-} from "../../contracts/federated-auth/request.usecase.interface";
-import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
-import type { IHmacSignedStateService } from "../../ports/infra/hmac-signed-state.service.interface";
+} from "../../ports/in/federated-auth/request.usecase.interface";
+import type { IIdentityProviderGateway } from "../../ports/out/gateways/identity-provider.gateway.interface";
+import type { IHmacSignedStateService } from "../../ports/out/infra/hmac-signed-state.service.interface";
 import type { federatedAuthStateSchema } from "./schema";
 
 export class FederatedAuthRequestUseCase implements IFederatedAuthRequestUseCase {

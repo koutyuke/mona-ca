@@ -7,10 +7,10 @@ import type { UserCredentials } from "../../../domain/entities/user-credentials"
 import type {
 	IPasswordResetResetUseCase,
 	PasswordResetResetUseCaseResult,
-} from "../../contracts/password-reset/reset.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IPasswordResetSessionRepository } from "../../ports/repositories/password-reset-session.repository.interface";
-import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
+} from "../../ports/in/password-reset/reset.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IPasswordResetSessionRepository } from "../../ports/out/repositories/password-reset-session.repository.interface";
+import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
 
 // this use case will be called after the validate password reset session use case.
 // so we don't need to check the expired password reset session.

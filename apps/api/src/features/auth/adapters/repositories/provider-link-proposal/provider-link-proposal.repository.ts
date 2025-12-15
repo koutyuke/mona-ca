@@ -5,7 +5,7 @@ import { newProviderLinkProposalId } from "../../../domain/value-objects/ids";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { IProviderLinkProposalRepository } from "../../../application/ports/repositories/provider-link-proposal.repository.interface";
+import type { IProviderLinkProposalRepository } from "../../../application/ports/out/repositories/provider-link-proposal.repository.interface";
 import type { ProviderLinkProposal } from "../../../domain/entities/provider-link-proposal";
 import type { RawIdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type { ProviderLinkProposalId } from "../../../domain/value-objects/ids";

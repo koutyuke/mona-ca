@@ -11,9 +11,9 @@ import type { SignupSessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	ISignupRequestUseCase,
 	SignupRequestUseCaseResult,
-} from "../../contracts/signup/request.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
+} from "../../ports/in/signup/request.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { ISignupSessionRepository } from "../../ports/out/repositories/signup-session.repository.interface";
 
 export class SignupRequestUseCase implements ISignupRequestUseCase {
 	constructor(

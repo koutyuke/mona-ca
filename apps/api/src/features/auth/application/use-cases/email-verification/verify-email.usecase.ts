@@ -7,9 +7,9 @@ import type { UserCredentials } from "../../../domain/entities/user-credentials"
 import type {
 	EmailVerificationVerifyEmailUseCaseResult,
 	IEmailVerificationVerifyEmailUseCase,
-} from "../../contracts/email-verification/verify-email.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
+} from "../../ports/in/email-verification/verify-email.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/out/repositories/email-verification-request.repository.interface";
 
 export class EmailVerificationVerifyEmailUseCase implements IEmailVerificationVerifyEmailUseCase {
 	constructor(

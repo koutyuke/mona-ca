@@ -7,8 +7,8 @@ import type {
 	IListAuthMethodsUseCase,
 	ListAuthMethodsUseCaseResult,
 	PasswordAuthConnection,
-} from "../../contracts/session/list-auth-methods.usecase.interface";
-import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
+} from "../../ports/in/session/list-auth-methods.usecase.interface";
+import type { IProviderAccountRepository } from "../../ports/out/repositories/provider-account.repository.interface";
 
 export class ListAuthMethodsUseCase implements IListAuthMethodsUseCase {
 	constructor(

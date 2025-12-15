@@ -7,9 +7,9 @@ import type { SessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	IValidateSessionUseCase,
 	ValidateSessionUseCaseResult,
-} from "../../contracts/session/validate-session.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
+} from "../../ports/in/session/validate-session.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
 
 export class ValidateSessionUseCase implements IValidateSessionUseCase {
 	constructor(

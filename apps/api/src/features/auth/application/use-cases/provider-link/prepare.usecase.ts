@@ -8,8 +8,8 @@ import { type ProviderLinkRequestToken, encodeToken } from "../../../domain/valu
 import type {
 	IProviderLinkPrepareUseCase,
 	ProviderLinkPrepareUseCaseResult,
-} from "../../contracts/provider-link/prepare.usecase.interface";
-import type { IProviderLinkRequestRepository } from "../../ports/repositories/provider-link-request.repository.interface";
+} from "../../ports/in/provider-link/prepare.usecase.interface";
+import type { IProviderLinkRequestRepository } from "../../ports/out/repositories/provider-link-request.repository.interface";
 
 export class ProviderLinkPrepareUseCase implements IProviderLinkPrepareUseCase {
 	constructor(

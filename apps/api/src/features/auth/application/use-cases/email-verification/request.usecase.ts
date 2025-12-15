@@ -13,8 +13,8 @@ import type { EmailVerificationRequestToken } from "../../../domain/value-object
 import type {
 	EmailVerificationRequestUseCaseResult,
 	IEmailVerificationRequestUseCase,
-} from "../../contracts/email-verification/request.usecase.interface";
-import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
+} from "../../ports/in/email-verification/request.usecase.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/out/repositories/email-verification-request.repository.interface";
 
 export class EmailVerificationRequestUseCase implements IEmailVerificationRequestUseCase {
 	constructor(

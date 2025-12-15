@@ -15,10 +15,10 @@ import type { SessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	IUpdateEmailVerifyEmailUseCase,
 	UpdateEmailVerifyEmailUseCaseResult,
-} from "../../contracts/update-email/verify-email.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
-import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
+} from "../../ports/in/update-email/verify-email.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/out/repositories/email-verification-request.repository.interface";
+import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
 
 export class UpdateEmailVerifyEmailUseCase implements IUpdateEmailVerifyEmailUseCase {
 	constructor(

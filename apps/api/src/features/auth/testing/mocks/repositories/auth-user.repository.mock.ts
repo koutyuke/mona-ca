@@ -1,5 +1,5 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { IAuthUserRepository } from "../../../application/ports/repositories/auth-user.repository.interface";
+import type { IAuthUserRepository } from "../../../application/ports/out/repositories/auth-user.repository.interface";
 import type { Session } from "../../../domain/entities/session";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { UserRegistration } from "../../../domain/entities/user-registration";

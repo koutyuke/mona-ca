@@ -1,5 +1,5 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { IProviderAccountRepository } from "../../../application/ports/repositories/provider-account.repository.interface";
+import type { IProviderAccountRepository } from "../../../application/ports/out/repositories/provider-account.repository.interface";
 import type { ProviderAccount } from "../../../domain/entities/provider-account";
 import type { IdentityProviders, IdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 

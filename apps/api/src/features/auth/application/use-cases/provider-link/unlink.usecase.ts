@@ -5,8 +5,8 @@ import type { IdentityProviders } from "../../../domain/value-objects/identity-p
 import type {
 	IProviderLinkUnlinkUseCase,
 	ProviderLinkUnlinkUseCaseResult,
-} from "../../contracts/provider-link/unlink.usecase.interface";
-import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
+} from "../../ports/in/provider-link/unlink.usecase.interface";
+import type { IProviderAccountRepository } from "../../ports/out/repositories/provider-account.repository.interface";
 
 export class ProviderLinkUnlinkUseCase implements IProviderLinkUnlinkUseCase {
 	constructor(private readonly providerAccountRepository: IProviderAccountRepository) {}

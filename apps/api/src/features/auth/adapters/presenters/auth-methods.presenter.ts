@@ -1,4 +1,4 @@
-import type { ListAuthMethodsUseCaseResult } from "../../application/contracts/session/list-auth-methods.usecase.interface";
+import type { ListAuthMethodsUseCaseResult } from "../../application/ports/in/session/list-auth-methods.usecase.interface";
 import type { RawIdentityProviders } from "../../domain/value-objects/identity-providers";
 
 type PasswordAuthConnection = {

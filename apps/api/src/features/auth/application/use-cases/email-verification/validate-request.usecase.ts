@@ -8,8 +8,8 @@ import type { EmailVerificationRequestToken } from "../../../domain/value-object
 import type {
 	EmailVerificationValidateRequestUseCaseResult,
 	IEmailVerificationValidateRequestUseCase,
-} from "../../contracts/email-verification/validate-request.usecase.interface";
-import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
+} from "../../ports/in/email-verification/validate-request.usecase.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/out/repositories/email-verification-request.repository.interface";
 
 export class EmailVerificationValidateRequestUseCase implements IEmailVerificationValidateRequestUseCase {
 	constructor(

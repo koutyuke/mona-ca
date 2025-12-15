@@ -3,8 +3,8 @@ import type { UserId } from "../../../../../core/domain/value-objects";
 import type {
 	GetUserProfileUseCaseResult,
 	IGetUserProfileUseCase,
-} from "../../contracts/user-profile/get-user-profile.usecase.interface";
-import type { IUserProfileRepository } from "../../ports/repositories/user-profile.repository.interface";
+} from "../../ports/in/user-profile/get-user-profile.usecase.interface";
+import type { IUserProfileRepository } from "../../ports/out/repositories/user-profile.repository.interface";
 
 export class GetUserProfileUseCase implements IGetUserProfileUseCase {
 	constructor(private readonly userProfileRepository: IUserProfileRepository) {}

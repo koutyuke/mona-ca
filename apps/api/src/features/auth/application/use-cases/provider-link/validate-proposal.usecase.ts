@@ -7,9 +7,9 @@ import type { ProviderLinkProposalToken } from "../../../domain/value-objects/to
 import type {
 	IProviderLinkValidateProposalUseCase,
 	ProviderLinkValidateProposalUseCaseResult,
-} from "../../contracts/provider-link/validate-proposal.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IProviderLinkProposalRepository } from "../../ports/repositories/provider-link-proposal.repository.interface";
+} from "../../ports/in/provider-link/validate-proposal.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IProviderLinkProposalRepository } from "../../ports/out/repositories/provider-link-proposal.repository.interface";
 
 export class ProviderLinkValidateProposalUseCase implements IProviderLinkValidateProposalUseCase {
 	constructor(

@@ -14,10 +14,10 @@ import type { SessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	ISignupRegisterUseCase,
 	SignupRegisterUseCaseResult,
-} from "../../contracts/signup/register.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
-import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
+} from "../../ports/in/signup/register.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
+import type { ISignupSessionRepository } from "../../ports/out/repositories/signup-session.repository.interface";
 
 export class SignupRegisterUseCase implements ISignupRegisterUseCase {
 	constructor(

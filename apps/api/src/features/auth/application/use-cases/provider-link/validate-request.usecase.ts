@@ -5,9 +5,9 @@ import { type ProviderLinkRequestToken, decodeToken } from "../../../domain/valu
 import type {
 	IProviderLinkValidateRequestUseCase,
 	ProviderLinkValidateRequestUseCaseResult,
-} from "../../contracts/provider-link/validate-request.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IProviderLinkRequestRepository } from "../../ports/repositories/provider-link-request.repository.interface";
+} from "../../ports/in/provider-link/validate-request.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IProviderLinkRequestRepository } from "../../ports/out/repositories/provider-link-request.repository.interface";
 
 export class ProviderLinkValidateRequestUseCase implements IProviderLinkValidateRequestUseCase {
 	constructor(

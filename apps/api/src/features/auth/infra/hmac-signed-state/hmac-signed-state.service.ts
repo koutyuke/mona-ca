@@ -5,7 +5,7 @@ import { generateState } from "arctic";
 import { t } from "elysia";
 import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../core/lib/encoding";
 import type { IHmacService } from "../../../../core/ports/system";
-import type { IHmacSignedStateService } from "../../application/ports/infra/hmac-signed-state.service.interface";
+import type { IHmacSignedStateService } from "../../application/ports/out/infra/hmac-signed-state.service.interface";
 
 export class HmacSignedStateService<P extends string, S extends TObject> implements IHmacSignedStateService<S> {
 	private readonly purpose: P;

@@ -10,7 +10,7 @@ import {
 	createProviderAccountKey,
 	createProviderAccountsMap,
 } from "../../../../testing/mocks/repositories";
-import type { UserInfo } from "../../../ports/gateways/identity-provider.gateway.interface";
+import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import { ProviderLinkCallbackUseCase } from "../callback.usecase";
 import type { providerLinkStateSchema } from "../schema";
 

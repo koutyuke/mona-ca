@@ -4,7 +4,7 @@ import { newSessionId } from "../../../domain/value-objects/ids";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { ISessionRepository } from "../../../application/ports/repositories/session.repository.interface";
+import type { ISessionRepository } from "../../../application/ports/out/repositories/session.repository.interface";
 import type { Session } from "../../../domain/entities/session";
 import type { SessionId } from "../../../domain/value-objects/ids";
 

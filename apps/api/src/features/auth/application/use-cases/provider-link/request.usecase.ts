@@ -8,9 +8,9 @@ import type { IdentityProviders } from "../../../domain/value-objects/identity-p
 import type {
 	IProviderLinkRequestUseCase,
 	ProviderLinkRequestUseCaseResult,
-} from "../../contracts/provider-link/request.usecase.interface";
-import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
-import type { IHmacSignedStateService } from "../../ports/infra/hmac-signed-state.service.interface";
+} from "../../ports/in/provider-link/request.usecase.interface";
+import type { IIdentityProviderGateway } from "../../ports/out/gateways/identity-provider.gateway.interface";
+import type { IHmacSignedStateService } from "../../ports/out/infra/hmac-signed-state.service.interface";
 import type { providerLinkStateSchema } from "./schema";
 
 export class ProviderLinkRequestUseCase implements IProviderLinkRequestUseCase {

@@ -1,5 +1,5 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { IProviderLinkProposalRepository } from "../../../application/ports/repositories/provider-link-proposal.repository.interface";
+import type { IProviderLinkProposalRepository } from "../../../application/ports/out/repositories/provider-link-proposal.repository.interface";
 import {
 	type ProviderLinkProposal,
 	isExpiredProviderLinkProposal,

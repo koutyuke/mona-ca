@@ -16,7 +16,7 @@ import type {
 	GetUserInfoResult,
 	IIdentityProviderGateway,
 	UserInfo,
-} from "../../../application/ports/gateways/identity-provider.gateway.interface";
+} from "../../../application/ports/out/gateways/identity-provider.gateway.interface";
 import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
 const googleIdTokenClaimsSchema = t.Object({

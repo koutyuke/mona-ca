@@ -1,6 +1,6 @@
-import type { IGetUserProfileUseCase } from "../application/contracts/user-profile/get-user-profile.usecase.interface";
-import type { IUpdateUserProfileUseCase } from "../application/contracts/user-profile/update-user-profile.usecase.interface";
-import type { IUserProfileRepository } from "../application/ports/repositories/user-profile.repository.interface";
+import type { IGetUserProfileUseCase } from "../application/ports/in/user-profile/get-user-profile.usecase.interface";
+import type { IUpdateUserProfileUseCase } from "../application/ports/in/user-profile/update-user-profile.usecase.interface";
+import type { IUserProfileRepository } from "../application/ports/out/repositories/user-profile.repository.interface";
 
 export interface IUserDIContainer {
 	// === Repositories ===

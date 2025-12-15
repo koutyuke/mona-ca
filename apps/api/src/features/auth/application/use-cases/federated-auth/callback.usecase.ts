@@ -21,13 +21,13 @@ import type { ProviderLinkProposalToken, SessionToken } from "../../../domain/va
 import type {
 	FederatedAuthCallbackUseCaseResult,
 	IFederatedAuthCallbackUseCase,
-} from "../../contracts/federated-auth/callback.usecase.interface";
-import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
-import type { IHmacSignedStateService } from "../../ports/infra/hmac-signed-state.service.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
-import type { IProviderLinkProposalRepository } from "../../ports/repositories/provider-link-proposal.repository.interface";
-import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
+} from "../../ports/in/federated-auth/callback.usecase.interface";
+import type { IIdentityProviderGateway } from "../../ports/out/gateways/identity-provider.gateway.interface";
+import type { IHmacSignedStateService } from "../../ports/out/infra/hmac-signed-state.service.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IProviderAccountRepository } from "../../ports/out/repositories/provider-account.repository.interface";
+import type { IProviderLinkProposalRepository } from "../../ports/out/repositories/provider-link-proposal.repository.interface";
+import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
 import type { federatedAuthStateSchema } from "./schema";
 
 export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCase {

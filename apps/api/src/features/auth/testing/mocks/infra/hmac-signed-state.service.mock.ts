@@ -1,6 +1,6 @@
 import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/result";
 import type { Static, TObject } from "@sinclair/typebox";
-import type { IHmacSignedStateService } from "../../../application/ports/infra/hmac-signed-state.service.interface";
+import type { IHmacSignedStateService } from "../../../application/ports/out/infra/hmac-signed-state.service.interface";
 
 export class HmacSignedStateServiceMock<P extends TObject> implements IHmacSignedStateService<P> {
 	public readonly signPrefix = "__hmac-signed-state-signed";

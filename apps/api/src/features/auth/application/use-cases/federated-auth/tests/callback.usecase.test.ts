@@ -18,7 +18,7 @@ import {
 	createProviderLinkProposalsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
-import type { UserInfo } from "../../../ports/gateways/identity-provider.gateway.interface";
+import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import { FederatedAuthCallbackUseCase } from "../callback.usecase";
 import type { federatedAuthStateSchema } from "../schema";
 

@@ -7,8 +7,8 @@ import type { SignupSessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	ISignupValidateSessionUseCase,
 	SignupValidateSessionUseCaseResult,
-} from "../../contracts/signup/validate-session.usecase.interface";
-import type { ISignupSessionRepository } from "../../ports/repositories/signup-session.repository.interface";
+} from "../../ports/in/signup/validate-session.usecase.interface";
+import type { ISignupSessionRepository } from "../../ports/out/repositories/signup-session.repository.interface";
 
 export class SignupValidateSessionUseCase implements ISignupValidateSessionUseCase {
 	constructor(

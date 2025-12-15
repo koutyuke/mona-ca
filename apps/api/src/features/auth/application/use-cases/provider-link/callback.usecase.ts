@@ -8,10 +8,10 @@ import type { IdentityProviders } from "../../../domain/value-objects/identity-p
 import type {
 	IProviderLinkCallbackUseCase,
 	ProviderLinkCallbackUseCaseResult,
-} from "../../contracts/provider-link/callback.usecase.interface";
-import type { IIdentityProviderGateway } from "../../ports/gateways/identity-provider.gateway.interface";
-import type { IHmacSignedStateService } from "../../ports/infra/hmac-signed-state.service.interface";
-import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
+} from "../../ports/in/provider-link/callback.usecase.interface";
+import type { IIdentityProviderGateway } from "../../ports/out/gateways/identity-provider.gateway.interface";
+import type { IHmacSignedStateService } from "../../ports/out/infra/hmac-signed-state.service.interface";
+import type { IProviderAccountRepository } from "../../ports/out/repositories/provider-account.repository.interface";
 import type { providerLinkStateSchema } from "./schema";
 
 export class ProviderLinkCallbackUseCase implements IProviderLinkCallbackUseCase {

@@ -13,8 +13,8 @@ import type { ProviderLinkProposalToken } from "../../../domain/value-objects/to
 import type {
 	IProviderLinkProposalReissueUseCase,
 	ProviderLinkProposalReissueUseCaseResult,
-} from "../../contracts/provider-link/proposal-reissue.usecase.interface";
-import type { IProviderLinkProposalRepository } from "../../ports/repositories/provider-link-proposal.repository.interface";
+} from "../../ports/in/provider-link/proposal-reissue.usecase.interface";
+import type { IProviderLinkProposalRepository } from "../../ports/out/repositories/provider-link-proposal.repository.interface";
 
 // this use case will be called after the validate provider link proposal use case.
 // so we don't need to check the expired provider link proposal.

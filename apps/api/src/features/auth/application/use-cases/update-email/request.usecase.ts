@@ -13,9 +13,9 @@ import type { EmailVerificationRequestToken } from "../../../domain/value-object
 import type {
 	IUpdateEmailRequestUseCase,
 	UpdateEmailRequestUseCaseResult,
-} from "../../contracts/update-email/request.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
+} from "../../ports/in/update-email/request.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/out/repositories/email-verification-request.repository.interface";
 
 export class UpdateEmailRequestUseCase implements IUpdateEmailRequestUseCase {
 	constructor(

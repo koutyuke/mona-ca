@@ -5,9 +5,9 @@ import type {
 	IUpdateUserProfileUseCase,
 	UpdateUserProfileDto,
 	UpdateUserProfileUseCaseResult,
-} from "../../contracts/user-profile/update-user-profile.usecase.interface";
+} from "../../ports/in/user-profile/update-user-profile.usecase.interface";
 
-import type { IUserProfileRepository } from "../../ports/repositories/user-profile.repository.interface";
+import type { IUserProfileRepository } from "../../ports/out/repositories/user-profile.repository.interface";
 
 export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {
 	constructor(private readonly userProfileRepository: IUserProfileRepository) {}

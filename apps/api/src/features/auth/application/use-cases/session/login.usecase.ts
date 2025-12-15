@@ -8,9 +8,9 @@ import type { UserId } from "../../../../../core/domain/value-objects";
 import type { IPasswordHashingService, ITokenSecretService } from "../../../../../core/ports/system";
 import type { Session } from "../../../domain/entities/session";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
-import type { ILoginUseCase, LoginUseCaseResult } from "../../contracts/session/login.usecase.interface";
-import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
+import type { ILoginUseCase, LoginUseCaseResult } from "../../ports/in/session/login.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
 
 export class LoginUseCase implements ILoginUseCase {
 	constructor(

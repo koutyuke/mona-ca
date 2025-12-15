@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { newSignupSessionId } from "../../../domain/value-objects/ids";
 
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { ISignupSessionRepository } from "../../../application/ports/repositories/signup-session.repository.interface";
+import type { ISignupSessionRepository } from "../../../application/ports/out/repositories/signup-session.repository.interface";
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { SignupSessionId } from "../../../domain/value-objects/ids";
 

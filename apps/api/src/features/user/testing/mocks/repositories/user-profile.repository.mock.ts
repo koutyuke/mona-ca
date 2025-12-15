@@ -1,5 +1,5 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { IUserProfileRepository } from "../../../application/ports/repositories/user-profile.repository.interface";
+import type { IUserProfileRepository } from "../../../application/ports/out/repositories/user-profile.repository.interface";
 import type { UserProfile } from "../../../domain/entities/user-profile";
 
 export class UserProfileRepositoryMock implements IUserProfileRepository {
