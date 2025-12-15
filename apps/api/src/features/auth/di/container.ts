@@ -1,32 +1,32 @@
 import { DiscordIdentityProviderGateway } from "../adapters/gateways/identity-provider/discord.gateway";
 import { GoogleIdentityProviderGateway } from "../adapters/gateways/identity-provider/google.gateway";
-import { AccountLinkSessionRepository } from "../adapters/repositories/account-link-session/account-link-session.repository";
 import { AuthUserRepository } from "../adapters/repositories/auth-user/auth-user.repository";
-import { EmailVerificationSessionRepository } from "../adapters/repositories/email-verification-session/email-verification-session.repository";
+import { EmailVerificationRequestRepository } from "../adapters/repositories/email-verification-request/email-verification-request.repository";
 import { PasswordResetSessionRepository } from "../adapters/repositories/password-reset-session/password-reset-session.repository";
 import { ProviderAccountRepository } from "../adapters/repositories/provider-account/provider-account.repository";
-import { ProviderConnectionTicketRepository } from "../adapters/repositories/provider-connection-ticket/provider-connection-ticket.repository";
+import { ProviderLinkProposalRepository } from "../adapters/repositories/provider-link-proposal/provider-link-proposal.repository";
+import { ProviderLinkRequestRepository } from "../adapters/repositories/provider-link-request/provider-link-request.repository";
 import { SessionRepository } from "../adapters/repositories/session/session.repository";
 import { SignupSessionRepository } from "../adapters/repositories/signup-session/signup-session.repository";
-import { AccountLinkReissueSessionUseCase } from "../application/use-cases/account-link/reissue-session.usecase";
-import { AccountLinkValidateSessionUseCase } from "../application/use-cases/account-link/validate-session.usecase";
-import { AccountLinkVerifyEmailUseCase } from "../application/use-cases/account-link/verify-email.usecase";
 import { EmailVerificationRequestUseCase } from "../application/use-cases/email-verification/request.usecase";
-import { EmailVerificationValidateSessionUseCase } from "../application/use-cases/email-verification/validate-session.usecase";
+import { EmailVerificationValidateRequestUseCase } from "../application/use-cases/email-verification/validate-request.usecase";
 import { EmailVerificationVerifyEmailUseCase } from "../application/use-cases/email-verification/verify-email.usecase";
 import { FederatedAuthCallbackUseCase } from "../application/use-cases/federated-auth/callback.usecase";
 import { FederatedAuthRequestUseCase } from "../application/use-cases/federated-auth/request.usecase";
-import { oauthStateSchema } from "../application/use-cases/federated-auth/schema";
+import { federatedAuthStateSchema } from "../application/use-cases/federated-auth/schema";
 import { PasswordResetRequestUseCase } from "../application/use-cases/password-reset/request.usecase";
 import { PasswordResetResetUseCase } from "../application/use-cases/password-reset/reset.usecase";
 import { PasswordResetValidateSessionUseCase } from "../application/use-cases/password-reset/validate-session.usecase";
 import { PasswordResetVerifyEmailUseCase } from "../application/use-cases/password-reset/verify-email.usecase";
-import { ProviderConnectionCallbackUseCase } from "../application/use-cases/provider-connection/callback.usecase";
-import { ProviderConnectionDisconnectUseCase } from "../application/use-cases/provider-connection/disconnect.usecase";
-import { ProviderConnectionPrepareUseCase } from "../application/use-cases/provider-connection/prepare.usecase";
-import { ProviderConnectionRequestUseCase } from "../application/use-cases/provider-connection/request.usecase";
-import { providerConnectionStateSchema } from "../application/use-cases/provider-connection/schema";
-import { ProviderConnectionValidateTicketUseCase } from "../application/use-cases/provider-connection/validate-ticket.usecase";
+import { ProviderLinkCallbackUseCase } from "../application/use-cases/provider-link/callback.usecase";
+import { ProviderLinkPrepareUseCase } from "../application/use-cases/provider-link/prepare.usecase";
+import { ProviderLinkProposalReissueUseCase } from "../application/use-cases/provider-link/proposal-reissue.usecase";
+import { ProviderLinkProposalVerifyEmailUseCase } from "../application/use-cases/provider-link/proposal-verify-email.usecase";
+import { ProviderLinkRequestUseCase } from "../application/use-cases/provider-link/request.usecase";
+import { providerLinkStateSchema } from "../application/use-cases/provider-link/schema";
+import { ProviderLinkUnlinkUseCase } from "../application/use-cases/provider-link/unlink.usecase";
+import { ProviderLinkValidateProposalUseCase } from "../application/use-cases/provider-link/validate-proposal.usecase";
+import { ProviderLinkValidateRequestUseCase } from "../application/use-cases/provider-link/validate-request.usecase";
 import { ListAuthMethodsUseCase } from "../application/use-cases/session/list-auth-methods.usecase";
 import { LoginUseCase } from "../application/use-cases/session/login.usecase";
 import { LogoutUseCase } from "../application/use-cases/session/logout.usecase";
@@ -38,16 +38,13 @@ import { SignupValidateSessionUseCase } from "../application/use-cases/signup/va
 import { SignupVerifyEmailUseCase } from "../application/use-cases/signup/verify-email.usecase";
 import { UpdateEmailRequestUseCase } from "../application/use-cases/update-email/request.usecase";
 import { UpdateEmailVerifyEmailUseCase } from "../application/use-cases/update-email/verify-email.usecase";
-import { HmacOAuthStateService } from "../infra/hmac-oauth-state/hmac-oauth-state.service";
-import { federatedAuthRedirectURL, providerConnectionRedirectURL } from "../lib/redirect-url";
+import { HmacSignedStateService } from "../infra/hmac-signed-state/hmac-signed-state.service";
+import { federatedAuthRedirectURL, providerLinkRedirectURL } from "../lib/redirect-url";
 
 import type { ICoreDIContainer } from "../../../core/di";
 import type { EnvVariables } from "../../../core/infra/config/env";
-import type { IAccountLinkReissueSessionUseCase } from "../application/contracts/account-link/reissue-session.usecase.interface";
-import type { IAccountLinkValidateSessionUseCase } from "../application/contracts/account-link/validate-session.usecase.interface";
-import type { IAccountLinkVerifyEmailUseCase } from "../application/contracts/account-link/verify-email.usecase.interface";
 import type { IEmailVerificationRequestUseCase } from "../application/contracts/email-verification/request.usecase.interface";
-import type { IEmailVerificationValidateSessionUseCase } from "../application/contracts/email-verification/validate-email-verification-session.usecase.interface";
+import type { IEmailVerificationValidateRequestUseCase } from "../application/contracts/email-verification/validate-request.usecase.interface";
 import type { IEmailVerificationVerifyEmailUseCase } from "../application/contracts/email-verification/verify-email.usecase.interface";
 import type { IFederatedAuthCallbackUseCase } from "../application/contracts/federated-auth/callback.usecase.interface";
 import type { IFederatedAuthRequestUseCase } from "../application/contracts/federated-auth/request.usecase.interface";
@@ -55,11 +52,14 @@ import type { IPasswordResetRequestUseCase } from "../application/contracts/pass
 import type { IPasswordResetResetUseCase } from "../application/contracts/password-reset/reset.usecase.interface";
 import type { IPasswordResetValidateSessionUseCase } from "../application/contracts/password-reset/validate-session.usecase.interface";
 import type { IPasswordResetVerifyEmailUseCase } from "../application/contracts/password-reset/verify-email.usecase.interface";
-import type { IProviderConnectionCallbackUseCase } from "../application/contracts/provider-connection/callback.usecase.interface";
-import type { IProviderConnectionDisconnectUseCase } from "../application/contracts/provider-connection/disconnect.usecase.interface";
-import type { IProviderConnectionPrepareUseCase } from "../application/contracts/provider-connection/prepare.usecase.interface";
-import type { IProviderConnectionRequestUseCase } from "../application/contracts/provider-connection/request.usecase.interface";
-import type { IProviderConnectionValidateTicketUseCase } from "../application/contracts/provider-connection/validate-ticket.usecase.interface";
+import type { IProviderLinkCallbackUseCase } from "../application/contracts/provider-link/callback.usecase.interface";
+import type { IProviderLinkPrepareUseCase } from "../application/contracts/provider-link/prepare.usecase.interface";
+import type { IProviderLinkProposalReissueUseCase } from "../application/contracts/provider-link/proposal-reissue.usecase.interface";
+import type { IProviderLinkProposalVerifyEmailUseCase } from "../application/contracts/provider-link/proposal-verify-email.usecase.interface";
+import type { IProviderLinkRequestUseCase } from "../application/contracts/provider-link/request.usecase.interface";
+import type { IProviderLinkUnlinkUseCase } from "../application/contracts/provider-link/unlink.usecase.interface";
+import type { IProviderLinkValidateProposalUseCase } from "../application/contracts/provider-link/validate-proposal.usecase.interface";
+import type { IProviderLinkValidateRequestUseCase } from "../application/contracts/provider-link/validate-request.usecase.interface";
 import type { IListAuthMethodsUseCase } from "../application/contracts/session/list-auth-methods.usecase.interface";
 import type { ILoginUseCase } from "../application/contracts/session/login.usecase.interface";
 import type { ILogoutUseCase } from "../application/contracts/session/logout.usecase.interface";
@@ -72,13 +72,13 @@ import type { ISignupVerifyEmailUseCase } from "../application/contracts/signup/
 import type { IUpdateEmailRequestUseCase } from "../application/contracts/update-email/request.usecase.interface";
 import type { IUpdateEmailVerifyEmailUseCase } from "../application/contracts/update-email/verify-email.usecase.interface";
 import type { IIdentityProviderGateway } from "../application/ports/gateways/identity-provider.gateway.interface";
-import type { IHmacOAuthStateService } from "../application/ports/infra/hmac-oauth-state.service.interface";
-import type { IAccountLinkSessionRepository } from "../application/ports/repositories/account-link-session.repository.interface";
+import type { IHmacSignedStateService } from "../application/ports/infra/hmac-signed-state.service.interface";
 import type { IAuthUserRepository } from "../application/ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationSessionRepository } from "../application/ports/repositories/email-verification-session.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../application/ports/repositories/email-verification-request.repository.interface";
 import type { IPasswordResetSessionRepository } from "../application/ports/repositories/password-reset-session.repository.interface";
 import type { IProviderAccountRepository } from "../application/ports/repositories/provider-account.repository.interface";
-import type { IProviderConnectionTicketRepository } from "../application/ports/repositories/provider-connection-ticket.repository.interface";
+import type { IProviderLinkProposalRepository } from "../application/ports/repositories/provider-link-proposal.repository.interface";
+import type { IProviderLinkRequestRepository } from "../application/ports/repositories/provider-link-request.repository.interface";
 import type { ISessionRepository } from "../application/ports/repositories/session.repository.interface";
 import type { ISignupSessionRepository } from "../application/ports/repositories/signup-session.repository.interface";
 import type { IAuthDIContainer } from "./container.interface";
@@ -98,38 +98,31 @@ export class AuthDIContainer implements IAuthDIContainer {
 	private readonly coreContainer: ICoreDIContainer;
 
 	// === Infra ===
-	private _providerConnectionOAuthStateService:
-		| IHmacOAuthStateService<typeof providerConnectionStateSchema>
-		| undefined;
-	private _federatedAuthHmacOAuthStateService: IHmacOAuthStateService<typeof oauthStateSchema> | undefined;
+	private _providerLinkSignedStateService: IHmacSignedStateService<typeof providerLinkStateSchema> | undefined;
+	private _federatedAuthSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema> | undefined;
 
 	// === Gateways ===
-	private _providerConnectionGoogleIdentityProviderGateway: IIdentityProviderGateway | undefined;
-	private _providerConnectionDiscordIdentityProviderGateway: IIdentityProviderGateway | undefined;
+	private _providerLinkGoogleIdentityProviderGateway: IIdentityProviderGateway | undefined;
+	private _providerLinkDiscordIdentityProviderGateway: IIdentityProviderGateway | undefined;
 	private _federatedAuthDiscordIdentityProviderGateway: IIdentityProviderGateway | undefined;
 	private _federatedAuthGoogleIdentityProviderGateway: IIdentityProviderGateway | undefined;
 
 	// === Repositories ===
-	private _accountLinkSessionRepository: IAccountLinkSessionRepository | undefined;
+	private _providerLinkProposalRepository: IProviderLinkProposalRepository | undefined;
 	private _authUserRepository: IAuthUserRepository | undefined;
-	private _emailVerificationSessionRepository: IEmailVerificationSessionRepository | undefined;
+	private _emailVerificationRequestRepository: IEmailVerificationRequestRepository | undefined;
 	private _passwordResetSessionRepository: IPasswordResetSessionRepository | undefined;
 	private _providerAccountRepository: IProviderAccountRepository | undefined;
-	private _providerConnectionTicketRepository: IProviderConnectionTicketRepository | undefined;
+	private _providerLinkRequestRepository: IProviderLinkRequestRepository | undefined;
 	private _sessionRepository: ISessionRepository | undefined;
 	private _signupSessionRepository: ISignupSessionRepository | undefined;
 
 	// === Use Cases ===
 
-	// Account Link
-	private _accountLinkVerifyEmailUseCase: IAccountLinkVerifyEmailUseCase | undefined;
-	private _accountLinkReissueSessionUseCase: IAccountLinkReissueSessionUseCase | undefined;
-	private _accountLinkValidateSessionUseCase: IAccountLinkValidateSessionUseCase | undefined;
-
 	// Email Verification
 	private _emailVerificationVerifyEmailUseCase: IEmailVerificationVerifyEmailUseCase | undefined;
 	private _emailVerificationRequestUseCase: IEmailVerificationRequestUseCase | undefined;
-	private _emailVerificationValidateSessionUseCase: IEmailVerificationValidateSessionUseCase | undefined;
+	private _emailVerificationValidateRequestUseCase: IEmailVerificationValidateRequestUseCase | undefined;
 
 	// Federated Auth
 	private _federatedAuthCallbackUseCase: IFederatedAuthCallbackUseCase | undefined;
@@ -141,12 +134,15 @@ export class AuthDIContainer implements IAuthDIContainer {
 	private _passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase | undefined;
 	private _passwordResetValidateSessionUseCase: IPasswordResetValidateSessionUseCase | undefined;
 
-	// Provider Connection
-	private _providerConnectionCallbackUseCase: IProviderConnectionCallbackUseCase | undefined;
-	private _providerConnectionDisconnectUseCase: IProviderConnectionDisconnectUseCase | undefined;
-	private _providerConnectionRequestUseCase: IProviderConnectionRequestUseCase | undefined;
-	private _providerConnectionPrepareUseCase: IProviderConnectionPrepareUseCase | undefined;
-	private _providerConnectionValidateTicketUseCase: IProviderConnectionValidateTicketUseCase | undefined;
+	// Provider Link
+	private _providerLinkCallbackUseCase: IProviderLinkCallbackUseCase | undefined;
+	private _providerLinkUnlinkUseCase: IProviderLinkUnlinkUseCase | undefined;
+	private _providerLinkRequestUseCase: IProviderLinkRequestUseCase | undefined;
+	private _providerLinkPrepareUseCase: IProviderLinkPrepareUseCase | undefined;
+	private _providerLinkValidateRequestUseCase: IProviderLinkValidateRequestUseCase | undefined;
+	private _providerLinkProposalReissueUseCase: IProviderLinkProposalReissueUseCase | undefined;
+	private _providerLinkValidateProposalUseCase: IProviderLinkValidateProposalUseCase | undefined;
+	private _providerLinkProposalVerifyEmailUseCase: IProviderLinkProposalVerifyEmailUseCase | undefined;
 
 	// Session
 	private _listAuthMethodsUseCase: IListAuthMethodsUseCase | undefined;
@@ -173,21 +169,20 @@ export class AuthDIContainer implements IAuthDIContainer {
 		const overrides = override ?? {};
 
 		// #region === Infra ===
-		if (overrides.providerConnectionOAuthStateService) {
-			this._providerConnectionOAuthStateService = overrides.providerConnectionOAuthStateService;
+		if (overrides.providerLinkSignedStateService) {
+			this._providerLinkSignedStateService = overrides.providerLinkSignedStateService;
 		}
-		if (overrides.federatedAuthHmacOAuthStateService) {
-			this._federatedAuthHmacOAuthStateService = overrides.federatedAuthHmacOAuthStateService;
+		if (overrides.federatedAuthSignedStateService) {
+			this._federatedAuthSignedStateService = overrides.federatedAuthSignedStateService;
 		}
 		// #endregion
 
 		// #region === Gateways ===
-		if (overrides.providerConnectionGoogleIdentityProviderGateway) {
-			this._providerConnectionGoogleIdentityProviderGateway = overrides.providerConnectionGoogleIdentityProviderGateway;
+		if (overrides.providerLinkGoogleIdentityProviderGateway) {
+			this._providerLinkGoogleIdentityProviderGateway = overrides.providerLinkGoogleIdentityProviderGateway;
 		}
-		if (overrides.providerConnectionDiscordIdentityProviderGateway) {
-			this._providerConnectionDiscordIdentityProviderGateway =
-				overrides.providerConnectionDiscordIdentityProviderGateway;
+		if (overrides.providerLinkDiscordIdentityProviderGateway) {
+			this._providerLinkDiscordIdentityProviderGateway = overrides.providerLinkDiscordIdentityProviderGateway;
 		}
 		if (overrides.federatedAuthDiscordIdentityProviderGateway) {
 			this._federatedAuthDiscordIdentityProviderGateway = overrides.federatedAuthDiscordIdentityProviderGateway;
@@ -198,14 +193,14 @@ export class AuthDIContainer implements IAuthDIContainer {
 		// #endregion
 
 		// #region === Repositories ===
-		if (overrides.accountLinkSessionRepository) {
-			this._accountLinkSessionRepository = overrides.accountLinkSessionRepository;
+		if (overrides.providerLinkProposalRepository) {
+			this._providerLinkProposalRepository = overrides.providerLinkProposalRepository;
 		}
 		if (overrides.authUserRepository) {
 			this._authUserRepository = overrides.authUserRepository;
 		}
-		if (overrides.emailVerificationSessionRepository) {
-			this._emailVerificationSessionRepository = overrides.emailVerificationSessionRepository;
+		if (overrides.emailVerificationRequestRepository) {
+			this._emailVerificationRequestRepository = overrides.emailVerificationRequestRepository;
 		}
 		if (overrides.passwordResetSessionRepository) {
 			this._passwordResetSessionRepository = overrides.passwordResetSessionRepository;
@@ -213,8 +208,8 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (overrides.providerAccountRepository) {
 			this._providerAccountRepository = overrides.providerAccountRepository;
 		}
-		if (overrides.providerConnectionTicketRepository) {
-			this._providerConnectionTicketRepository = overrides.providerConnectionTicketRepository;
+		if (overrides.providerLinkRequestRepository) {
+			this._providerLinkRequestRepository = overrides.providerLinkRequestRepository;
 		}
 		if (overrides.sessionRepository) {
 			this._sessionRepository = overrides.sessionRepository;
@@ -226,17 +221,6 @@ export class AuthDIContainer implements IAuthDIContainer {
 
 		// #region === Use Cases ===
 
-		// Account Link
-		if (overrides.accountLinkVerifyEmailUseCase) {
-			this._accountLinkVerifyEmailUseCase = overrides.accountLinkVerifyEmailUseCase;
-		}
-		if (overrides.accountLinkReissueSessionUseCase) {
-			this._accountLinkReissueSessionUseCase = overrides.accountLinkReissueSessionUseCase;
-		}
-		if (overrides.accountLinkValidateSessionUseCase) {
-			this._accountLinkValidateSessionUseCase = overrides.accountLinkValidateSessionUseCase;
-		}
-
 		// Email Verification
 		if (overrides.emailVerificationVerifyEmailUseCase) {
 			this._emailVerificationVerifyEmailUseCase = overrides.emailVerificationVerifyEmailUseCase;
@@ -244,8 +228,8 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (overrides.emailVerificationRequestUseCase) {
 			this._emailVerificationRequestUseCase = overrides.emailVerificationRequestUseCase;
 		}
-		if (overrides.emailVerificationValidateSessionUseCase) {
-			this._emailVerificationValidateSessionUseCase = overrides.emailVerificationValidateSessionUseCase;
+		if (overrides.emailVerificationValidateRequestUseCase) {
+			this._emailVerificationValidateRequestUseCase = overrides.emailVerificationValidateRequestUseCase;
 		}
 
 		// Federated Auth
@@ -270,21 +254,30 @@ export class AuthDIContainer implements IAuthDIContainer {
 			this._passwordResetValidateSessionUseCase = overrides.passwordResetValidateSessionUseCase;
 		}
 
-		// Provider Connection
-		if (overrides.providerConnectionCallbackUseCase) {
-			this._providerConnectionCallbackUseCase = overrides.providerConnectionCallbackUseCase;
+		// Provider Link
+		if (overrides.providerLinkCallbackUseCase) {
+			this._providerLinkCallbackUseCase = overrides.providerLinkCallbackUseCase;
 		}
-		if (overrides.providerConnectionDisconnectUseCase) {
-			this._providerConnectionDisconnectUseCase = overrides.providerConnectionDisconnectUseCase;
+		if (overrides.providerLinkUnlinkUseCase) {
+			this._providerLinkUnlinkUseCase = overrides.providerLinkUnlinkUseCase;
 		}
-		if (overrides.providerConnectionRequestUseCase) {
-			this._providerConnectionRequestUseCase = overrides.providerConnectionRequestUseCase;
+		if (overrides.providerLinkRequestUseCase) {
+			this._providerLinkRequestUseCase = overrides.providerLinkRequestUseCase;
 		}
-		if (overrides.providerConnectionPrepareUseCase) {
-			this._providerConnectionPrepareUseCase = overrides.providerConnectionPrepareUseCase;
+		if (overrides.providerLinkPrepareUseCase) {
+			this._providerLinkPrepareUseCase = overrides.providerLinkPrepareUseCase;
 		}
-		if (overrides.providerConnectionValidateTicketUseCase) {
-			this._providerConnectionValidateTicketUseCase = overrides.providerConnectionValidateTicketUseCase;
+		if (overrides.providerLinkValidateRequestUseCase) {
+			this._providerLinkValidateRequestUseCase = overrides.providerLinkValidateRequestUseCase;
+		}
+		if (overrides.providerLinkProposalReissueUseCase) {
+			this._providerLinkProposalReissueUseCase = overrides.providerLinkProposalReissueUseCase;
+		}
+		if (overrides.providerLinkValidateProposalUseCase) {
+			this._providerLinkValidateProposalUseCase = overrides.providerLinkValidateProposalUseCase;
+		}
+		if (overrides.providerLinkProposalVerifyEmailUseCase) {
+			this._providerLinkProposalVerifyEmailUseCase = overrides.providerLinkProposalVerifyEmailUseCase;
 		}
 
 		// Session
@@ -329,48 +322,50 @@ export class AuthDIContainer implements IAuthDIContainer {
 	}
 
 	// #region === Infra ===
-	get providerConnectionOAuthStateService(): IHmacOAuthStateService<typeof providerConnectionStateSchema> {
-		if (!this._providerConnectionOAuthStateService) {
-			this._providerConnectionOAuthStateService = new HmacOAuthStateService(
-				providerConnectionStateSchema,
+	get providerLinkSignedStateService(): IHmacSignedStateService<typeof providerLinkStateSchema> {
+		if (!this._providerLinkSignedStateService) {
+			this._providerLinkSignedStateService = new HmacSignedStateService(
+				"provider-link",
+				providerLinkStateSchema,
 				this.coreContainer.hmacService,
 			);
 		}
-		return this._providerConnectionOAuthStateService;
+		return this._providerLinkSignedStateService;
 	}
 
-	get federatedAuthHmacOAuthStateService(): IHmacOAuthStateService<typeof oauthStateSchema> {
-		if (!this._federatedAuthHmacOAuthStateService) {
-			this._federatedAuthHmacOAuthStateService = new HmacOAuthStateService(
-				oauthStateSchema,
+	get federatedAuthSignedStateService(): IHmacSignedStateService<typeof federatedAuthStateSchema> {
+		if (!this._federatedAuthSignedStateService) {
+			this._federatedAuthSignedStateService = new HmacSignedStateService(
+				"federated-auth",
+				federatedAuthStateSchema,
 				this.coreContainer.hmacService,
 			);
 		}
-		return this._federatedAuthHmacOAuthStateService;
+		return this._federatedAuthSignedStateService;
 	}
 	// #endregion
 
 	// #region === Gateways ===
-	get providerConnectionGoogleIdentityProviderGateway(): IIdentityProviderGateway {
-		if (!this._providerConnectionGoogleIdentityProviderGateway) {
-			this._providerConnectionGoogleIdentityProviderGateway = new GoogleIdentityProviderGateway(
+	get providerLinkGoogleIdentityProviderGateway(): IIdentityProviderGateway {
+		if (!this._providerLinkGoogleIdentityProviderGateway) {
+			this._providerLinkGoogleIdentityProviderGateway = new GoogleIdentityProviderGateway(
 				this.envVariables.GOOGLE_CLIENT_ID,
 				this.envVariables.GOOGLE_CLIENT_SECRET,
-				providerConnectionRedirectURL(this.envVariables.APP_ENV === "production", "google"),
+				providerLinkRedirectURL(this.envVariables.APP_ENV === "production", "google"),
 			);
 		}
-		return this._providerConnectionGoogleIdentityProviderGateway;
+		return this._providerLinkGoogleIdentityProviderGateway;
 	}
 
-	get providerConnectionDiscordIdentityProviderGateway(): IIdentityProviderGateway {
-		if (!this._providerConnectionDiscordIdentityProviderGateway) {
-			this._providerConnectionDiscordIdentityProviderGateway = new DiscordIdentityProviderGateway(
+	get providerLinkDiscordIdentityProviderGateway(): IIdentityProviderGateway {
+		if (!this._providerLinkDiscordIdentityProviderGateway) {
+			this._providerLinkDiscordIdentityProviderGateway = new DiscordIdentityProviderGateway(
 				this.envVariables.DISCORD_CLIENT_ID,
 				this.envVariables.DISCORD_CLIENT_SECRET,
-				providerConnectionRedirectURL(this.envVariables.APP_ENV === "production", "discord"),
+				providerLinkRedirectURL(this.envVariables.APP_ENV === "production", "discord"),
 			);
 		}
-		return this._providerConnectionDiscordIdentityProviderGateway;
+		return this._providerLinkDiscordIdentityProviderGateway;
 	}
 
 	get federatedAuthGoogleIdentityProviderGateway(): IIdentityProviderGateway {
@@ -425,13 +420,13 @@ export class AuthDIContainer implements IAuthDIContainer {
 		return this._passwordResetSessionRepository;
 	}
 
-	get emailVerificationSessionRepository(): IEmailVerificationSessionRepository {
-		if (!this._emailVerificationSessionRepository) {
-			this._emailVerificationSessionRepository = new EmailVerificationSessionRepository(
+	get emailVerificationRequestRepository(): IEmailVerificationRequestRepository {
+		if (!this._emailVerificationRequestRepository) {
+			this._emailVerificationRequestRepository = new EmailVerificationRequestRepository(
 				this.coreContainer.drizzleService,
 			);
 		}
-		return this._emailVerificationSessionRepository;
+		return this._emailVerificationRequestRepository;
 	}
 
 	get providerAccountRepository(): IProviderAccountRepository {
@@ -441,66 +436,29 @@ export class AuthDIContainer implements IAuthDIContainer {
 		return this._providerAccountRepository;
 	}
 
-	get providerConnectionTicketRepository(): IProviderConnectionTicketRepository {
-		if (!this._providerConnectionTicketRepository) {
-			this._providerConnectionTicketRepository = new ProviderConnectionTicketRepository(
-				this.coreContainer.drizzleService,
-			);
+	get providerLinkRequestRepository(): IProviderLinkRequestRepository {
+		if (!this._providerLinkRequestRepository) {
+			this._providerLinkRequestRepository = new ProviderLinkRequestRepository(this.coreContainer.drizzleService);
 		}
-		return this._providerConnectionTicketRepository;
+		return this._providerLinkRequestRepository;
 	}
 
-	get accountLinkSessionRepository(): IAccountLinkSessionRepository {
-		if (!this._accountLinkSessionRepository) {
-			this._accountLinkSessionRepository = new AccountLinkSessionRepository(this.coreContainer.drizzleService);
+	get providerLinkProposalRepository(): IProviderLinkProposalRepository {
+		if (!this._providerLinkProposalRepository) {
+			this._providerLinkProposalRepository = new ProviderLinkProposalRepository(this.coreContainer.drizzleService);
 		}
-		return this._accountLinkSessionRepository;
+		return this._providerLinkProposalRepository;
 	}
 	// #endregion
 
 	// #region === Use Cases ===
-
-	// Account Link
-	get accountLinkVerifyEmailUseCase(): IAccountLinkVerifyEmailUseCase {
-		if (!this._accountLinkVerifyEmailUseCase) {
-			this._accountLinkVerifyEmailUseCase = new AccountLinkVerifyEmailUseCase(
-				this.accountLinkSessionRepository,
-				this.authUserRepository,
-				this.providerAccountRepository,
-				this.sessionRepository,
-				this.coreContainer.tokenSecretService,
-			);
-		}
-		return this._accountLinkVerifyEmailUseCase;
-	}
-	get accountLinkReissueSessionUseCase(): IAccountLinkReissueSessionUseCase {
-		if (!this._accountLinkReissueSessionUseCase) {
-			this._accountLinkReissueSessionUseCase = new AccountLinkReissueSessionUseCase(
-				this.coreContainer.emailGateway,
-				this.accountLinkSessionRepository,
-				this.coreContainer.cryptoRandomService,
-				this.coreContainer.tokenSecretService,
-			);
-		}
-		return this._accountLinkReissueSessionUseCase;
-	}
-	get accountLinkValidateSessionUseCase(): IAccountLinkValidateSessionUseCase {
-		if (!this._accountLinkValidateSessionUseCase) {
-			this._accountLinkValidateSessionUseCase = new AccountLinkValidateSessionUseCase(
-				this.authUserRepository,
-				this.accountLinkSessionRepository,
-				this.coreContainer.tokenSecretService,
-			);
-		}
-		return this._accountLinkValidateSessionUseCase;
-	}
 
 	// Email Verification
 	get emailVerificationVerifyEmailUseCase(): IEmailVerificationVerifyEmailUseCase {
 		if (!this._emailVerificationVerifyEmailUseCase) {
 			this._emailVerificationVerifyEmailUseCase = new EmailVerificationVerifyEmailUseCase(
 				this.authUserRepository,
-				this.emailVerificationSessionRepository,
+				this.emailVerificationRequestRepository,
 			);
 		}
 		return this._emailVerificationVerifyEmailUseCase;
@@ -509,21 +467,21 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (!this._emailVerificationRequestUseCase) {
 			this._emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
 				this.coreContainer.emailGateway,
-				this.emailVerificationSessionRepository,
+				this.emailVerificationRequestRepository,
 				this.coreContainer.cryptoRandomService,
 				this.coreContainer.tokenSecretService,
 			);
 		}
 		return this._emailVerificationRequestUseCase;
 	}
-	get emailVerificationValidateSessionUseCase(): IEmailVerificationValidateSessionUseCase {
-		if (!this._emailVerificationValidateSessionUseCase) {
-			this._emailVerificationValidateSessionUseCase = new EmailVerificationValidateSessionUseCase(
-				this.emailVerificationSessionRepository,
+	get emailVerificationValidateRequestUseCase(): IEmailVerificationValidateRequestUseCase {
+		if (!this._emailVerificationValidateRequestUseCase) {
+			this._emailVerificationValidateRequestUseCase = new EmailVerificationValidateRequestUseCase(
+				this.emailVerificationRequestRepository,
 				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._emailVerificationValidateSessionUseCase;
+		return this._emailVerificationValidateRequestUseCase;
 	}
 
 	// Federated Auth
@@ -532,11 +490,11 @@ export class AuthDIContainer implements IAuthDIContainer {
 			this._federatedAuthCallbackUseCase = new FederatedAuthCallbackUseCase(
 				this.federatedAuthDiscordIdentityProviderGateway,
 				this.federatedAuthGoogleIdentityProviderGateway,
-				this.accountLinkSessionRepository,
+				this.providerLinkProposalRepository,
 				this.authUserRepository,
 				this.providerAccountRepository,
 				this.sessionRepository,
-				this.federatedAuthHmacOAuthStateService,
+				this.federatedAuthSignedStateService,
 				this.coreContainer.tokenSecretService,
 			);
 		}
@@ -547,7 +505,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 			this._federatedAuthRequestUseCase = new FederatedAuthRequestUseCase(
 				this.federatedAuthDiscordIdentityProviderGateway,
 				this.federatedAuthGoogleIdentityProviderGateway,
-				this.federatedAuthHmacOAuthStateService,
+				this.federatedAuthSignedStateService,
 			);
 		}
 		return this._federatedAuthRequestUseCase;
@@ -594,54 +552,85 @@ export class AuthDIContainer implements IAuthDIContainer {
 		return this._passwordResetValidateSessionUseCase;
 	}
 
-	// Provider Connection
-	get providerConnectionCallbackUseCase(): IProviderConnectionCallbackUseCase {
-		if (!this._providerConnectionCallbackUseCase) {
-			this._providerConnectionCallbackUseCase = new ProviderConnectionCallbackUseCase(
-				this.providerConnectionDiscordIdentityProviderGateway,
-				this.providerConnectionGoogleIdentityProviderGateway,
+	// Provider Link
+	get providerLinkCallbackUseCase(): IProviderLinkCallbackUseCase {
+		if (!this._providerLinkCallbackUseCase) {
+			this._providerLinkCallbackUseCase = new ProviderLinkCallbackUseCase(
+				this.providerLinkDiscordIdentityProviderGateway,
+				this.providerLinkGoogleIdentityProviderGateway,
 				this.providerAccountRepository,
-				this.providerConnectionOAuthStateService,
+				this.providerLinkSignedStateService,
 			);
 		}
-		return this._providerConnectionCallbackUseCase;
+		return this._providerLinkCallbackUseCase;
 	}
-	get providerConnectionDisconnectUseCase(): IProviderConnectionDisconnectUseCase {
-		if (!this._providerConnectionDisconnectUseCase) {
-			this._providerConnectionDisconnectUseCase = new ProviderConnectionDisconnectUseCase(
-				this.providerAccountRepository,
+	get providerLinkUnlinkUseCase(): IProviderLinkUnlinkUseCase {
+		if (!this._providerLinkUnlinkUseCase) {
+			this._providerLinkUnlinkUseCase = new ProviderLinkUnlinkUseCase(this.providerAccountRepository);
+		}
+		return this._providerLinkUnlinkUseCase;
+	}
+	get providerLinkRequestUseCase(): IProviderLinkRequestUseCase {
+		if (!this._providerLinkRequestUseCase) {
+			this._providerLinkRequestUseCase = new ProviderLinkRequestUseCase(
+				this.providerLinkDiscordIdentityProviderGateway,
+				this.providerLinkGoogleIdentityProviderGateway,
+				this.providerLinkSignedStateService,
 			);
 		}
-		return this._providerConnectionDisconnectUseCase;
+		return this._providerLinkRequestUseCase;
 	}
-	get providerConnectionRequestUseCase(): IProviderConnectionRequestUseCase {
-		if (!this._providerConnectionRequestUseCase) {
-			this._providerConnectionRequestUseCase = new ProviderConnectionRequestUseCase(
-				this.providerConnectionDiscordIdentityProviderGateway,
-				this.providerConnectionGoogleIdentityProviderGateway,
-				this.providerConnectionOAuthStateService,
-			);
-		}
-		return this._providerConnectionRequestUseCase;
-	}
-	get providerConnectionPrepareUseCase(): IProviderConnectionPrepareUseCase {
-		if (!this._providerConnectionPrepareUseCase) {
-			this._providerConnectionPrepareUseCase = new ProviderConnectionPrepareUseCase(
-				this.providerConnectionTicketRepository,
+	get providerLinkPrepareUseCase(): IProviderLinkPrepareUseCase {
+		if (!this._providerLinkPrepareUseCase) {
+			this._providerLinkPrepareUseCase = new ProviderLinkPrepareUseCase(
+				this.providerLinkRequestRepository,
 				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._providerConnectionPrepareUseCase;
+		return this._providerLinkPrepareUseCase;
 	}
-	get providerConnectionValidateTicketUseCase(): IProviderConnectionValidateTicketUseCase {
-		if (!this._providerConnectionValidateTicketUseCase) {
-			this._providerConnectionValidateTicketUseCase = new ProviderConnectionValidateTicketUseCase(
+	get providerLinkValidateRequestUseCase(): IProviderLinkValidateRequestUseCase {
+		if (!this._providerLinkValidateRequestUseCase) {
+			this._providerLinkValidateRequestUseCase = new ProviderLinkValidateRequestUseCase(
 				this.authUserRepository,
-				this.providerConnectionTicketRepository,
+				this.providerLinkRequestRepository,
 				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._providerConnectionValidateTicketUseCase;
+		return this._providerLinkValidateRequestUseCase;
+	}
+	get providerLinkProposalReissueUseCase(): IProviderLinkProposalReissueUseCase {
+		if (!this._providerLinkProposalReissueUseCase) {
+			this._providerLinkProposalReissueUseCase = new ProviderLinkProposalReissueUseCase(
+				this.coreContainer.emailGateway,
+				this.providerLinkProposalRepository,
+				this.coreContainer.cryptoRandomService,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._providerLinkProposalReissueUseCase;
+	}
+	get providerLinkValidateProposalUseCase(): IProviderLinkValidateProposalUseCase {
+		if (!this._providerLinkValidateProposalUseCase) {
+			this._providerLinkValidateProposalUseCase = new ProviderLinkValidateProposalUseCase(
+				this.authUserRepository,
+				this.providerLinkProposalRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._providerLinkValidateProposalUseCase;
+	}
+	get providerLinkProposalVerifyEmailUseCase(): IProviderLinkProposalVerifyEmailUseCase {
+		if (!this._providerLinkProposalVerifyEmailUseCase) {
+			this._providerLinkProposalVerifyEmailUseCase = new ProviderLinkProposalVerifyEmailUseCase(
+				this.providerLinkProposalRepository,
+				this.authUserRepository,
+				this.providerAccountRepository,
+				this.sessionRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._providerLinkProposalVerifyEmailUseCase;
 	}
 
 	// Session
@@ -737,7 +726,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 			this._updateEmailVerifyEmailUseCase = new UpdateEmailVerifyEmailUseCase(
 				this.authUserRepository,
 				this.sessionRepository,
-				this.emailVerificationSessionRepository,
+				this.emailVerificationRequestRepository,
 				this.coreContainer.tokenSecretService,
 			);
 		}
@@ -746,7 +735,7 @@ export class AuthDIContainer implements IAuthDIContainer {
 	get updateEmailRequestUseCase(): IUpdateEmailRequestUseCase {
 		if (!this._updateEmailRequestUseCase) {
 			this._updateEmailRequestUseCase = new UpdateEmailRequestUseCase(
-				this.emailVerificationSessionRepository,
+				this.emailVerificationRequestRepository,
 				this.authUserRepository,
 				this.coreContainer.cryptoRandomService,
 				this.coreContainer.tokenSecretService,
