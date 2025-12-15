@@ -8,7 +8,7 @@ import { encodeToken } from "../../../domain/value-objects/tokens";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
-import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { Session } from "../../../domain/entities/session";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
@@ -17,7 +17,7 @@ import type {
 	UpdateEmailVerifyEmailUseCaseResult,
 } from "../../contracts/update-email/verify-email.usecase.interface";
 import type { IAuthUserRepository } from "../../ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationSessionRepository } from "../../ports/repositories/email-verification-session.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../../ports/repositories/email-verification-request.repository.interface";
 import type { ISessionRepository } from "../../ports/repositories/session.repository.interface";
 
 export class UpdateEmailVerifyEmailUseCase implements IUpdateEmailVerifyEmailUseCase {
@@ -25,7 +25,7 @@ export class UpdateEmailVerifyEmailUseCase implements IUpdateEmailVerifyEmailUse
 		// repositories
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly sessionRepository: ISessionRepository,
-		private readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository,
+		private readonly emailVerificationRequestRepository: IEmailVerificationRequestRepository,
 		// system
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
@@ -38,28 +38,28 @@ export class UpdateEmailVerifyEmailUseCase implements IUpdateEmailVerifyEmailUse
 	public async execute(
 		code: string,
 		userCredentials: UserCredentials,
-		emailVerificationSession: EmailVerificationSession,
+		emailVerificationRequest: EmailVerificationRequest,
 	): Promise<UpdateEmailVerifyEmailUseCaseResult> {
-		if (!timingSafeStringEqual(emailVerificationSession.code, code)) {
+		if (!timingSafeStringEqual(emailVerificationRequest.code, code)) {
 			return err("INVALID_VERIFICATION_CODE");
 		}
 
-		const existingUserIdentityForNewEmail = await this.authUserRepository.findByEmail(emailVerificationSession.email);
+		const existingUserIdentityForNewEmail = await this.authUserRepository.findByEmail(emailVerificationRequest.email);
 
 		if (existingUserIdentityForNewEmail) {
-			await this.emailVerificationSessionRepository.deleteByUserId(userCredentials.id);
+			await this.emailVerificationRequestRepository.deleteByUserId(userCredentials.id);
 			return err("EMAIL_ALREADY_REGISTERED");
 		}
 
 		await Promise.all([
-			this.emailVerificationSessionRepository.deleteByUserId(userCredentials.id),
+			this.emailVerificationRequestRepository.deleteByUserId(userCredentials.id),
 			this.sessionRepository.deleteByUserId(userCredentials.id),
 		]);
 
 		const { session, sessionToken } = this.createSession(userCredentials.id);
 
 		const updatedUserCredentials = updateUserCredentials(userCredentials, {
-			email: emailVerificationSession.email,
+			email: emailVerificationRequest.email,
 		});
 
 		await Promise.all([this.authUserRepository.update(updatedUserCredentials), this.sessionRepository.save(session)]);

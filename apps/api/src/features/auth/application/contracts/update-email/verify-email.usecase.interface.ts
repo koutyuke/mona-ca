@@ -1,5 +1,5 @@
 import type { Err, Ok, Result } from "@mona-ca/core/result";
-import type { EmailVerificationSession } from "../../../domain/entities/email-verification-session";
+import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { Session } from "../../../domain/entities/session";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
@@ -17,6 +17,6 @@ export interface IUpdateEmailVerifyEmailUseCase {
 	execute(
 		code: string,
 		userCredentials: UserCredentials,
-		emailVerificationSession: EmailVerificationSession,
+		emailVerificationRequest: EmailVerificationRequest,
 	): Promise<UpdateEmailVerifyEmailUseCaseResult>;
 }

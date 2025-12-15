@@ -2,22 +2,22 @@ import { assert, beforeEach, describe, expect, it } from "vitest";
 import { EmailGatewayMock } from "../../../../../../core/testing/mocks/gateways";
 import { CryptoRandomServiceMock, TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import { decodeToken } from "../../../../domain/value-objects/tokens";
-import { createAuthUserFixture, createEmailVerificationSessionFixture } from "../../../../testing/fixtures";
+import { createAuthUserFixture, createEmailVerificationRequestFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	EmailVerificationSessionRepositoryMock,
+	EmailVerificationRequestRepositoryMock,
 	createAuthUsersMap,
-	createEmailVerificationSessionsMap,
+	createEmailVerificationRequestsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
 import { UpdateEmailRequestUseCase } from "../request.usecase";
 
-const emailVerificationSessionMap = createEmailVerificationSessionsMap();
+const emailVerificationRequestMap = createEmailVerificationRequestsMap();
 const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
 
-const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
-	emailVerificationSessionMap,
+const emailVerificationRequestRepository = new EmailVerificationRequestRepositoryMock({
+	emailVerificationRequestMap,
 });
 const authUserRepository = new AuthUserRepositoryMock({
 	authUserMap,
@@ -28,16 +28,16 @@ const tokenSecretService = new TokenSecretServiceMock();
 const emailGateway = new EmailGatewayMock();
 
 const updateEmailRequestUseCase = new UpdateEmailRequestUseCase(
-	emailVerificationSessionRepository,
+	emailVerificationRequestRepository,
 	authUserRepository,
 	cryptoRandomService,
 	tokenSecretService,
 	emailGateway,
 );
 
-// Mockの固定値
-const MOCK_VERIFICATION_CODE = "01234567"; // CryptoRandomServiceMockがdigits: trueで8文字生成する値
-const MOCK_SECRET = "token-secret"; // TokenSecretServiceMockが生成するシークレット
+// mock fixed values
+const MOCK_VERIFICATION_CODE = "01234567"; // CryptoRandomServiceMock returns a fixed value of 8 digits (digits: true)
+const MOCK_SECRET = "token-secret"; // TokenSecretServiceMock returns a fixed value of "token-secret"
 
 const { userCredentials, userRegistration } = createAuthUserFixture({
 	userRegistration: {
@@ -51,7 +51,7 @@ const EXISTING_EMAIL = "existing@example.com";
 
 describe("UpdateEmailRequestUseCase", () => {
 	beforeEach(() => {
-		emailVerificationSessionMap.clear();
+		emailVerificationRequestMap.clear();
 		authUserMap.clear();
 		sessionMap.clear();
 		emailGateway.sendVerificationEmailCalls = [];
@@ -65,33 +65,33 @@ describe("UpdateEmailRequestUseCase", () => {
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
 
-		const { emailVerificationSession, emailVerificationSessionToken } = result.value;
+		const { emailVerificationRequest, emailVerificationRequestToken } = result.value;
 
 		// check email verification session
-		expect(emailVerificationSession.email).toBe(NEW_EMAIL);
-		expect(emailVerificationSession.userId).toBe(userCredentials.id);
-		expect(emailVerificationSession.code).toBe(MOCK_VERIFICATION_CODE);
-		expect(emailVerificationSession.code.length).toBe(8);
-		expect(/^\d{8}$/.test(emailVerificationSession.code)).toBe(true);
-		expect(emailVerificationSession.expiresAt).toBeInstanceOf(Date);
-		expect(emailVerificationSession.expiresAt.getTime()).toBeGreaterThan(Date.now());
+		expect(emailVerificationRequest.email).toBe(NEW_EMAIL);
+		expect(emailVerificationRequest.userId).toBe(userCredentials.id);
+		expect(emailVerificationRequest.code).toBe(MOCK_VERIFICATION_CODE);
+		expect(emailVerificationRequest.code.length).toBe(8);
+		expect(/^\d{8}$/.test(emailVerificationRequest.code)).toBe(true);
+		expect(emailVerificationRequest.expiresAt).toBeInstanceOf(Date);
+		expect(emailVerificationRequest.expiresAt.getTime()).toBeGreaterThan(Date.now());
 
 		// check session token
-		const decoded = decodeToken(emailVerificationSessionToken);
+		const decoded = decodeToken(emailVerificationRequestToken);
 		expect(decoded).not.toBeNull();
 		assert(decoded !== null);
-		expect(decoded.id).toBe(emailVerificationSession.id);
+		expect(decoded.id).toBe(emailVerificationRequest.id);
 		expect(decoded.secret).toBe(MOCK_SECRET);
 
-		// Mockの固定値を確認: TokenSecretServiceMockは `"token-secret"` を返す
-		expect(emailVerificationSessionToken).toBe(`${emailVerificationSession.id}.token-secret`);
-		expect(emailVerificationSession.secretHash).toStrictEqual(
+		// check mock fixed value: TokenSecretServiceMock returns `"token-secret"`
+		expect(emailVerificationRequestToken).toBe(`${emailVerificationRequest.id}.token-secret`);
+		expect(emailVerificationRequest.secretHash).toStrictEqual(
 			new TextEncoder().encode("__token-secret-hashed:token-secret"),
 		);
 
 		// check session is saved
-		const savedSession = emailVerificationSessionMap.get(emailVerificationSession.id);
-		expect(savedSession).toStrictEqual(emailVerificationSession);
+		const savedSession = emailVerificationRequestMap.get(emailVerificationRequest.id);
+		expect(savedSession).toStrictEqual(emailVerificationRequest);
 
 		// check verification email is sent
 		expect(emailGateway.sendVerificationEmailCalls.length).toBe(1);
@@ -100,28 +100,28 @@ describe("UpdateEmailRequestUseCase", () => {
 	});
 
 	it("Success: should delete existing session before creating new one", async () => {
-		const { emailVerificationSession: existingSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+		const { emailVerificationRequest: existingSession } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: "previous@example.com",
 				code: "87654321",
 			},
 		});
 
-		emailVerificationSessionMap.set(existingSession.id, existingSession);
-		expect(emailVerificationSessionMap.size).toBe(1);
+		emailVerificationRequestMap.set(existingSession.id, existingSession);
+		expect(emailVerificationRequestMap.size).toBe(1);
 
 		const result = await updateEmailRequestUseCase.execute(NEW_EMAIL, userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
 
-		// セキュリティ: 既存のセッションが削除され、新しいセッションが作成されていること（再利用防止）
-		expect(emailVerificationSessionMap.has(existingSession.id)).toBe(false);
-		expect(emailVerificationSessionMap.size).toBe(1);
+		// security: existing request is deleted, new request is created (prevent reuse)
+		expect(emailVerificationRequestMap.has(existingSession.id)).toBe(false);
+		expect(emailVerificationRequestMap.size).toBe(1);
 
-		const { emailVerificationSession } = result.value;
-		expect(emailVerificationSessionMap.get(emailVerificationSession.id)).toStrictEqual(emailVerificationSession);
+		const { emailVerificationRequest } = result.value;
+		expect(emailVerificationRequestMap.get(emailVerificationRequest.id)).toStrictEqual(emailVerificationRequest);
 	});
 
 	it("Success: should generate different codes for each request", async () => {
@@ -131,11 +131,11 @@ describe("UpdateEmailRequestUseCase", () => {
 		assert(result1.isOk);
 		assert(result2.isOk);
 
-		// セキュリティ: 各リクエストで異なるコードが生成されること
-		expect(result1.value.emailVerificationSession.code).toBe(MOCK_VERIFICATION_CODE);
-		expect(result2.value.emailVerificationSession.code).toBe(MOCK_VERIFICATION_CODE);
-		// 注: CryptoRandomServiceMockは固定値を返すため、実際の実装では異なる値が生成される
-		expect(result1.value.emailVerificationSession.id).not.toBe(result2.value.emailVerificationSession.id);
+		// security: different codes are generated for each request
+		expect(result1.value.emailVerificationRequest.code).toBe(MOCK_VERIFICATION_CODE);
+		expect(result2.value.emailVerificationRequest.code).toBe(MOCK_VERIFICATION_CODE);
+		// note: CryptoRandomServiceMock returns a fixed value, so in actual implementation, different values are generated
+		expect(result1.value.emailVerificationRequest.id).not.toBe(result2.value.emailVerificationRequest.id);
 	});
 
 	it("Error: should return EMAIL_ALREADY_REGISTERED error when new email is already registered", async () => {
@@ -153,9 +153,9 @@ describe("UpdateEmailRequestUseCase", () => {
 		assert(result.isErr);
 		expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
 
-		// セッションが作成されていないこと
-		expect(emailVerificationSessionMap.size).toBe(0);
-		// メールが送信されていないこと
+		// request is not created
+		expect(emailVerificationRequestMap.size).toBe(0);
+		// email is not sent
 		expect(emailGateway.sendVerificationEmailCalls.length).toBe(0);
 	});
 
@@ -166,9 +166,9 @@ describe("UpdateEmailRequestUseCase", () => {
 		assert(result.isErr);
 		expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
 
-		// セッションが作成されていないこと
-		expect(emailVerificationSessionMap.size).toBe(0);
-		// メールが送信されていないこと
+		// request is not created
+		expect(emailVerificationRequestMap.size).toBe(0);
+		// email is not sent
 		expect(emailGateway.sendVerificationEmailCalls.length).toBe(0);
 	});
 });

@@ -2,22 +2,22 @@ import { assert, beforeEach, describe, expect, it } from "vitest";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import {
 	createAuthUserFixture,
-	createEmailVerificationSessionFixture,
+	createEmailVerificationRequestFixture,
 	createSessionFixture,
 } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	EmailVerificationSessionRepositoryMock,
+	EmailVerificationRequestRepositoryMock,
 	SessionRepositoryMock,
 	createAuthUsersMap,
-	createEmailVerificationSessionsMap,
+	createEmailVerificationRequestsMap,
 	createSessionsMap,
 } from "../../../../testing/mocks/repositories";
 import { UpdateEmailVerifyEmailUseCase } from "../verify-email.usecase";
 
 const authUserMap = createAuthUsersMap();
 const sessionMap = createSessionsMap();
-const emailVerificationSessionMap = createEmailVerificationSessionsMap();
+const emailVerificationRequestMap = createEmailVerificationRequestsMap();
 
 const authUserRepository = new AuthUserRepositoryMock({
 	authUserMap,
@@ -26,15 +26,15 @@ const authUserRepository = new AuthUserRepositoryMock({
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
 });
-const emailVerificationSessionRepository = new EmailVerificationSessionRepositoryMock({
-	emailVerificationSessionMap,
+const emailVerificationRequestRepository = new EmailVerificationRequestRepositoryMock({
+	emailVerificationRequestMap,
 });
 const tokenSecretService = new TokenSecretServiceMock();
 
 const updateEmailVerifyEmailUseCase = new UpdateEmailVerifyEmailUseCase(
 	authUserRepository,
 	sessionRepository,
-	emailVerificationSessionRepository,
+	emailVerificationRequestRepository,
 	tokenSecretService,
 );
 
@@ -53,12 +53,12 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 	beforeEach(() => {
 		authUserMap.clear();
 		sessionMap.clear();
-		emailVerificationSessionMap.clear();
+		emailVerificationRequestMap.clear();
 	});
 
 	it("Success: should change email and create new session with valid verification code", async () => {
-		const { emailVerificationSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: NEW_EMAIL,
 				code: CORRECT_CODE,
@@ -66,9 +66,9 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 		});
 
 		authUserMap.set(userRegistration.id, userRegistration);
-		emailVerificationSessionMap.set(emailVerificationSession.id, emailVerificationSession);
+		emailVerificationRequestMap.set(emailVerificationRequest.id, emailVerificationRequest);
 
-		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationRequest);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -80,11 +80,11 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 		expect(session.secretHash).toStrictEqual(new TextEncoder().encode("__token-secret-hashed:token-secret"));
 
 		// check session token
-		// Mockの固定値を確認: TokenSecretServiceMockは `"token-secret"` を返す
+		// check mock fixed value: TokenSecretServiceMock returns `"token-secret"`
 		expect(sessionToken).toBe(`${session.id}.token-secret`);
 
 		// check email verification session is deleted
-		expect(emailVerificationSessionMap.has(emailVerificationSession.id)).toBe(false);
+		expect(emailVerificationRequestMap.has(emailVerificationRequest.id)).toBe(false);
 
 		// check user email is updated
 		const updatedUserCredentials = authUserMap.get(userCredentials.id);
@@ -109,8 +109,8 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 				userId: userCredentials.id,
 			},
 		});
-		const { emailVerificationSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: NEW_EMAIL,
 				code: CORRECT_CODE,
@@ -121,12 +121,12 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 		sessionMap.set(existingSession1.id, existingSession1);
 		sessionMap.set(existingSession2.id, existingSession2);
 
-		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationRequest);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
 
-		// セキュリティ: メール変更後、すべてのセッションが削除され、新しいセッションが作成されること（強制再ログイン）
+		// security: all existing sessions are deleted, new session is created (force re-login)
 		expect(sessionMap.has(existingSession1.id)).toBe(false);
 		expect(sessionMap.has(existingSession2.id)).toBe(false);
 		expect(sessionMap.size).toBe(1);
@@ -137,8 +137,8 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 	});
 
 	it("Error: should return INVALID_VERIFICATION_CODE error when verification code is incorrect", async () => {
-		const { emailVerificationSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: NEW_EMAIL,
 				code: CORRECT_CODE,
@@ -147,20 +147,20 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 
 		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await updateEmailVerifyEmailUseCase.execute(WRONG_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyEmailUseCase.execute(WRONG_CODE, userCredentials, emailVerificationRequest);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
 		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
 
-		// メールが更新されていないこと
+		// email is not updated
 		const updatedUserCredentials = authUserMap.get(userCredentials.id);
 		expect(updatedUserCredentials?.email).toBe(OLD_EMAIL);
 	});
 
 	it("Error: should return INVALID_VERIFICATION_CODE error when code is empty", async () => {
-		const { emailVerificationSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: NEW_EMAIL,
 				code: CORRECT_CODE,
@@ -169,7 +169,7 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 
 		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await updateEmailVerifyEmailUseCase.execute("", userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyEmailUseCase.execute("", userCredentials, emailVerificationRequest);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -182,8 +182,8 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 				email: NEW_EMAIL,
 			},
 		});
-		const { emailVerificationSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: NEW_EMAIL,
 				code: CORRECT_CODE,
@@ -193,20 +193,20 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 		authUserMap.set(userRegistration.id, userRegistration);
 		authUserMap.set(anotherUserRegistration.id, anotherUserRegistration);
 
-		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationRequest);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
 		expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
 
-		// メールが更新されていないこと
+		// email is not updated
 		const updatedUserCredentials = authUserMap.get(userCredentials.id);
 		expect(updatedUserCredentials?.email).toBe(OLD_EMAIL);
 	});
 
 	it("Error: should return EMAIL_ALREADY_REGISTERED error when trying to change to same email", async () => {
-		const { emailVerificationSession } = createEmailVerificationSessionFixture({
-			emailVerificationSession: {
+		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
+			emailVerificationRequest: {
 				userId: userCredentials.id,
 				email: OLD_EMAIL,
 				code: CORRECT_CODE,
@@ -215,13 +215,13 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 
 		authUserMap.set(userRegistration.id, userRegistration);
 
-		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationSession);
+		const result = await updateEmailVerifyEmailUseCase.execute(CORRECT_CODE, userCredentials, emailVerificationRequest);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
 		expect(result.code).toBe("EMAIL_ALREADY_REGISTERED");
 
-		// メールが更新されていないこと
+		// email is not updated
 		const updatedUserCredentials = authUserMap.get(userCredentials.id);
 		expect(updatedUserCredentials?.email).toBe(OLD_EMAIL);
 	});
