@@ -8,13 +8,13 @@ import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
 import {
 	ProviderAccountRepositoryMock,
 	createProviderAccountKey,
-	createProviderAccountsMap,
+	createProviderAccountMap,
 } from "../../../../testing/mocks/repositories";
 import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import { ProviderLinkCallbackUseCase } from "../callback.usecase";
 import type { providerLinkStateSchema } from "../schema";
 
-const providerAccountMap = createProviderAccountsMap();
+const providerAccountMap = createProviderAccountMap();
 
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });
 const providerLinkSignedStateService = new HmacSignedStateServiceMock<typeof providerLinkStateSchema>();

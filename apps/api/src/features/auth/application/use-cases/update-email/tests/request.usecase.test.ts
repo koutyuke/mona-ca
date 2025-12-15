@@ -6,15 +6,15 @@ import { createAuthUserFixture, createEmailVerificationRequestFixture } from "..
 import {
 	AuthUserRepositoryMock,
 	EmailVerificationRequestRepositoryMock,
-	createAuthUsersMap,
-	createEmailVerificationRequestsMap,
-	createSessionsMap,
+	createAuthUserMap,
+	createEmailVerificationRequestMap,
+	createSessionMap,
 } from "../../../../testing/mocks/repositories";
 import { UpdateEmailRequestUseCase } from "../request.usecase";
 
-const emailVerificationRequestMap = createEmailVerificationRequestsMap();
-const authUserMap = createAuthUsersMap();
-const sessionMap = createSessionsMap();
+const emailVerificationRequestMap = createEmailVerificationRequestMap();
+const authUserMap = createAuthUserMap();
+const sessionMap = createSessionMap();
 
 const emailVerificationRequestRepository = new EmailVerificationRequestRepositoryMock({
 	emailVerificationRequestMap,

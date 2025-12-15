@@ -7,15 +7,15 @@ import { createAuthUserFixture, createProviderLinkRequestFixture } from "../../.
 import {
 	AuthUserRepositoryMock,
 	ProviderLinkRequestRepositoryMock,
-	createAuthUsersMap,
-	createProviderLinkRequestsMap,
-	createSessionsMap,
+	createAuthUserMap,
+	createProviderLinkRequestMap,
+	createSessionMap,
 } from "../../../../testing/mocks/repositories";
 import { ProviderLinkValidateRequestUseCase } from "../validate-request.usecase";
 
-const authUserMap = createAuthUsersMap();
-const sessionMap = createSessionsMap();
-const providerLinkRequestMap = createProviderLinkRequestsMap();
+const authUserMap = createAuthUserMap();
+const sessionMap = createSessionMap();
+const providerLinkRequestMap = createProviderLinkRequestMap();
 
 const authUserRepository = new AuthUserRepositoryMock({
 	authUserMap,

@@ -1,2 +1,2 @@
 export { UserProfileRepositoryMock } from "./user-profile.repository.mock";
-export { createUserProfilesMap } from "./table-maps";
+export { createUserProfileMap } from "./table-maps";

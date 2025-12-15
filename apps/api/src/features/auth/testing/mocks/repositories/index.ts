@@ -8,13 +8,13 @@ export { SessionRepositoryMock } from "./session.repository.mock";
 export { SignupSessionRepositoryMock } from "./signup-session.repository.mock";
 
 export {
-	createAuthUsersMap,
-	createSessionsMap,
-	createPasswordResetSessionsMap,
-	createEmailVerificationRequestsMap,
-	createProviderLinkProposalsMap,
-	createProviderLinkRequestsMap,
-	createProviderAccountsMap,
+	createAuthUserMap,
+	createSessionMap,
+	createPasswordResetSessionMap,
+	createEmailVerificationRequestMap,
+	createProviderLinkProposalMap,
+	createProviderLinkRequestMap,
+	createProviderAccountMap,
 	createProviderAccountKey,
-	createSignupSessionsMap,
+	createSignupSessionMap,
 } from "./table-maps";

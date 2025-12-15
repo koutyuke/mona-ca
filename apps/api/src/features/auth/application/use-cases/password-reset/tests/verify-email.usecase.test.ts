@@ -2,11 +2,11 @@ import { assert, afterEach, describe, expect, it } from "vitest";
 import { createPasswordResetSessionFixture } from "../../../../testing/fixtures";
 import {
 	PasswordResetSessionRepositoryMock,
-	createPasswordResetSessionsMap,
+	createPasswordResetSessionMap,
 } from "../../../../testing/mocks/repositories";
 import { PasswordResetVerifyEmailUseCase } from "../verify-email.usecase";
 
-const passwordResetSessionMap = createPasswordResetSessionsMap();
+const passwordResetSessionMap = createPasswordResetSessionMap();
 const passwordResetSessionRepository = new PasswordResetSessionRepositoryMock({
 	passwordResetSessionMap,
 });

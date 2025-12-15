@@ -4,11 +4,11 @@ import { ulid } from "../../../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import {
 	ProviderLinkRequestRepositoryMock,
-	createProviderLinkRequestsMap,
+	createProviderLinkRequestMap,
 } from "../../../../testing/mocks/repositories";
 import { ProviderLinkPrepareUseCase } from "../prepare.usecase";
 
-const providerLinkRequestMap = createProviderLinkRequestsMap();
+const providerLinkRequestMap = createProviderLinkRequestMap();
 const tokenSecretService = new TokenSecretServiceMock();
 
 const providerLinkRequestRepository = new ProviderLinkRequestRepositoryMock({

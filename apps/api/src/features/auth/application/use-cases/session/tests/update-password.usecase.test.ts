@@ -4,13 +4,13 @@ import { createAuthUserFixture, createSessionFixture } from "../../../../testing
 import {
 	AuthUserRepositoryMock,
 	SessionRepositoryMock,
-	createAuthUsersMap,
-	createSessionsMap,
+	createAuthUserMap,
+	createSessionMap,
 } from "../../../../testing/mocks/repositories";
 import { UpdatePasswordUseCase } from "../update-password.usecase";
 
-const sessionMap = createSessionsMap();
-const authUserMap = createAuthUsersMap();
+const sessionMap = createSessionMap();
+const authUserMap = createAuthUserMap();
 
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,

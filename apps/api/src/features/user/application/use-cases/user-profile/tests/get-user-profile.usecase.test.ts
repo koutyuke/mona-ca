@@ -2,10 +2,10 @@ import { assert, beforeEach, describe, expect, it } from "vitest";
 import { newGender, newUserId } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { createUserProfileFixture } from "../../../../testing/fixtures";
-import { UserProfileRepositoryMock, createUserProfilesMap } from "../../../../testing/mocks/repositories";
+import { UserProfileRepositoryMock, createUserProfileMap } from "../../../../testing/mocks/repositories";
 import { GetUserProfileUseCase } from "../get-user-profile.usecase";
 
-const userProfileMap = createUserProfilesMap();
+const userProfileMap = createUserProfileMap();
 
 const userProfileRepository = new UserProfileRepositoryMock({
 	userProfileMap,

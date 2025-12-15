@@ -4,11 +4,11 @@ import { CryptoRandomServiceMock, TokenSecretServiceMock } from "../../../../../
 import { createAuthUserFixture, createProviderLinkProposalFixture } from "../../../../testing/fixtures";
 import {
 	ProviderLinkProposalRepositoryMock,
-	createProviderLinkProposalsMap,
+	createProviderLinkProposalMap,
 } from "../../../../testing/mocks/repositories";
 import { ProviderLinkProposalReissueUseCase } from "../proposal-reissue.usecase";
 
-const providerLinkProposalMap = createProviderLinkProposalsMap();
+const providerLinkProposalMap = createProviderLinkProposalMap();
 
 const providerLinkProposalRepository = new ProviderLinkProposalRepositoryMock({
 	providerLinkProposalMap,

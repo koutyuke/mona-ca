@@ -17,33 +17,33 @@ import type {
 	SignupSessionId,
 } from "../../../domain/value-objects/ids";
 
-export const createAuthUsersMap = (users: UserRegistration[] = []): Map<UserId, UserRegistration> => {
+export const createAuthUserMap = (users: UserRegistration[] = []): Map<UserId, UserRegistration> => {
 	return new Map(users.map(userRegistration => [userRegistration.id, userRegistration]));
 };
 
-export const createSessionsMap = (sessions: Session[] = []): Map<SessionId, Session> => {
+export const createSessionMap = (sessions: Session[] = []): Map<SessionId, Session> => {
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createPasswordResetSessionsMap = (
+export const createPasswordResetSessionMap = (
 	sessions: PasswordResetSession[] = [],
 ): Map<PasswordResetSessionId, PasswordResetSession> => {
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createEmailVerificationRequestsMap = (
+export const createEmailVerificationRequestMap = (
 	requests: EmailVerificationRequest[] = [],
 ): Map<EmailVerificationRequestId, EmailVerificationRequest> => {
 	return new Map(requests.map(request => [request.id, request]));
 };
 
-export const createProviderLinkProposalsMap = (
+export const createProviderLinkProposalMap = (
 	proposals: ProviderLinkProposal[] = [],
 ): Map<ProviderLinkProposalId, ProviderLinkProposal> => {
 	return new Map(proposals.map(proposal => [proposal.id, proposal]));
 };
 
-export const createProviderAccountsMap = (providerAccounts: ProviderAccount[] = []): Map<string, ProviderAccount> => {
+export const createProviderAccountMap = (providerAccounts: ProviderAccount[] = []): Map<string, ProviderAccount> => {
 	return new Map(
 		providerAccounts.map(providerAccount => [
 			`${providerAccount.provider}-${providerAccount.providerUserId}`,
@@ -59,11 +59,11 @@ export const createProviderAccountKey = (
 	return `${provider}-${providerUserId}`;
 };
 
-export const createSignupSessionsMap = (sessions: SignupSession[] = []): Map<SignupSessionId, SignupSession> => {
+export const createSignupSessionMap = (sessions: SignupSession[] = []): Map<SignupSessionId, SignupSession> => {
 	return new Map(sessions.map(session => [session.id, session]));
 };
 
-export const createProviderLinkRequestsMap = (
+export const createProviderLinkRequestMap = (
 	requests: ProviderLinkRequest[] = [],
 ): Map<ProviderLinkRequestId, ProviderLinkRequest> => {
 	return new Map(requests.map(request => [request.id, request]));

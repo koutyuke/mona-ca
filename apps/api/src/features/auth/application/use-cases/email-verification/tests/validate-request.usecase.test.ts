@@ -6,11 +6,11 @@ import { encodeToken, newEmailVerificationRequestToken } from "../../../../domai
 import { createAuthUserFixture, createEmailVerificationRequestFixture } from "../../../../testing/fixtures";
 import {
 	EmailVerificationRequestRepositoryMock,
-	createEmailVerificationRequestsMap,
+	createEmailVerificationRequestMap,
 } from "../../../../testing/mocks/repositories";
 import { EmailVerificationValidateRequestUseCase } from "../validate-request.usecase";
 
-const emailVerificationRequestMap = createEmailVerificationRequestsMap();
+const emailVerificationRequestMap = createEmailVerificationRequestMap();
 
 const emailVerificationRequestRepository = new EmailVerificationRequestRepositoryMock({
 	emailVerificationRequestMap,

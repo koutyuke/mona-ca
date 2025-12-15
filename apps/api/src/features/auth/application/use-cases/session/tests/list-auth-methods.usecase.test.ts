@@ -4,11 +4,11 @@ import { createAuthUserFixture, createProviderAccountFixture } from "../../../..
 import {
 	ProviderAccountRepositoryMock,
 	createProviderAccountKey,
-	createProviderAccountsMap,
+	createProviderAccountMap,
 } from "../../../../testing/mocks/repositories";
 import { ListAuthMethodsUseCase } from "../list-auth-methods.usecase";
 
-const providerAccountMap = createProviderAccountsMap();
+const providerAccountMap = createProviderAccountMap();
 
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });
 

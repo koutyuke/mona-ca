@@ -8,15 +8,15 @@ import {
 	AuthUserRepositoryMock,
 	SessionRepositoryMock,
 	SignupSessionRepositoryMock,
-	createAuthUsersMap,
-	createSessionsMap,
-	createSignupSessionsMap,
+	createAuthUserMap,
+	createSessionMap,
+	createSignupSessionMap,
 } from "../../../../testing/mocks/repositories";
 import { SignupRegisterUseCase } from "../register.usecase";
 
-const sessionMap = createSessionsMap();
-const authUserMap = createAuthUsersMap();
-const signupSessionMap = createSignupSessionsMap();
+const sessionMap = createSessionMap();
+const authUserMap = createAuthUserMap();
+const signupSessionMap = createSignupSessionMap();
 
 const authUserRepository = new AuthUserRepositoryMock({
 	authUserMap,

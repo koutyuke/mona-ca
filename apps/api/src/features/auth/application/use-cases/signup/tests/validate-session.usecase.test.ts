@@ -2,10 +2,10 @@ import { assert, beforeEach, describe, expect, it } from "vitest";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import { newSignupSessionToken } from "../../../../domain/value-objects/tokens";
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
-import { SignupSessionRepositoryMock, createSignupSessionsMap } from "../../../../testing/mocks/repositories";
+import { SignupSessionRepositoryMock, createSignupSessionMap } from "../../../../testing/mocks/repositories";
 import { SignupValidateSessionUseCase } from "../validate-session.usecase";
 
-const signupSessionMap = createSignupSessionsMap();
+const signupSessionMap = createSignupSessionMap();
 
 const signupSessionRepository = new SignupSessionRepositoryMock({
 	signupSessionMap,

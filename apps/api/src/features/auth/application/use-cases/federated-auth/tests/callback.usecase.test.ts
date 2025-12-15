@@ -12,20 +12,20 @@ import {
 	ProviderAccountRepositoryMock,
 	ProviderLinkProposalRepositoryMock,
 	SessionRepositoryMock,
-	createAuthUsersMap,
+	createAuthUserMap,
 	createProviderAccountKey,
-	createProviderAccountsMap,
-	createProviderLinkProposalsMap,
-	createSessionsMap,
+	createProviderAccountMap,
+	createProviderLinkProposalMap,
+	createSessionMap,
 } from "../../../../testing/mocks/repositories";
 import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import { FederatedAuthCallbackUseCase } from "../callback.usecase";
 import type { federatedAuthStateSchema } from "../schema";
 
-const authUserMap = createAuthUsersMap();
-const sessionMap = createSessionsMap();
-const providerAccountMap = createProviderAccountsMap();
-const providerLinkProposalMap = createProviderLinkProposalsMap();
+const authUserMap = createAuthUserMap();
+const sessionMap = createSessionMap();
+const providerAccountMap = createProviderAccountMap();
+const providerLinkProposalMap = createProviderLinkProposalMap();
 
 const sessionRepository = new SessionRepositoryMock({ sessionMap });
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });

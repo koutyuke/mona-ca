@@ -9,18 +9,18 @@ import {
 	ProviderAccountRepositoryMock,
 	ProviderLinkProposalRepositoryMock,
 	SessionRepositoryMock,
-	createAuthUsersMap,
+	createAuthUserMap,
 	createProviderAccountKey,
-	createProviderAccountsMap,
-	createProviderLinkProposalsMap,
-	createSessionsMap,
+	createProviderAccountMap,
+	createProviderLinkProposalMap,
+	createSessionMap,
 } from "../../../../testing/mocks/repositories";
 import { ProviderLinkProposalVerifyEmailUseCase } from "../proposal-verify-email.usecase";
 
-const sessionMap = createSessionsMap();
-const authUserMap = createAuthUsersMap();
-const providerAccountMap = createProviderAccountsMap();
-const providerLinkProposalMap = createProviderLinkProposalsMap();
+const sessionMap = createSessionMap();
+const authUserMap = createAuthUserMap();
+const providerAccountMap = createProviderAccountMap();
+const providerLinkProposalMap = createProviderLinkProposalMap();
 
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,

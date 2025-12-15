@@ -8,15 +8,15 @@ import { createAuthUserFixture, createSignupSessionFixture } from "../../../../t
 import {
 	AuthUserRepositoryMock,
 	SignupSessionRepositoryMock,
-	createAuthUsersMap,
-	createSessionsMap,
-	createSignupSessionsMap,
+	createAuthUserMap,
+	createSessionMap,
+	createSignupSessionMap,
 } from "../../../../testing/mocks/repositories";
 import { SignupRequestUseCase } from "../request.usecase";
 
-const sessionMap = createSessionsMap();
-const authUserMap = createAuthUsersMap();
-const signupSessionMap = createSignupSessionsMap();
+const sessionMap = createSessionMap();
+const authUserMap = createAuthUserMap();
+const signupSessionMap = createSignupSessionMap();
 
 const emailGateway = new EmailGatewayMock();
 const authUserRepository = new AuthUserRepositoryMock({

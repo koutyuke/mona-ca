@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { createSessionFixture } from "../../../../testing/fixtures";
-import { SessionRepositoryMock, createSessionsMap } from "../../../../testing/mocks/repositories";
+import { SessionRepositoryMock, createSessionMap } from "../../../../testing/mocks/repositories";
 import { LogoutUseCase } from "../logout.usecase";
 
-const sessionMap = createSessionsMap();
+const sessionMap = createSessionMap();
 
 const sessionRepository = new SessionRepositoryMock({
 	sessionMap,
