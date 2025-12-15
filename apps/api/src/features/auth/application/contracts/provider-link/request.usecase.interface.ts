@@ -12,14 +12,14 @@ type Success = Ok<{
 
 type Error = Err<"INVALID_REDIRECT_URI">;
 
-export type ProviderConnectionRequestUseCaseResult = Result<Success, Error>;
+export type ProviderLinkRequestUseCaseResult = Result<Success, Error>;
 
-export interface IProviderConnectionRequestUseCase {
+export interface IProviderLinkRequestUseCase {
 	execute(
 		production: boolean,
 		clientPlatform: ClientPlatform,
 		provider: IdentityProviders,
 		queryRedirectURI: string,
 		userCredentials: UserCredentials,
-	): Promise<ProviderConnectionRequestUseCaseResult>;
+	): Promise<ProviderLinkRequestUseCaseResult>;
 }

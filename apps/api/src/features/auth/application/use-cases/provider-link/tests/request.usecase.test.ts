@@ -3,27 +3,27 @@ import { newClientPlatform } from "../../../../../../core/domain/value-objects";
 import { newIdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import { createAuthUserFixture } from "../../../../testing/fixtures";
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
-import { HmacOAuthStateServiceMock } from "../../../../testing/mocks/infra";
-import { ProviderConnectionRequestUseCase } from "../request.usecase";
-import type { providerConnectionStateSchema } from "../schema";
+import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
+import { ProviderLinkRequestUseCase } from "../request.usecase";
+import type { providerLinkStateSchema } from "../schema";
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock();
 const discordIdentityProviderGateway = new IdentityProviderGatewayMock();
-const providerConnectionOAuthStateService = new HmacOAuthStateServiceMock<typeof providerConnectionStateSchema>();
+const providerLinkSignedStateService = new HmacSignedStateServiceMock<typeof providerLinkStateSchema>();
 
-const providerConnectionRequestUseCase = new ProviderConnectionRequestUseCase(
+const providerLinkRequestUseCase = new ProviderLinkRequestUseCase(
 	googleIdentityProviderGateway,
 	discordIdentityProviderGateway,
-	providerConnectionOAuthStateService,
+	providerLinkSignedStateService,
 );
 
 const PRODUCTION = false;
 const { userCredentials } = createAuthUserFixture();
 
-describe("ProviderConnectionRequestUseCase", () => {
-	it("Success: should generate provider connection request with valid redirect URI for web client", async () => {
+describe("ProviderLinkRequestUseCase", () => {
+	it("Success: should generate provider link request with valid redirect URI for web client", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionRequestUseCase.execute(
+		const result = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -37,8 +37,9 @@ describe("ProviderConnectionRequestUseCase", () => {
 		const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
 		// check state
-		// Mockの固定値を確認: HmacOAuthStateServiceMockは `__hmac-oauth-state-signed:${JSON.stringify(payload)}` を返す
-		expect(state).toBe(`__hmac-oauth-state-signed:{"client":"web","uid":"${userCredentials.id}"}`);
+		expect(state).toBe(
+			`${providerLinkSignedStateService.signPrefix}:${JSON.stringify({ client: "web", uid: userCredentials.id })}`,
+		);
 
 		// check code verifier
 		expect(codeVerifier).toBeDefined();
@@ -55,9 +56,9 @@ describe("ProviderConnectionRequestUseCase", () => {
 		expect(redirectToProviderURL.searchParams.get("code_verifier")).toBe(codeVerifier);
 	});
 
-	it("Success: should generate provider connection request with valid redirect URI for mobile client", async () => {
+	it("Success: should generate provider link request with valid redirect URI for mobile client", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionRequestUseCase.execute(
+		const result = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("mobile"),
 			provider,
@@ -70,7 +71,9 @@ describe("ProviderConnectionRequestUseCase", () => {
 
 		const { state, codeVerifier, redirectToClientURL, redirectToProviderURL } = result.value;
 
-		expect(state).toBe(`__hmac-oauth-state-signed:{"client":"mobile","uid":"${userCredentials.id}"}`);
+		expect(state).toBe(
+			`${providerLinkSignedStateService.signPrefix}:${JSON.stringify({ client: "mobile", uid: userCredentials.id })}`,
+		);
 		expect(codeVerifier).toBeDefined();
 		expect(codeVerifier.length).toBeGreaterThan(0);
 		expect(redirectToClientURL).toBeInstanceOf(URL);
@@ -82,7 +85,7 @@ describe("ProviderConnectionRequestUseCase", () => {
 
 	it("Success: should use default path when redirect URI is empty", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionRequestUseCase.execute(
+		const result = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -99,7 +102,7 @@ describe("ProviderConnectionRequestUseCase", () => {
 
 	it("Success: should include userId in the generated state", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionRequestUseCase.execute(
+		const result = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -111,25 +114,25 @@ describe("ProviderConnectionRequestUseCase", () => {
 		assert(result.isOk);
 
 		const { state } = result.value;
-		const validatedState = providerConnectionOAuthStateService.validate(state);
+		const validatedState = providerLinkSignedStateService.verify(state);
 		expect(validatedState.isErr).toBe(false);
 		assert(validatedState.isOk);
 
-		// セキュリティ: stateにuserIdが含まれていること（CSRF攻撃の防止）
+		// check state contains userId for security (prevent CSRF attacks)
 		expect(validatedState.value.uid).toBe(userCredentials.id);
 		expect(validatedState.value.client).toBe(newClientPlatform("web"));
 	});
 
 	it("Success: should generate different code verifiers for each request", async () => {
 		const provider = newIdentityProviders("google");
-		const result1 = await providerConnectionRequestUseCase.execute(
+		const result1 = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
 			"/settings/connections",
 			userCredentials,
 		);
-		const result2 = await providerConnectionRequestUseCase.execute(
+		const result2 = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -140,13 +143,13 @@ describe("ProviderConnectionRequestUseCase", () => {
 		assert(result1.isOk);
 		assert(result2.isOk);
 
-		// セキュリティ: 各リクエストで異なるcode verifierが生成されること
+		// check different code verifiers are generated for each request for security
 		expect(result1.value.codeVerifier).not.toBe(result2.value.codeVerifier);
 	});
 
 	it("Error: should return INVALID_REDIRECT_URI error for external malicious redirect URI", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionRequestUseCase.execute(
+		const result = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,
@@ -161,7 +164,7 @@ describe("ProviderConnectionRequestUseCase", () => {
 
 	it("Error: should return INVALID_REDIRECT_URI error for javascript: protocol", async () => {
 		const provider = newIdentityProviders("google");
-		const result = await providerConnectionRequestUseCase.execute(
+		const result = await providerLinkRequestUseCase.execute(
 			PRODUCTION,
 			newClientPlatform("web"),
 			provider,

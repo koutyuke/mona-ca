@@ -1,58 +1,58 @@
-import { assert, beforeEach, describe, expect, it } from "vitest";
+import { assert, afterEach, describe, expect, it } from "vitest";
 import { newClientPlatform } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { newIdentityProviders, newIdentityProvidersUserId } from "../../../../domain/value-objects/identity-providers";
 import { createAuthUserFixture, createProviderAccountFixture } from "../../../../testing/fixtures";
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
-import { HmacOAuthStateServiceMock } from "../../../../testing/mocks/infra";
+import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
 import {
 	ProviderAccountRepositoryMock,
 	createProviderAccountKey,
 	createProviderAccountsMap,
 } from "../../../../testing/mocks/repositories";
-import type { IdentityProviderUser } from "../../../ports/gateways/identity-provider.gateway.interface";
-import { ProviderConnectionCallbackUseCase } from "../callback.usecase";
-import type { providerConnectionStateSchema } from "../schema";
+import type { UserInfo } from "../../../ports/gateways/identity-provider.gateway.interface";
+import { ProviderLinkCallbackUseCase } from "../callback.usecase";
+import type { providerLinkStateSchema } from "../schema";
 
 const providerAccountMap = createProviderAccountsMap();
 
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });
-const providerConnectionOAuthStateService = new HmacOAuthStateServiceMock<typeof providerConnectionStateSchema>();
+const providerLinkOAuthStateService = new HmacSignedStateServiceMock<typeof providerLinkStateSchema>();
 
 const PRODUCTION = false;
 const PROVIDER = newIdentityProviders("discord");
 const { userCredentials, userRegistration } = createAuthUserFixture();
 
-const identityProviderUser = {
+const userInfo = {
 	id: newIdentityProvidersUserId(ulid()),
 	email: userRegistration.email,
 	name: "Test User",
 	iconURL: "https://example.com/icon.png",
 	emailVerified: true,
-} satisfies IdentityProviderUser;
+} satisfies UserInfo;
 
-const googleIdentityProviderGateway = new IdentityProviderGatewayMock({ identityProviderUser });
-const discordIdentityProviderGateway = new IdentityProviderGatewayMock({ identityProviderUser });
+const googleIdentityProviderGateway = new IdentityProviderGatewayMock({ userInfo });
+const discordIdentityProviderGateway = new IdentityProviderGatewayMock({ userInfo });
 
-const providerConnectionCallbackUseCase = new ProviderConnectionCallbackUseCase(
+const providerLinkCallbackUseCase = new ProviderLinkCallbackUseCase(
 	discordIdentityProviderGateway,
 	googleIdentityProviderGateway,
 	providerAccountRepository,
-	providerConnectionOAuthStateService,
+	providerLinkOAuthStateService,
 );
 
-describe("ProviderConnectionCallbackUseCase", () => {
-	beforeEach(() => {
+describe("ProviderLinkCallbackUseCase", () => {
+	afterEach(() => {
 		providerAccountMap.clear();
 	});
 
 	it("Success: should link provider account when no conflicts exist", async () => {
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
@@ -81,7 +81,7 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_STATE error for invalid state format", async () => {
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
@@ -97,7 +97,7 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_STATE error for empty state", async () => {
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
@@ -113,12 +113,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_REDIRECT_URI error for external malicious redirect URI", async () => {
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"https://malicious.com/redirect",
@@ -134,12 +134,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return INVALID_REDIRECT_URI error for javascript: protocol", async () => {
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"javascript:alert('xss')",
@@ -155,12 +155,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return PROVIDER_ACCESS_DENIED error when user denies access", async () => {
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			"access_denied",
 			"/dashboard",
@@ -179,12 +179,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return PROVIDER_ERROR error for provider error", async () => {
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			"server_error",
 			"/dashboard",
@@ -203,12 +203,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return TOKEN_EXCHANGE_FAILED error when code is missing", async () => {
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
@@ -224,12 +224,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 	});
 
 	it("Error: should return TOKEN_EXCHANGE_FAILED error when code is empty string", async () => {
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
@@ -259,12 +259,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 			existingProviderAccount,
 		);
 
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",
@@ -289,7 +289,7 @@ describe("ProviderConnectionCallbackUseCase", () => {
 			providerAccount: {
 				userId: anotherUser.id,
 				provider: PROVIDER,
-				providerUserId: identityProviderUser.id,
+				providerUserId: userInfo.id,
 			},
 		});
 		providerAccountMap.set(
@@ -297,12 +297,12 @@ describe("ProviderConnectionCallbackUseCase", () => {
 			existingProviderAccount,
 		);
 
-		const signedState = providerConnectionOAuthStateService.generate({
+		const signedState = providerLinkOAuthStateService.sign({
 			client: newClientPlatform("web"),
 			uid: userCredentials.id,
 		});
 
-		const result = await providerConnectionCallbackUseCase.execute(
+		const result = await providerLinkCallbackUseCase.execute(
 			PRODUCTION,
 			undefined,
 			"/dashboard",

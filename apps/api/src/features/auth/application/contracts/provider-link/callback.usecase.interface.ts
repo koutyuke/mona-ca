@@ -10,16 +10,16 @@ type Success = Ok<{
 type Error =
 	| Err<"INVALID_STATE">
 	| Err<"INVALID_REDIRECT_URI">
+	| Err<"TOKEN_EXCHANGE_FAILED">
 	| Err<"PROVIDER_ACCESS_DENIED", { redirectURL: URL }>
 	| Err<"PROVIDER_ERROR", { redirectURL: URL }>
-	| Err<"TOKEN_EXCHANGE_FAILED">
-	| Err<"GET_IDENTITY_FAILED", { redirectURL: URL }>
+	| Err<"USER_INFO_GET_FAILED", { redirectURL: URL }>
 	| Err<"PROVIDER_ALREADY_LINKED", { redirectURL: URL }>
 	| Err<"ACCOUNT_LINKED_ELSEWHERE", { redirectURL: URL }>;
 
-export type ProviderConnectionCallbackUseCaseResult = Result<Success, Error>;
+export type ProviderLinkCallbackUseCaseResult = Result<Success, Error>;
 
-export interface IProviderConnectionCallbackUseCase {
+export interface IProviderLinkCallbackUseCase {
 	execute(
 		production: boolean,
 		error: string | undefined,
@@ -28,5 +28,5 @@ export interface IProviderConnectionCallbackUseCase {
 		signedState: string,
 		code: string | undefined,
 		codeVerifier: string,
-	): Promise<ProviderConnectionCallbackUseCaseResult>;
+	): Promise<ProviderLinkCallbackUseCaseResult>;
 }
