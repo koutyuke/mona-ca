@@ -3,25 +3,25 @@ import { err, ok } from "@mona-ca/core/result";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type {
-	IProviderConnectionDisconnectUseCase,
-	ProviderConnectionDisconnectUseCaseResult,
-} from "../../contracts/provider-connection/disconnect.usecase.interface";
+	IProviderLinkUnlinkUseCase,
+	ProviderLinkUnlinkUseCaseResult,
+} from "../../contracts/provider-link/unlink.usecase.interface";
 import type { IProviderAccountRepository } from "../../ports/repositories/provider-account.repository.interface";
 
-export class ProviderConnectionDisconnectUseCase implements IProviderConnectionDisconnectUseCase {
+export class ProviderLinkUnlinkUseCase implements IProviderLinkUnlinkUseCase {
 	constructor(private readonly providerAccountRepository: IProviderAccountRepository) {}
 
 	public async execute(
 		provider: IdentityProviders,
 		userCredentials: UserCredentials,
-	): Promise<ProviderConnectionDisconnectUseCaseResult> {
+	): Promise<ProviderLinkUnlinkUseCaseResult> {
 		const connectedProviderAccount = await this.providerAccountRepository.findByUserIdAndProvider(
 			userCredentials.id,
 			provider,
 		);
 
 		if (!connectedProviderAccount) {
-			return err("PROVIDER_NOT_CONNECTED");
+			return err("PROVIDER_NOT_LINKED");
 		}
 
 		if (!userCredentials.passwordHash) {

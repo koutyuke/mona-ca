@@ -6,19 +6,19 @@ import {
 	createProviderAccountKey,
 	createProviderAccountsMap,
 } from "../../../../testing/mocks/repositories";
-import { ProviderConnectionDisconnectUseCase } from "../disconnect.usecase";
+import { ProviderLinkUnlinkUseCase } from "../unlink.usecase";
 
 const providerAccountMap = createProviderAccountsMap();
 
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });
 
-const providerConnectionDisconnectUseCase = new ProviderConnectionDisconnectUseCase(providerAccountRepository);
+const providerLinkUnlinkUseCase = new ProviderLinkUnlinkUseCase(providerAccountRepository);
 
 const { userCredentials } = createAuthUserFixture();
 const PROVIDER = newIdentityProviders("discord");
 const PROVIDER_USER_ID = newIdentityProvidersUserId("discord_user_id");
 
-describe("ProviderConnectionDisconnectUseCase", () => {
+describe("ProviderLinkUnlinkUseCase", () => {
 	beforeEach(() => {
 		providerAccountMap.clear();
 	});
@@ -34,7 +34,7 @@ describe("ProviderConnectionDisconnectUseCase", () => {
 
 		providerAccountMap.set(createProviderAccountKey(PROVIDER, PROVIDER_USER_ID), providerAccount);
 
-		const result = await providerConnectionDisconnectUseCase.execute(PROVIDER, userCredentials);
+		const result = await providerLinkUnlinkUseCase.execute(PROVIDER, userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -44,12 +44,12 @@ describe("ProviderConnectionDisconnectUseCase", () => {
 		expect(providerAccountMap.size).toBe(0);
 	});
 
-	it("Error: should return PROVIDER_NOT_CONNECTED error when user has no linked account for provider", async () => {
-		const result = await providerConnectionDisconnectUseCase.execute(PROVIDER, userCredentials);
+	it("Error: should return PROVIDER_NOT_LINKED error when user has no linked account for provider", async () => {
+		const result = await providerLinkUnlinkUseCase.execute(PROVIDER, userCredentials);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PROVIDER_NOT_CONNECTED");
+		expect(result.code).toBe("PROVIDER_NOT_LINKED");
 	});
 
 	it("Error: should return PASSWORD_NOT_SET error when user has no password", async () => {
@@ -68,7 +68,7 @@ describe("ProviderConnectionDisconnectUseCase", () => {
 
 		providerAccountMap.set(createProviderAccountKey(PROVIDER, PROVIDER_USER_ID), providerAccount);
 
-		const result = await providerConnectionDisconnectUseCase.execute(PROVIDER, userWithoutPassword);
+		const result = await providerLinkUnlinkUseCase.execute(PROVIDER, userWithoutPassword);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
