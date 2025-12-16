@@ -7,6 +7,7 @@ export {
 	newSignupSessionToken,
 	newPasswordResetSessionToken,
 	newEmailVerificationRequestToken,
+	newProviderLinkProposalToken,
 } from "./domain/value-objects/tokens";
 
 export type { IAuthDIContainer } from "./di/container.interface";

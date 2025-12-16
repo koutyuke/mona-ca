@@ -9,7 +9,7 @@ type Success = Ok<{
 	sessionToken: SessionToken;
 }>;
 
-type Error = Err<"INVALID_ASSOCIATION_CODE"> | Err<"ACCOUNT_ALREADY_LINKED"> | Err<"ACCOUNT_LINKED_ELSEWHERE">;
+type Error = Err<"INVALID_CODE"> | Err<"PROVIDER_ALREADY_LINKED"> | Err<"ACCOUNT_LINKED_ELSEWHERE">;
 
 export type ProviderLinkProposalVerifyEmailUseCaseResult = Result<Success, Error>;
 

@@ -110,7 +110,7 @@ describe("ProviderLinkProposalVerifyEmailUseCase", () => {
 		expect(updatedUserCredentials.emailVerified).toBe(true);
 	});
 
-	it("should return INVALID_ASSOCIATION_CODE error when code is null", async () => {
+	it("should return INVALID_CODE error when code is null", async () => {
 		// create provider link proposal without code
 		const { providerLinkProposal } = createProviderLinkProposalFixture({
 			providerLinkProposal: {
@@ -130,10 +130,10 @@ describe("ProviderLinkProposalVerifyEmailUseCase", () => {
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
 
-		expect(result.code).toBe("INVALID_ASSOCIATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 	});
 
-	it("should return INVALID_ASSOCIATION_CODE error when code does not match", async () => {
+	it("should return INVALID_CODE error when code does not match", async () => {
 		// create provider link proposal
 		const { providerLinkProposal } = createProviderLinkProposalFixture({
 			providerLinkProposal: {
@@ -153,10 +153,10 @@ describe("ProviderLinkProposalVerifyEmailUseCase", () => {
 		expect(result.isErr).toBe(true);
 
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_ASSOCIATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 	});
 
-	it("should return ACCOUNT_ALREADY_LINKED error when user already has account for the provider", async () => {
+	it("should return PROVIDER_ALREADY_LINKED error when user already has account for the provider", async () => {
 		// create provider link proposal
 		const { providerLinkProposal } = createProviderLinkProposalFixture({
 			providerLinkProposal: {
@@ -188,7 +188,7 @@ describe("ProviderLinkProposalVerifyEmailUseCase", () => {
 		expect(result.isErr).toBe(true);
 
 		assert(result.isErr);
-		expect(result.code).toBe("ACCOUNT_ALREADY_LINKED");
+		expect(result.code).toBe("PROVIDER_ALREADY_LINKED");
 	});
 
 	it("should return ACCOUNT_LINKED_ELSEWHERE error when provider account is linked to another user", async () => {

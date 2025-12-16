@@ -40,11 +40,11 @@ export class ProviderLinkProposalVerifyEmailUseCase implements IProviderLinkProp
 		providerLinkProposal: ProviderLinkProposal,
 	): Promise<ProviderLinkProposalVerifyEmailUseCaseResult> {
 		if (providerLinkProposal.code === null) {
-			return err("INVALID_ASSOCIATION_CODE");
+			return err("INVALID_CODE");
 		}
 
 		if (!timingSafeStringEqual(providerLinkProposal.code, code)) {
-			return err("INVALID_ASSOCIATION_CODE");
+			return err("INVALID_CODE");
 		}
 
 		await this.providerLinkProposalRepository.deleteById(providerLinkProposal.id);
@@ -61,7 +61,7 @@ export class ProviderLinkProposalVerifyEmailUseCase implements IProviderLinkProp
 		]);
 
 		if (currentUserProviderAccount) {
-			return err("ACCOUNT_ALREADY_LINKED");
+			return err("PROVIDER_ALREADY_LINKED");
 		}
 
 		if (existingProviderAccount) {

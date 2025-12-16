@@ -1,20 +1,20 @@
-import { ACCOUNT_LINK_SESSION_COOKIE_NAME, SESSION_COOKIE_NAME } from "@mona-ca/core/http";
+import { PROVIDER_LINK_PROPOSAL_COOKIE_NAME, SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
 import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects";
 import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
-import { newAccountLinkSessionToken, toAnyTokenResponse } from "../../../features/auth";
+import { newProviderLinkProposalToken, toAnyTokenResponse } from "../../../features/auth";
 import { clientPlatformPlugin } from "../../../plugins/client-platform";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi/path-detail";
 import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
-export const AccountLinkVerifyRoute = new Elysia()
+export const ProviderLinkProposalVerifyRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(clientPlatformPlugin())
 	.use(
-		ratelimitPlugin("account-link-verify", {
+		ratelimitPlugin("provider-link-proposal-verify", {
 			maxTokens: 1000,
 			refillRate: 500,
 			refillInterval: {
@@ -39,46 +39,47 @@ export const AccountLinkVerifyRoute = new Elysia()
 		"/verify",
 		async ({
 			cookie,
-			body: { accountLinkSessionToken: bodyAccountLinkSessionToken, code },
+			body: { providerLinkProposalToken: bodyProviderLinkProposalToken, code },
 			clientPlatform,
 			rateLimit,
 			containers,
 			status,
 		}) => {
-			const rawAccountLinkSessionToken = match(clientPlatform)
-				.when(isWebPlatform, () => cookie[ACCOUNT_LINK_SESSION_COOKIE_NAME].value)
-				.when(isMobilePlatform, () => bodyAccountLinkSessionToken)
+			const rawProviderLinkProposalToken = match(clientPlatform)
+				.when(isWebPlatform, () => cookie[PROVIDER_LINK_PROPOSAL_COOKIE_NAME].value)
+				.when(isMobilePlatform, () => bodyProviderLinkProposalToken)
 				.exhaustive();
 
-			if (!rawAccountLinkSessionToken) {
+			if (!rawProviderLinkProposalToken) {
 				return status("Unauthorized", {
-					code: "ACCOUNT_LINK_SESSION_INVALID",
-					message: "Account link session not found.",
+					code: "PROVIDER_LINK_PROPOSAL_INVALID",
+					message: "Provider link proposal not found.",
 				});
 			}
 
-			const accountLinkSessionToken = newAccountLinkSessionToken(rawAccountLinkSessionToken);
+			const providerLinkProposalToken = newProviderLinkProposalToken(rawProviderLinkProposalToken);
 
-			const validateResult = await containers.auth.accountLinkValidateSessionUseCase.execute(accountLinkSessionToken);
+			const validateResult =
+				await containers.auth.providerLinkValidateProposalUseCase.execute(providerLinkProposalToken);
 
 			if (validateResult.isErr) {
 				return match(validateResult)
-					.with({ code: "ACCOUNT_LINK_SESSION_INVALID" }, () => {
+					.with({ code: "INVALID_PROVIDER_LINK_PROPOSAL" }, ({ code }) => {
 						return status("Unauthorized", {
-							code: "ACCOUNT_LINK_SESSION_INVALID",
-							message: "Invalid account link session.",
+							code,
+							message: "Invalid provider link proposal.",
 						});
 					})
-					.with({ code: "ACCOUNT_LINK_SESSION_EXPIRED" }, () => {
+					.with({ code: "EXPIRED_PROVIDER_LINK_PROPOSAL" }, ({ code }) => {
 						return status("Unauthorized", {
-							code: "ACCOUNT_LINK_SESSION_EXPIRED",
-							message: "Account link session has expired.",
+							code,
+							message: "Provider link proposal has expired.",
 						});
 					})
 					.exhaustive();
 			}
 
-			const { accountLinkSession, userCredentials } = validateResult.value;
+			const { providerLinkProposal, userCredentials } = validateResult.value;
 
 			const ratelimitResult = await rateLimit.consume(userCredentials.id, 100);
 			if (ratelimitResult.isErr) {
@@ -88,30 +89,30 @@ export const AccountLinkVerifyRoute = new Elysia()
 				});
 			}
 
-			const verifyEmailResult = await containers.auth.accountLinkVerifyEmailUseCase.execute(
+			const verifyEmailResult = await containers.auth.providerLinkProposalVerifyEmailUseCase.execute(
 				code,
 				userCredentials,
-				accountLinkSession,
+				providerLinkProposal,
 			);
 
 			if (verifyEmailResult.isErr) {
 				return match(verifyEmailResult)
-					.with({ code: "INVALID_ASSOCIATION_CODE" }, () => {
+					.with({ code: "INVALID_CODE" }, ({ code }) => {
 						return status("Bad Request", {
-							code: "INVALID_ASSOCIATION_CODE",
-							message: "Invalid association code. Please check your email and try again.",
+							code,
+							message: "Invalid code. Please check your email and try again.",
 						});
 					})
-					.with({ code: "ACCOUNT_ALREADY_LINKED" }, () => {
+					.with({ code: "PROVIDER_ALREADY_LINKED" }, ({ code }) => {
 						return status("Bad Request", {
-							code: "ACCOUNT_ALREADY_LINKED",
-							message: "This OAuth provider is already linked to your account.",
+							code,
+							message: "This provider is already linked to your account. Please login with this provider.",
 						});
 					})
-					.with({ code: "ACCOUNT_LINKED_ELSEWHERE" }, () => {
+					.with({ code: "ACCOUNT_LINKED_ELSEWHERE" }, ({ code }) => {
 						return status("Bad Request", {
-							code: "ACCOUNT_LINKED_ELSEWHERE",
-							message: "This OAuth account is already linked to another user.",
+							code,
+							message: "This provider account is already linked to another user. Please login with this provider.",
 						});
 					})
 					.exhaustive();
@@ -125,7 +126,7 @@ export const AccountLinkVerifyRoute = new Elysia()
 				};
 			}
 
-			cookie[ACCOUNT_LINK_SESSION_COOKIE_NAME].remove();
+			cookie[PROVIDER_LINK_PROPOSAL_COOKIE_NAME].remove();
 			cookie[SESSION_COOKIE_NAME].set({
 				...defaultCookieOptions,
 				value: sessionToken,
@@ -137,17 +138,17 @@ export const AccountLinkVerifyRoute = new Elysia()
 		{
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
-				[ACCOUNT_LINK_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[PROVIDER_LINK_PROPOSAL_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				accountLinkSessionToken: t.Optional(t.String()),
+				providerLinkProposalToken: t.Optional(t.String()),
 				code: t.String(),
 			}),
 			detail: pathDetail({
-				tag: "Auth - Account Link",
-				operationId: "account-link-verify",
-				summary: "Account Link Verify",
-				description: "Account Link Verify endpoint for the User",
+				tag: "Auth - Provider Link Proposal",
+				operationId: "provider-link-proposal-verify",
+				summary: "Provider Link Proposal Verify",
+				description: "Provider Link Proposal Verify endpoint for the User",
 			}),
 		},
 	);
