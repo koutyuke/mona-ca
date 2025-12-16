@@ -1,8 +1,8 @@
 import {
-	ACCOUNT_LINK_SESSION_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
+	PROVIDER_LINK_PROPOSAL_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 	normalizeRedirectableMobileScheme,
 } from "@mona-ca/core/http";
@@ -91,22 +91,22 @@ export const FederatedAuthCallbackRoute = new Elysia()
 						}),
 					)
 					.with(
-						{ code: "ACCOUNT_LINK_AVAILABLE" },
+						{ code: "PROVIDER_LINK_PROPOSAL" },
 						({
 							code: errorCode,
-							context: { redirectURL, clientPlatform, accountLinkSessionToken, accountLinkSession },
+							context: { redirectURL, clientPlatform, providerLinkProposalToken, providerLinkProposal },
 						}) => {
 							if (isMobilePlatform(clientPlatform)) {
-								redirectURL.searchParams.set("account-link-session-token", accountLinkSessionToken);
+								redirectURL.searchParams.set("provider-link-proposal-token", providerLinkProposalToken);
 								redirectURL.searchParams.set("error", errorCode);
 								set.headers["referrer-policy"] = "strict-origin";
 								return redirect(normalizeRedirectableMobileScheme(redirectURL));
 							}
 
-							cookie[ACCOUNT_LINK_SESSION_COOKIE_NAME].set({
+							cookie[PROVIDER_LINK_PROPOSAL_COOKIE_NAME].set({
 								...defaultCookieOptions,
-								value: accountLinkSessionToken,
-								expires: accountLinkSession.expiresAt,
+								value: providerLinkProposalToken,
+								expires: providerLinkProposal.expiresAt,
 							});
 
 							redirectURL.searchParams.set("error", errorCode);
@@ -163,7 +163,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 				[OAUTH_STATE_COOKIE_NAME]: t.String(),
 				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String(),
 				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String(),
-				[ACCOUNT_LINK_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[PROVIDER_LINK_PROPOSAL_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				operationId: "auth-federated-auth-callback",
@@ -178,7 +178,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 					"---",
 					"If account link is available, redirect to the client URL with the `account-link-session-token` and `error` query params",
 					"Query params:",
-					"  - `account-link-session-token`: Account link session token",
+					"  - `provider-link-proposal-token`: Provider link proposal token",
 					"  - `error`: Error code(ACCOUNT_LINK_AVAILABLE)",
 					"---",
 					"If error, redirect to the client URL with the `error` query param",

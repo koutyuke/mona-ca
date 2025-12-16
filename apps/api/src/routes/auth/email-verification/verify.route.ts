@@ -1,9 +1,9 @@
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "@mona-ca/core/http";
+import { EMAIL_VERIFICATION_REQUEST_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
 import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects";
 import { noContent } from "../../../core/infra/elysia";
-import { newEmailVerificationSessionToken } from "../../../features/auth";
+import { newEmailVerificationRequestToken } from "../../../features/auth";
 import { authPlugin } from "../../../plugins/auth";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
@@ -29,53 +29,53 @@ export const EmailVerificationVerifyRoute = new Elysia()
 		"/verify",
 		async ({
 			cookie,
-			body: { code, emailVerificationSessionToken: bodyEmailVerificationSessionToken },
+			body: { code, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
 			userCredentials,
 			clientPlatform,
 			rateLimit,
 			containers,
 			status,
 		}) => {
-			// Validate Email Verification Session
-			const rawEmailVerificationSessionToken = match(clientPlatform)
-				.when(isWebPlatform, () => cookie[EMAIL_VERIFICATION_SESSION_COOKIE_NAME].value)
-				.when(isMobilePlatform, () => bodyEmailVerificationSessionToken)
+			// Validate Email Verification Request
+			const rawEmailVerificationRequestToken = match(clientPlatform)
+				.when(isWebPlatform, () => cookie[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME].value)
+				.when(isMobilePlatform, () => bodyEmailVerificationRequestToken)
 				.exhaustive();
 
-			if (!rawEmailVerificationSessionToken) {
+			if (!rawEmailVerificationRequestToken) {
 				return status("Unauthorized", {
-					code: "EMAIL_VERIFICATION_SESSION_INVALID",
+					code: "EMAIL_VERIFICATION_REQUEST_INVALID",
 					message: "Email verification session token not found. Please request email verification again.",
 				});
 			}
 
-			const emailVerificationSessionToken = newEmailVerificationSessionToken(rawEmailVerificationSessionToken);
+			const emailVerificationRequestToken = newEmailVerificationRequestToken(rawEmailVerificationRequestToken);
 
-			const validationResult = await containers.auth.emailVerificationValidateSessionUseCase.execute(
+			const validationResult = await containers.auth.emailVerificationValidateRequestUseCase.execute(
 				userCredentials,
-				emailVerificationSessionToken,
+				emailVerificationRequestToken,
 			);
 
 			if (validationResult.isErr) {
 				return match(validationResult)
-					.with({ code: "EMAIL_VERIFICATION_SESSION_INVALID" }, () =>
+					.with({ code: "INVALID_EMAIL_VERIFICATION_REQUEST" }, () =>
 						status("Unauthorized", {
-							code: "EMAIL_VERIFICATION_SESSION_INVALID",
+							code,
 							message: "Invalid email verification session. Please request email verification again.",
 						}),
 					)
-					.with({ code: "EMAIL_VERIFICATION_SESSION_EXPIRED" }, () =>
+					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, () =>
 						status("Unauthorized", {
-							code: "EMAIL_VERIFICATION_SESSION_EXPIRED",
+							code,
 							message: "Email verification session has expired. Please request email verification again.",
 						}),
 					)
 					.exhaustive();
 			}
 
-			const { emailVerificationSession } = validationResult.value;
+			const { emailVerificationRequest } = validationResult.value;
 
-			const ratelimitResult = await rateLimit.consume(emailVerificationSession.id, 100);
+			const ratelimitResult = await rateLimit.consume(emailVerificationRequest.id, 100);
 			if (ratelimitResult.isErr) {
 				return status("Too Many Requests", {
 					code: "TOO_MANY_REQUESTS",
@@ -84,24 +84,23 @@ export const EmailVerificationVerifyRoute = new Elysia()
 			}
 
 			// Main Logic
-
 			const verifyEmailResult = await containers.auth.emailVerificationVerifyEmailUseCase.execute(
 				code,
 				userCredentials,
-				emailVerificationSession,
+				emailVerificationRequest,
 			);
 
 			if (verifyEmailResult.isErr) {
 				return match(verifyEmailResult)
-					.with({ code: "INVALID_VERIFICATION_CODE" }, () =>
+					.with({ code: "INVALID_CODE" }, () =>
 						status("Bad Request", {
-							code: "INVALID_VERIFICATION_CODE",
+							code,
 							message: "Invalid verification code. Please check your email and try again.",
 						}),
 					)
-					.with({ code: "EMAIL_MISMATCH" }, () =>
+					.with({ code: "INVALID_EMAIL" }, () =>
 						status("Bad Request", {
-							code: "EMAIL_MISMATCH",
+							code,
 							message: "Email mismatch. Please use the email address you requested verification for.",
 						}),
 					)
@@ -109,7 +108,7 @@ export const EmailVerificationVerifyRoute = new Elysia()
 			}
 
 			if (isWebPlatform(clientPlatform)) {
-				cookie[EMAIL_VERIFICATION_SESSION_COOKIE_NAME].remove();
+				cookie[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME].remove();
 			}
 			return noContent();
 		},
@@ -125,11 +124,11 @@ export const EmailVerificationVerifyRoute = new Elysia()
 				return;
 			},
 			cookie: t.Cookie({
-				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
 				code: t.String(),
-				emailVerificationSessionToken: t.Optional(t.String()),
+				emailVerificationRequestToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				operationId: "auth-email-verification-verify",

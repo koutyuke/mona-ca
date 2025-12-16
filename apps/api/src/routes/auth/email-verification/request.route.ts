@@ -1,4 +1,4 @@
-import { EMAIL_VERIFICATION_SESSION_COOKIE_NAME } from "@mona-ca/core/http";
+import { EMAIL_VERIFICATION_REQUEST_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
 import { isMobilePlatform } from "../../../core/domain/value-objects";
@@ -47,18 +47,18 @@ export const EmailVerificationRequestRoute = new Elysia()
 					.exhaustive();
 			}
 
-			const { emailVerificationSession, emailVerificationSessionToken } = result.value;
+			const { emailVerificationRequest, emailVerificationRequestToken } = result.value;
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					emailVerificationSessionToken: toAnyTokenResponse(emailVerificationSessionToken),
+					emailVerificationRequestToken: toAnyTokenResponse(emailVerificationRequestToken),
 				};
 			}
 
-			cookie[EMAIL_VERIFICATION_SESSION_COOKIE_NAME].set({
+			cookie[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME].set({
 				...defaultCookieOptions,
-				value: toAnyTokenResponse(emailVerificationSessionToken),
-				expires: emailVerificationSession.expiresAt,
+				value: toAnyTokenResponse(emailVerificationRequestToken),
+				expires: emailVerificationRequest.expiresAt,
 			});
 
 			return noContent();
@@ -78,7 +78,7 @@ export const EmailVerificationRequestRoute = new Elysia()
 				return;
 			},
 			cookie: t.Cookie({
-				[EMAIL_VERIFICATION_SESSION_COOKIE_NAME]: t.Optional(t.String()),
+				[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				operationId: "auth-email-verification-request",
