@@ -9,6 +9,7 @@ export const providerLinkRequestsTable = sqliteTable(
 			.unique()
 			.notNull()
 			.references(() => usersTable.id, { onDelete: "cascade" }),
+		provider: text("provider", { enum: ["discord", "google"] }).notNull(),
 		secretHash: blob("secret_hash", { mode: "buffer" }).notNull(),
 		expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
 	},

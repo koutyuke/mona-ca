@@ -1,6 +1,7 @@
 export type RawProviderLinkRequest = {
 	id: string;
 	user_id: string;
+	provider: "discord" | "google";
 	secret_hash: Array<number>;
 	expires_at: number;
 };
@@ -10,8 +11,10 @@ export class ProviderLinkRequestsTableDriver {
 
 	public async save(raw: RawProviderLinkRequest): Promise<void> {
 		await this.db
-			.prepare("INSERT INTO provider_link_requests (id, user_id, secret_hash, expires_at) VALUES (?1, ?2, ?3, ?4)")
-			.bind(raw.id, raw.user_id, raw.secret_hash, raw.expires_at)
+			.prepare(
+				"INSERT INTO provider_link_requests (id, user_id, provider, secret_hash, expires_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+			)
+			.bind(raw.id, raw.user_id, raw.provider, raw.secret_hash, raw.expires_at)
 			.run();
 	}
 
