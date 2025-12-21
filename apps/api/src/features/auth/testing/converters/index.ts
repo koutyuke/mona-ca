@@ -7,6 +7,6 @@ export {
 	convertSignupSessionToRaw,
 	convertEmailVerificationRequestToRaw,
 	convertPasswordResetSessionToRaw,
-	convertProviderLinkProposalToRaw,
+	convertAccountLinkProposalToRaw,
 	convertProviderLinkRequestToRaw,
 } from "./table-raw-converters";

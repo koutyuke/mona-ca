@@ -1,4 +1,4 @@
-export { ProviderLinkProposalRepositoryMock } from "./provider-link-proposal.repository.mock";
+export { AccountLinkProposalRepositoryMock } from "./account-link-proposal.repository.mock";
 export { AuthUserRepositoryMock } from "./auth-user.repository.mock";
 export { EmailVerificationRequestRepositoryMock } from "./email-verification-request.repository.mock";
 export { PasswordResetSessionRepositoryMock } from "./password-reset-session.repository.mock";
@@ -12,7 +12,7 @@ export {
 	createSessionMap,
 	createPasswordResetSessionMap,
 	createEmailVerificationRequestMap,
-	createProviderLinkProposalMap,
+	createAccountLinkProposalMap,
 	createProviderLinkRequestMap,
 	createProviderAccountMap,
 	createProviderAccountKey,

@@ -1,17 +1,17 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
+import type { AccountLinkProposal } from "../../../domain/entities/account-link-proposal";
 import type { EmailVerificationRequest } from "../../../domain/entities/email-verification-request";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { ProviderAccount } from "../../../domain/entities/provider-account";
-import type { ProviderLinkProposal } from "../../../domain/entities/provider-link-proposal";
 import type { ProviderLinkRequest } from "../../../domain/entities/provider-link-request";
 import type { Session } from "../../../domain/entities/session";
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { UserRegistration } from "../../../domain/entities/user-registration";
 import type { IdentityProviders, IdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 import type {
+	AccountLinkProposalId,
 	EmailVerificationRequestId,
 	PasswordResetSessionId,
-	ProviderLinkProposalId,
 	ProviderLinkRequestId,
 	SessionId,
 	SignupSessionId,
@@ -37,9 +37,9 @@ export const createEmailVerificationRequestMap = (
 	return new Map(requests.map(request => [request.id, request]));
 };
 
-export const createProviderLinkProposalMap = (
-	proposals: ProviderLinkProposal[] = [],
-): Map<ProviderLinkProposalId, ProviderLinkProposal> => {
+export const createAccountLinkProposalMap = (
+	proposals: AccountLinkProposal[] = [],
+): Map<AccountLinkProposalId, AccountLinkProposal> => {
 	return new Map(proposals.map(proposal => [proposal.id, proposal]));
 };
 
