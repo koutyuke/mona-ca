@@ -1,4 +1,4 @@
-export { createProviderLinkProposalFixture } from "./provider-link-proposal.fixture";
+export { createAccountLinkProposalFixture } from "./account-link-proposal.fixture";
 export { createProviderLinkRequestFixture } from "./provider-link-request.fixture";
 export { createEmailVerificationRequestFixture } from "./email-verification-request.fixture";
 export { createProviderAccountFixture } from "./provider-account.fixture";
