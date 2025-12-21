@@ -6,11 +6,13 @@ import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IProviderLinkRequestRepository } from "../../../application/ports/out/repositories/provider-link-request.repository.interface";
 import type { ProviderLinkRequest } from "../../../domain/entities/provider-link-request";
+import { type RawIdentityProviders, newIdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type { ProviderLinkRequestId } from "../../../domain/value-objects/ids";
 
 interface FoundProviderLinkRequestDto {
 	id: string;
 	userId: string;
+	provider: RawIdentityProviders;
 	secretHash: Buffer;
 	expiresAt: Date;
 }
@@ -37,6 +39,7 @@ export class ProviderLinkRequestRepository implements IProviderLinkRequestReposi
 			.values({
 				id: request.id,
 				userId: request.userId,
+				provider: request.provider,
 				secretHash: Buffer.from(request.secretHash),
 				expiresAt: request.expiresAt,
 			})
@@ -73,6 +76,7 @@ export class ProviderLinkRequestRepository implements IProviderLinkRequestReposi
 		return {
 			id: newProviderLinkRequestId(dto.id),
 			userId: newUserId(dto.userId),
+			provider: newIdentityProviders(dto.provider),
 			secretHash: new Uint8Array(dto.secretHash),
 			expiresAt: dto.expiresAt,
 		};

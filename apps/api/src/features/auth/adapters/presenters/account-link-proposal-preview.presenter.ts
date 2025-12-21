@@ -1,4 +1,4 @@
-import type { ProviderLinkProposal } from "../../domain/entities/provider-link-proposal";
+import type { ProviderLinkProposal } from "../../domain/entities/account-link-proposal";
 import type { RawIdentityProviders } from "../../domain/value-objects/identity-providers";
 
 type AccountLinkPreviewResponse = {

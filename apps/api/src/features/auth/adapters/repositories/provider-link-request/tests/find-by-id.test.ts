@@ -16,6 +16,12 @@ const providerLinkRequestTableDriver = new ProviderLinkRequestsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
+const { providerLinkRequest: request } = createProviderLinkRequestFixture({
+	providerLinkRequest: {
+		userId: userRegistration.id,
+	},
+});
+
 describe("ProviderLinkRequestRepository.findById", () => {
 	beforeEach(async () => {
 		await providerLinkRequestTableDriver.deleteAll();
@@ -25,12 +31,6 @@ describe("ProviderLinkRequestRepository.findById", () => {
 	});
 
 	test("should find data in database", async () => {
-		const { providerLinkRequest: request } = createProviderLinkRequestFixture({
-			providerLinkRequest: {
-				userId: userRegistration.id,
-			},
-		});
-
 		await providerLinkRequestTableDriver.save(convertProviderLinkRequestToRaw(request));
 
 		const result = await providerLinkRequestRepository.findById(request.id);
@@ -38,16 +38,11 @@ describe("ProviderLinkRequestRepository.findById", () => {
 		expect(result).not.toBeNull();
 		expect(result?.id).toBe(request.id);
 		expect(result?.userId).toBe(request.userId);
+		expect(result?.provider).toBe(request.provider);
 		expect(result?.expiresAt.getTime()).toBe(request.expiresAt.getTime());
 	});
 
 	test("should return null when not found", async () => {
-		const { providerLinkRequest: request } = createProviderLinkRequestFixture({
-			providerLinkRequest: {
-				userId: userRegistration.id,
-			},
-		});
-
 		const result = await providerLinkRequestRepository.findById(request.id);
 
 		expect(result).toBeNull();

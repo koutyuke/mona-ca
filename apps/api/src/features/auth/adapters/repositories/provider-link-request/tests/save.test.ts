@@ -16,6 +16,12 @@ const providerLinkRequestTableDriver = new ProviderLinkRequestsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
+const { providerLinkRequest: request } = createProviderLinkRequestFixture({
+	providerLinkRequest: {
+		userId: userRegistration.id,
+	},
+});
+
 describe("ProviderLinkRequestRepository.save", () => {
 	beforeEach(async () => {
 		await providerLinkRequestTableDriver.deleteAll();
@@ -25,12 +31,6 @@ describe("ProviderLinkRequestRepository.save", () => {
 	});
 
 	test("should create data in database", async () => {
-		const { providerLinkRequest: request } = createProviderLinkRequestFixture({
-			providerLinkRequest: {
-				userId: userRegistration.id,
-			},
-		});
-
 		await providerLinkRequestRepository.save(request);
 
 		const results = await providerLinkRequestTableDriver.findById(request.id);
