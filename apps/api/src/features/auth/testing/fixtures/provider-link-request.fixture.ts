@@ -2,6 +2,7 @@ import { newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
 import { type ProviderLinkRequest, providerLinkRequestExpiresSpan } from "../../domain/entities/provider-link-request";
+import { newIdentityProviders } from "../../domain/value-objects/identity-providers";
 import { newProviderLinkRequestId } from "../../domain/value-objects/ids";
 import { type ProviderLinkRequestToken, encodeToken } from "../../domain/value-objects/tokens";
 
@@ -26,17 +27,18 @@ export const createProviderLinkRequestFixture = (override?: {
 	);
 	expiresAt.setMilliseconds(0);
 
-	const request: ProviderLinkRequest = {
+	const providerLinkRequest: ProviderLinkRequest = {
 		id: newProviderLinkRequestId(ulid()),
 		userId: newUserId(ulid()),
-		secretHash: secretHash,
+		provider: override?.providerLinkRequest?.provider ?? newIdentityProviders("discord"),
+		secretHash,
 		expiresAt,
 		...override?.providerLinkRequest,
-	} satisfies ProviderLinkRequest;
+	};
 
 	return {
-		providerLinkRequest: request,
+		providerLinkRequest,
 		providerLinkRequestSecret: secret,
-		providerLinkRequestToken: encodeToken(request.id, secret),
+		providerLinkRequestToken: encodeToken(providerLinkRequest.id, secret),
 	};
 };
