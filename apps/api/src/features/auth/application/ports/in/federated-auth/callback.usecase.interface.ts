@@ -1,9 +1,9 @@
 import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { ClientPlatform } from "../../../../../../core/domain/value-objects";
-import type { ProviderLinkProposal } from "../../../../domain/entities/provider-link-proposal";
+import type { AccountLinkRequest } from "../../../../domain/entities/account-link-request";
 import type { Session } from "../../../../domain/entities/session";
 import type { IdentityProviders } from "../../../../domain/value-objects/identity-providers";
-import type { ProviderLinkProposalToken, SessionToken } from "../../../../domain/value-objects/tokens";
+import type { AccountLinkRequestToken, SessionToken } from "../../../../domain/value-objects/tokens";
 
 type FederatedAuthFlow = "signup" | "login";
 
@@ -23,12 +23,12 @@ type Error =
 	| Err<"TOKEN_EXCHANGE_FAILED">
 	| Err<"USER_INFO_GET_FAILED", { redirectURL: URL }>
 	| Err<
-			"PROVIDER_LINK_PROPOSAL",
+			"ACCOUNT_LINK_REQUEST",
 			{
 				redirectURL: URL;
 				clientPlatform: ClientPlatform;
-				providerLinkProposal: ProviderLinkProposal;
-				providerLinkProposalToken: ProviderLinkProposalToken;
+				accountLinkRequest: AccountLinkRequest;
+				accountLinkRequestToken: AccountLinkRequestToken;
 			}
 	  >;
 

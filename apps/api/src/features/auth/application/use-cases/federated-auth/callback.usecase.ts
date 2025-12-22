@@ -2,31 +2,31 @@ import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/co
 import { err, ok } from "@mona-ca/core/result";
 import { newClientPlatform, newGender, newUserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
+import { type AccountLinkRequest, createAccountLinkRequest } from "../../../domain/entities/account-link-request";
 import { createProviderAccount } from "../../../domain/entities/provider-account";
-import { type ProviderLinkProposal, createProviderLinkProposal } from "../../../domain/entities/provider-link-proposal";
 import { createSession } from "../../../domain/entities/session";
 import { DEFAULT_USER_GENDER, createUserRegistration } from "../../../domain/entities/user-registration";
 import {
 	type IdentityProvidersUserId,
 	newIdentityProvidersUserId,
 } from "../../../domain/value-objects/identity-providers";
-import { newProviderLinkProposalId, newSessionId } from "../../../domain/value-objects/ids";
+import { newAccountLinkRequestId, newSessionId } from "../../../domain/value-objects/ids";
 import { encodeToken } from "../../../domain/value-objects/tokens";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
 import type { Session } from "../../../domain/entities/session";
 import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
-import type { ProviderLinkProposalToken, SessionToken } from "../../../domain/value-objects/tokens";
+import type { AccountLinkRequestToken, SessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	FederatedAuthCallbackUseCaseResult,
 	IFederatedAuthCallbackUseCase,
 } from "../../ports/in/federated-auth/callback.usecase.interface";
 import type { IIdentityProviderGateway } from "../../ports/out/gateways/identity-provider.gateway.interface";
 import type { IHmacSignedStateService } from "../../ports/out/infra/hmac-signed-state.service.interface";
+import type { IAccountLinkRequestRepository } from "../../ports/out/repositories/account-link-request.repository.interface";
 import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
 import type { IProviderAccountRepository } from "../../ports/out/repositories/provider-account.repository.interface";
-import type { IProviderLinkProposalRepository } from "../../ports/out/repositories/provider-link-proposal.repository.interface";
 import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
 import type { federatedAuthStateSchema } from "./schema";
 
@@ -36,7 +36,7 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		private readonly discordIdentityProviderGateway: IIdentityProviderGateway,
 		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
 		// repositories
-		private readonly providerLinkProposalRepository: IProviderLinkProposalRepository,
+		private readonly accountLinkRequestRepository: IAccountLinkRequestRepository,
 		private readonly authUserRepository: IAuthUserRepository,
 		private readonly providerAccountRepository: IProviderAccountRepository,
 		private readonly sessionRepository: ISessionRepository,
@@ -136,21 +136,21 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		if (existingUserCredentialsForSameEmail) {
 			// Link flow
 
-			const { providerLinkProposal, providerLinkProposalToken } = this.createProviderLinkProposal(
+			const { accountLinkRequest, accountLinkRequestToken } = this.createAccountLinkRequest(
 				existingUserCredentialsForSameEmail.id,
 				existingUserCredentialsForSameEmail.email,
 				provider,
 				providerUserId,
 			);
 
-			await this.providerLinkProposalRepository.deleteByUserId(existingUserCredentialsForSameEmail.id);
-			await this.providerLinkProposalRepository.save(providerLinkProposal);
+			await this.accountLinkRequestRepository.deleteByUserId(existingUserCredentialsForSameEmail.id);
+			await this.accountLinkRequestRepository.save(accountLinkRequest);
 
-			return err("PROVIDER_LINK_PROPOSAL", {
+			return err("ACCOUNT_LINK_REQUEST", {
 				redirectURL: redirectToClientURL,
 				clientPlatform,
-				providerLinkProposal,
-				providerLinkProposalToken,
+				accountLinkRequest,
+				accountLinkRequestToken,
 			});
 		}
 
@@ -200,24 +200,24 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 			userId,
 			secretHash,
 		});
-		const sessionToken = encodeToken(id, secret);
+		const sessionToken = encodeToken(id, secret) as SessionToken;
 		return { session, sessionToken };
 	}
 
-	private createProviderLinkProposal(
+	private createAccountLinkRequest(
 		userId: UserId,
 		email: string,
 		provider: IdentityProviders,
 		providerUserId: IdentityProvidersUserId,
 	): {
-		providerLinkProposal: ProviderLinkProposal;
-		providerLinkProposalToken: ProviderLinkProposalToken;
+		accountLinkRequest: AccountLinkRequest;
+		accountLinkRequestToken: AccountLinkRequestToken;
 	} {
-		const id = newProviderLinkProposalId(ulid());
+		const id = newAccountLinkRequestId(ulid());
 		const secret = this.tokenSecretService.generateSecret();
 		const secretHash = this.tokenSecretService.hash(secret);
 
-		const providerLinkProposal = createProviderLinkProposal({
+		const accountLinkRequest = createAccountLinkRequest({
 			id,
 			userId,
 			code: null,
@@ -226,8 +226,8 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 			provider,
 			providerUserId,
 		});
-		const providerLinkProposalToken = encodeToken(id, secret);
+		const accountLinkRequestToken = encodeToken(id, secret);
 
-		return { providerLinkProposal, providerLinkProposalToken };
+		return { accountLinkRequest, accountLinkRequestToken };
 	}
 }
