@@ -1,6 +1,6 @@
 import type { Brand } from "@mona-ca/core/types";
 import type {
-	AccountLinkProposalId,
+	AccountLinkRequestId,
 	EmailVerificationRequestId,
 	PasswordResetSessionId,
 	ProviderLinkRequestId,
@@ -8,7 +8,7 @@ import type {
 	SignupSessionId,
 } from "./ids";
 
-export type AccountLinkProposalToken = Brand<"AccountLinkProposalToken", string>;
+export type AccountLinkRequestToken = Brand<"AccountLinkRequestToken", string>;
 export type EmailVerificationRequestToken = Brand<"EmailVerificationRequestToken", string>;
 export type PasswordResetSessionToken = Brand<"PasswordResetSessionToken", string>;
 export type ProviderLinkRequestToken = Brand<"ProviderLinkRequestToken", string>;
@@ -24,8 +24,8 @@ export const newEmailVerificationRequestToken = (rawEmailVerificationRequestToke
 export const newPasswordResetSessionToken = (rawPasswordResetSessionToken: string) => {
 	return rawPasswordResetSessionToken as PasswordResetSessionToken;
 };
-export const newAccountLinkProposalToken = (rawAccountLinkProposalToken: string) => {
-	return rawAccountLinkProposalToken as AccountLinkProposalToken;
+export const newAccountLinkRequestToken = (rawAccountLinkRequestToken: string) => {
+	return rawAccountLinkRequestToken as AccountLinkRequestToken;
 };
 export const newSignupSessionToken = (rawSignupSessionToken: string) => {
 	return rawSignupSessionToken as SignupSessionToken;
@@ -37,7 +37,7 @@ export const newProviderLinkRequestToken = (rawProviderLinkRequestToken: string)
 type AnyEntityId =
 	| EmailVerificationRequestId
 	| PasswordResetSessionId
-	| AccountLinkProposalId
+	| AccountLinkRequestId
 	| ProviderLinkRequestId
 	| SessionId
 	| SignupSessionId;
@@ -45,7 +45,7 @@ type AnyEntityId =
 export type AnyToken =
 	| EmailVerificationRequestToken
 	| PasswordResetSessionToken
-	| AccountLinkProposalToken
+	| AccountLinkRequestToken
 	| ProviderLinkRequestToken
 	| SessionToken
 	| SignupSessionToken;
@@ -53,7 +53,7 @@ export type AnyToken =
 type TokenAndIdMap =
 	| [EmailVerificationRequestToken, EmailVerificationRequestId]
 	| [PasswordResetSessionToken, PasswordResetSessionId]
-	| [AccountLinkProposalToken, AccountLinkProposalId]
+	| [AccountLinkRequestToken, AccountLinkRequestId]
 	| [ProviderLinkRequestToken, ProviderLinkRequestId]
 	| [SessionToken, SessionId]
 	| [SignupSessionToken, SignupSessionId];

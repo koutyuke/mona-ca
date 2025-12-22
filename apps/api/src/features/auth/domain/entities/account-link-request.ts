@@ -1,14 +1,14 @@
 import type { UserId } from "../../../../core/domain/value-objects";
 import { TimeSpan } from "../../../../core/lib/time";
 import type { IdentityProviders, IdentityProvidersUserId } from "../value-objects/identity-providers";
-import type { AccountLinkProposalId } from "../value-objects/ids";
+import type { AccountLinkRequestId } from "../value-objects/ids";
 
-export const ACCOUNT_LINK_PROPOSAL_EXPIRES_SPAN_MINUTES = 10 as const;
+export const ACCOUNT_LINK_REQUEST_EXPIRES_SPAN_MINUTES = 10 as const;
 
-export const accountLinkProposalExpiresSpan = new TimeSpan(ACCOUNT_LINK_PROPOSAL_EXPIRES_SPAN_MINUTES, "m");
+export const accountLinkRequestExpiresSpan = new TimeSpan(ACCOUNT_LINK_REQUEST_EXPIRES_SPAN_MINUTES, "m");
 
-export interface AccountLinkProposal {
-	id: AccountLinkProposalId;
+export interface AccountLinkRequest {
+	id: AccountLinkRequestId;
 	userId: UserId;
 	code: string | null;
 	secretHash: Uint8Array;
@@ -18,15 +18,15 @@ export interface AccountLinkProposal {
 	expiresAt: Date;
 }
 
-export const createAccountLinkProposal = (args: {
-	id: AccountLinkProposalId;
+export const createAccountLinkRequest = (args: {
+	id: AccountLinkRequestId;
 	userId: UserId;
 	code: string | null;
 	secretHash: Uint8Array;
 	email: string;
 	provider: IdentityProviders;
 	providerUserId: IdentityProvidersUserId;
-}): AccountLinkProposal => {
+}): AccountLinkRequest => {
 	return {
 		id: args.id,
 		userId: args.userId,
@@ -35,10 +35,10 @@ export const createAccountLinkProposal = (args: {
 		email: args.email,
 		provider: args.provider,
 		providerUserId: args.providerUserId,
-		expiresAt: new Date(Date.now() + accountLinkProposalExpiresSpan.milliseconds()),
+		expiresAt: new Date(Date.now() + accountLinkRequestExpiresSpan.milliseconds()),
 	};
 };
 
-export const isExpiredAccountLinkProposal = (proposal: AccountLinkProposal): boolean => {
-	return proposal.expiresAt.getTime() < Date.now();
+export const isExpiredAccountLinkRequest = (request: AccountLinkRequest): boolean => {
+	return request.expiresAt.getTime() < Date.now();
 };

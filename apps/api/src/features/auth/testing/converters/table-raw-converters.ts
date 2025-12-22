@@ -1,5 +1,5 @@
 import {
-	type RawAccountLinkProposal,
+	type RawAccountLinkRequest,
 	type RawEmailVerificationRequest,
 	type RawPasswordResetSession,
 	type RawProviderAccount,
@@ -11,7 +11,7 @@ import {
 	toRawDate,
 	toRawUint8Array,
 } from "../../../../core/testing/drivers";
-import type { AccountLinkProposal } from "../../domain/entities/account-link-proposal";
+import type { AccountLinkRequest } from "../../domain/entities/account-link-request";
 import type { EmailVerificationRequest } from "../../domain/entities/email-verification-request";
 import type { PasswordResetSession } from "../../domain/entities/password-reset-session";
 import type { ProviderAccount } from "../../domain/entities/provider-account";
@@ -114,16 +114,16 @@ export const convertPasswordResetSessionToRaw = (session: PasswordResetSession):
 	};
 };
 
-export const convertAccountLinkProposalToRaw = (proposal: AccountLinkProposal): RawAccountLinkProposal => {
+export const convertAccountLinkRequestToRaw = (request: AccountLinkRequest): RawAccountLinkRequest => {
 	return {
-		id: proposal.id,
-		user_id: proposal.userId,
-		code: proposal.code,
-		secret_hash: toRawUint8Array(proposal.secretHash),
-		email: proposal.email,
-		provider: proposal.provider,
-		provider_user_id: proposal.providerUserId,
-		expires_at: toRawDate(proposal.expiresAt),
+		id: request.id,
+		user_id: request.userId,
+		code: request.code,
+		secret_hash: toRawUint8Array(request.secretHash),
+		email: request.email,
+		provider: request.provider,
+		provider_user_id: request.providerUserId,
+		expires_at: toRawDate(request.expiresAt),
 	};
 };
 

@@ -30,8 +30,8 @@ export const newProviderLinkRequestId = (rawProviderLinkRequestId: string) => {
 	return rawProviderLinkRequestId as ProviderLinkRequestId;
 };
 
-export type AccountLinkProposalId = Brand<"AccountLinkProposalId", string>;
+export type AccountLinkRequestId = Brand<"AccountLinkRequestId", string>;
 
-export const newAccountLinkProposalId = (rawAccountLinkProposalId: string) => {
-	return rawAccountLinkProposalId as AccountLinkProposalId;
+export const newAccountLinkRequestId = (rawAccountLinkRequestId: string) => {
+	return rawAccountLinkRequestId as AccountLinkRequestId;
 };
