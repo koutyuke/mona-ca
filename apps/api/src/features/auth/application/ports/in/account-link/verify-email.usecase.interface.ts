@@ -1,5 +1,5 @@
 import type { Err, Ok, Result } from "@mona-ca/core/result";
-import type { ProviderLinkProposal } from "../../../../domain/entities/provider-link-proposal";
+import type { AccountLinkRequest } from "../../../../domain/entities/account-link-request";
 import type { Session } from "../../../../domain/entities/session";
 import type { UserCredentials } from "../../../../domain/entities/user-credentials";
 import type { SessionToken } from "../../../../domain/value-objects/tokens";
@@ -11,12 +11,12 @@ type Success = Ok<{
 
 type Error = Err<"INVALID_CODE"> | Err<"PROVIDER_ALREADY_LINKED"> | Err<"ACCOUNT_LINKED_ELSEWHERE">;
 
-export type ProviderLinkProposalVerifyEmailUseCaseResult = Result<Success, Error>;
+export type AccountLinkVerifyEmailUseCaseResult = Result<Success, Error>;
 
-export interface IProviderLinkProposalVerifyEmailUseCase {
+export interface IAccountLinkVerifyEmailUseCase {
 	execute(
 		code: string,
 		userCredentials: UserCredentials,
-		providerLinkProposal: ProviderLinkProposal,
-	): Promise<ProviderLinkProposalVerifyEmailUseCaseResult>;
+		accountLinkRequest: AccountLinkRequest,
+	): Promise<AccountLinkVerifyEmailUseCaseResult>;
 }
