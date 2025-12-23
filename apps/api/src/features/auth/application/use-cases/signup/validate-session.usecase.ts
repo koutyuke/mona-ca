@@ -22,7 +22,7 @@ export class SignupValidateSessionUseCase implements ISignupValidateSessionUseCa
 		const idAndSecret = decodeToken(signupSessionToken);
 
 		if (!idAndSecret) {
-			return err("SIGNUP_SESSION_INVALID");
+			return err("INVALID_SIGNUP_SESSION");
 		}
 
 		const { id: signupSessionId, secret: signupSessionSecret } = idAndSecret;
@@ -30,16 +30,16 @@ export class SignupValidateSessionUseCase implements ISignupValidateSessionUseCa
 		const signupSession = await this.signupSessionRepository.findById(signupSessionId);
 
 		if (!signupSession) {
-			return err("SIGNUP_SESSION_INVALID");
+			return err("INVALID_SIGNUP_SESSION");
 		}
 
 		if (!this.tokenSecretService.verify(signupSessionSecret, signupSession.secretHash)) {
-			return err("SIGNUP_SESSION_INVALID");
+			return err("INVALID_SIGNUP_SESSION");
 		}
 
 		if (isExpiredSignupSession(signupSession)) {
 			await this.signupSessionRepository.deleteById(signupSessionId);
-			return err("SIGNUP_SESSION_EXPIRED");
+			return err("EXPIRED_SIGNUP_SESSION");
 		}
 
 		return ok({ signupSession });

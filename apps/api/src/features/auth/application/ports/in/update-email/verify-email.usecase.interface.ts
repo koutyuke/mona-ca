@@ -9,7 +9,7 @@ type Success = Ok<{
 	session: Session;
 }>;
 
-type Error = Err<"INVALID_VERIFICATION_CODE"> | Err<"EMAIL_ALREADY_REGISTERED">;
+type Error = Err<"INVALID_CODE"> | Err<"EMAIL_ALREADY_REGISTERED">;
 
 export type UpdateEmailVerifyEmailUseCaseResult = Result<Success, Error>;
 

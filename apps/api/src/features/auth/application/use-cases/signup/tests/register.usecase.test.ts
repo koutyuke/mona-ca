@@ -133,7 +133,7 @@ describe("SignupRegisterUseCase", () => {
 		expect(sessionToken).toBe(`${session.id}.token-secret`);
 	});
 
-	it("Error: should return EMAIL_VERIFICATION_REQUIRED error when email is not verified", async () => {
+	it("Error: should return REQUIRED_EMAIL_VERIFICATION error when email is not verified", async () => {
 		const { signupSession } = createSignupSessionFixture({
 			signupSession: {
 				email: USER_EMAIL,
@@ -146,7 +146,7 @@ describe("SignupRegisterUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("EMAIL_VERIFICATION_REQUIRED");
+		expect(result.code).toBe("REQUIRED_EMAIL_VERIFICATION");
 
 		// ユーザーが作成されていないこと
 		const savedUser = Array.from(authUserMap.values()).find(u => u.email === USER_EMAIL);

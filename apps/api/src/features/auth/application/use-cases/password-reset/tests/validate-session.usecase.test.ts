@@ -73,35 +73,35 @@ describe("PasswordResetValidateSessionUseCase", () => {
 		expect(passwordResetSessionMap.has(passwordResetSession.id)).toBe(true);
 	});
 
-	it("Error: should return PASSWORD_RESET_SESSION_INVALID error for invalid token format", async () => {
+	it("Error: should return INVALID_PASSWORD_RESET_SESSION error for invalid token format", async () => {
 		const invalidToken = "invalid_token_format" as never;
 
 		const result = await passwordResetValidateSessionUseCase.execute(invalidToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_PASSWORD_RESET_SESSION");
 	});
 
-	it("Error: should return PASSWORD_RESET_SESSION_INVALID error for empty token", async () => {
+	it("Error: should return INVALID_PASSWORD_RESET_SESSION error for empty token", async () => {
 		const result = await passwordResetValidateSessionUseCase.execute("" as never);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_PASSWORD_RESET_SESSION");
 	});
 
-	it("Error: should return PASSWORD_RESET_SESSION_INVALID error for non-existent session", async () => {
+	it("Error: should return INVALID_PASSWORD_RESET_SESSION error for non-existent session", async () => {
 		const { passwordResetSessionToken } = createPasswordResetSessionFixture();
 
 		const result = await passwordResetValidateSessionUseCase.execute(passwordResetSessionToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_PASSWORD_RESET_SESSION");
 	});
 
-	it("Error: should return PASSWORD_RESET_SESSION_INVALID error and delete session when user does not exist", async () => {
+	it("Error: should return INVALID_PASSWORD_RESET_SESSION error and delete session when user does not exist", async () => {
 		// clear auth user map to simulate user does not exist
 		authUserMap.clear();
 
@@ -118,13 +118,13 @@ describe("PasswordResetValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_PASSWORD_RESET_SESSION");
 
 		// セキュリティ: 存在しないユーザーのセッションは削除されること
 		expect(passwordResetSessionMap.has(passwordResetSession.id)).toBe(false);
 	});
 
-	it("Error: should return PASSWORD_RESET_SESSION_INVALID error for invalid session secret", async () => {
+	it("Error: should return INVALID_PASSWORD_RESET_SESSION error for invalid session secret", async () => {
 		const { passwordResetSession } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				userId: user.id,
@@ -139,10 +139,10 @@ describe("PasswordResetValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_PASSWORD_RESET_SESSION");
 	});
 
-	it("Error: should return PASSWORD_RESET_SESSION_INVALID error when session email does not match user email", async () => {
+	it("Error: should return INVALID_PASSWORD_RESET_SESSION error when session email does not match user email", async () => {
 		const { passwordResetSession, passwordResetSessionToken } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				userId: user.id,
@@ -157,13 +157,13 @@ describe("PasswordResetValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PASSWORD_RESET_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_PASSWORD_RESET_SESSION");
 
 		// セキュリティ: メールアドレスが一致しないセッションは削除されること
 		expect(passwordResetSessionMap.has(passwordResetSession.id)).toBe(false);
 	});
 
-	it("Error: should return PASSWORD_RESET_SESSION_EXPIRED error and delete session for expired session", async () => {
+	it("Error: should return EXPIRED_PASSWORD_RESET_SESSION error and delete session for expired session", async () => {
 		const { passwordResetSession, passwordResetSessionToken } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				userId: user.id,
@@ -179,7 +179,7 @@ describe("PasswordResetValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("PASSWORD_RESET_SESSION_EXPIRED");
+		expect(result.code).toBe("EXPIRED_PASSWORD_RESET_SESSION");
 
 		// セキュリティ: 期限切れセッションは削除されること
 		expect(passwordResetSessionMap.has(passwordResetSession.id)).toBe(false);

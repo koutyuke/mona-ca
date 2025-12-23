@@ -136,7 +136,7 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 		expect(savedSession).toBeDefined();
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when verification code is incorrect", async () => {
+	it("Error: should return INVALID_CODE error when verification code is incorrect", async () => {
 		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
 			emailVerificationRequest: {
 				userId: userCredentials.id,
@@ -151,14 +151,14 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 
 		// email is not updated
 		const updatedUserCredentials = authUserMap.get(userCredentials.id);
 		expect(updatedUserCredentials?.email).toBe(OLD_EMAIL);
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when code is empty", async () => {
+	it("Error: should return INVALID_CODE error when code is empty", async () => {
 		const { emailVerificationRequest } = createEmailVerificationRequestFixture({
 			emailVerificationRequest: {
 				userId: userCredentials.id,
@@ -173,7 +173,7 @@ describe("UpdateEmailVerifyEmailUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 	});
 
 	it("Error: should return EMAIL_ALREADY_REGISTERED error when new email is already taken by another user", async () => {

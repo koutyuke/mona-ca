@@ -3,7 +3,7 @@ import type { PasswordResetSession } from "../../../../domain/entities/password-
 
 type Success = Ok;
 
-type Error = Err<"INVALID_VERIFICATION_CODE">;
+type Error = Err<"INVALID_CODE">;
 
 export type PasswordResetVerifyEmailUseCaseResult = Result<Success, Error>;
 

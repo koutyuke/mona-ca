@@ -9,7 +9,7 @@ type Success = Ok<{
 	sessionToken: SessionToken;
 }>;
 
-type Error = Err<"EMAIL_ALREADY_REGISTERED"> | Err<"EMAIL_VERIFICATION_REQUIRED">;
+type Error = Err<"EMAIL_ALREADY_REGISTERED"> | Err<"REQUIRED_EMAIL_VERIFICATION">;
 
 export type SignupRegisterUseCaseResult = Result<Success, Error>;
 

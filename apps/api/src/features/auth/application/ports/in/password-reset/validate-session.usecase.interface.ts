@@ -8,7 +8,7 @@ type Success = Ok<{
 	userCredentials: UserCredentials;
 }>;
 
-type Error = Err<"PASSWORD_RESET_SESSION_INVALID"> | Err<"PASSWORD_RESET_SESSION_EXPIRED">;
+type Error = Err<"INVALID_PASSWORD_RESET_SESSION"> | Err<"EXPIRED_PASSWORD_RESET_SESSION">;
 
 export type PasswordResetValidateSessionUseCaseResult = Result<Success, Error>;
 

@@ -94,35 +94,35 @@ describe("ValidateSessionUseCase", () => {
 		expect(savedSession.expiresAt.getTime()).toBeGreaterThan(refreshableExpiresAt.getTime());
 	});
 
-	it("Error: should return SESSION_INVALID error when session token is invalid format", async () => {
+	it("Error: should return INVALID_SESSION error when session token is invalid format", async () => {
 		const invalidToken = newSessionToken("invalid_token_format");
 
 		const result = await validateSessionUseCase.execute(invalidToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SESSION");
 	});
 
-	it("Error: should return SESSION_INVALID error when session token is empty", async () => {
+	it("Error: should return INVALID_SESSION error when session token is empty", async () => {
 		const result = await validateSessionUseCase.execute(newSessionToken(""));
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SESSION");
 	});
 
-	it("Error: should return SESSION_INVALID error when session does not exist", async () => {
+	it("Error: should return INVALID_SESSION error when session does not exist", async () => {
 		const { sessionToken } = createSessionFixture();
 
 		const result = await validateSessionUseCase.execute(sessionToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SESSION");
 	});
 
-	it("Error: should return SESSION_INVALID error when user does not exist", async () => {
+	it("Error: should return INVALID_SESSION error when user does not exist", async () => {
 		const { session, sessionToken } = createSessionFixture({
 			session: {
 				userId: userRegistration.id,
@@ -136,10 +136,10 @@ describe("ValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SESSION");
 	});
 
-	it("Error: should return SESSION_INVALID error when session secret is invalid", async () => {
+	it("Error: should return INVALID_SESSION error when session secret is invalid", async () => {
 		const { session } = createSessionFixture({
 			session: {
 				userId: userRegistration.id,
@@ -153,10 +153,10 @@ describe("ValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SESSION");
 	});
 
-	it("Error: should return SESSION_EXPIRED error and delete session when session is expired", async () => {
+	it("Error: should return EXPIRED_SESSION error and delete session when session is expired", async () => {
 		const { session, sessionToken } = createSessionFixture({
 			session: {
 				userId: userRegistration.id,
@@ -170,7 +170,7 @@ describe("ValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SESSION_EXPIRED");
+		expect(result.code).toBe("EXPIRED_SESSION");
 
 		// セキュリティ: 期限切れセッションは削除されること
 		expect(sessionMap.has(session.id)).toBe(false);

@@ -37,7 +37,7 @@ export class SignupRegisterUseCase implements ISignupRegisterUseCase {
 		gender: Gender,
 	): Promise<SignupRegisterUseCaseResult> {
 		if (!signupSession.emailVerified) {
-			return err("EMAIL_VERIFICATION_REQUIRED");
+			return err("REQUIRED_EMAIL_VERIFICATION");
 		}
 
 		const existingUserCredentialsForSameEmail = await this.authUserRepository.findByEmail(signupSession.email);

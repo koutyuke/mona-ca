@@ -48,23 +48,23 @@ describe("SignupValidateSessionUseCase", () => {
 		expect(signupSessionMap.has(baseSignupSession.id)).toBe(true);
 	});
 
-	it("Error: should return SIGNUP_SESSION_INVALID error when token format is invalid", async () => {
+	it("Error: should return INVALID_SIGNUP_SESSION error when token format is invalid", async () => {
 		const result = await validateSignupSessionUseCase.execute(newSignupSessionToken("invalid_token"));
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SIGNUP_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SIGNUP_SESSION");
 	});
 
-	it("Error: should return SIGNUP_SESSION_INVALID error when token is empty", async () => {
+	it("Error: should return INVALID_SIGNUP_SESSION error when token is empty", async () => {
 		const result = await validateSignupSessionUseCase.execute(newSignupSessionToken(""));
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SIGNUP_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SIGNUP_SESSION");
 	});
 
-	it("Error: should return SIGNUP_SESSION_INVALID error when signup session does not exist", async () => {
+	it("Error: should return INVALID_SIGNUP_SESSION error when signup session does not exist", async () => {
 		signupSessionMap.clear();
 
 		const { signupSessionToken } = createSignupSessionFixture();
@@ -72,10 +72,10 @@ describe("SignupValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SIGNUP_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SIGNUP_SESSION");
 	});
 
-	it("Error: should return SIGNUP_SESSION_INVALID error when signup session secret is invalid", async () => {
+	it("Error: should return INVALID_SIGNUP_SESSION error when signup session secret is invalid", async () => {
 		const invalidToken = createSignupSessionFixture({
 			signupSession: baseSignupSession,
 			signupSessionSecret: "invalid_secret",
@@ -85,10 +85,10 @@ describe("SignupValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SIGNUP_SESSION_INVALID");
+		expect(result.code).toBe("INVALID_SIGNUP_SESSION");
 	});
 
-	it("Error: should return SIGNUP_SESSION_EXPIRED error and delete session when signup session is expired", async () => {
+	it("Error: should return EXPIRED_SIGNUP_SESSION error and delete session when signup session is expired", async () => {
 		const expired = {
 			...baseSignupSession,
 			expiresAt: new Date(0),
@@ -104,7 +104,7 @@ describe("SignupValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("SIGNUP_SESSION_EXPIRED");
+		expect(result.code).toBe("EXPIRED_SIGNUP_SESSION");
 
 		// セキュリティ: 期限切れセッションは削除されること
 		expect(signupSessionMap.has(expired.id)).toBe(false);

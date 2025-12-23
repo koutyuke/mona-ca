@@ -21,7 +21,7 @@ export class SignupVerifyEmailUseCase implements ISignupVerifyEmailUseCase {
 		}
 
 		if (!timingSafeStringEqual(signupSession.code, code)) {
-			return err("INVALID_VERIFICATION_CODE");
+			return err("INVALID_CODE");
 		}
 
 		const updatedSession = completeEmailVerificationForSignupSession(signupSession);

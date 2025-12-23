@@ -70,12 +70,12 @@ describe("SignupVerifyEmailUseCase", () => {
 		expect(updatedSession.emailVerified).toBe(true);
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when code does not match", async () => {
+	it("Error: should return INVALID_CODE error when code does not match", async () => {
 		const result = await signupVerifyEmailUseCase.execute(WRONG_CODE, baseSignupSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 
 		// セッションが更新されていないこと
 		const updatedSession = signupSessionMap.get(baseSignupSession.id);
@@ -85,24 +85,24 @@ describe("SignupVerifyEmailUseCase", () => {
 		expect(updatedSession.code).toBe(CORRECT_CODE);
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when code is empty", async () => {
+	it("Error: should return INVALID_CODE error when code is empty", async () => {
 		const result = await signupVerifyEmailUseCase.execute("", baseSignupSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 
 		const updatedSession = signupSessionMap.get(baseSignupSession.id);
 		expect(updatedSession?.emailVerified).toBe(false);
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when code is partially matched", async () => {
+	it("Error: should return INVALID_CODE error when code is partially matched", async () => {
 		const partialCode = CORRECT_CODE.slice(0, 4);
 		const result = await signupVerifyEmailUseCase.execute(partialCode, baseSignupSession);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 
 		const updatedSession = signupSessionMap.get(baseSignupSession.id);
 		expect(updatedSession?.emailVerified).toBe(false);

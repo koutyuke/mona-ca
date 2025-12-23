@@ -41,7 +41,7 @@ export class UpdateEmailVerifyEmailUseCase implements IUpdateEmailVerifyEmailUse
 		emailVerificationRequest: EmailVerificationRequest,
 	): Promise<UpdateEmailVerifyEmailUseCaseResult> {
 		if (!timingSafeStringEqual(emailVerificationRequest.code, code)) {
-			return err("INVALID_VERIFICATION_CODE");
+			return err("INVALID_CODE");
 		}
 
 		const existingUserIdentityForNewEmail = await this.authUserRepository.findByEmail(emailVerificationRequest.email);

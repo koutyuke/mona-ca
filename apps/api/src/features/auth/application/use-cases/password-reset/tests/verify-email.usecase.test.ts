@@ -71,7 +71,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 		expect(updatedSession.emailVerified).toBe(true);
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when code does not match", async () => {
+	it("Error: should return INVALID_CODE error when code does not match", async () => {
 		const { passwordResetSession: session } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				code: CORRECT_CODE,
@@ -86,7 +86,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 
 		// セッションが更新されていないこと
 		const updatedSession = passwordResetSessionMap.get(session.id);
@@ -96,7 +96,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 		expect(updatedSession.code).toBe(CORRECT_CODE);
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when code is empty", async () => {
+	it("Error: should return INVALID_CODE error when code is empty", async () => {
 		const { passwordResetSession: session } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				code: CORRECT_CODE,
@@ -111,13 +111,13 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 
 		const updatedSession = passwordResetSessionMap.get(session.id);
 		expect(updatedSession?.emailVerified).toBe(false);
 	});
 
-	it("Error: should return INVALID_VERIFICATION_CODE error when code is partially matched", async () => {
+	it("Error: should return INVALID_CODE error when code is partially matched", async () => {
 		const { passwordResetSession: session } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				code: CORRECT_CODE,
@@ -133,7 +133,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("INVALID_VERIFICATION_CODE");
+		expect(result.code).toBe("INVALID_CODE");
 
 		const updatedSession = passwordResetSessionMap.get(session.id);
 		expect(updatedSession?.emailVerified).toBe(false);
