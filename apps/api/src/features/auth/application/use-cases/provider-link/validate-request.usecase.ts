@@ -1,6 +1,7 @@
 import { err, ok } from "@mona-ca/core/result";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
 import { isExpiredProviderLinkRequest } from "../../../domain/entities/provider-link-request";
+import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
 import { type ProviderLinkRequestToken, decodeToken } from "../../../domain/value-objects/tokens";
 import type {
 	IProviderLinkValidateRequestUseCase,
@@ -18,7 +19,10 @@ export class ProviderLinkValidateRequestUseCase implements IProviderLinkValidate
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
 
-	async execute(providerLinkRequestToken: ProviderLinkRequestToken): Promise<ProviderLinkValidateRequestUseCaseResult> {
+	async execute(
+		provider: IdentityProviders,
+		providerLinkRequestToken: ProviderLinkRequestToken,
+	): Promise<ProviderLinkValidateRequestUseCaseResult> {
 		const idAndSecret = decodeToken(providerLinkRequestToken);
 		if (!idAndSecret) {
 			return err("INVALID_PROVIDER_LINK_REQUEST");
@@ -39,6 +43,10 @@ export class ProviderLinkValidateRequestUseCase implements IProviderLinkValidate
 
 		if (isExpiredProviderLinkRequest(providerLinkRequest)) {
 			return err("EXPIRED_PROVIDER_LINK_REQUEST");
+		}
+
+		if (providerLinkRequest.provider !== provider) {
+			return err("INVALID_PROVIDER_LINK_REQUEST");
 		}
 
 		const userCredentials = await this.authUserRepository.findById(providerLinkRequest.userId);

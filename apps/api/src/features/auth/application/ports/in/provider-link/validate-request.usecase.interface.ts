@@ -1,5 +1,6 @@
 import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { UserCredentials } from "../../../../domain/entities/user-credentials";
+import type { IdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import type { ProviderLinkRequestToken } from "../../../../domain/value-objects/tokens";
 
 type Success = Ok<{
@@ -11,5 +12,8 @@ type Error = Err<"INVALID_PROVIDER_LINK_REQUEST"> | Err<"EXPIRED_PROVIDER_LINK_R
 export type ProviderLinkValidateRequestUseCaseResult = Result<Success, Error>;
 
 export interface IProviderLinkValidateRequestUseCase {
-	execute(providerLinkRequestToken: ProviderLinkRequestToken): Promise<ProviderLinkValidateRequestUseCaseResult>;
+	execute(
+		provider: IdentityProviders,
+		providerLinkRequestToken: ProviderLinkRequestToken,
+	): Promise<ProviderLinkValidateRequestUseCaseResult>;
 }

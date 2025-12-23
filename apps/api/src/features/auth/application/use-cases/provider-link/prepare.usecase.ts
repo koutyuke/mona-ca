@@ -3,6 +3,7 @@ import type { UserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
 import { type ProviderLinkRequest, createProviderLinkRequest } from "../../../domain/entities/provider-link-request";
+import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
 import { newProviderLinkRequestId } from "../../../domain/value-objects/ids";
 import { type ProviderLinkRequestToken, encodeToken } from "../../../domain/value-objects/tokens";
 import type {
@@ -19,10 +20,10 @@ export class ProviderLinkPrepareUseCase implements IProviderLinkPrepareUseCase {
 		private readonly tokenSecretService: ITokenSecretService,
 	) {}
 
-	public async execute(userId: UserId): Promise<ProviderLinkPrepareUseCaseResult> {
+	public async execute(userId: UserId, provider: IdentityProviders): Promise<ProviderLinkPrepareUseCaseResult> {
 		await this.providerLinkRequestRepository.deleteByUserId(userId);
 
-		const { providerLinkRequest, providerLinkRequestToken } = this.createProviderLinkRequest(userId);
+		const { providerLinkRequest, providerLinkRequestToken } = this.createProviderLinkRequest(userId, provider);
 
 		await this.providerLinkRequestRepository.save(providerLinkRequest);
 
@@ -32,7 +33,10 @@ export class ProviderLinkPrepareUseCase implements IProviderLinkPrepareUseCase {
 		});
 	}
 
-	private createProviderLinkRequest(userId: UserId): {
+	private createProviderLinkRequest(
+		userId: UserId,
+		provider: IdentityProviders,
+	): {
 		providerLinkRequest: ProviderLinkRequest;
 		providerLinkRequestToken: ProviderLinkRequestToken;
 	} {
@@ -43,6 +47,7 @@ export class ProviderLinkPrepareUseCase implements IProviderLinkPrepareUseCase {
 		const providerLinkRequest = createProviderLinkRequest({
 			id,
 			userId,
+			provider,
 			secretHash,
 		});
 		const providerLinkRequestToken = encodeToken(id, secret);

@@ -1,7 +1,8 @@
-import { assert, beforeEach, describe, expect, it } from "vitest";
+import { assert, afterEach, beforeEach, describe, expect, it } from "vitest";
 import { newUserId } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
+import { newIdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import { encodeToken, newProviderLinkRequestToken } from "../../../../domain/value-objects/tokens";
 import { createAuthUserFixture, createProviderLinkRequestFixture } from "../../../../testing/fixtures";
 import {
@@ -34,24 +35,29 @@ const providerLinkValidateRequestUseCase = new ProviderLinkValidateRequestUseCas
 
 const { userCredentials, userRegistration } = createAuthUserFixture();
 
+const PROVIDER = newIdentityProviders("discord");
+
 describe("ProviderLinkValidateRequestUseCase", () => {
 	beforeEach(() => {
+		authUserMap.set(userRegistration.id, userRegistration);
+	});
+
+	afterEach(() => {
 		authUserMap.clear();
 		sessionMap.clear();
 		providerLinkRequestMap.clear();
-
-		authUserMap.set(userRegistration.id, userRegistration);
 	});
 
 	it("Success: should return user credentials when valid request token is provided", async () => {
 		const { providerLinkRequest, providerLinkRequestToken } = createProviderLinkRequestFixture({
 			providerLinkRequest: {
 				userId: userRegistration.id,
+				provider: PROVIDER,
 			},
 		});
 		providerLinkRequestMap.set(providerLinkRequest.id, providerLinkRequest);
 
-		const result = await providerLinkValidateRequestUseCase.execute(providerLinkRequestToken);
+		const result = await providerLinkValidateRequestUseCase.execute(PROVIDER, providerLinkRequestToken);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -65,7 +71,7 @@ describe("ProviderLinkValidateRequestUseCase", () => {
 	it("Error(token format): should return INVALID_PROVIDER_LINK_REQUEST when token format is invalid", async () => {
 		const invalidToken = newProviderLinkRequestToken("invalid_token_format");
 
-		const result = await providerLinkValidateRequestUseCase.execute(invalidToken);
+		const result = await providerLinkValidateRequestUseCase.execute(PROVIDER, invalidToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -79,7 +85,7 @@ describe("ProviderLinkValidateRequestUseCase", () => {
 			},
 		});
 
-		const result = await providerLinkValidateRequestUseCase.execute(providerLinkRequestToken);
+		const result = await providerLinkValidateRequestUseCase.execute(PROVIDER, providerLinkRequestToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -97,7 +103,7 @@ describe("ProviderLinkValidateRequestUseCase", () => {
 		const wrongSecret = `${providerLinkRequestSecret}-tampered`;
 		const tamperedToken = encodeToken(providerLinkRequest.id, wrongSecret);
 
-		const result = await providerLinkValidateRequestUseCase.execute(tamperedToken);
+		const result = await providerLinkValidateRequestUseCase.execute(PROVIDER, tamperedToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -109,12 +115,13 @@ describe("ProviderLinkValidateRequestUseCase", () => {
 		const { providerLinkRequest, providerLinkRequestToken } = createProviderLinkRequestFixture({
 			providerLinkRequest: {
 				userId: userRegistration.id,
+				provider: PROVIDER,
 				expiresAt: new Date(0),
 			},
 		});
 		providerLinkRequestMap.set(providerLinkRequest.id, providerLinkRequest);
 
-		const result = await providerLinkValidateRequestUseCase.execute(providerLinkRequestToken);
+		const result = await providerLinkValidateRequestUseCase.execute(PROVIDER, providerLinkRequestToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
@@ -127,11 +134,32 @@ describe("ProviderLinkValidateRequestUseCase", () => {
 		const { providerLinkRequest, providerLinkRequestToken } = createProviderLinkRequestFixture({
 			providerLinkRequest: {
 				userId: anotherUserId,
+				provider: PROVIDER,
 			},
 		});
+
 		providerLinkRequestMap.set(providerLinkRequest.id, providerLinkRequest);
 
-		const result = await providerLinkValidateRequestUseCase.execute(providerLinkRequestToken);
+		const result = await providerLinkValidateRequestUseCase.execute(PROVIDER, providerLinkRequestToken);
+
+		expect(result.isErr).toBe(true);
+		assert(result.isErr);
+		expect(result.code).toBe("INVALID_PROVIDER_LINK_REQUEST");
+		expect(providerLinkRequestMap.has(providerLinkRequest.id)).toBe(false);
+	});
+
+	it("Error(provider mismatch): should return INVALID_PROVIDER_LINK_REQUEST and delete request when provider mismatch", async () => {
+		const { providerLinkRequest, providerLinkRequestToken } = createProviderLinkRequestFixture({
+			providerLinkRequest: {
+				userId: userRegistration.id,
+				provider: PROVIDER,
+			},
+		});
+
+		const anotherProvider = newIdentityProviders("google");
+		providerLinkRequestMap.set(providerLinkRequest.id, providerLinkRequest);
+
+		const result = await providerLinkValidateRequestUseCase.execute(anotherProvider, providerLinkRequestToken);
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
