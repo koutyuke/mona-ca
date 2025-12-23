@@ -3,24 +3,24 @@ import type { Unbrand } from "@mona-ca/core/types";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type {
-	FederatedConnections,
-	IListAuthMethodsUseCase,
-	ListAuthMethodsUseCaseResult,
-	PasswordAuthConnection,
-} from "../../ports/in/session/list-auth-methods.usecase.interface";
+	FederatedIdentityMap,
+	IUserIdentitiesUseCase,
+	PasswordIdentities,
+	UserIdentitiesUseCaseResult,
+} from "../../ports/in/session/user-identities.usecase.interface";
 import type { IProviderAccountRepository } from "../../ports/out/repositories/provider-account.repository.interface";
 
-export class ListAuthMethodsUseCase implements IListAuthMethodsUseCase {
+export class UserIdentitiesUseCase implements IUserIdentitiesUseCase {
 	constructor(
 		// repositories
 		private readonly providerAccountRepository: IProviderAccountRepository,
 	) {}
 
-	public async execute(userCredentials: UserCredentials): Promise<ListAuthMethodsUseCaseResult> {
-		const passwordAuthConnection: PasswordAuthConnection = {
+	public async execute(userCredentials: UserCredentials): Promise<UserIdentitiesUseCaseResult> {
+		const passwordIdentity: PasswordIdentities = {
 			enabled: userCredentials.passwordHash !== null,
 		};
-		const federatedConnections: FederatedConnections = {
+		const federatedIdentities: FederatedIdentityMap = {
 			discord: null,
 			google: null,
 		};
@@ -28,7 +28,7 @@ export class ListAuthMethodsUseCase implements IListAuthMethodsUseCase {
 		const externalIdentities = await this.providerAccountRepository.findByUserId(userCredentials.id);
 
 		for (const externalIdentity of externalIdentities) {
-			federatedConnections[externalIdentity.provider as Unbrand<IdentityProviders>] = {
+			federatedIdentities[externalIdentity.provider as Unbrand<IdentityProviders>] = {
 				provider: externalIdentity.provider,
 				providerUserId: externalIdentity.providerUserId,
 				linkedAt: externalIdentity.linkedAt,
@@ -36,8 +36,8 @@ export class ListAuthMethodsUseCase implements IListAuthMethodsUseCase {
 		}
 
 		return ok({
-			password: passwordAuthConnection,
-			federated: federatedConnections,
+			password: passwordIdentity,
+			federated: federatedIdentities,
 		});
 	}
 }

@@ -6,25 +6,25 @@ import {
 	createProviderAccountKey,
 	createProviderAccountMap,
 } from "../../../../testing/mocks/repositories";
-import { ListAuthMethodsUseCase } from "../list-auth-methods.usecase";
+import { UserIdentitiesUseCase } from "../user-identities.usecase";
 
 const providerAccountMap = createProviderAccountMap();
 
 const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAccountMap });
 
-const listAuthMethodsUseCase = new ListAuthMethodsUseCase(providerAccountRepository);
+const userIdentitiesUseCase = new UserIdentitiesUseCase(providerAccountRepository);
 
 const { userCredentials } = createAuthUserFixture();
 const PROVIDER = newIdentityProviders("discord");
 const PROVIDER_USER_ID = newIdentityProvidersUserId("discord_user_id");
 
-describe("ListAuthMethodsUseCase", () => {
+describe("UserIdentitiesUseCase", () => {
 	beforeEach(() => {
 		providerAccountMap.clear();
 	});
 
 	it("Success: should return password enabled and no federated connections for user with password only", async () => {
-		const result = await listAuthMethodsUseCase.execute(userCredentials);
+		const result = await userIdentitiesUseCase.execute(userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
@@ -47,7 +47,7 @@ describe("ListAuthMethodsUseCase", () => {
 
 		providerAccountMap.set(createProviderAccountKey(PROVIDER, PROVIDER_USER_ID), providerAccount);
 
-		const result = await listAuthMethodsUseCase.execute(userCredentials);
+		const result = await userIdentitiesUseCase.execute(userCredentials);
 
 		expect(result.isErr).toBe(false);
 		assert(result.isOk);
