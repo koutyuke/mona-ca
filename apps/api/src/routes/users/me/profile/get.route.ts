@@ -1,8 +1,8 @@
 import { Elysia } from "elysia";
-import { toUserProfileResponse } from "../../../features/user";
-import { authPlugin } from "../../../plugins/auth";
-import { containerPlugin } from "../../../plugins/container";
-import { pathDetail } from "../../../plugins/openapi";
+import { toUserProfileResponse } from "../../../../features/user";
+import { authPlugin } from "../../../../plugins/auth";
+import { containerPlugin } from "../../../../plugins/container";
+import { pathDetail } from "../../../../plugins/openapi";
 
 export const ProfileGetRoute = new Elysia()
 	// Local Middleware & Plugin

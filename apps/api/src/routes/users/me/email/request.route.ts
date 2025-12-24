@@ -52,9 +52,9 @@ export const UpdateEmailRequestRoute = new Elysia()
 
 			if (result.isErr) {
 				return match(result)
-					.with({ code: "EMAIL_ALREADY_REGISTERED" }, () =>
+					.with({ code: "EMAIL_ALREADY_REGISTERED" }, ({ code }) =>
 						status("Bad Request", {
-							code: "EMAIL_ALREADY_REGISTERED",
+							code,
 							message: "Email is already registered by another user. Please use a different email address.",
 						}),
 					)

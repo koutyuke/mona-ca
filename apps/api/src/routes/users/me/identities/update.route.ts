@@ -8,14 +8,14 @@ import { authPlugin } from "../../../../plugins/auth";
 import { containerPlugin } from "../../../../plugins/container";
 import { pathDetail } from "../../../../plugins/openapi";
 
-export const PasswordUpdateRoute = new Elysia()
+export const IdentitiesUpdatePasswordRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(authPlugin())
 
 	// Route
 	.post(
-		"/",
+		"/password",
 		async ({ cookie, body: { currentPassword, newPassword }, userCredentials, clientPlatform, containers, status }) => {
 			const result = await containers.auth.updatePasswordUseCase.execute(userCredentials, currentPassword, newPassword);
 

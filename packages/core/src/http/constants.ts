@@ -1,5 +1,5 @@
 // Cookie
-export const PROVIDER_LINK_PROPOSAL_COOKIE_NAME = "mc_provider_link_proposal" as const;
+export const ACCOUNT_LINK_REQUEST_COOKIE_NAME = "mc_account_link_request" as const;
 export const EMAIL_VERIFICATION_REQUEST_COOKIE_NAME = "mc_email_verification_request" as const;
 export const PASSWORD_RESET_SESSION_COOKIE_NAME = "mc_password_reset_session" as const;
 export const SIGNUP_SESSION_COOKIE_NAME = "mc_signup_session" as const;

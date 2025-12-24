@@ -30,7 +30,7 @@ export const UpdateEmailVerifyRoute = new Elysia()
 		"/verify",
 		async ({
 			cookie,
-			body: { code, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
+			body: { code: verifyCode, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
 			userCredentials,
 			clientPlatform,
 			rateLimit,
@@ -44,7 +44,7 @@ export const UpdateEmailVerifyRoute = new Elysia()
 
 			if (!rawEmailVerificationRequestToken) {
 				return status("Bad Request", {
-					code: "EMAIL_VERIFICATION_REQUEST_INVALID",
+					code: "INVALID_EMAIL_VERIFICATION_REQUEST",
 					message: "Email verification session is invalid. Please request a new verification email.",
 				});
 			}
@@ -58,13 +58,13 @@ export const UpdateEmailVerifyRoute = new Elysia()
 
 			if (validationResult.isErr) {
 				return match(validationResult)
-					.with({ code: "INVALID_EMAIL_VERIFICATION_REQUEST" }, () =>
+					.with({ code: "INVALID_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
 						status("Bad Request", {
 							code,
 							message: "Invalid email verification request. Please request a new verification email.",
 						}),
 					)
-					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, () =>
+					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
 						status("Bad Request", {
 							code,
 							message: "Email verification request has expired. Please request a new verification email.",
@@ -84,22 +84,22 @@ export const UpdateEmailVerifyRoute = new Elysia()
 			}
 
 			const updateResult = await containers.auth.updateEmailVerifyEmailUseCase.execute(
-				code,
+				verifyCode,
 				userCredentials,
 				emailVerificationRequest,
 			);
 
 			if (updateResult.isErr) {
 				return match(updateResult)
-					.with({ code: "EMAIL_ALREADY_REGISTERED" }, () =>
+					.with({ code: "EMAIL_ALREADY_REGISTERED" }, ({ code }) =>
 						status("Bad Request", {
-							code: "EMAIL_ALREADY_REGISTERED",
+							code,
 							message: "Email is already in use by another account. Please use a different email address.",
 						}),
 					)
-					.with({ code: "INVALID_VERIFICATION_CODE" }, () =>
+					.with({ code: "INVALID_CODE" }, ({ code }) =>
 						status("Bad Request", {
-							code: "INVALID_VERIFICATION_CODE",
+							code,
 							message: "Invalid verification code. Please check the code and try again.",
 						}),
 					)

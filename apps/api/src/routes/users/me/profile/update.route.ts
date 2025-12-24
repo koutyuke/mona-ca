@@ -1,9 +1,9 @@
 import { Elysia, t } from "elysia";
-import { genderSchema, newGender } from "../../../core/domain/value-objects";
-import { type UpdateUserProfileDto, toUserProfileResponse } from "../../../features/user";
-import { authPlugin } from "../../../plugins/auth";
-import { containerPlugin } from "../../../plugins/container";
-import { pathDetail } from "../../../plugins/openapi";
+import { genderSchema, newGender } from "../../../../core/domain/value-objects";
+import { type UpdateUserProfileDto, toUserProfileResponse } from "../../../../features/user";
+import { authPlugin } from "../../../../plugins/auth";
+import { containerPlugin } from "../../../../plugins/container";
+import { pathDetail } from "../../../../plugins/openapi";
 
 export const ProfileUpdateRoute = new Elysia()
 	// Local Middleware & Plugin
