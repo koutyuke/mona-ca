@@ -1,11 +1,11 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e73357ad-489b-4467-88ee-cb4604b3db3f",
+  "id": "135adead-8d98-4f40-bd1f-023bdbc26172",
   "prevId": "695415dd-5423-4771-a38e-2b25fdd51586",
   "tables": {
-    "account_link_sessions": {
-      "name": "account_link_sessions",
+    "account_link_requests": {
+      "name": "account_link_requests",
       "columns": {
         "id": {
           "name": "id",
@@ -65,15 +65,15 @@
         }
       },
       "indexes": {
-        "idx_account_link_sessions__expires_at": {
-          "name": "idx_account_link_sessions__expires_at",
+        "idx_account_link_requests__expires_at": {
+          "name": "idx_account_link_requests__expires_at",
           "columns": [
             "expires_at"
           ],
           "isUnique": false
         },
-        "unq_account_link_sessions__provider_user": {
-          "name": "unq_account_link_sessions__provider_user",
+        "unq_account_link_requests__provider_user": {
+          "name": "unq_account_link_requests__provider_user",
           "columns": [
             "provider",
             "user_id"
@@ -82,9 +82,9 @@
         }
       },
       "foreignKeys": {
-        "account_link_sessions_user_id_users_id_fk": {
-          "name": "account_link_sessions_user_id_users_id_fk",
-          "tableFrom": "account_link_sessions",
+        "account_link_requests_user_id_users_id_fk": {
+          "name": "account_link_requests_user_id_users_id_fk",
+          "tableFrom": "account_link_requests",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -100,8 +100,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "email_verification_sessions": {
-      "name": "email_verification_sessions",
+    "email_verification_requests": {
+      "name": "email_verification_requests",
       "columns": {
         "id": {
           "name": "id",
@@ -147,22 +147,22 @@
         }
       },
       "indexes": {
-        "email_verification_sessions_user_id_unique": {
-          "name": "email_verification_sessions_user_id_unique",
+        "email_verification_requests_user_id_unique": {
+          "name": "email_verification_requests_user_id_unique",
           "columns": [
             "user_id"
           ],
           "isUnique": true
         },
-        "email_verification_sessions_code_unique": {
-          "name": "email_verification_sessions_code_unique",
+        "email_verification_requests_code_unique": {
+          "name": "email_verification_requests_code_unique",
           "columns": [
             "code"
           ],
           "isUnique": true
         },
-        "unq_email_verification_sessions__user_id_email": {
-          "name": "unq_email_verification_sessions__user_id_email",
+        "unq_email_verification_requests__user_id_email": {
+          "name": "unq_email_verification_requests__user_id_email",
           "columns": [
             "user_id",
             "email"
@@ -171,9 +171,9 @@
         }
       },
       "foreignKeys": {
-        "email_verification_sessions_user_id_users_id_fk": {
-          "name": "email_verification_sessions_user_id_users_id_fk",
-          "tableFrom": "email_verification_sessions",
+        "email_verification_requests_user_id_users_id_fk": {
+          "name": "email_verification_requests_user_id_users_id_fk",
+          "tableFrom": "email_verification_requests",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -341,8 +341,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "provider_connection_tickets": {
-      "name": "provider_connection_tickets",
+    "provider_link_requests": {
+      "name": "provider_link_requests",
       "columns": {
         "id": {
           "name": "id",
@@ -353,6 +353,13 @@
         },
         "user_id": {
           "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "provider": {
+          "name": "provider",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -374,15 +381,15 @@
         }
       },
       "indexes": {
-        "provider_connection_tickets_user_id_unique": {
-          "name": "provider_connection_tickets_user_id_unique",
+        "provider_link_requests_user_id_unique": {
+          "name": "provider_link_requests_user_id_unique",
           "columns": [
             "user_id"
           ],
           "isUnique": true
         },
-        "idx_provider_connection_tickets__expires_at": {
-          "name": "idx_provider_connection_tickets__expires_at",
+        "idx_provider_link_requests__expires_at": {
+          "name": "idx_provider_link_requests__expires_at",
           "columns": [
             "expires_at"
           ],
@@ -390,9 +397,9 @@
         }
       },
       "foreignKeys": {
-        "provider_connection_tickets_user_id_users_id_fk": {
-          "name": "provider_connection_tickets_user_id_users_id_fk",
-          "tableFrom": "provider_connection_tickets",
+        "provider_link_requests_user_id_users_id_fk": {
+          "name": "provider_link_requests_user_id_users_id_fk",
+          "tableFrom": "provider_link_requests",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"

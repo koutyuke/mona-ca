@@ -96,29 +96,8 @@
     {
       "idx": 13,
       "version": "6",
-      "when": 1763426603545,
-      "tag": "0013_wandering_scream",
-      "breakpoints": true
-    },
-    {
-      "idx": 14,
-      "version": "6",
-      "when": 1765613732201,
-      "tag": "0014_peaceful_stingray",
-      "breakpoints": true
-    },
-    {
-      "idx": 15,
-      "version": "6",
-      "when": 1766327984798,
-      "tag": "0015_hot_magdalene",
-      "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "6",
-      "when": 1766392921006,
-      "tag": "0016_nosy_lady_bullseye",
+      "when": 1766545370306,
+      "tag": "0013_pink_firedrake",
       "breakpoints": true
     }
   ]
