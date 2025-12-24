@@ -1,6 +1,12 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/http";
 import { err, ok } from "@mona-ca/core/result";
-import { newClientPlatform, newGender, newUserId } from "../../../../../core/domain/value-objects";
+import {
+	isMobilePlatform,
+	isWebPlatform,
+	newClientPlatform,
+	newGender,
+	newUserId,
+} from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
 import { type AccountLinkRequest, createAccountLinkRequest } from "../../../domain/entities/account-link-request";
 import { createProviderAccount } from "../../../domain/entities/provider-account";
@@ -8,11 +14,14 @@ import { createSession } from "../../../domain/entities/session";
 import { DEFAULT_USER_GENDER, createUserRegistration } from "../../../domain/entities/user-registration";
 import {
 	type IdentityProvidersUserId,
+	isDiscordProvider,
+	isGoogleProvider,
 	newIdentityProvidersUserId,
 } from "../../../domain/value-objects/identity-providers";
 import { newAccountLinkRequestId, newSessionId } from "../../../domain/value-objects/ids";
 import { encodeToken } from "../../../domain/value-objects/tokens";
 
+import { match } from "ts-pattern";
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
 import type { Session } from "../../../domain/entities/session";
@@ -54,8 +63,6 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 		code: string | undefined,
 		codeVerifier: string,
 	): Promise<FederatedAuthCallbackUseCaseResult> {
-		const identityProviderGateway =
-			provider === "google" ? this.googleIdentityProviderGateway : this.discordIdentityProviderGateway;
 		const validatedState = this.federatedAuthSignedStateService.verify(signedState);
 
 		if (validatedState.isErr) {
@@ -66,7 +73,15 @@ export class FederatedAuthCallbackUseCase implements IFederatedAuthCallbackUseCa
 
 		const clientPlatform = newClientPlatform(client);
 
-		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme(production);
+		const identityProviderGateway = match(provider)
+			.when(isGoogleProvider, () => this.googleIdentityProviderGateway)
+			.when(isDiscordProvider, () => this.discordIdentityProviderGateway)
+			.exhaustive();
+
+		const clientBaseURL = match(clientPlatform)
+			.when(isWebPlatform, () => getWebBaseURL(production))
+			.when(isMobilePlatform, () => getMobileScheme(production))
+			.exhaustive();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, redirectURI ?? "/");
 

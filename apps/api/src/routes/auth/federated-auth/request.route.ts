@@ -29,20 +29,20 @@ export const FederatedAuthRequestRoute = new Elysia()
 
 	// Route
 	.get(
-		"/:provider/login",
+		"/:provider",
 		async ({
 			params: { provider: _provider },
 			cookie,
-			query: { "redirect-uri": queryRedirectURI = "/", "client-type": _clientType },
+			query: { "redirect-uri": queryRedirectURI = "/", platform: _clientPlatform },
 			containers,
 			status,
 		}) => {
 			const provider = newIdentityProviders(_provider);
-			const clientType = newClientPlatform(_clientType);
+			const clientPlatform = newClientPlatform(_clientPlatform);
 
 			const result = containers.auth.federatedAuthRequestUseCase.execute(
 				env.APP_ENV === "production",
-				clientType,
+				clientPlatform,
 				provider,
 				queryRedirectURI,
 			);
@@ -92,8 +92,8 @@ export const FederatedAuthRequestRoute = new Elysia()
 				return;
 			},
 			query: t.Object({
-				"client-type": clientPlatformSchema,
 				"redirect-uri": t.Optional(t.String()),
+				platform: clientPlatformSchema,
 			}),
 			params: t.Object({
 				provider: identityProvidersSchema,

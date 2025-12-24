@@ -11,8 +11,8 @@ const discordIdentityProviderGateway = new IdentityProviderGatewayMock();
 const federatedAuthSignedStateService = new HmacSignedStateServiceMock<typeof federatedAuthStateSchema>();
 
 const federatedAuthRequestUseCase = new FederatedAuthRequestUseCase(
-	googleIdentityProviderGateway,
 	discordIdentityProviderGateway,
+	googleIdentityProviderGateway,
 	federatedAuthSignedStateService,
 );
 

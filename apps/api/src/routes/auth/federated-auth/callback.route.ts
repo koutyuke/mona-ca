@@ -33,7 +33,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 
 	// Route
 	.get(
-		"/:provider/login/callback",
+		"/:provider/callback",
 		async ({
 			cookie,
 			params: { provider: _provider },
