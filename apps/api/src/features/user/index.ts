@@ -1,5 +1,5 @@
 export { UserDIContainer } from "./di/container";
-export { toProfileResponse } from "./adapters/presenters/profile.presenter";
-export type { UpdateProfileDto } from "./application/contracts/profile/update-profile.usecase.interface";
+export { toUserProfileResponse } from "./adapters/presenters/user-profile.presenter";
+export type { UpdateUserProfileDto } from "./application/ports/in/user-profile/update-user-profile.usecase.interface";
 
 export type { IUserDIContainer } from "./di/container.interface";

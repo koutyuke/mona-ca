@@ -1,0 +1,56 @@
+import { err, ok } from "@mona-ca/core/result";
+import { createSession, isExpiredSession, isRefreshableSession } from "../../../domain/entities/session";
+import { decodeToken } from "../../../domain/value-objects/tokens";
+
+import type { ITokenSecretService } from "../../../../../core/ports/system";
+import type { SessionToken } from "../../../domain/value-objects/tokens";
+import type {
+	IValidateSessionUseCase,
+	ValidateSessionUseCaseResult,
+} from "../../ports/in/session/validate-session.usecase.interface";
+import type { IAuthUserRepository } from "../../ports/out/repositories/auth-user.repository.interface";
+import type { ISessionRepository } from "../../ports/out/repositories/session.repository.interface";
+
+export class ValidateSessionUseCase implements IValidateSessionUseCase {
+	constructor(
+		// repositories
+		private readonly authUserRepository: IAuthUserRepository,
+		private readonly sessionRepository: ISessionRepository,
+		// system
+		private readonly tokenSecretService: ITokenSecretService,
+	) {}
+
+	public async execute(sessionToken: SessionToken): Promise<ValidateSessionUseCaseResult> {
+		const idAndSecret = decodeToken(sessionToken);
+		if (!idAndSecret) {
+			return err("INVALID_SESSION");
+		}
+
+		const { id: sessionId, secret: sessionSecret } = idAndSecret;
+
+		let [userCredentials, session] = await Promise.all([
+			this.authUserRepository.findBySessionId(sessionId),
+			this.sessionRepository.findById(sessionId),
+		]);
+
+		if (!session || !userCredentials || !this.tokenSecretService.verify(sessionSecret, session.secretHash)) {
+			return err("INVALID_SESSION", {
+				session,
+				userCredentials,
+			});
+		}
+
+		if (isExpiredSession(session)) {
+			await this.sessionRepository.deleteById(sessionId);
+			return err("EXPIRED_SESSION");
+		}
+
+		if (isRefreshableSession(session)) {
+			session = createSession(session);
+
+			await this.sessionRepository.save(session);
+		}
+
+		return ok({ session, userCredentials });
+	}
+}

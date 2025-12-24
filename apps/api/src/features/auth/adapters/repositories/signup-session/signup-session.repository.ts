@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { newSignupSessionId } from "../../../domain/value-objects/ids";
 
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { ISignupSessionRepository } from "../../../application/ports/repositories/signup-session.repository.interface";
+import type { ISignupSessionRepository } from "../../../application/ports/out/repositories/signup-session.repository.interface";
 import type { SignupSession } from "../../../domain/entities/signup-session";
 import type { SignupSessionId } from "../../../domain/value-objects/ids";
 
@@ -21,8 +21,8 @@ export class SignupSessionRepository implements ISignupSessionRepository {
 	public async findById(id: SignupSessionId): Promise<SignupSession | null> {
 		const signupSessions = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.signupSessions)
-			.where(eq(this.drizzleService.schema.signupSessions.id, id));
+			.from(this.drizzleService.schema.signupSessionsTable)
+			.where(eq(this.drizzleService.schema.signupSessionsTable.id, id));
 
 		if (signupSessions.length > 1) {
 			throw new Error("Multiple signup sessions found for the same id");
@@ -33,7 +33,7 @@ export class SignupSessionRepository implements ISignupSessionRepository {
 
 	public async save(signupSession: SignupSession): Promise<void> {
 		await this.drizzleService.db
-			.insert(this.drizzleService.schema.signupSessions)
+			.insert(this.drizzleService.schema.signupSessionsTable)
 			.values({
 				id: signupSession.id,
 				email: signupSession.email,
@@ -43,7 +43,7 @@ export class SignupSessionRepository implements ISignupSessionRepository {
 				expiresAt: signupSession.expiresAt,
 			})
 			.onConflictDoUpdate({
-				target: this.drizzleService.schema.signupSessions.id,
+				target: this.drizzleService.schema.signupSessionsTable.id,
 				set: {
 					emailVerified: signupSession.emailVerified,
 					expiresAt: signupSession.expiresAt,
@@ -53,15 +53,15 @@ export class SignupSessionRepository implements ISignupSessionRepository {
 
 	public async deleteById(id: SignupSessionId): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.signupSessions)
-			.where(eq(this.drizzleService.schema.signupSessions.id, id))
+			.delete(this.drizzleService.schema.signupSessionsTable)
+			.where(eq(this.drizzleService.schema.signupSessionsTable.id, id))
 			.execute();
 	}
 
 	public async deleteByEmail(email: string): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.signupSessions)
-			.where(eq(this.drizzleService.schema.signupSessions.email, email))
+			.delete(this.drizzleService.schema.signupSessionsTable)
+			.where(eq(this.drizzleService.schema.signupSessionsTable.email, email))
 			.execute();
 	}
 

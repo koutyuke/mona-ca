@@ -1,9 +1,9 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { UserTableHelper } from "../../../../../../core/testing/helpers";
+import { UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture } from "../../../../testing/fixtures";
-import { convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { AuthUserRepository } from "../auth-user.repository";
 
 const { DB } = env;
@@ -11,33 +11,33 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const authUserRepository = new AuthUserRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
+const userTableDriver = new UsersTableDriver(DB);
 
-const { userRegistration, userIdentity } = createAuthUserFixture();
+const { userRegistration, userCredentials } = createAuthUserFixture();
 
 describe("AuthUserRepository.update", async () => {
 	beforeEach(async () => {
-		await userTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
 	});
 
 	test("should update user identity.", async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 
-		const updatedUserIdentity = {
-			...userIdentity,
+		const updatedUserCredentials = {
+			...userCredentials,
 			email: "updated@example.com",
 			emailVerified: true,
 			passwordHash: "updatedPasswordHash",
 			updatedAt: new Date(1704067200 * 1000 + 1000),
 		};
 
-		await authUserRepository.update(updatedUserIdentity);
+		await authUserRepository.update(updatedUserCredentials);
 
-		const users = await userTableHelper.findById(userRegistration.id);
+		const users = await userTableDriver.findById(userRegistration.id);
 
 		const updatedUserRegistration = {
 			...userRegistration,
-			...updatedUserIdentity,
+			...updatedUserCredentials,
 		};
 
 		expect(users).toHaveLength(1);
@@ -45,6 +45,6 @@ describe("AuthUserRepository.update", async () => {
 	});
 
 	test("should not throw error if user does not exist.", async () => {
-		await expect(authUserRepository.update(userIdentity)).resolves.not.toThrow();
+		await expect(authUserRepository.update(userCredentials)).resolves.not.toThrow();
 	});
 });

@@ -1,8 +1,8 @@
-export { externalIdentities } from "./external-identities";
-export { sessions } from "./sessions";
-export { users } from "./users";
-export { emailVerificationSessions } from "./email-verification-sessions";
-export { passwordResetSessions } from "./password-reset-session";
-export { accountAssociationSessions } from "./account-association-sessions";
-export { signupSessions } from "./signup-session";
-export { accountLinkSessions } from "./account-link-sessions";
+export { providerAccountsTable } from "./provider-accounts.table";
+export { sessionsTable } from "./sessions.table";
+export { usersTable } from "./users.table";
+export { emailVerificationRequestsTable } from "./email-verification-requests.table";
+export { passwordResetSessionsTable } from "./password-reset-sessions.table";
+export { accountLinkRequestsTable } from "./account-link-requests.table";
+export { signupSessionsTable } from "./signup-sessions.table";
+export { providerLinkRequestsTable } from "./provider-link-requests.table";

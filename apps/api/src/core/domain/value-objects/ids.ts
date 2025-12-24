@@ -1,6 +1,6 @@
-import type { NewType } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/types";
 
-export type UserId = NewType<"UserId", string>;
+export type UserId = Brand<"UserId", string>;
 
 export const newUserId = (rawUserId: string) => {
 	return rawUserId as UserId;

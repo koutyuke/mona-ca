@@ -1,26 +1,18 @@
-import { type ToPrimitive, getAPIBaseURL } from "@mona-ca/core/utils";
-import type { ExternalIdentityProvider } from "../domain/value-objects/external-identity";
+import { getAPIBaseURL } from "@mona-ca/core/http";
+import type { RawIdentityProviders } from "../domain/value-objects/identity-providers";
 
-export const externalLoginRedirectURL = (production: boolean, provider: ToPrimitive<ExternalIdentityProvider>) => {
+export const federatedAuthRedirectURL = (production: boolean, provider: RawIdentityProviders) => {
 	const apiBaseURL = getAPIBaseURL(production);
 
-	const providerRedirectURL = new URL(`auth/${provider}/login/callback`, apiBaseURL);
+	const providerRedirectURL = new URL(`auth/federated/${provider}/callback`, apiBaseURL);
 
 	return providerRedirectURL.toString();
 };
 
-export const externalSignupRedirectURL = (production: boolean, provider: ToPrimitive<ExternalIdentityProvider>) => {
+export const providerLinkRedirectURL = (production: boolean, provider: RawIdentityProviders) => {
 	const apiBaseURL = getAPIBaseURL(production);
 
-	const providerRedirectURL = new URL(`auth/${provider}/signup/callback`, apiBaseURL);
-
-	return providerRedirectURL.toString();
-};
-
-export const externalLinkRedirectURL = (production: boolean, provider: ToPrimitive<ExternalIdentityProvider>) => {
-	const apiBaseURL = getAPIBaseURL(production);
-
-	const providerRedirectURL = new URL(`auth/${provider}/link/callback`, apiBaseURL);
+	const providerRedirectURL = new URL(`users/me/identities/federated/${provider}/link/callback`, apiBaseURL);
 
 	return providerRedirectURL.toString();
 };

@@ -1,6 +1,6 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { Profile } from "../../../domain/entities/profile";
+import type { UserProfile } from "../../../domain/entities/user-profile";
 
-export const createProfilesMap = (profiles: Profile[] = []): Map<UserId, Profile> => {
-	return new Map(profiles.map(profile => [profile.id, profile]));
+export const createUserProfileMap = (userProfiles: UserProfile[] = []): Map<UserId, UserProfile> => {
+	return new Map(userProfiles.map(userProfile => [userProfile.id, userProfile]));
 };

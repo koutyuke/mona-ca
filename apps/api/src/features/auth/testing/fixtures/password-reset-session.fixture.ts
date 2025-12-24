@@ -1,14 +1,14 @@
 import { newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
-import { SessionSecretHasherMock } from "../../../../core/testing/mocks/system";
+import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
 import {
 	type PasswordResetSession,
 	passwordResetSessionEmailVerificationExpiresSpan,
 } from "../../domain/entities/password-reset-session";
 import { newPasswordResetSessionId } from "../../domain/value-objects/ids";
-import { type PasswordResetSessionToken, formatAnySessionToken } from "../../domain/value-objects/session-token";
+import { type PasswordResetSessionToken, encodeToken } from "../../domain/value-objects/tokens";
 
-const sessionSecretHasher = new SessionSecretHasherMock();
+const tokenSecretService = new TokenSecretServiceMock();
 
 export const createPasswordResetSessionFixture = (override?: {
 	secretHasher?: (secret: string) => Uint8Array;
@@ -19,7 +19,7 @@ export const createPasswordResetSessionFixture = (override?: {
 	passwordResetSessionSecret: string;
 	passwordResetSessionToken: PasswordResetSessionToken;
 } => {
-	const secretHasher = override?.secretHasher ?? sessionSecretHasher.hash;
+	const secretHasher = override?.secretHasher ?? tokenSecretService.hash;
 
 	const passwordResetSessionSecret = override?.passwordResetSessionSecret ?? "passwordResetSessionSecret";
 	const secretHash = secretHasher(passwordResetSessionSecret);
@@ -41,9 +41,11 @@ export const createPasswordResetSessionFixture = (override?: {
 		...override?.passwordResetSession,
 	};
 
+	const passwordResetSessionToken = encodeToken(passwordResetSession.id, passwordResetSessionSecret);
+
 	return {
 		passwordResetSession,
-		passwordResetSessionSecret: passwordResetSessionSecret,
-		passwordResetSessionToken: formatAnySessionToken(passwordResetSession.id, passwordResetSessionSecret),
+		passwordResetSessionSecret,
+		passwordResetSessionToken,
 	};
 };

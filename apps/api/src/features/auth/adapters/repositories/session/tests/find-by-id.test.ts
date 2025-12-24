@@ -1,10 +1,10 @@
 import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
+import { SessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
 import { newSessionId } from "../../../../domain/value-objects/ids";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
-import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -12,23 +12,23 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const sessionRepository = new SessionRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
-const sessionTableHelper = new SessionTableHelper(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const sessionTableDriver = new SessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("SessionRepository.findById", () => {
 	beforeEach(async () => {
-		await sessionTableHelper.deleteAll();
+		await sessionTableDriver.deleteAll();
 	});
 
 	beforeAll(async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	afterAll(async () => {
-		await userTableHelper.deleteAll();
-		await sessionTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
+		await sessionTableDriver.deleteAll();
 	});
 
 	test("should return session and user from sessionId", async () => {
@@ -37,7 +37,7 @@ describe("SessionRepository.findById", () => {
 				userId: userRegistration.id,
 			},
 		});
-		await sessionTableHelper.save(convertSessionToRaw(session));
+		await sessionTableDriver.save(convertSessionToRaw(session));
 
 		const foundSession = await sessionRepository.findById(session.id);
 		const expectedSession = convertSessionToRaw(session);

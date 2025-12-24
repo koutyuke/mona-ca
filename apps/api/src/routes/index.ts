@@ -1,14 +1,15 @@
 import { cors as corsPlugin } from "@elysiajs/cors";
+import { AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME } from "@mona-ca/core/http";
 import { Elysia } from "elysia";
 import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
 import { env } from "../core/infra/config/env";
-import { CLIENT_TYPE_HEADER_NAME, DEV_ORIGIN_REGEX, PROD_ORIGIN_REGEX } from "../core/lib/http";
+import { DEV_ORIGIN_REGEX, PROD_ORIGIN_REGEX } from "../core/lib/http";
 import { containerPlugin } from "../plugins/container";
 import { ipAddressPlugin } from "../plugins/ip-address";
 import { openapiPlugin } from "../plugins/openapi";
 import { pathDetail } from "../plugins/openapi";
 import { AuthRoutes } from "./auth";
-import { MeRoutes } from "./me";
+import { UsersRoutes } from "./users";
 
 globalThis.Buffer = Buffer;
 
@@ -22,7 +23,7 @@ export default new Elysia({
 		corsPlugin({
 			origin: env.APP_ENV === "production" ? PROD_ORIGIN_REGEX : DEV_ORIGIN_REGEX,
 			methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-			allowedHeaders: ["content-type", "authorization", CLIENT_TYPE_HEADER_NAME],
+			allowedHeaders: ["content-type", AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME],
 			credentials: true,
 			maxAge: 600,
 		}),
@@ -31,7 +32,7 @@ export default new Elysia({
 
 	// Other Routes
 	.use(AuthRoutes)
-	.use(MeRoutes)
+	.use(UsersRoutes)
 
 	// Route
 	.get(

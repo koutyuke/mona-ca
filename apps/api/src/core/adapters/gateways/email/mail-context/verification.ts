@@ -1,8 +1,8 @@
-import { MC_DEFAULT_EMAIL_ADDRESS } from "@mona-ca/core/const";
+import { DEFAULT_EMAIL_ADDRESS } from "@mona-ca/core/email";
 import type { EmailContext } from "./type";
 
 export const verificationEmailTemplate = (email: string, code: string): EmailContext => {
-	const from = MC_DEFAULT_EMAIL_ADDRESS;
+	const from = DEFAULT_EMAIL_ADDRESS;
 	const to = email;
 	const subject = `メールアドレス検証コードは 「${code}」 です。`;
 	const text = `メールアドレスが正しく登録されていることを確認するため、以下のコードを入力してください。

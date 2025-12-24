@@ -1,10 +1,10 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
+import { SessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
 import { newSessionId } from "../../../../domain/value-objects/ids";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
-import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { AuthUserRepository } from "../auth-user.repository";
 
 const { DB } = env;
@@ -12,35 +12,35 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const authUserRepository = new AuthUserRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
-const sessionTableHelper = new SessionTableHelper(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const sessionTableDriver = new SessionsTableDriver(DB);
 
-const { userRegistration, userIdentity } = createAuthUserFixture();
+const { userRegistration, userCredentials } = createAuthUserFixture();
 
 describe("AuthUserRepository.findBySessionId", async () => {
 	beforeEach(async () => {
-		await userTableHelper.deleteAll();
-		await sessionTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
+		await sessionTableDriver.deleteAll();
 	});
 
 	test("should return User instance if user exists.", async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 
 		const { session } = createSessionFixture({
 			session: {
 				userId: userRegistration.id,
 			},
 		});
-		await sessionTableHelper.save(convertSessionToRaw(session));
+		await sessionTableDriver.save(convertSessionToRaw(session));
 
-		const foundUserIdentity = await authUserRepository.findBySessionId(session.id);
+		const foundUserCredentials = await authUserRepository.findBySessionId(session.id);
 
-		expect(foundUserIdentity).not.toBeNull();
-		expect(foundUserIdentity).toStrictEqual(userIdentity);
+		expect(foundUserCredentials).not.toBeNull();
+		expect(foundUserCredentials).toStrictEqual(userCredentials);
 	});
 
 	test("should return null if user not found.", async () => {
-		const foundUser = await authUserRepository.findBySessionId(newSessionId("invalidSessionId"));
-		expect(foundUser).toBeNull();
+		const foundUserCredentials = await authUserRepository.findBySessionId(newSessionId("invalidSessionId"));
+		expect(foundUserCredentials).toBeNull();
 	});
 });

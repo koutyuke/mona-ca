@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import { type UserId, newUserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { IAuthUserRepository } from "../../../application/ports/repositories/auth-user.repository.interface";
-import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { IAuthUserRepository } from "../../../application/ports/out/repositories/auth-user.repository.interface";
+import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { UserRegistration } from "../../../domain/entities/user-registration";
 import type { SessionId } from "../../../domain/value-objects/ids";
 
@@ -12,7 +12,7 @@ interface FoundUserDto {
 	name: string;
 	emailVerified: boolean;
 	iconUrl: string | null;
-	gender: "man" | "woman";
+	gender: "male" | "female";
 	passwordHash: string | null;
 	createdAt: Date;
 	updatedAt: Date;
@@ -21,11 +21,11 @@ interface FoundUserDto {
 export class AuthUserRepository implements IAuthUserRepository {
 	constructor(private readonly drizzleService: DrizzleService) {}
 
-	public async findById(id: UserId): Promise<UserIdentity | null> {
+	public async findById(id: UserId): Promise<UserCredentials | null> {
 		const users = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.users)
-			.where(eq(this.drizzleService.schema.users.id, id));
+			.from(this.drizzleService.schema.usersTable)
+			.where(eq(this.drizzleService.schema.usersTable.id, id));
 
 		if (users.length > 1) {
 			throw new Error("Multiple users found for the same id");
@@ -34,11 +34,11 @@ export class AuthUserRepository implements IAuthUserRepository {
 		return users.length === 1 ? this.convertToUserIdentity(users[0]!) : null;
 	}
 
-	public async findByEmail(email: string): Promise<UserIdentity | null> {
+	public async findByEmail(email: string): Promise<UserCredentials | null> {
 		const users = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.users)
-			.where(eq(this.drizzleService.schema.users.email, email));
+			.from(this.drizzleService.schema.usersTable)
+			.where(eq(this.drizzleService.schema.usersTable.email, email));
 
 		if (users.length > 1) {
 			throw new Error("Multiple users found for the same email");
@@ -46,15 +46,15 @@ export class AuthUserRepository implements IAuthUserRepository {
 		return users.length === 1 ? this.convertToUserIdentity(users[0]!) : null;
 	}
 
-	public async findBySessionId(sessionId: SessionId): Promise<UserIdentity | null> {
+	public async findBySessionId(sessionId: SessionId): Promise<UserCredentials | null> {
 		const result = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.users)
+			.from(this.drizzleService.schema.usersTable)
 			.innerJoin(
-				this.drizzleService.schema.sessions,
-				eq(this.drizzleService.schema.sessions.userId, this.drizzleService.schema.users.id),
+				this.drizzleService.schema.sessionsTable,
+				eq(this.drizzleService.schema.sessionsTable.userId, this.drizzleService.schema.usersTable.id),
 			)
-			.where(eq(this.drizzleService.schema.sessions.id, sessionId));
+			.where(eq(this.drizzleService.schema.sessionsTable.id, sessionId));
 
 		if (result.length > 1) {
 			throw new Error("Multiple users found for the same session");
@@ -65,7 +65,7 @@ export class AuthUserRepository implements IAuthUserRepository {
 
 	public async create(registration: UserRegistration): Promise<void> {
 		await this.drizzleService.db
-			.insert(this.drizzleService.schema.users)
+			.insert(this.drizzleService.schema.usersTable)
 			.values({
 				id: registration.id,
 				email: registration.email,
@@ -78,23 +78,23 @@ export class AuthUserRepository implements IAuthUserRepository {
 				updatedAt: registration.updatedAt,
 			})
 			.onConflictDoNothing({
-				target: this.drizzleService.schema.users.id,
+				target: this.drizzleService.schema.usersTable.id,
 			});
 	}
 
-	public async update(identity: UserIdentity): Promise<void> {
+	public async update(identity: UserCredentials): Promise<void> {
 		await this.drizzleService.db
-			.update(this.drizzleService.schema.users)
+			.update(this.drizzleService.schema.usersTable)
 			.set({
 				email: identity.email,
 				emailVerified: identity.emailVerified,
 				passwordHash: identity.passwordHash,
 				updatedAt: identity.updatedAt,
 			})
-			.where(eq(this.drizzleService.schema.users.id, identity.id));
+			.where(eq(this.drizzleService.schema.usersTable.id, identity.id));
 	}
 
-	private convertToUserIdentity(dto: FoundUserDto): UserIdentity {
+	private convertToUserIdentity(dto: FoundUserDto): UserCredentials {
 		return {
 			id: newUserId(dto.id),
 			email: dto.email,

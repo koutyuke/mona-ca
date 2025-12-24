@@ -1,85 +1,86 @@
-import { createDiscordGateways } from "../adapters/gateways/oauth-provider/discord.gateway";
-import { createGoogleGateways } from "../adapters/gateways/oauth-provider/google.gateway";
-import { AccountAssociationSessionRepository } from "../adapters/repositories/account-association-session/account-association-session.repository";
-import { AccountLinkSessionRepository } from "../adapters/repositories/account-link-session/account-link-session.repository";
+import { DiscordIdentityProviderGateway } from "../adapters/gateways/identity-provider/discord.gateway";
+import { GoogleIdentityProviderGateway } from "../adapters/gateways/identity-provider/google.gateway";
+import { AccountLinkRequestRepository } from "../adapters/repositories/account-link-request/account-link-request.repository";
 import { AuthUserRepository } from "../adapters/repositories/auth-user/auth-user.repository";
-import { EmailVerificationSessionRepository } from "../adapters/repositories/email-verification-session/email-verification-session.repository";
-import { ExternalIdentityRepository } from "../adapters/repositories/external-identity/external-identity.repository";
+import { EmailVerificationRequestRepository } from "../adapters/repositories/email-verification-request/email-verification-request.repository";
 import { PasswordResetSessionRepository } from "../adapters/repositories/password-reset-session/password-reset-session.repository";
+import { ProviderAccountRepository } from "../adapters/repositories/provider-account/provider-account.repository";
+import { ProviderLinkRequestRepository } from "../adapters/repositories/provider-link-request/provider-link-request.repository";
 import { SessionRepository } from "../adapters/repositories/session/session.repository";
 import { SignupSessionRepository } from "../adapters/repositories/signup-session/signup-session.repository";
-import { AccountAssociationChallengeUseCase } from "../application/use-cases/account-association/account-association-challenge.usecase";
-import { AccountAssociationConfirmUseCase } from "../application/use-cases/account-association/account-association-confirm.usecase";
-import { ValidateAccountAssociationSessionUseCase } from "../application/use-cases/account-association/validate-account-association-session.usecase";
-import { GetConnectionsUseCase } from "../application/use-cases/account-connection/get-connections.usecase";
-import { UnlinkAccountConnectionUseCase } from "../application/use-cases/account-connection/unlink-account-connection.usecase";
-import { AccountLinkCallbackUseCase } from "../application/use-cases/account-link/account-link-callback.usecase";
-import { AccountLinkPrepareUseCase } from "../application/use-cases/account-link/account-link-prepare.usecase";
-import { AccountLinkRequestUseCase } from "../application/use-cases/account-link/account-link-request.usecase";
-import { accountLinkStateSchema } from "../application/use-cases/account-link/schema";
-import { LoginUseCase } from "../application/use-cases/basic-auth/login.usecase";
-import { LogoutUseCase } from "../application/use-cases/basic-auth/logout.usecase";
-import { SignupConfirmUseCase } from "../application/use-cases/basic-auth/signup-confirm.usecase";
-import { SignupRequestUseCase } from "../application/use-cases/basic-auth/signup-request.usecase";
-import { SignupVerifyEmailUseCase } from "../application/use-cases/basic-auth/signup-verify-email.usecase";
-import { ValidateSessionUseCase } from "../application/use-cases/basic-auth/validate-session.usecase";
-import { ValidateSignupSessionUseCase } from "../application/use-cases/basic-auth/validate-signup-session.usecase";
-import { EmailVerificationConfirmUseCase } from "../application/use-cases/email/email-verification-confirm.usecase";
-import { EmailVerificationRequestUseCase } from "../application/use-cases/email/email-verification-request.usecase";
-import { UpdateEmailConfirmUseCase } from "../application/use-cases/email/update-email-confirm.usecase";
-import { UpdateEmailRequestUseCase } from "../application/use-cases/email/update-email-request.usecase";
-import { ValidateEmailVerificationSessionUseCase } from "../application/use-cases/email/validate-email-verification-session.usecase";
-import { ExternalAuthLoginCallbackUseCase } from "../application/use-cases/external-auth/external-auth-login-callback.usecase";
-import { ExternalAuthRequestUseCase } from "../application/use-cases/external-auth/external-auth-request.usecase";
-import { ExternalAuthSignupCallbackUseCase } from "../application/use-cases/external-auth/external-auth-signup-callback.usecase";
-import { oauthStateSchema } from "../application/use-cases/external-auth/schema";
-import { PasswordResetRequestUseCase } from "../application/use-cases/password/password-reset-request.usecase";
-import { PasswordResetVerifyEmailUseCase } from "../application/use-cases/password/password-reset-verify-email.usecase";
-import { ResetPasswordUseCase } from "../application/use-cases/password/reset-password.usecase";
-import { UpdatePasswordUseCase } from "../application/use-cases/password/update-password.usecase";
-import { ValidatePasswordResetSessionUseCase } from "../application/use-cases/password/validate-password-reset-session.usecase";
-import { HmacOAuthStateSigner } from "../infra/hmac-oauth-state-signer/hmac-oauth-state-signer";
+import { AccountLinkReissueUseCase } from "../application/use-cases/account-link/reissue.usecase";
+import { AccountLinkValidateRequestUseCase } from "../application/use-cases/account-link/validate-request.usecase";
+import { AccountLinkVerifyEmailUseCase } from "../application/use-cases/account-link/verify-email.usecase";
+import { EmailVerificationRequestUseCase } from "../application/use-cases/email-verification/request.usecase";
+import { EmailVerificationValidateRequestUseCase } from "../application/use-cases/email-verification/validate-request.usecase";
+import { EmailVerificationVerifyEmailUseCase } from "../application/use-cases/email-verification/verify-email.usecase";
+import { FederatedAuthCallbackUseCase } from "../application/use-cases/federated-auth/callback.usecase";
+import { FederatedAuthRequestUseCase } from "../application/use-cases/federated-auth/request.usecase";
+import { federatedAuthStateSchema } from "../application/use-cases/federated-auth/schema";
+import { PasswordResetRequestUseCase } from "../application/use-cases/password-reset/request.usecase";
+import { PasswordResetResetUseCase } from "../application/use-cases/password-reset/reset.usecase";
+import { PasswordResetValidateSessionUseCase } from "../application/use-cases/password-reset/validate-session.usecase";
+import { PasswordResetVerifyEmailUseCase } from "../application/use-cases/password-reset/verify-email.usecase";
+import { ProviderLinkCallbackUseCase } from "../application/use-cases/provider-link/callback.usecase";
+import { ProviderLinkPrepareUseCase } from "../application/use-cases/provider-link/prepare.usecase";
+import { ProviderLinkRequestUseCase } from "../application/use-cases/provider-link/request.usecase";
+import { providerLinkStateSchema } from "../application/use-cases/provider-link/schema";
+import { ProviderLinkUnlinkUseCase } from "../application/use-cases/provider-link/unlink.usecase";
+import { ProviderLinkValidateRequestUseCase } from "../application/use-cases/provider-link/validate-request.usecase";
+import { LoginUseCase } from "../application/use-cases/session/login.usecase";
+import { LogoutUseCase } from "../application/use-cases/session/logout.usecase";
+import { UpdatePasswordUseCase } from "../application/use-cases/session/update-password.usecase";
+import { UserIdentitiesUseCase } from "../application/use-cases/session/user-identities.usecase";
+import { ValidateSessionUseCase } from "../application/use-cases/session/validate-session.usecase";
+import { SignupRegisterUseCase } from "../application/use-cases/signup/register.usecase";
+import { SignupRequestUseCase } from "../application/use-cases/signup/request.usecase";
+import { SignupValidateSessionUseCase } from "../application/use-cases/signup/validate-session.usecase";
+import { SignupVerifyEmailUseCase } from "../application/use-cases/signup/verify-email.usecase";
+import { UpdateEmailRequestUseCase } from "../application/use-cases/update-email/request.usecase";
+import { UpdateEmailVerifyEmailUseCase } from "../application/use-cases/update-email/verify-email.usecase";
+import { HmacSignedStateService } from "../infra/hmac-signed-state/hmac-signed-state.service";
+import { federatedAuthRedirectURL, providerLinkRedirectURL } from "../lib/redirect-url";
 
-import type { ICoreDIContainer } from "../../../core/di/container";
+import type { ICoreDIContainer } from "../../../core/di";
 import type { EnvVariables } from "../../../core/infra/config/env";
-import type { ProviderGateways } from "../adapters/gateways/oauth-provider/type";
-import type { IAccountAssociationChallengeUseCase } from "../application/contracts/account-association/account-association-challenge.usecase.interface";
-import type { IAccountAssociationConfirmUseCase } from "../application/contracts/account-association/account-association-confirm.usecase.interface";
-import type { IValidateAccountAssociationSessionUseCase } from "../application/contracts/account-association/validate-account-association-session.usecase.interface";
-import type { IGetConnectionsUseCase } from "../application/contracts/account-connection/get-connections.usecase.interface";
-import type { IUnlinkAccountConnectionUseCase } from "../application/contracts/account-connection/unlink-account-connection.usecase.interface";
-import type { IAccountLinkCallbackUseCase } from "../application/contracts/account-link/account-link-callback.usecase.interface";
-import type { IAccountLinkPrepareUseCase } from "../application/contracts/account-link/account-link-prepare.usecase.interface";
-import type { IAccountLinkRequestUseCase } from "../application/contracts/account-link/account-link-request.usecase.interface";
-import type { ILoginUseCase } from "../application/contracts/basic-auth/login.usecase.interface";
-import type { ILogoutUseCase } from "../application/contracts/basic-auth/logout.usecase.interface";
-import type { ISignupConfirmUseCase } from "../application/contracts/basic-auth/signup-confirm.usecase.interface";
-import type { ISignupRequestUseCase } from "../application/contracts/basic-auth/signup-request.usecase.interface";
-import type { ISignupVerifyEmailUseCase } from "../application/contracts/basic-auth/signup-verify-email.usecase.interface";
-import type { IValidateSessionUseCase } from "../application/contracts/basic-auth/validate-session.usecase";
-import type { IValidateSignupSessionUseCase } from "../application/contracts/basic-auth/validate-signup-session.usecase.interface";
-import type { IEmailVerificationConfirmUseCase } from "../application/contracts/email/email-verification-confirm.usecase.interface";
-import type { IEmailVerificationRequestUseCase } from "../application/contracts/email/email-verification-request.usecase.interface";
-import type { IUpdateEmailConfirmUseCase } from "../application/contracts/email/update-email-confirm.usecase.interface";
-import type { IUpdateEmailRequestUseCase } from "../application/contracts/email/update-email-request.usecase.interface";
-import type { IValidateEmailVerificationSessionUseCase } from "../application/contracts/email/validate-email-verification-session.usecase.interface";
-import type { IExternalAuthLoginCallbackUseCase } from "../application/contracts/external-auth/external-auth-login-callback.usecase.interface";
-import type { IExternalAuthRequestUseCase } from "../application/contracts/external-auth/external-auth-request.usecase.interface";
-import type { IExternalAuthSignupCallbackUseCase } from "../application/contracts/external-auth/external-auth-signup-callback.usecase.interface";
-import type { IPasswordResetRequestUseCase } from "../application/contracts/password/password-reset-request.usecase.interface";
-import type { IPasswordResetVerifyEmailUseCase } from "../application/contracts/password/password-reset-verify-email.usecase.interface";
-import type { IResetPasswordUseCase } from "../application/contracts/password/reset-password.usecase.interface";
-import type { IUpdatePasswordUseCase } from "../application/contracts/password/update-password.usecase.interface";
-import type { IValidatePasswordResetSessionUseCase } from "../application/contracts/password/validate-password-reset-session.usecase.interface";
-import type { IHmacOAuthStateSigner } from "../application/ports/infra/hmac-oauth-state-signer.interface";
-import type { IAccountAssociationSessionRepository } from "../application/ports/repositories/account-association-session.repository.interface";
-import type { IAccountLinkSessionRepository } from "../application/ports/repositories/account-link-session.repository.interface";
-import type { IAuthUserRepository } from "../application/ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationSessionRepository } from "../application/ports/repositories/email-verification-session.repository.interface";
-import type { IExternalIdentityRepository } from "../application/ports/repositories/external-identity.repository.interface";
-import type { IPasswordResetSessionRepository } from "../application/ports/repositories/password-reset-session.repository.interface";
-import type { ISessionRepository } from "../application/ports/repositories/session.repository.interface";
-import type { ISignupSessionRepository } from "../application/ports/repositories/signup-session.repository.interface";
+import type { IAccountLinkReissueUseCase } from "../application/ports/in/account-link/reissue.usecase.interface";
+import type { IAccountLinkValidateRequestUseCase } from "../application/ports/in/account-link/validate-request.usecase.interface";
+import type { IAccountLinkVerifyEmailUseCase } from "../application/ports/in/account-link/verify-email.usecase.interface";
+import type { IEmailVerificationRequestUseCase } from "../application/ports/in/email-verification/request.usecase.interface";
+import type { IEmailVerificationValidateRequestUseCase } from "../application/ports/in/email-verification/validate-request.usecase.interface";
+import type { IEmailVerificationVerifyEmailUseCase } from "../application/ports/in/email-verification/verify-email.usecase.interface";
+import type { IFederatedAuthCallbackUseCase } from "../application/ports/in/federated-auth/callback.usecase.interface";
+import type { IFederatedAuthRequestUseCase } from "../application/ports/in/federated-auth/request.usecase.interface";
+import type { IPasswordResetRequestUseCase } from "../application/ports/in/password-reset/request.usecase.interface";
+import type { IPasswordResetResetUseCase } from "../application/ports/in/password-reset/reset.usecase.interface";
+import type { IPasswordResetValidateSessionUseCase } from "../application/ports/in/password-reset/validate-session.usecase.interface";
+import type { IPasswordResetVerifyEmailUseCase } from "../application/ports/in/password-reset/verify-email.usecase.interface";
+import type { IProviderLinkCallbackUseCase } from "../application/ports/in/provider-link/callback.usecase.interface";
+import type { IProviderLinkPrepareUseCase } from "../application/ports/in/provider-link/prepare.usecase.interface";
+import type { IProviderLinkRequestUseCase } from "../application/ports/in/provider-link/request.usecase.interface";
+import type { IProviderLinkUnlinkUseCase } from "../application/ports/in/provider-link/unlink.usecase.interface";
+import type { IProviderLinkValidateRequestUseCase } from "../application/ports/in/provider-link/validate-request.usecase.interface";
+import type { ILoginUseCase } from "../application/ports/in/session/login.usecase.interface";
+import type { ILogoutUseCase } from "../application/ports/in/session/logout.usecase.interface";
+import type { IUpdatePasswordUseCase } from "../application/ports/in/session/update-password.usecase.interface";
+import type { IUserIdentitiesUseCase } from "../application/ports/in/session/user-identities.usecase.interface";
+import type { IValidateSessionUseCase } from "../application/ports/in/session/validate-session.usecase.interface";
+import type { ISignupRegisterUseCase } from "../application/ports/in/signup/register.usecase.interface";
+import type { ISignupRequestUseCase } from "../application/ports/in/signup/request.usecase.interface";
+import type { ISignupValidateSessionUseCase } from "../application/ports/in/signup/validate-session.usecase.interface";
+import type { ISignupVerifyEmailUseCase } from "../application/ports/in/signup/verify-email.usecase.interface";
+import type { IUpdateEmailRequestUseCase } from "../application/ports/in/update-email/request.usecase.interface";
+import type { IUpdateEmailVerifyEmailUseCase } from "../application/ports/in/update-email/verify-email.usecase.interface";
+import type { IIdentityProviderGateway } from "../application/ports/out/gateways/identity-provider.gateway.interface";
+import type { IHmacSignedStateService } from "../application/ports/out/infra/hmac-signed-state.service.interface";
+import type { IAccountLinkRequestRepository } from "../application/ports/out/repositories/account-link-request.repository.interface";
+import type { IAuthUserRepository } from "../application/ports/out/repositories/auth-user.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../application/ports/out/repositories/email-verification-request.repository.interface";
+import type { IPasswordResetSessionRepository } from "../application/ports/out/repositories/password-reset-session.repository.interface";
+import type { IProviderAccountRepository } from "../application/ports/out/repositories/provider-account.repository.interface";
+import type { IProviderLinkRequestRepository } from "../application/ports/out/repositories/provider-link-request.repository.interface";
+import type { ISessionRepository } from "../application/ports/out/repositories/session.repository.interface";
+import type { ISignupSessionRepository } from "../application/ports/out/repositories/signup-session.repository.interface";
 import type { IAuthDIContainer } from "./container.interface";
 
 /**
@@ -96,102 +97,120 @@ export class AuthDIContainer implements IAuthDIContainer {
 	private readonly envVariables: EnvVariables;
 	private readonly coreContainer: ICoreDIContainer;
 
-	// Infra
-	private _accountLinkOAuthStateSigner: IHmacOAuthStateSigner<typeof accountLinkStateSchema> | undefined;
-	private _externalAuthOAuthStateSigner: IHmacOAuthStateSigner<typeof oauthStateSchema> | undefined;
+	// === Infra ===
+	private _federatedAuthSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema> | undefined;
+	private _providerLinkSignedStateService: IHmacSignedStateService<typeof providerLinkStateSchema> | undefined;
 
-	// Gateways
-	private _googleOAuthGateways: ProviderGateways | undefined;
-	private _discordOAuthGateways: ProviderGateways | undefined;
+	// === Gateways ===
+	private _federatedAuthDiscordIdentityProviderGateway: IIdentityProviderGateway | undefined;
+	private _federatedAuthGoogleIdentityProviderGateway: IIdentityProviderGateway | undefined;
+	private _providerLinkDiscordIdentityProviderGateway: IIdentityProviderGateway | undefined;
+	private _providerLinkGoogleIdentityProviderGateway: IIdentityProviderGateway | undefined;
 
-	// Repositories
-	private _accountAssociationSessionRepository: IAccountAssociationSessionRepository | undefined;
-	private _accountLinkSessionRepository: IAccountLinkSessionRepository | undefined;
+	// === Repositories ===
+	private _accountLinkRequestRepository: IAccountLinkRequestRepository | undefined;
 	private _authUserRepository: IAuthUserRepository | undefined;
+	private _emailVerificationRequestRepository: IEmailVerificationRequestRepository | undefined;
+	private _passwordResetSessionRepository: IPasswordResetSessionRepository | undefined;
+	private _providerAccountRepository: IProviderAccountRepository | undefined;
+	private _providerLinkRequestRepository: IProviderLinkRequestRepository | undefined;
 	private _sessionRepository: ISessionRepository | undefined;
 	private _signupSessionRepository: ISignupSessionRepository | undefined;
-	private _passwordResetSessionRepository: IPasswordResetSessionRepository | undefined;
-	private _emailVerificationSessionRepository: IEmailVerificationSessionRepository | undefined;
-	private _externalIdentityRepository: IExternalIdentityRepository | undefined;
 
-	// Use Cases
-	private _accountAssociationChallengeUseCase: IAccountAssociationChallengeUseCase | undefined;
-	private _accountAssociationConfirmUseCase: IAccountAssociationConfirmUseCase | undefined;
-	private _validateAccountAssociationSessionUseCase: IValidateAccountAssociationSessionUseCase | undefined;
+	// === Use Cases ===
 
-	private _accountLinkCallbackUseCase: IAccountLinkCallbackUseCase | undefined;
-	private _accountLinkRequestUseCase: IAccountLinkRequestUseCase | undefined;
-	private _accountLinkPrepareUseCase: IAccountLinkPrepareUseCase | undefined;
+	// Account Link
+	private _accountLinkReissueUseCase: IAccountLinkReissueUseCase | undefined;
+	private _accountLinkValidateRequestUseCase: IAccountLinkValidateRequestUseCase | undefined;
+	private _accountLinkVerifyEmailUseCase: IAccountLinkVerifyEmailUseCase | undefined;
 
-	private _getConnectionsUseCase: IGetConnectionsUseCase | undefined;
-	private _unlinkAccountConnectionUseCase: IUnlinkAccountConnectionUseCase | undefined;
+	// Email Verification
+	private _emailVerificationRequestUseCase: IEmailVerificationRequestUseCase | undefined;
+	private _emailVerificationValidateRequestUseCase: IEmailVerificationValidateRequestUseCase | undefined;
+	private _emailVerificationVerifyEmailUseCase: IEmailVerificationVerifyEmailUseCase | undefined;
 
+	// Federated Auth
+	private _federatedAuthCallbackUseCase: IFederatedAuthCallbackUseCase | undefined;
+	private _federatedAuthRequestUseCase: IFederatedAuthRequestUseCase | undefined;
+
+	// Password Reset
+	private _passwordResetRequestUseCase: IPasswordResetRequestUseCase | undefined;
+	private _passwordResetResetUseCase: IPasswordResetResetUseCase | undefined;
+	private _passwordResetValidateSessionUseCase: IPasswordResetValidateSessionUseCase | undefined;
+	private _passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase | undefined;
+
+	// Provider Link
+	private _providerLinkCallbackUseCase: IProviderLinkCallbackUseCase | undefined;
+	private _providerLinkPrepareUseCase: IProviderLinkPrepareUseCase | undefined;
+	private _providerLinkRequestUseCase: IProviderLinkRequestUseCase | undefined;
+	private _providerLinkUnlinkUseCase: IProviderLinkUnlinkUseCase | undefined;
+	private _providerLinkValidateRequestUseCase: IProviderLinkValidateRequestUseCase | undefined;
+
+	// Session
 	private _loginUseCase: ILoginUseCase | undefined;
 	private _logoutUseCase: ILogoutUseCase | undefined;
-	private _signupRequestUseCase: ISignupRequestUseCase | undefined;
-	private _signupConfirmUseCase: ISignupConfirmUseCase | undefined;
-	private _signupVerifyEmailUseCase: ISignupVerifyEmailUseCase | undefined;
-	private _validateSessionUseCase: IValidateSessionUseCase | undefined;
-	private _validateSignupSessionUseCase: IValidateSignupSessionUseCase | undefined;
-
-	private _emailVerificationConfirmUseCase: IEmailVerificationConfirmUseCase | undefined;
-	private _emailVerificationRequestUseCase: IEmailVerificationRequestUseCase | undefined;
-	private _updateEmailConfirmUseCase: IUpdateEmailConfirmUseCase | undefined;
-	private _updateEmailRequestUseCase: IUpdateEmailRequestUseCase | undefined;
-	private _validateEmailVerificationSessionUseCase: IValidateEmailVerificationSessionUseCase | undefined;
-
-	private _externalAuthLoginCallbackUseCase: IExternalAuthLoginCallbackUseCase | undefined;
-	private _externalAuthLoginRequestUseCase: IExternalAuthRequestUseCase | undefined;
-	private _externalAuthSignupCallbackUseCase: IExternalAuthSignupCallbackUseCase | undefined;
-	private _externalAuthSignupRequestUseCase: IExternalAuthRequestUseCase | undefined;
-
-	private _passwordResetRequestUseCase: IPasswordResetRequestUseCase | undefined;
-	private _passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase | undefined;
-	private _resetPasswordUseCase: IResetPasswordUseCase | undefined;
 	private _updatePasswordUseCase: IUpdatePasswordUseCase | undefined;
-	private _validatePasswordResetSessionUseCase: IValidatePasswordResetSessionUseCase | undefined;
+	private _userIdentitiesUseCase: IUserIdentitiesUseCase | undefined;
+	private _validateSessionUseCase: IValidateSessionUseCase | undefined;
+
+	// Signup
+	private _signupRegisterUseCase: ISignupRegisterUseCase | undefined;
+	private _signupRequestUseCase: ISignupRequestUseCase | undefined;
+	private _signupValidateSessionUseCase: ISignupValidateSessionUseCase | undefined;
+	private _signupVerifyEmailUseCase: ISignupVerifyEmailUseCase | undefined;
+
+	// Update Email
+	private _updateEmailRequestUseCase: IUpdateEmailRequestUseCase | undefined;
+	private _updateEmailVerifyEmailUseCase: IUpdateEmailVerifyEmailUseCase | undefined;
 
 	constructor(envVariables: EnvVariables, coreContainer: ICoreDIContainer, override?: Partial<IAuthDIContainer>) {
 		this.envVariables = envVariables;
-
 		this.coreContainer = coreContainer;
 
 		const overrides = override ?? {};
 
-		// Infra
-		if (overrides.accountLinkOAuthStateSigner) {
-			this._accountLinkOAuthStateSigner = overrides.accountLinkOAuthStateSigner;
+		// #region === Infra ===
+		if (overrides.federatedAuthSignedStateService) {
+			this._federatedAuthSignedStateService = overrides.federatedAuthSignedStateService;
 		}
-		if (overrides.externalAuthOAuthStateSigner) {
-			this._externalAuthOAuthStateSigner = overrides.externalAuthOAuthStateSigner;
+		if (overrides.providerLinkSignedStateService) {
+			this._providerLinkSignedStateService = overrides.providerLinkSignedStateService;
 		}
+		// #endregion
 
-		// Gateways
-		if (overrides.googleOAuthGateways) {
-			this._googleOAuthGateways = overrides.googleOAuthGateways;
+		// #region === Gateways ===
+		if (overrides.federatedAuthDiscordIdentityProviderGateway) {
+			this._federatedAuthDiscordIdentityProviderGateway = overrides.federatedAuthDiscordIdentityProviderGateway;
 		}
-		if (overrides.discordOAuthGateways) {
-			this._discordOAuthGateways = overrides.discordOAuthGateways;
+		if (overrides.federatedAuthGoogleIdentityProviderGateway) {
+			this._federatedAuthGoogleIdentityProviderGateway = overrides.federatedAuthGoogleIdentityProviderGateway;
 		}
+		if (overrides.providerLinkDiscordIdentityProviderGateway) {
+			this._providerLinkDiscordIdentityProviderGateway = overrides.providerLinkDiscordIdentityProviderGateway;
+		}
+		if (overrides.providerLinkGoogleIdentityProviderGateway) {
+			this._providerLinkGoogleIdentityProviderGateway = overrides.providerLinkGoogleIdentityProviderGateway;
+		}
+		// #endregion
 
-		// Repositories
-		if (overrides.accountAssociationSessionRepository) {
-			this._accountAssociationSessionRepository = overrides.accountAssociationSessionRepository;
-		}
-		if (overrides.accountLinkSessionRepository) {
-			this._accountLinkSessionRepository = overrides.accountLinkSessionRepository;
+		// #region === Repositories ===
+		if (overrides.accountLinkRequestRepository) {
+			this._accountLinkRequestRepository = overrides.accountLinkRequestRepository;
 		}
 		if (overrides.authUserRepository) {
 			this._authUserRepository = overrides.authUserRepository;
 		}
-		if (overrides.emailVerificationSessionRepository) {
-			this._emailVerificationSessionRepository = overrides.emailVerificationSessionRepository;
-		}
-		if (overrides.externalIdentityRepository) {
-			this._externalIdentityRepository = overrides.externalIdentityRepository;
+		if (overrides.emailVerificationRequestRepository) {
+			this._emailVerificationRequestRepository = overrides.emailVerificationRequestRepository;
 		}
 		if (overrides.passwordResetSessionRepository) {
 			this._passwordResetSessionRepository = overrides.passwordResetSessionRepository;
+		}
+		if (overrides.providerAccountRepository) {
+			this._providerAccountRepository = overrides.providerAccountRepository;
+		}
+		if (overrides.providerLinkRequestRepository) {
+			this._providerLinkRequestRepository = overrides.providerLinkRequestRepository;
 		}
 		if (overrides.sessionRepository) {
 			this._sessionRepository = overrides.sessionRepository;
@@ -199,154 +218,225 @@ export class AuthDIContainer implements IAuthDIContainer {
 		if (overrides.signupSessionRepository) {
 			this._signupSessionRepository = overrides.signupSessionRepository;
 		}
+		// #endregion
 
-		// Use Cases
-		if (overrides.accountAssociationChallengeUseCase) {
-			this._accountAssociationChallengeUseCase = overrides.accountAssociationChallengeUseCase;
-		}
-		if (overrides.accountAssociationConfirmUseCase) {
-			this._accountAssociationConfirmUseCase = overrides.accountAssociationConfirmUseCase;
-		}
-		if (overrides.validateAccountAssociationSessionUseCase) {
-			this._validateAccountAssociationSessionUseCase = overrides.validateAccountAssociationSessionUseCase;
-		}
+		// #region === Use Cases ===
 
-		if (overrides.accountLinkCallbackUseCase) {
-			this._accountLinkCallbackUseCase = overrides.accountLinkCallbackUseCase;
+		// Account Link
+		if (overrides.accountLinkReissueUseCase) {
+			this._accountLinkReissueUseCase = overrides.accountLinkReissueUseCase;
 		}
-		if (overrides.accountLinkRequestUseCase) {
-			this._accountLinkRequestUseCase = overrides.accountLinkRequestUseCase;
+		if (overrides.accountLinkValidateRequestUseCase) {
+			this._accountLinkValidateRequestUseCase = overrides.accountLinkValidateRequestUseCase;
 		}
-		if (overrides.accountLinkPrepareUseCase) {
-			this._accountLinkPrepareUseCase = overrides.accountLinkPrepareUseCase;
+		if (overrides.accountLinkVerifyEmailUseCase) {
+			this._accountLinkVerifyEmailUseCase = overrides.accountLinkVerifyEmailUseCase;
 		}
 
-		if (overrides.getConnectionsUseCase) {
-			this._getConnectionsUseCase = overrides.getConnectionsUseCase;
+		// Email Verification
+		if (overrides.emailVerificationRequestUseCase) {
+			this._emailVerificationRequestUseCase = overrides.emailVerificationRequestUseCase;
 		}
-		if (overrides.unlinkAccountConnectionUseCase) {
-			this._unlinkAccountConnectionUseCase = overrides.unlinkAccountConnectionUseCase;
+		if (overrides.emailVerificationValidateRequestUseCase) {
+			this._emailVerificationValidateRequestUseCase = overrides.emailVerificationValidateRequestUseCase;
+		}
+		if (overrides.emailVerificationVerifyEmailUseCase) {
+			this._emailVerificationVerifyEmailUseCase = overrides.emailVerificationVerifyEmailUseCase;
 		}
 
+		// Federated Auth
+		if (overrides.federatedAuthCallbackUseCase) {
+			this._federatedAuthCallbackUseCase = overrides.federatedAuthCallbackUseCase;
+		}
+		if (overrides.federatedAuthRequestUseCase) {
+			this._federatedAuthRequestUseCase = overrides.federatedAuthRequestUseCase;
+		}
+
+		// Password Reset
+		if (overrides.passwordResetRequestUseCase) {
+			this._passwordResetRequestUseCase = overrides.passwordResetRequestUseCase;
+		}
+		if (overrides.passwordResetResetUseCase) {
+			this._passwordResetResetUseCase = overrides.passwordResetResetUseCase;
+		}
+		if (overrides.passwordResetValidateSessionUseCase) {
+			this._passwordResetValidateSessionUseCase = overrides.passwordResetValidateSessionUseCase;
+		}
+		if (overrides.passwordResetVerifyEmailUseCase) {
+			this._passwordResetVerifyEmailUseCase = overrides.passwordResetVerifyEmailUseCase;
+		}
+
+		// Provider Link
+		if (overrides.providerLinkCallbackUseCase) {
+			this._providerLinkCallbackUseCase = overrides.providerLinkCallbackUseCase;
+		}
+		if (overrides.providerLinkPrepareUseCase) {
+			this._providerLinkPrepareUseCase = overrides.providerLinkPrepareUseCase;
+		}
+		if (overrides.providerLinkRequestUseCase) {
+			this._providerLinkRequestUseCase = overrides.providerLinkRequestUseCase;
+		}
+		if (overrides.providerLinkUnlinkUseCase) {
+			this._providerLinkUnlinkUseCase = overrides.providerLinkUnlinkUseCase;
+		}
+		if (overrides.providerLinkValidateRequestUseCase) {
+			this._providerLinkValidateRequestUseCase = overrides.providerLinkValidateRequestUseCase;
+		}
+
+		// Session
 		if (overrides.loginUseCase) {
 			this._loginUseCase = overrides.loginUseCase;
 		}
 		if (overrides.logoutUseCase) {
 			this._logoutUseCase = overrides.logoutUseCase;
 		}
-		if (overrides.signupRequestUseCase) {
-			this._signupRequestUseCase = overrides.signupRequestUseCase;
+		if (overrides.updatePasswordUseCase) {
+			this._updatePasswordUseCase = overrides.updatePasswordUseCase;
 		}
-		if (overrides.signupConfirmUseCase) {
-			this._signupConfirmUseCase = overrides.signupConfirmUseCase;
-		}
-		if (overrides.signupVerifyEmailUseCase) {
-			this._signupVerifyEmailUseCase = overrides.signupVerifyEmailUseCase;
+		if (overrides.userIdentitiesUseCase) {
+			this._userIdentitiesUseCase = overrides.userIdentitiesUseCase;
 		}
 		if (overrides.validateSessionUseCase) {
 			this._validateSessionUseCase = overrides.validateSessionUseCase;
 		}
-		if (overrides.validateSignupSessionUseCase) {
-			this._validateSignupSessionUseCase = overrides.validateSignupSessionUseCase;
+
+		// Signup
+		if (overrides.signupRegisterUseCase) {
+			this._signupRegisterUseCase = overrides.signupRegisterUseCase;
+		}
+		if (overrides.signupRequestUseCase) {
+			this._signupRequestUseCase = overrides.signupRequestUseCase;
+		}
+		if (overrides.signupValidateSessionUseCase) {
+			this._signupValidateSessionUseCase = overrides.signupValidateSessionUseCase;
+		}
+		if (overrides.signupVerifyEmailUseCase) {
+			this._signupVerifyEmailUseCase = overrides.signupVerifyEmailUseCase;
 		}
 
-		if (overrides.emailVerificationConfirmUseCase) {
-			this._emailVerificationConfirmUseCase = overrides.emailVerificationConfirmUseCase;
-		}
-		if (overrides.emailVerificationRequestUseCase) {
-			this._emailVerificationRequestUseCase = overrides.emailVerificationRequestUseCase;
-		}
-		if (overrides.updateEmailConfirmUseCase) {
-			this._updateEmailConfirmUseCase = overrides.updateEmailConfirmUseCase;
-		}
+		// Update Email
 		if (overrides.updateEmailRequestUseCase) {
 			this._updateEmailRequestUseCase = overrides.updateEmailRequestUseCase;
 		}
-		if (overrides.validateEmailVerificationSessionUseCase) {
-			this._validateEmailVerificationSessionUseCase = overrides.validateEmailVerificationSessionUseCase;
+		if (overrides.updateEmailVerifyEmailUseCase) {
+			this._updateEmailVerifyEmailUseCase = overrides.updateEmailVerifyEmailUseCase;
 		}
-
-		if (overrides.externalAuthLoginCallbackUseCase) {
-			this._externalAuthLoginCallbackUseCase = overrides.externalAuthLoginCallbackUseCase;
-		}
-		if (overrides.externalAuthLoginRequestUseCase) {
-			this._externalAuthLoginRequestUseCase = overrides.externalAuthLoginRequestUseCase;
-		}
-		if (overrides.externalAuthSignupRequestUseCase) {
-			this._externalAuthSignupRequestUseCase = overrides.externalAuthSignupRequestUseCase;
-		}
-		if (overrides.externalAuthSignupCallbackUseCase) {
-			this._externalAuthSignupCallbackUseCase = overrides.externalAuthSignupCallbackUseCase;
-		}
-
-		if (overrides.passwordResetRequestUseCase) {
-			this._passwordResetRequestUseCase = overrides.passwordResetRequestUseCase;
-		}
-		if (overrides.passwordResetVerifyEmailUseCase) {
-			this._passwordResetVerifyEmailUseCase = overrides.passwordResetVerifyEmailUseCase;
-		}
-		if (overrides.resetPasswordUseCase) {
-			this._resetPasswordUseCase = overrides.resetPasswordUseCase;
-		}
-		if (overrides.updatePasswordUseCase) {
-			this._updatePasswordUseCase = overrides.updatePasswordUseCase;
-		}
-		if (overrides.validatePasswordResetSessionUseCase) {
-			this._validatePasswordResetSessionUseCase = overrides.validatePasswordResetSessionUseCase;
-		}
+		// #endregion
 	}
 
-	// ========================================
-	// Infra
-	// ========================================
-	get accountLinkOAuthStateSigner(): IHmacOAuthStateSigner<typeof accountLinkStateSchema> {
-		if (!this._accountLinkOAuthStateSigner) {
-			this._accountLinkOAuthStateSigner = new HmacOAuthStateSigner(
-				accountLinkStateSchema,
-				this.coreContainer.hmacSha256,
+	// #region === Infra ===
+	get federatedAuthSignedStateService(): IHmacSignedStateService<typeof federatedAuthStateSchema> {
+		if (!this._federatedAuthSignedStateService) {
+			this._federatedAuthSignedStateService = new HmacSignedStateService(
+				"federated-auth",
+				federatedAuthStateSchema,
+				this.coreContainer.hmacService,
 			);
 		}
-		return this._accountLinkOAuthStateSigner;
-	}
-	get externalAuthOAuthStateSigner(): IHmacOAuthStateSigner<typeof oauthStateSchema> {
-		if (!this._externalAuthOAuthStateSigner) {
-			this._externalAuthOAuthStateSigner = new HmacOAuthStateSigner(oauthStateSchema, this.coreContainer.hmacSha256);
-		}
-		return this._externalAuthOAuthStateSigner;
+		return this._federatedAuthSignedStateService;
 	}
 
-	// ========================================
-	// Gateways
-	// ========================================
-	get googleOAuthGateways(): ProviderGateways {
-		if (!this._googleOAuthGateways) {
-			this._googleOAuthGateways = createGoogleGateways(this.envVariables.APP_ENV === "production", {
-				clientId: this.envVariables.GOOGLE_CLIENT_ID,
-				clientSecret: this.envVariables.GOOGLE_CLIENT_SECRET,
-			});
+	get providerLinkSignedStateService(): IHmacSignedStateService<typeof providerLinkStateSchema> {
+		if (!this._providerLinkSignedStateService) {
+			this._providerLinkSignedStateService = new HmacSignedStateService(
+				"provider-link",
+				providerLinkStateSchema,
+				this.coreContainer.hmacService,
+			);
 		}
-		return this._googleOAuthGateways;
+		return this._providerLinkSignedStateService;
+	}
+	// #endregion
+
+	// #region === Gateways ===
+	get federatedAuthDiscordIdentityProviderGateway(): IIdentityProviderGateway {
+		if (!this._federatedAuthDiscordIdentityProviderGateway) {
+			this._federatedAuthDiscordIdentityProviderGateway = new DiscordIdentityProviderGateway(
+				this.envVariables.DISCORD_CLIENT_ID,
+				this.envVariables.DISCORD_CLIENT_SECRET,
+				federatedAuthRedirectURL(this.envVariables.APP_ENV === "production", "discord"),
+			);
+		}
+		return this._federatedAuthDiscordIdentityProviderGateway;
 	}
 
-	get discordOAuthGateways(): ProviderGateways {
-		if (!this._discordOAuthGateways) {
-			this._discordOAuthGateways = createDiscordGateways(this.envVariables.APP_ENV === "production", {
-				clientId: this.envVariables.DISCORD_CLIENT_ID,
-				clientSecret: this.envVariables.DISCORD_CLIENT_SECRET,
-			});
+	get federatedAuthGoogleIdentityProviderGateway(): IIdentityProviderGateway {
+		if (!this._federatedAuthGoogleIdentityProviderGateway) {
+			this._federatedAuthGoogleIdentityProviderGateway = new GoogleIdentityProviderGateway(
+				this.envVariables.GOOGLE_CLIENT_ID,
+				this.envVariables.GOOGLE_CLIENT_SECRET,
+				federatedAuthRedirectURL(this.envVariables.APP_ENV === "production", "google"),
+			);
 		}
-		return this._discordOAuthGateways;
+		return this._federatedAuthGoogleIdentityProviderGateway;
 	}
 
-	// ========================================
-	// Repositories
-	// ========================================
+	get providerLinkDiscordIdentityProviderGateway(): IIdentityProviderGateway {
+		if (!this._providerLinkDiscordIdentityProviderGateway) {
+			this._providerLinkDiscordIdentityProviderGateway = new DiscordIdentityProviderGateway(
+				this.envVariables.DISCORD_CLIENT_ID,
+				this.envVariables.DISCORD_CLIENT_SECRET,
+				providerLinkRedirectURL(this.envVariables.APP_ENV === "production", "discord"),
+			);
+		}
+		return this._providerLinkDiscordIdentityProviderGateway;
+	}
+
+	get providerLinkGoogleIdentityProviderGateway(): IIdentityProviderGateway {
+		if (!this._providerLinkGoogleIdentityProviderGateway) {
+			this._providerLinkGoogleIdentityProviderGateway = new GoogleIdentityProviderGateway(
+				this.envVariables.GOOGLE_CLIENT_ID,
+				this.envVariables.GOOGLE_CLIENT_SECRET,
+				providerLinkRedirectURL(this.envVariables.APP_ENV === "production", "google"),
+			);
+		}
+		return this._providerLinkGoogleIdentityProviderGateway;
+	}
+	// #endregion
+
+	// #region === Repositories ===
+	get accountLinkRequestRepository(): IAccountLinkRequestRepository {
+		if (!this._accountLinkRequestRepository) {
+			this._accountLinkRequestRepository = new AccountLinkRequestRepository(this.coreContainer.drizzleService);
+		}
+		return this._accountLinkRequestRepository;
+	}
 
 	get authUserRepository(): IAuthUserRepository {
 		if (!this._authUserRepository) {
 			this._authUserRepository = new AuthUserRepository(this.coreContainer.drizzleService);
 		}
 		return this._authUserRepository;
+	}
+
+	get emailVerificationRequestRepository(): IEmailVerificationRequestRepository {
+		if (!this._emailVerificationRequestRepository) {
+			this._emailVerificationRequestRepository = new EmailVerificationRequestRepository(
+				this.coreContainer.drizzleService,
+			);
+		}
+		return this._emailVerificationRequestRepository;
+	}
+
+	get passwordResetSessionRepository(): IPasswordResetSessionRepository {
+		if (!this._passwordResetSessionRepository) {
+			this._passwordResetSessionRepository = new PasswordResetSessionRepository(this.coreContainer.drizzleService);
+		}
+		return this._passwordResetSessionRepository;
+	}
+
+	get providerAccountRepository(): IProviderAccountRepository {
+		if (!this._providerAccountRepository) {
+			this._providerAccountRepository = new ProviderAccountRepository(this.coreContainer.drizzleService);
+		}
+		return this._providerAccountRepository;
+	}
+
+	get providerLinkRequestRepository(): IProviderLinkRequestRepository {
+		if (!this._providerLinkRequestRepository) {
+			this._providerLinkRequestRepository = new ProviderLinkRequestRepository(this.coreContainer.drizzleService);
+		}
+		return this._providerLinkRequestRepository;
 	}
 
 	get sessionRepository(): ISessionRepository {
@@ -362,136 +452,200 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		return this._signupSessionRepository;
 	}
+	// #endregion
 
-	get passwordResetSessionRepository(): IPasswordResetSessionRepository {
-		if (!this._passwordResetSessionRepository) {
-			this._passwordResetSessionRepository = new PasswordResetSessionRepository(this.coreContainer.drizzleService);
-		}
-		return this._passwordResetSessionRepository;
-	}
+	// #region === Use Cases ===
 
-	get emailVerificationSessionRepository(): IEmailVerificationSessionRepository {
-		if (!this._emailVerificationSessionRepository) {
-			this._emailVerificationSessionRepository = new EmailVerificationSessionRepository(
-				this.coreContainer.drizzleService,
-			);
-		}
-		return this._emailVerificationSessionRepository;
-	}
-
-	get externalIdentityRepository(): IExternalIdentityRepository {
-		if (!this._externalIdentityRepository) {
-			this._externalIdentityRepository = new ExternalIdentityRepository(this.coreContainer.drizzleService);
-		}
-		return this._externalIdentityRepository;
-	}
-
-	get accountAssociationSessionRepository(): IAccountAssociationSessionRepository {
-		if (!this._accountAssociationSessionRepository) {
-			this._accountAssociationSessionRepository = new AccountAssociationSessionRepository(
-				this.coreContainer.drizzleService,
-			);
-		}
-		return this._accountAssociationSessionRepository;
-	}
-
-	get accountLinkSessionRepository(): IAccountLinkSessionRepository {
-		if (!this._accountLinkSessionRepository) {
-			this._accountLinkSessionRepository = new AccountLinkSessionRepository(this.coreContainer.drizzleService);
-		}
-		return this._accountLinkSessionRepository;
-	}
-
-	// ========================================
-	// Use Cases
-	// ========================================
-	get accountAssociationChallengeUseCase(): IAccountAssociationChallengeUseCase {
-		if (!this._accountAssociationChallengeUseCase) {
-			this._accountAssociationChallengeUseCase = new AccountAssociationChallengeUseCase(
-				this.accountAssociationSessionRepository,
-				this.coreContainer.sessionSecretHasher,
-				this.coreContainer.randomGenerator,
+	// Account Link
+	get accountLinkReissueUseCase(): IAccountLinkReissueUseCase {
+		if (!this._accountLinkReissueUseCase) {
+			this._accountLinkReissueUseCase = new AccountLinkReissueUseCase(
 				this.coreContainer.emailGateway,
+				this.accountLinkRequestRepository,
+				this.coreContainer.cryptoRandomService,
+				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._accountAssociationChallengeUseCase;
+		return this._accountLinkReissueUseCase;
 	}
-	get accountAssociationConfirmUseCase(): IAccountAssociationConfirmUseCase {
-		if (!this._accountAssociationConfirmUseCase) {
-			this._accountAssociationConfirmUseCase = new AccountAssociationConfirmUseCase(
+	get accountLinkValidateRequestUseCase(): IAccountLinkValidateRequestUseCase {
+		if (!this._accountLinkValidateRequestUseCase) {
+			this._accountLinkValidateRequestUseCase = new AccountLinkValidateRequestUseCase(
 				this.authUserRepository,
+				this.accountLinkRequestRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._accountLinkValidateRequestUseCase;
+	}
+	get accountLinkVerifyEmailUseCase(): IAccountLinkVerifyEmailUseCase {
+		if (!this._accountLinkVerifyEmailUseCase) {
+			this._accountLinkVerifyEmailUseCase = new AccountLinkVerifyEmailUseCase(
+				this.accountLinkRequestRepository,
+				this.authUserRepository,
+				this.providerAccountRepository,
 				this.sessionRepository,
-				this.externalIdentityRepository,
-				this.accountAssociationSessionRepository,
-				this.coreContainer.sessionSecretHasher,
+				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._accountAssociationConfirmUseCase;
+		return this._accountLinkVerifyEmailUseCase;
 	}
-	get validateAccountAssociationSessionUseCase(): IValidateAccountAssociationSessionUseCase {
-		if (!this._validateAccountAssociationSessionUseCase) {
-			this._validateAccountAssociationSessionUseCase = new ValidateAccountAssociationSessionUseCase(
+
+	// Email Verification
+	get emailVerificationRequestUseCase(): IEmailVerificationRequestUseCase {
+		if (!this._emailVerificationRequestUseCase) {
+			this._emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
+				this.coreContainer.emailGateway,
+				this.emailVerificationRequestRepository,
+				this.coreContainer.cryptoRandomService,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._emailVerificationRequestUseCase;
+	}
+	get emailVerificationValidateRequestUseCase(): IEmailVerificationValidateRequestUseCase {
+		if (!this._emailVerificationValidateRequestUseCase) {
+			this._emailVerificationValidateRequestUseCase = new EmailVerificationValidateRequestUseCase(
+				this.emailVerificationRequestRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._emailVerificationValidateRequestUseCase;
+	}
+	get emailVerificationVerifyEmailUseCase(): IEmailVerificationVerifyEmailUseCase {
+		if (!this._emailVerificationVerifyEmailUseCase) {
+			this._emailVerificationVerifyEmailUseCase = new EmailVerificationVerifyEmailUseCase(
 				this.authUserRepository,
-				this.accountAssociationSessionRepository,
-				this.coreContainer.sessionSecretHasher,
+				this.emailVerificationRequestRepository,
 			);
 		}
-		return this._validateAccountAssociationSessionUseCase;
+		return this._emailVerificationVerifyEmailUseCase;
 	}
 
-	get accountLinkCallbackUseCase(): IAccountLinkCallbackUseCase {
-		if (!this._accountLinkCallbackUseCase) {
-			this._accountLinkCallbackUseCase = new AccountLinkCallbackUseCase(
-				this.googleOAuthGateways.link,
-				this.discordOAuthGateways.link,
-				this.externalIdentityRepository,
-				this.accountLinkOAuthStateSigner,
+	// Federated Auth
+	get federatedAuthCallbackUseCase(): IFederatedAuthCallbackUseCase {
+		if (!this._federatedAuthCallbackUseCase) {
+			this._federatedAuthCallbackUseCase = new FederatedAuthCallbackUseCase(
+				this.federatedAuthDiscordIdentityProviderGateway,
+				this.federatedAuthGoogleIdentityProviderGateway,
+				this.accountLinkRequestRepository,
+				this.authUserRepository,
+				this.providerAccountRepository,
+				this.sessionRepository,
+				this.federatedAuthSignedStateService,
+				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._accountLinkCallbackUseCase;
+		return this._federatedAuthCallbackUseCase;
 	}
-	get accountLinkRequestUseCase(): IAccountLinkRequestUseCase {
-		if (!this._accountLinkRequestUseCase) {
-			this._accountLinkRequestUseCase = new AccountLinkRequestUseCase(
-				this.googleOAuthGateways.link,
-				this.discordOAuthGateways.link,
-				this.accountLinkOAuthStateSigner,
-				this.accountLinkSessionRepository,
-				this.coreContainer.sessionSecretHasher,
+	get federatedAuthRequestUseCase(): IFederatedAuthRequestUseCase {
+		if (!this._federatedAuthRequestUseCase) {
+			this._federatedAuthRequestUseCase = new FederatedAuthRequestUseCase(
+				this.federatedAuthDiscordIdentityProviderGateway,
+				this.federatedAuthGoogleIdentityProviderGateway,
+				this.federatedAuthSignedStateService,
 			);
 		}
-		return this._accountLinkRequestUseCase;
-	}
-	get accountLinkPrepareUseCase(): IAccountLinkPrepareUseCase {
-		if (!this._accountLinkPrepareUseCase) {
-			this._accountLinkPrepareUseCase = new AccountLinkPrepareUseCase(
-				this.accountLinkSessionRepository,
-				this.coreContainer.sessionSecretHasher,
-			);
-		}
-		return this._accountLinkPrepareUseCase;
+		return this._federatedAuthRequestUseCase;
 	}
 
-	get getConnectionsUseCase(): IGetConnectionsUseCase {
-		if (!this._getConnectionsUseCase) {
-			this._getConnectionsUseCase = new GetConnectionsUseCase(this.externalIdentityRepository);
+	// Password Reset
+	get passwordResetRequestUseCase(): IPasswordResetRequestUseCase {
+		if (!this._passwordResetRequestUseCase) {
+			this._passwordResetRequestUseCase = new PasswordResetRequestUseCase(
+				this.authUserRepository,
+				this.passwordResetSessionRepository,
+				this.coreContainer.cryptoRandomService,
+				this.coreContainer.emailGateway,
+				this.coreContainer.tokenSecretService,
+			);
 		}
-		return this._getConnectionsUseCase;
+		return this._passwordResetRequestUseCase;
 	}
-	get unlinkAccountConnectionUseCase(): IUnlinkAccountConnectionUseCase {
-		if (!this._unlinkAccountConnectionUseCase) {
-			this._unlinkAccountConnectionUseCase = new UnlinkAccountConnectionUseCase(this.externalIdentityRepository);
+	get passwordResetResetUseCase(): IPasswordResetResetUseCase {
+		if (!this._passwordResetResetUseCase) {
+			this._passwordResetResetUseCase = new PasswordResetResetUseCase(
+				this.authUserRepository,
+				this.passwordResetSessionRepository,
+				this.sessionRepository,
+				this.coreContainer.passwordHashingService,
+			);
 		}
-		return this._unlinkAccountConnectionUseCase;
+		return this._passwordResetResetUseCase;
+	}
+	get passwordResetValidateSessionUseCase(): IPasswordResetValidateSessionUseCase {
+		if (!this._passwordResetValidateSessionUseCase) {
+			this._passwordResetValidateSessionUseCase = new PasswordResetValidateSessionUseCase(
+				this.authUserRepository,
+				this.passwordResetSessionRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._passwordResetValidateSessionUseCase;
+	}
+	get passwordResetVerifyEmailUseCase(): IPasswordResetVerifyEmailUseCase {
+		if (!this._passwordResetVerifyEmailUseCase) {
+			this._passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(this.passwordResetSessionRepository);
+		}
+		return this._passwordResetVerifyEmailUseCase;
 	}
 
+	// Provider Link
+	get providerLinkCallbackUseCase(): IProviderLinkCallbackUseCase {
+		if (!this._providerLinkCallbackUseCase) {
+			this._providerLinkCallbackUseCase = new ProviderLinkCallbackUseCase(
+				this.providerLinkDiscordIdentityProviderGateway,
+				this.providerLinkGoogleIdentityProviderGateway,
+				this.providerAccountRepository,
+				this.providerLinkSignedStateService,
+			);
+		}
+		return this._providerLinkCallbackUseCase;
+	}
+	get providerLinkPrepareUseCase(): IProviderLinkPrepareUseCase {
+		if (!this._providerLinkPrepareUseCase) {
+			this._providerLinkPrepareUseCase = new ProviderLinkPrepareUseCase(
+				this.providerLinkRequestRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._providerLinkPrepareUseCase;
+	}
+	get providerLinkRequestUseCase(): IProviderLinkRequestUseCase {
+		if (!this._providerLinkRequestUseCase) {
+			this._providerLinkRequestUseCase = new ProviderLinkRequestUseCase(
+				this.providerLinkDiscordIdentityProviderGateway,
+				this.providerLinkGoogleIdentityProviderGateway,
+				this.providerLinkSignedStateService,
+			);
+		}
+		return this._providerLinkRequestUseCase;
+	}
+	get providerLinkUnlinkUseCase(): IProviderLinkUnlinkUseCase {
+		if (!this._providerLinkUnlinkUseCase) {
+			this._providerLinkUnlinkUseCase = new ProviderLinkUnlinkUseCase(this.providerAccountRepository);
+		}
+		return this._providerLinkUnlinkUseCase;
+	}
+	get providerLinkValidateRequestUseCase(): IProviderLinkValidateRequestUseCase {
+		if (!this._providerLinkValidateRequestUseCase) {
+			this._providerLinkValidateRequestUseCase = new ProviderLinkValidateRequestUseCase(
+				this.authUserRepository,
+				this.providerLinkRequestRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._providerLinkValidateRequestUseCase;
+	}
+
+	// Session
 	get loginUseCase(): ILoginUseCase {
 		if (!this._loginUseCase) {
 			this._loginUseCase = new LoginUseCase(
-				this.sessionRepository,
 				this.authUserRepository,
-				this.coreContainer.sessionSecretHasher,
-				this.coreContainer.passwordHasher,
+				this.sessionRepository,
+				this.coreContainer.passwordHashingService,
+				this.coreContainer.tokenSecretService,
 			);
 		}
 		return this._loginUseCase;
@@ -502,29 +656,67 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		return this._logoutUseCase;
 	}
-	get signupConfirmUseCase(): ISignupConfirmUseCase {
-		if (!this._signupConfirmUseCase) {
-			this._signupConfirmUseCase = new SignupConfirmUseCase(
+	get updatePasswordUseCase(): IUpdatePasswordUseCase {
+		if (!this._updatePasswordUseCase) {
+			this._updatePasswordUseCase = new UpdatePasswordUseCase(
+				this.authUserRepository,
+				this.sessionRepository,
+				this.coreContainer.passwordHashingService,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._updatePasswordUseCase;
+	}
+	get userIdentitiesUseCase(): IUserIdentitiesUseCase {
+		if (!this._userIdentitiesUseCase) {
+			this._userIdentitiesUseCase = new UserIdentitiesUseCase(this.providerAccountRepository);
+		}
+		return this._userIdentitiesUseCase;
+	}
+	get validateSessionUseCase(): IValidateSessionUseCase {
+		if (!this._validateSessionUseCase) {
+			this._validateSessionUseCase = new ValidateSessionUseCase(
+				this.authUserRepository,
+				this.sessionRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._validateSessionUseCase;
+	}
+
+	// Signup
+	get signupRegisterUseCase(): ISignupRegisterUseCase {
+		if (!this._signupRegisterUseCase) {
+			this._signupRegisterUseCase = new SignupRegisterUseCase(
 				this.authUserRepository,
 				this.sessionRepository,
 				this.signupSessionRepository,
-				this.coreContainer.sessionSecretHasher,
-				this.coreContainer.passwordHasher,
+				this.coreContainer.tokenSecretService,
+				this.coreContainer.passwordHashingService,
 			);
 		}
-		return this._signupConfirmUseCase;
+		return this._signupRegisterUseCase;
 	}
 	get signupRequestUseCase(): ISignupRequestUseCase {
 		if (!this._signupRequestUseCase) {
 			this._signupRequestUseCase = new SignupRequestUseCase(
-				this.signupSessionRepository,
-				this.authUserRepository,
-				this.coreContainer.sessionSecretHasher,
-				this.coreContainer.randomGenerator,
 				this.coreContainer.emailGateway,
+				this.authUserRepository,
+				this.signupSessionRepository,
+				this.coreContainer.cryptoRandomService,
+				this.coreContainer.tokenSecretService,
 			);
 		}
 		return this._signupRequestUseCase;
+	}
+	get signupValidateSessionUseCase(): ISignupValidateSessionUseCase {
+		if (!this._signupValidateSessionUseCase) {
+			this._signupValidateSessionUseCase = new SignupValidateSessionUseCase(
+				this.signupSessionRepository,
+				this.coreContainer.tokenSecretService,
+			);
+		}
+		return this._signupValidateSessionUseCase;
 	}
 	get signupVerifyEmailUseCase(): ISignupVerifyEmailUseCase {
 		if (!this._signupVerifyEmailUseCase) {
@@ -532,178 +724,31 @@ export class AuthDIContainer implements IAuthDIContainer {
 		}
 		return this._signupVerifyEmailUseCase;
 	}
-	get validateSessionUseCase(): IValidateSessionUseCase {
-		if (!this._validateSessionUseCase) {
-			this._validateSessionUseCase = new ValidateSessionUseCase(
-				this.sessionRepository,
-				this.authUserRepository,
-				this.coreContainer.sessionSecretHasher,
-			);
-		}
-		return this._validateSessionUseCase;
-	}
-	get validateSignupSessionUseCase(): IValidateSignupSessionUseCase {
-		if (!this._validateSignupSessionUseCase) {
-			this._validateSignupSessionUseCase = new ValidateSignupSessionUseCase(
-				this.signupSessionRepository,
-				this.coreContainer.sessionSecretHasher,
-			);
-		}
-		return this._validateSignupSessionUseCase;
-	}
 
-	get emailVerificationConfirmUseCase(): IEmailVerificationConfirmUseCase {
-		if (!this._emailVerificationConfirmUseCase) {
-			this._emailVerificationConfirmUseCase = new EmailVerificationConfirmUseCase(
-				this.authUserRepository,
-				this.emailVerificationSessionRepository,
-			);
-		}
-		return this._emailVerificationConfirmUseCase;
-	}
-	get emailVerificationRequestUseCase(): IEmailVerificationRequestUseCase {
-		if (!this._emailVerificationRequestUseCase) {
-			this._emailVerificationRequestUseCase = new EmailVerificationRequestUseCase(
-				this.emailVerificationSessionRepository,
-				this.coreContainer.randomGenerator,
-				this.coreContainer.sessionSecretHasher,
-				this.coreContainer.emailGateway,
-			);
-		}
-		return this._emailVerificationRequestUseCase;
-	}
-	get updateEmailConfirmUseCase(): IUpdateEmailConfirmUseCase {
-		if (!this._updateEmailConfirmUseCase) {
-			this._updateEmailConfirmUseCase = new UpdateEmailConfirmUseCase(
-				this.authUserRepository,
-				this.sessionRepository,
-				this.emailVerificationSessionRepository,
-				this.coreContainer.sessionSecretHasher,
-			);
-		}
-		return this._updateEmailConfirmUseCase;
-	}
+	// Update Email
 	get updateEmailRequestUseCase(): IUpdateEmailRequestUseCase {
 		if (!this._updateEmailRequestUseCase) {
 			this._updateEmailRequestUseCase = new UpdateEmailRequestUseCase(
-				this.emailVerificationSessionRepository,
+				this.emailVerificationRequestRepository,
 				this.authUserRepository,
-				this.coreContainer.randomGenerator,
-				this.coreContainer.sessionSecretHasher,
+				this.coreContainer.cryptoRandomService,
+				this.coreContainer.tokenSecretService,
 				this.coreContainer.emailGateway,
 			);
 		}
 		return this._updateEmailRequestUseCase;
 	}
-	get validateEmailVerificationSessionUseCase(): IValidateEmailVerificationSessionUseCase {
-		if (!this._validateEmailVerificationSessionUseCase) {
-			this._validateEmailVerificationSessionUseCase = new ValidateEmailVerificationSessionUseCase(
-				this.emailVerificationSessionRepository,
-				this.coreContainer.sessionSecretHasher,
+	get updateEmailVerifyEmailUseCase(): IUpdateEmailVerifyEmailUseCase {
+		if (!this._updateEmailVerifyEmailUseCase) {
+			this._updateEmailVerifyEmailUseCase = new UpdateEmailVerifyEmailUseCase(
+				this.authUserRepository,
+				this.sessionRepository,
+				this.emailVerificationRequestRepository,
+				this.coreContainer.tokenSecretService,
 			);
 		}
-		return this._validateEmailVerificationSessionUseCase;
+		return this._updateEmailVerifyEmailUseCase;
 	}
 
-	get externalAuthLoginCallbackUseCase(): IExternalAuthLoginCallbackUseCase {
-		if (!this._externalAuthLoginCallbackUseCase) {
-			this._externalAuthLoginCallbackUseCase = new ExternalAuthLoginCallbackUseCase(
-				this.googleOAuthGateways.login,
-				this.discordOAuthGateways.login,
-				this.sessionRepository,
-				this.externalIdentityRepository,
-				this.authUserRepository,
-				this.accountAssociationSessionRepository,
-				this.coreContainer.sessionSecretHasher,
-				this.externalAuthOAuthStateSigner,
-			);
-		}
-		return this._externalAuthLoginCallbackUseCase;
-	}
-	get externalAuthLoginRequestUseCase(): IExternalAuthRequestUseCase {
-		if (!this._externalAuthLoginRequestUseCase) {
-			this._externalAuthLoginRequestUseCase = new ExternalAuthRequestUseCase(
-				this.googleOAuthGateways.login,
-				this.discordOAuthGateways.login,
-				this.externalAuthOAuthStateSigner,
-			);
-		}
-		return this._externalAuthLoginRequestUseCase;
-	}
-	get externalAuthSignupCallbackUseCase(): IExternalAuthSignupCallbackUseCase {
-		if (!this._externalAuthSignupCallbackUseCase) {
-			this._externalAuthSignupCallbackUseCase = new ExternalAuthSignupCallbackUseCase(
-				this.googleOAuthGateways.signup,
-				this.discordOAuthGateways.signup,
-				this.sessionRepository,
-				this.externalIdentityRepository,
-				this.authUserRepository,
-				this.accountAssociationSessionRepository,
-				this.coreContainer.sessionSecretHasher,
-				this.externalAuthOAuthStateSigner,
-			);
-		}
-		return this._externalAuthSignupCallbackUseCase;
-	}
-	get externalAuthSignupRequestUseCase(): IExternalAuthRequestUseCase {
-		if (!this._externalAuthSignupRequestUseCase) {
-			this._externalAuthSignupRequestUseCase = new ExternalAuthRequestUseCase(
-				this.googleOAuthGateways.signup,
-				this.discordOAuthGateways.signup,
-				this.externalAuthOAuthStateSigner,
-			);
-		}
-		return this._externalAuthSignupRequestUseCase;
-	}
-
-	get passwordResetRequestUseCase(): IPasswordResetRequestUseCase {
-		if (!this._passwordResetRequestUseCase) {
-			this._passwordResetRequestUseCase = new PasswordResetRequestUseCase(
-				this.authUserRepository,
-				this.passwordResetSessionRepository,
-				this.coreContainer.randomGenerator,
-				this.coreContainer.sessionSecretHasher,
-				this.coreContainer.emailGateway,
-			);
-		}
-		return this._passwordResetRequestUseCase;
-	}
-	get passwordResetVerifyEmailUseCase(): IPasswordResetVerifyEmailUseCase {
-		if (!this._passwordResetVerifyEmailUseCase) {
-			this._passwordResetVerifyEmailUseCase = new PasswordResetVerifyEmailUseCase(this.passwordResetSessionRepository);
-		}
-		return this._passwordResetVerifyEmailUseCase;
-	}
-	get resetPasswordUseCase(): IResetPasswordUseCase {
-		if (!this._resetPasswordUseCase) {
-			this._resetPasswordUseCase = new ResetPasswordUseCase(
-				this.authUserRepository,
-				this.sessionRepository,
-				this.passwordResetSessionRepository,
-				this.coreContainer.passwordHasher,
-			);
-		}
-		return this._resetPasswordUseCase;
-	}
-	get updatePasswordUseCase(): IUpdatePasswordUseCase {
-		if (!this._updatePasswordUseCase) {
-			this._updatePasswordUseCase = new UpdatePasswordUseCase(
-				this.authUserRepository,
-				this.sessionRepository,
-				this.coreContainer.passwordHasher,
-				this.coreContainer.sessionSecretHasher,
-			);
-		}
-		return this._updatePasswordUseCase;
-	}
-	get validatePasswordResetSessionUseCase(): IValidatePasswordResetSessionUseCase {
-		if (!this._validatePasswordResetSessionUseCase) {
-			this._validatePasswordResetSessionUseCase = new ValidatePasswordResetSessionUseCase(
-				this.passwordResetSessionRepository,
-				this.authUserRepository,
-				this.coreContainer.sessionSecretHasher,
-			);
-		}
-		return this._validatePasswordResetSessionUseCase;
-	}
+	// #endregion
 }

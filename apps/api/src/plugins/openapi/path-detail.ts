@@ -1,5 +1,5 @@
+import { CLIENT_PLATFORM_HEADER_NAME, SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import type { DocumentDecoration } from "elysia";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../core/lib/http";
 import type { Tag } from "./tag";
 
 type PathDocumentProps = {
@@ -21,13 +21,13 @@ export const pathDetail = (props: PathDocumentProps): DocumentDecoration => {
 	if (withAuth) {
 		description = [
 			...description,
-			"### **Authentication**",
+			"**Authentication**",
 			"---",
-			"#### **Bearer Authentication**",
-			`   If the \`${CLIENT_TYPE_HEADER_NAME}\` header is \`mobile\`, the bearer token to authenticate the request`,
-			"#### **Cookie Authentication**",
-			`   If the \`${CLIENT_TYPE_HEADER_NAME}\` header is \`web\`, the session cookie to authenticate the request`,
-			`   _in: cookie, key: \`${SESSION_COOKIE_NAME}\`_`,
+			"Cookie Authentication",
+			`  - If the \`${CLIENT_PLATFORM_HEADER_NAME}\` header is \`web\` or not provided, the session cookie to authenticate the request`,
+			`  - Cookie Name: \`${SESSION_COOKIE_NAME}\``,
+			"Bearer Authentication",
+			`  - If the \`${CLIENT_PLATFORM_HEADER_NAME}\` header is \`mobile\`, the bearer token to authenticate the request`,
 		];
 	}
 

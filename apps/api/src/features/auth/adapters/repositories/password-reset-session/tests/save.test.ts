@@ -1,9 +1,9 @@
 import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { PasswordResetSessionTableHelper, UserTableHelper, toRawDate } from "../../../../../../core/testing/helpers";
+import { PasswordResetSessionsTableDriver, UsersTableDriver, toRawDate } from "../../../../../../core/testing/drivers";
+import { convertPasswordResetSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
-import { convertPasswordResetSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { PasswordResetSessionRepository } from "../password-reset-session.repository";
 
 const { DB } = env;
@@ -11,8 +11,8 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const passwordResetSessionRepository = new PasswordResetSessionRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
-const passwordResetSessionTableHelper = new PasswordResetSessionTableHelper(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const passwordResetSessionTableDriver = new PasswordResetSessionsTableDriver(DB);
 
 const now = new Date();
 
@@ -20,16 +20,16 @@ const { userRegistration } = createAuthUserFixture();
 
 describe("PasswordResetSessionRepository.save", () => {
 	beforeEach(async () => {
-		await passwordResetSessionTableHelper.deleteAll();
+		await passwordResetSessionTableDriver.deleteAll();
 	});
 
 	beforeAll(async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	afterAll(async () => {
-		await userTableHelper.deleteAll();
-		await passwordResetSessionTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
+		await passwordResetSessionTableDriver.deleteAll();
 	});
 
 	test("should set password reset session in the database", async () => {
@@ -41,7 +41,7 @@ describe("PasswordResetSessionRepository.save", () => {
 
 		await passwordResetSessionRepository.save(passwordResetSession);
 
-		const results = await passwordResetSessionTableHelper.findById(passwordResetSession.id);
+		const results = await passwordResetSessionTableDriver.findById(passwordResetSession.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual(convertPasswordResetSessionToRaw(passwordResetSession));
@@ -53,7 +53,7 @@ describe("PasswordResetSessionRepository.save", () => {
 				userId: userRegistration.id,
 			},
 		});
-		await passwordResetSessionTableHelper.save(convertPasswordResetSessionToRaw(passwordResetSession));
+		await passwordResetSessionTableDriver.save(convertPasswordResetSessionToRaw(passwordResetSession));
 
 		const updatedPasswordResetSession = {
 			...passwordResetSession,
@@ -63,7 +63,7 @@ describe("PasswordResetSessionRepository.save", () => {
 
 		await passwordResetSessionRepository.save(updatedPasswordResetSession);
 
-		const results = await passwordResetSessionTableHelper.findById(passwordResetSession.id);
+		const results = await passwordResetSessionTableDriver.findById(passwordResetSession.id);
 
 		expect(results).toHaveLength(1);
 		expect(results[0]).toStrictEqual({

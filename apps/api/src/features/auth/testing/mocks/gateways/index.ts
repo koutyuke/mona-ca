@@ -1,1 +1,1 @@
-export { OAuthProviderGatewayMock } from "./oauth-provider.gateway.mock";
+export { IdentityProviderGatewayMock } from "./identity-provider.gateway.mock";

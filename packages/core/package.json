@@ -5,8 +5,10 @@
   "main": "src/index.ts",
   "exports": {
     "./assets/*": "./assets/*",
-    "./const": "./src/const/index.ts",
-    "./utils": "./src/utils/index.ts"
+    "./http": "./src/http/index.ts",
+    "./email": "./src/email/index.ts",
+    "./types": "./src/types/index.ts",
+    "./result": "./src/result/index.ts"
   },
   "scripts": {
     "check": "biome check --error-on-warnings --no-errors-on-unmatched",

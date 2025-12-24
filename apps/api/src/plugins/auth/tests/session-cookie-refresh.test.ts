@@ -1,12 +1,12 @@
 import { env } from "cloudflare:test";
+import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia } from "elysia";
-import { beforeEach, describe, expect, test } from "vitest";
-import { SessionSecretHasher } from "../../../core/infra/crypto";
-import { CLIENT_TYPE_HEADER_NAME, SESSION_COOKIE_NAME } from "../../../core/lib/http";
-import { SessionTableHelper, UserTableHelper } from "../../../core/testing/helpers";
+import { assert, afterEach, beforeEach, describe, expect, test } from "vitest";
+import { TokenSecretService } from "../../../core/infra/crypto";
+import { SessionsTableDriver, UsersTableDriver } from "../../../core/testing/drivers";
 import { sessionRefreshSpan } from "../../../features/auth/domain/entities/session";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../features/auth/testing/fixtures";
-import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../features/auth/testing/helpers";
 import { containerPlugin } from "../../container";
 import { authPlugin } from "../auth.plugin";
 
@@ -14,59 +14,56 @@ const { DB } = env;
 
 const sessionTokenRefreshExpires = new Date(Date.now() + sessionRefreshSpan.milliseconds() / 2 - 1000);
 
-const userTableHelper = new UserTableHelper(DB);
-const sessionTableHelper = new SessionTableHelper(DB);
-const sessionSecretHasher = new SessionSecretHasher();
+const userTableDriver = new UsersTableDriver(DB);
+const sessionTableDriver = new SessionsTableDriver(DB);
+const tokenSecretService = new TokenSecretService();
 
-const { userRegistration } = createAuthUserFixture({
-	userRegistration: {
-		email: "test1.email@example.com",
-	},
-});
+const { userRegistration } = createAuthUserFixture();
 
 const { session, sessionToken } = createSessionFixture({
-	secretHasher: sessionSecretHasher.hash,
+	secretHasher: tokenSecretService.hash,
 	session: {
 		userId: userRegistration.id,
 		expiresAt: sessionTokenRefreshExpires,
 	},
 });
 
-describe("AuthPlugin enableSessionCookieRefresh option", () => {
+describe("AuthPlugin Session Cookie Refresh Test", () => {
 	beforeEach(async () => {
-		sessionTableHelper.deleteAll();
-		userTableHelper.deleteAll();
-
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
-		await sessionTableHelper.save(convertSessionToRaw(session));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
+		await sessionTableDriver.save(convertSessionToRaw(session));
 	});
 
-	test("should refresh the session token", async () => {
-		const app = new Elysia({ aot: false })
+	afterEach(async () => {
+		await sessionTableDriver.deleteAll();
+		await userTableDriver.deleteAll();
+	});
+
+	test("Success: should refresh the session token", async () => {
+		const app = new Elysia({ aot: false, normalize: false })
 			.use(containerPlugin())
-			.use(authPlugin({ enableSessionCookieRefresh: true }))
+			.use(authPlugin())
 			.get("/", () => {
 				return "Test";
 			});
 
-		const res = await app.fetch(
+		const res = await app.handle(
 			new Request("http://localhost/", {
 				headers: {
 					cookie: `${SESSION_COOKIE_NAME}=${sessionToken};`,
-					[CLIENT_TYPE_HEADER_NAME]: "web",
 				},
 			}),
 		);
 
+		expect(res.status).toBe(200);
+
 		const cookieString = res.headers.get("set-cookie");
-		const cookieAttributes = cookieString?.split(";").map(x => x.trim().split("="));
+		const cookieAttributes = cookieString?.split(";").map((x: string) => x.trim().split("="));
 
-		const cookieExpires = cookieAttributes?.find(([key]) => key === "Expires")?.[1];
+		const cookieExpires = cookieAttributes?.find(([key]: [string, string]) => key === "Expires")?.[1];
 
-		if (!cookieExpires) {
-			throw new Error("Cookie expires not found");
-		}
+		assert(cookieExpires, "Cookie expires not found");
 
-		expect(new Date(cookieExpires!).getTime()).toBeGreaterThan(sessionTokenRefreshExpires.getTime());
+		expect(new Date(cookieExpires).getTime()).toBeGreaterThan(sessionTokenRefreshExpires.getTime());
 	});
 });

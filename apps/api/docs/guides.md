@@ -116,7 +116,7 @@ export const di = () => {
 #### Repositoryのインターフェース定義
 
 ```typescript
-// features/[feature]/application/ports/repositories/[entity].repository.interface.ts
+// features/[feature]/application/ports/out/repositories/[entity].repository.interface.ts
 export interface I[Entity]Repository {
   findById(id: [Entity]Id): Promise<[Entity] | null>;
   save(entity: [Entity]): Promise<void>;
@@ -280,7 +280,7 @@ export const [Action][Resource] = new Elysia()
 #### Result型
 
 ```typescript
-import { ok, err, type Result } from "@mona-ca/core/utils";
+import { ok, err, type Result } from "@mona-ca/core/result";
 
 // 成功時
 return ok({ data: someData });

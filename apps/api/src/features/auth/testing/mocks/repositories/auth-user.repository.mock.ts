@@ -1,7 +1,7 @@
 import type { UserId } from "../../../../../core/domain/value-objects";
-import type { IAuthUserRepository } from "../../../application/ports/repositories/auth-user.repository.interface";
+import type { IAuthUserRepository } from "../../../application/ports/out/repositories/auth-user.repository.interface";
 import type { Session } from "../../../domain/entities/session";
-import type { UserIdentity } from "../../../domain/entities/user-identity";
+import type { UserCredentials } from "../../../domain/entities/user-credentials";
 import type { UserRegistration } from "../../../domain/entities/user-registration";
 import type { SessionId } from "../../../domain/value-objects/ids";
 
@@ -17,7 +17,7 @@ export class AuthUserRepositoryMock implements IAuthUserRepository {
 		this.sessionMap = maps.sessionMap;
 	}
 
-	async findById(id: UserId): Promise<UserIdentity | null> {
+	async findById(id: UserId): Promise<UserCredentials | null> {
 		const userRegistration = this.authUserMap.get(id);
 		if (!userRegistration) {
 			return null;
@@ -25,7 +25,7 @@ export class AuthUserRepositoryMock implements IAuthUserRepository {
 		return this.refillUserIdentity(userRegistration);
 	}
 
-	async findByEmail(email: string): Promise<UserIdentity | null> {
+	async findByEmail(email: string): Promise<UserCredentials | null> {
 		const userRegistration = this.authUserMap.values().find(userRegistration => userRegistration.email === email);
 		if (!userRegistration) {
 			return null;
@@ -33,7 +33,7 @@ export class AuthUserRepositoryMock implements IAuthUserRepository {
 		return this.refillUserIdentity(userRegistration);
 	}
 
-	async findBySessionId(sessionId: SessionId): Promise<UserIdentity | null> {
+	async findBySessionId(sessionId: SessionId): Promise<UserCredentials | null> {
 		const session = this.sessionMap.get(sessionId);
 		if (!session) {
 			return null;
@@ -49,7 +49,7 @@ export class AuthUserRepositoryMock implements IAuthUserRepository {
 		this.authUserMap.set(registration.id, registration);
 	}
 
-	async update(identity: UserIdentity): Promise<void> {
+	async update(identity: UserCredentials): Promise<void> {
 		const userRegistration = this.authUserMap.get(identity.id);
 		if (!userRegistration) {
 			return;
@@ -62,7 +62,7 @@ export class AuthUserRepositoryMock implements IAuthUserRepository {
 		});
 	}
 
-	private refillUserIdentity(userRegistration: UserRegistration): UserIdentity {
+	private refillUserIdentity(userRegistration: UserRegistration): UserCredentials {
 		return {
 			id: userRegistration.id,
 			email: userRegistration.email,

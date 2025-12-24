@@ -1,37 +1,37 @@
-import type { NewType } from "@mona-ca/core/utils";
+import type { Brand } from "@mona-ca/core/types";
 
-export type SessionId = NewType<"SessionId", string>;
+export type SessionId = Brand<"SessionId", string>;
 
 export const newSessionId = (rawSessionId: string) => {
 	return rawSessionId as SessionId;
 };
 
-export type EmailVerificationSessionId = NewType<"EmailVerificationSessionId", string>;
+export type EmailVerificationRequestId = Brand<"EmailVerificationRequestId", string>;
 
-export const newEmailVerificationSessionId = (rawEmailVerificationSessionId: string) => {
-	return rawEmailVerificationSessionId as EmailVerificationSessionId;
+export const newEmailVerificationRequestId = (rawEmailVerificationRequestId: string) => {
+	return rawEmailVerificationRequestId as EmailVerificationRequestId;
 };
 
-export type PasswordResetSessionId = NewType<"PasswordResetSessionId", string>;
+export type PasswordResetSessionId = Brand<"PasswordResetSessionId", string>;
 
 export const newPasswordResetSessionId = (rawPasswordResetSessionId: string) => {
 	return rawPasswordResetSessionId as PasswordResetSessionId;
 };
 
-export type AccountAssociationSessionId = NewType<"AccountAssociationSessionId", string>;
-
-export const newAccountAssociationSessionId = (rawAccountAssociationSessionId: string) => {
-	return rawAccountAssociationSessionId as AccountAssociationSessionId;
-};
-
-export type SignupSessionId = NewType<"SignupSessionId", string>;
+export type SignupSessionId = Brand<"SignupSessionId", string>;
 
 export const newSignupSessionId = (rawSignupSessionId: string) => {
 	return rawSignupSessionId as SignupSessionId;
 };
 
-export type AccountLinkSessionId = NewType<"AccountLinkSessionId", string>;
+export type ProviderLinkRequestId = Brand<"ProviderLinkRequestId", string>;
 
-export const newAccountLinkSessionId = (rawAccountLinkSessionId: string) => {
-	return rawAccountLinkSessionId as AccountLinkSessionId;
+export const newProviderLinkRequestId = (rawProviderLinkRequestId: string) => {
+	return rawProviderLinkRequestId as ProviderLinkRequestId;
+};
+
+export type AccountLinkRequestId = Brand<"AccountLinkRequestId", string>;
+
+export const newAccountLinkRequestId = (rawAccountLinkRequestId: string) => {
+	return rawAccountLinkRequestId as AccountLinkRequestId;
 };

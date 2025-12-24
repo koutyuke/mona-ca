@@ -2,9 +2,9 @@ import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { newUserId } from "../../../../../../core/domain/value-objects";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { SessionTableHelper, UserTableHelper } from "../../../../../../core/testing/helpers";
+import { SessionsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
-import { convertSessionToRaw, convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { SessionRepository } from "../session.repository";
 
 const { DB } = env;
@@ -12,23 +12,23 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const sessionRepository = new SessionRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
-const sessionTableHelper = new SessionTableHelper(DB);
+const userTableDriver = new UsersTableDriver(DB);
+const sessionTableDriver = new SessionsTableDriver(DB);
 
 const { userRegistration } = createAuthUserFixture();
 
 describe("SessionRepository.findManyByUserId", () => {
 	beforeEach(async () => {
-		await sessionTableHelper.deleteAll();
+		await sessionTableDriver.deleteAll();
 	});
 
 	beforeAll(async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 	});
 
 	afterAll(async () => {
-		await userTableHelper.deleteAll();
-		await sessionTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
+		await sessionTableDriver.deleteAll();
 	});
 
 	test("should return sessions", async () => {
@@ -43,8 +43,8 @@ describe("SessionRepository.findManyByUserId", () => {
 			},
 		});
 
-		await sessionTableHelper.save(convertSessionToRaw(firstSession.session));
-		await sessionTableHelper.save(convertSessionToRaw(secondSession.session));
+		await sessionTableDriver.save(convertSessionToRaw(firstSession.session));
+		await sessionTableDriver.save(convertSessionToRaw(secondSession.session));
 
 		const sessions = await sessionRepository.findManyByUserId(userRegistration.id);
 

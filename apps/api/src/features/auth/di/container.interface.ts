@@ -1,97 +1,108 @@
-import type { ProviderGateways } from "../adapters/gateways/oauth-provider/type";
-import type { IAccountAssociationChallengeUseCase } from "../application/contracts/account-association/account-association-challenge.usecase.interface";
-import type { IAccountAssociationConfirmUseCase } from "../application/contracts/account-association/account-association-confirm.usecase.interface";
-import type { IValidateAccountAssociationSessionUseCase } from "../application/contracts/account-association/validate-account-association-session.usecase.interface";
-import type { IGetConnectionsUseCase } from "../application/contracts/account-connection/get-connections.usecase.interface";
-import type { IUnlinkAccountConnectionUseCase } from "../application/contracts/account-connection/unlink-account-connection.usecase.interface";
-import type { IAccountLinkCallbackUseCase } from "../application/contracts/account-link/account-link-callback.usecase.interface";
-import type { IAccountLinkPrepareUseCase } from "../application/contracts/account-link/account-link-prepare.usecase.interface";
-import type { IAccountLinkRequestUseCase } from "../application/contracts/account-link/account-link-request.usecase.interface";
-import type { ILoginUseCase } from "../application/contracts/basic-auth/login.usecase.interface";
-import type { ILogoutUseCase } from "../application/contracts/basic-auth/logout.usecase.interface";
-import type { ISignupConfirmUseCase } from "../application/contracts/basic-auth/signup-confirm.usecase.interface";
-import type { ISignupRequestUseCase } from "../application/contracts/basic-auth/signup-request.usecase.interface";
-import type { ISignupVerifyEmailUseCase } from "../application/contracts/basic-auth/signup-verify-email.usecase.interface";
-import type { IValidateSessionUseCase } from "../application/contracts/basic-auth/validate-session.usecase";
-import type { IValidateSignupSessionUseCase } from "../application/contracts/basic-auth/validate-signup-session.usecase.interface";
-import type { IEmailVerificationConfirmUseCase } from "../application/contracts/email/email-verification-confirm.usecase.interface";
-import type { IEmailVerificationRequestUseCase } from "../application/contracts/email/email-verification-request.usecase.interface";
-import type { IUpdateEmailConfirmUseCase } from "../application/contracts/email/update-email-confirm.usecase.interface";
-import type { IUpdateEmailRequestUseCase } from "../application/contracts/email/update-email-request.usecase.interface";
-import type { IValidateEmailVerificationSessionUseCase } from "../application/contracts/email/validate-email-verification-session.usecase.interface";
-import type { IExternalAuthLoginCallbackUseCase } from "../application/contracts/external-auth/external-auth-login-callback.usecase.interface";
-import type { IExternalAuthRequestUseCase } from "../application/contracts/external-auth/external-auth-request.usecase.interface";
-import type { IExternalAuthSignupCallbackUseCase } from "../application/contracts/external-auth/external-auth-signup-callback.usecase.interface";
-import type { IPasswordResetRequestUseCase } from "../application/contracts/password/password-reset-request.usecase.interface";
-import type { IPasswordResetVerifyEmailUseCase } from "../application/contracts/password/password-reset-verify-email.usecase.interface";
-import type { IResetPasswordUseCase } from "../application/contracts/password/reset-password.usecase.interface";
-import type { IUpdatePasswordUseCase } from "../application/contracts/password/update-password.usecase.interface";
-import type { IValidatePasswordResetSessionUseCase } from "../application/contracts/password/validate-password-reset-session.usecase.interface";
-import type { IHmacOAuthStateSigner } from "../application/ports/infra/hmac-oauth-state-signer.interface";
-import type { IAccountAssociationSessionRepository } from "../application/ports/repositories/account-association-session.repository.interface";
-import type { IAccountLinkSessionRepository } from "../application/ports/repositories/account-link-session.repository.interface";
-import type { IAuthUserRepository } from "../application/ports/repositories/auth-user.repository.interface";
-import type { IEmailVerificationSessionRepository } from "../application/ports/repositories/email-verification-session.repository.interface";
-import type { IExternalIdentityRepository } from "../application/ports/repositories/external-identity.repository.interface";
-import type { IPasswordResetSessionRepository } from "../application/ports/repositories/password-reset-session.repository.interface";
-import type { ISessionRepository } from "../application/ports/repositories/session.repository.interface";
-import type { ISignupSessionRepository } from "../application/ports/repositories/signup-session.repository.interface";
-import type { accountLinkStateSchema } from "../application/use-cases/account-link/schema";
-import type { oauthStateSchema } from "../application/use-cases/external-auth/schema";
+import type { IAccountLinkReissueUseCase } from "../application/ports/in/account-link/reissue.usecase.interface";
+import type { IAccountLinkValidateRequestUseCase } from "../application/ports/in/account-link/validate-request.usecase.interface";
+import type { IAccountLinkVerifyEmailUseCase } from "../application/ports/in/account-link/verify-email.usecase.interface";
+import type { IEmailVerificationRequestUseCase } from "../application/ports/in/email-verification/request.usecase.interface";
+import type { IEmailVerificationValidateRequestUseCase } from "../application/ports/in/email-verification/validate-request.usecase.interface";
+import type { IEmailVerificationVerifyEmailUseCase } from "../application/ports/in/email-verification/verify-email.usecase.interface";
+import type { IFederatedAuthCallbackUseCase } from "../application/ports/in/federated-auth/callback.usecase.interface";
+import type { IFederatedAuthRequestUseCase } from "../application/ports/in/federated-auth/request.usecase.interface";
+import type { IPasswordResetRequestUseCase } from "../application/ports/in/password-reset/request.usecase.interface";
+import type { IPasswordResetResetUseCase } from "../application/ports/in/password-reset/reset.usecase.interface";
+import type { IPasswordResetValidateSessionUseCase } from "../application/ports/in/password-reset/validate-session.usecase.interface";
+import type { IPasswordResetVerifyEmailUseCase } from "../application/ports/in/password-reset/verify-email.usecase.interface";
+import type { IProviderLinkCallbackUseCase } from "../application/ports/in/provider-link/callback.usecase.interface";
+import type { IProviderLinkPrepareUseCase } from "../application/ports/in/provider-link/prepare.usecase.interface";
+import type { IProviderLinkRequestUseCase } from "../application/ports/in/provider-link/request.usecase.interface";
+import type { IProviderLinkUnlinkUseCase } from "../application/ports/in/provider-link/unlink.usecase.interface";
+import type { IProviderLinkValidateRequestUseCase } from "../application/ports/in/provider-link/validate-request.usecase.interface";
+import type { ILoginUseCase } from "../application/ports/in/session/login.usecase.interface";
+import type { ILogoutUseCase } from "../application/ports/in/session/logout.usecase.interface";
+import type { IUpdatePasswordUseCase } from "../application/ports/in/session/update-password.usecase.interface";
+import type { IUserIdentitiesUseCase } from "../application/ports/in/session/user-identities.usecase.interface";
+import type { IValidateSessionUseCase } from "../application/ports/in/session/validate-session.usecase.interface";
+import type { ISignupRegisterUseCase } from "../application/ports/in/signup/register.usecase.interface";
+import type { ISignupRequestUseCase } from "../application/ports/in/signup/request.usecase.interface";
+import type { ISignupValidateSessionUseCase } from "../application/ports/in/signup/validate-session.usecase.interface";
+import type { ISignupVerifyEmailUseCase } from "../application/ports/in/signup/verify-email.usecase.interface";
+import type { IUpdateEmailRequestUseCase } from "../application/ports/in/update-email/request.usecase.interface";
+import type { IUpdateEmailVerifyEmailUseCase } from "../application/ports/in/update-email/verify-email.usecase.interface";
+import type { IIdentityProviderGateway } from "../application/ports/out/gateways/identity-provider.gateway.interface";
+import type { IHmacSignedStateService } from "../application/ports/out/infra/hmac-signed-state.service.interface";
+import type { IAccountLinkRequestRepository } from "../application/ports/out/repositories/account-link-request.repository.interface";
+import type { IAuthUserRepository } from "../application/ports/out/repositories/auth-user.repository.interface";
+import type { IEmailVerificationRequestRepository } from "../application/ports/out/repositories/email-verification-request.repository.interface";
+import type { IPasswordResetSessionRepository } from "../application/ports/out/repositories/password-reset-session.repository.interface";
+import type { IProviderAccountRepository } from "../application/ports/out/repositories/provider-account.repository.interface";
+import type { IProviderLinkRequestRepository } from "../application/ports/out/repositories/provider-link-request.repository.interface";
+import type { ISessionRepository } from "../application/ports/out/repositories/session.repository.interface";
+import type { ISignupSessionRepository } from "../application/ports/out/repositories/signup-session.repository.interface";
+import type { federatedAuthStateSchema } from "../application/use-cases/federated-auth/schema";
+import type { providerLinkStateSchema } from "../application/use-cases/provider-link/schema";
 
 export interface IAuthDIContainer {
-	// Infra
-	readonly accountLinkOAuthStateSigner: IHmacOAuthStateSigner<typeof accountLinkStateSchema>;
-	readonly externalAuthOAuthStateSigner: IHmacOAuthStateSigner<typeof oauthStateSchema>;
+	// === Infra ===
+	readonly federatedAuthSignedStateService: IHmacSignedStateService<typeof federatedAuthStateSchema>;
+	readonly providerLinkSignedStateService: IHmacSignedStateService<typeof providerLinkStateSchema>;
 
-	// Gateways
-	readonly googleOAuthGateways: ProviderGateways;
-	readonly discordOAuthGateways: ProviderGateways;
+	// === Gateways ===
+	readonly federatedAuthDiscordIdentityProviderGateway: IIdentityProviderGateway;
+	readonly federatedAuthGoogleIdentityProviderGateway: IIdentityProviderGateway;
+	readonly providerLinkDiscordIdentityProviderGateway: IIdentityProviderGateway;
+	readonly providerLinkGoogleIdentityProviderGateway: IIdentityProviderGateway;
 
-	// Repositories
-	readonly accountAssociationSessionRepository: IAccountAssociationSessionRepository;
-	readonly accountLinkSessionRepository: IAccountLinkSessionRepository;
+	// === Repositories ===
+	readonly accountLinkRequestRepository: IAccountLinkRequestRepository;
 	readonly authUserRepository: IAuthUserRepository;
-	readonly emailVerificationSessionRepository: IEmailVerificationSessionRepository;
-	readonly externalIdentityRepository: IExternalIdentityRepository;
+	readonly emailVerificationRequestRepository: IEmailVerificationRequestRepository;
 	readonly passwordResetSessionRepository: IPasswordResetSessionRepository;
+	readonly providerAccountRepository: IProviderAccountRepository;
+	readonly providerLinkRequestRepository: IProviderLinkRequestRepository;
 	readonly sessionRepository: ISessionRepository;
 	readonly signupSessionRepository: ISignupSessionRepository;
 
-	// Use Cases
-	readonly accountAssociationChallengeUseCase: IAccountAssociationChallengeUseCase;
-	readonly accountAssociationConfirmUseCase: IAccountAssociationConfirmUseCase;
-	readonly validateAccountAssociationSessionUseCase: IValidateAccountAssociationSessionUseCase;
+	// === Use Cases ===
 
-	readonly accountLinkCallbackUseCase: IAccountLinkCallbackUseCase;
-	readonly accountLinkRequestUseCase: IAccountLinkRequestUseCase;
-	readonly accountLinkPrepareUseCase: IAccountLinkPrepareUseCase;
+	// Account Link
+	readonly accountLinkReissueUseCase: IAccountLinkReissueUseCase;
+	readonly accountLinkValidateRequestUseCase: IAccountLinkValidateRequestUseCase;
+	readonly accountLinkVerifyEmailUseCase: IAccountLinkVerifyEmailUseCase;
 
-	readonly getConnectionsUseCase: IGetConnectionsUseCase;
-	readonly unlinkAccountConnectionUseCase: IUnlinkAccountConnectionUseCase;
+	// Email Verification
+	readonly emailVerificationRequestUseCase: IEmailVerificationRequestUseCase;
+	readonly emailVerificationValidateRequestUseCase: IEmailVerificationValidateRequestUseCase;
+	readonly emailVerificationVerifyEmailUseCase: IEmailVerificationVerifyEmailUseCase;
 
+	// Federated Auth
+	readonly federatedAuthCallbackUseCase: IFederatedAuthCallbackUseCase;
+	readonly federatedAuthRequestUseCase: IFederatedAuthRequestUseCase;
+
+	// Password Reset
+	readonly passwordResetRequestUseCase: IPasswordResetRequestUseCase;
+	readonly passwordResetResetUseCase: IPasswordResetResetUseCase;
+	readonly passwordResetValidateSessionUseCase: IPasswordResetValidateSessionUseCase;
+	readonly passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase;
+
+	// Provider Link
+	readonly providerLinkCallbackUseCase: IProviderLinkCallbackUseCase;
+	readonly providerLinkPrepareUseCase: IProviderLinkPrepareUseCase;
+	readonly providerLinkRequestUseCase: IProviderLinkRequestUseCase;
+	readonly providerLinkUnlinkUseCase: IProviderLinkUnlinkUseCase;
+	readonly providerLinkValidateRequestUseCase: IProviderLinkValidateRequestUseCase;
+
+	// Session
 	readonly loginUseCase: ILoginUseCase;
 	readonly logoutUseCase: ILogoutUseCase;
-	readonly signupRequestUseCase: ISignupRequestUseCase;
-	readonly signupConfirmUseCase: ISignupConfirmUseCase;
-	readonly signupVerifyEmailUseCase: ISignupVerifyEmailUseCase;
-	readonly validateSessionUseCase: IValidateSessionUseCase;
-	readonly validateSignupSessionUseCase: IValidateSignupSessionUseCase;
-
-	readonly emailVerificationConfirmUseCase: IEmailVerificationConfirmUseCase;
-	readonly emailVerificationRequestUseCase: IEmailVerificationRequestUseCase;
-	readonly updateEmailConfirmUseCase: IUpdateEmailConfirmUseCase;
-	readonly updateEmailRequestUseCase: IUpdateEmailRequestUseCase;
-	readonly validateEmailVerificationSessionUseCase: IValidateEmailVerificationSessionUseCase;
-
-	readonly externalAuthLoginCallbackUseCase: IExternalAuthLoginCallbackUseCase;
-	readonly externalAuthLoginRequestUseCase: IExternalAuthRequestUseCase;
-	readonly externalAuthSignupCallbackUseCase: IExternalAuthSignupCallbackUseCase;
-	readonly externalAuthSignupRequestUseCase: IExternalAuthRequestUseCase;
-
-	readonly passwordResetRequestUseCase: IPasswordResetRequestUseCase;
-	readonly passwordResetVerifyEmailUseCase: IPasswordResetVerifyEmailUseCase;
-	readonly resetPasswordUseCase: IResetPasswordUseCase;
 	readonly updatePasswordUseCase: IUpdatePasswordUseCase;
-	readonly validatePasswordResetSessionUseCase: IValidatePasswordResetSessionUseCase;
+	readonly userIdentitiesUseCase: IUserIdentitiesUseCase;
+	readonly validateSessionUseCase: IValidateSessionUseCase;
+
+	// Signup
+	readonly signupRegisterUseCase: ISignupRegisterUseCase;
+	readonly signupRequestUseCase: ISignupRequestUseCase;
+	readonly signupValidateSessionUseCase: ISignupValidateSessionUseCase;
+	readonly signupVerifyEmailUseCase: ISignupVerifyEmailUseCase;
+
+	// Update Email
+	readonly updateEmailRequestUseCase: IUpdateEmailRequestUseCase;
+	readonly updateEmailVerifyEmailUseCase: IUpdateEmailVerifyEmailUseCase;
 }

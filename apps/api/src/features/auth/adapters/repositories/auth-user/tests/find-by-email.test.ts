@@ -1,9 +1,9 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { UserTableHelper } from "../../../../../../core/testing/helpers";
+import { UsersTableDriver } from "../../../../../../core/testing/drivers";
+import { convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture } from "../../../../testing/fixtures";
-import { convertUserRegistrationToRaw } from "../../../../testing/helpers";
 import { AuthUserRepository } from "../auth-user.repository";
 
 const { DB } = env;
@@ -11,26 +11,26 @@ const { DB } = env;
 const drizzleService = new DrizzleService(DB);
 const authUserRepository = new AuthUserRepository(drizzleService);
 
-const userTableHelper = new UserTableHelper(DB);
+const userTableDriver = new UsersTableDriver(DB);
 
-const { userRegistration, userIdentity } = createAuthUserFixture();
+const { userRegistration, userCredentials } = createAuthUserFixture();
 
 describe("AuthUserRepository.findByEmail", async () => {
 	beforeEach(async () => {
-		await userTableHelper.deleteAll();
+		await userTableDriver.deleteAll();
 	});
 
 	test("should return User instance if user exists.", async () => {
-		await userTableHelper.save(convertUserRegistrationToRaw(userRegistration));
+		await userTableDriver.save(convertUserRegistrationToRaw(userRegistration));
 
-		const foundUserIdentity = await authUserRepository.findByEmail(userRegistration.email);
+		const foundUserCredentials = await authUserRepository.findByEmail(userRegistration.email);
 
-		expect(foundUserIdentity).not.toBeNull();
-		expect(foundUserIdentity).toStrictEqual(userIdentity);
+		expect(foundUserCredentials).not.toBeNull();
+		expect(foundUserCredentials).toStrictEqual(userCredentials);
 	});
 
 	test("should return null if user not found.", async () => {
-		const foundUser = await authUserRepository.findByEmail("invalid@example.com");
-		expect(foundUser).toBeNull();
+		const foundUserCredentials = await authUserRepository.findByEmail("invalid@example.com");
+		expect(foundUserCredentials).toBeNull();
 	});
 });

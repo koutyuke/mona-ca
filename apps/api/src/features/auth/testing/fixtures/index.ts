@@ -1,7 +1,7 @@
-export { createAccountAssociationSessionFixture } from "./account-association-session.fixture";
-export { createAccountLinkSessionFixture } from "./account-link-session.fixture";
-export { createEmailVerificationSessionFixture } from "./email-verification-session.fixture";
-export { createExternalIdentityFixture } from "./external-identity.fixture";
+export { createAccountLinkRequestFixture } from "./account-link-request.fixture";
+export { createProviderLinkRequestFixture } from "./provider-link-request.fixture";
+export { createEmailVerificationRequestFixture } from "./email-verification-request.fixture";
+export { createProviderAccountFixture } from "./provider-account.fixture";
 export { createPasswordResetSessionFixture } from "./password-reset-session.fixture";
 export { createSessionFixture } from "./session.fixture";
 export { createSignupSessionFixture } from "./signup-session.fixture";

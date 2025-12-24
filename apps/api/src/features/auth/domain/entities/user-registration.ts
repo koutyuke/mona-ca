@@ -1,6 +1,6 @@
-import type { Gender, UserId } from "../../../../core/domain/value-objects";
+import { type Gender, type UserId, newGender } from "../../../../core/domain/value-objects";
 
-export const DEFAULT_USER_GENDER = "man";
+export const DEFAULT_USER_GENDER = newGender("male") satisfies Gender;
 
 /**
  * It represents the complete information of a user registration.

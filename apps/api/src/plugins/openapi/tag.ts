@@ -1,14 +1,14 @@
-import type { OpenAPIV3 } from "@scalar/types";
+import type { OpenAPIV3 } from "openapi-types";
 
 export const tags = [
 	{ name: "Hello", description: "Hello, mona-ca!" },
 	{ name: "Auth", description: "Endpoints for authentication and authorization" },
-	{ name: "Auth - External Auth", description: "Endpoints for authentication and authorization with External Auth" },
+	{ name: "Auth - Federated Auth", description: "Endpoints for authentication and authorization with External Auth" },
 	{ name: "Auth - Account Link", description: "Endpoints for account link" },
-	{ name: "Auth - Account Association", description: "Endpoints for account association" },
 	{ name: "Auth - Email Verification", description: "Endpoints for email verification" },
-	{ name: "Auth - Forgot Password", description: "Endpoints for forgot password" },
+	{ name: "Auth - Password Reset", description: "Endpoints for password reset" },
 	{ name: "Me", description: "Endpoints for the current user" },
+	{ name: "Me - Provider Link", description: "Endpoints for provider link" },
 	{ name: "User", description: "Endpoints for the other users" },
 ] as const satisfies OpenAPIV3.TagObject[];
 

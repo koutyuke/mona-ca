@@ -1,4 +1,4 @@
-export { MacMock } from "./mac.mock";
-export { PasswordHasherMock } from "./password-hasher.mock";
-export { RandomGeneratorMock } from "./random-generator.mock";
-export { SessionSecretHasherMock } from "./session-secret-hasher.mock";
+export { HmacServiceMock } from "./hmac.service.mock";
+export { PasswordHashingServiceMock } from "./password-hashing.service.mock";
+export { CryptoRandomServiceMock } from "./crypto-random.service.mock";
+export { TokenSecretServiceMock } from "./token-secret.service.mock";

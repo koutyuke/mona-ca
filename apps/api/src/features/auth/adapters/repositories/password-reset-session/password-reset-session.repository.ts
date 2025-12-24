@@ -4,7 +4,7 @@ import { newPasswordResetSessionId } from "../../../domain/value-objects/ids";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
-import type { IPasswordResetSessionRepository } from "../../../application/ports/repositories/password-reset-session.repository.interface";
+import type { IPasswordResetSessionRepository } from "../../../application/ports/out/repositories/password-reset-session.repository.interface";
 import type { PasswordResetSession } from "../../../domain/entities/password-reset-session";
 import type { PasswordResetSessionId } from "../../../domain/value-objects/ids";
 
@@ -24,8 +24,8 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 	public async findById(id: PasswordResetSessionId): Promise<PasswordResetSession | null> {
 		const passwordResetSessions = await this.drizzleService.db
 			.select()
-			.from(this.drizzleService.schema.passwordResetSessions)
-			.where(eq(this.drizzleService.schema.passwordResetSessions.id, id));
+			.from(this.drizzleService.schema.passwordResetSessionsTable)
+			.where(eq(this.drizzleService.schema.passwordResetSessionsTable.id, id));
 
 		if (passwordResetSessions.length > 1) {
 			throw new Error("Multiple password reset sessions found for the same id");
@@ -36,7 +36,7 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 
 	public async save(passwordResetSession: PasswordResetSession): Promise<void> {
 		await this.drizzleService.db
-			.insert(this.drizzleService.schema.passwordResetSessions)
+			.insert(this.drizzleService.schema.passwordResetSessionsTable)
 			.values({
 				id: passwordResetSession.id,
 				userId: passwordResetSession.userId,
@@ -47,7 +47,7 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 				expiresAt: passwordResetSession.expiresAt,
 			})
 			.onConflictDoUpdate({
-				target: this.drizzleService.schema.passwordResetSessions.id,
+				target: this.drizzleService.schema.passwordResetSessionsTable.id,
 				set: {
 					emailVerified: passwordResetSession.emailVerified,
 					expiresAt: passwordResetSession.expiresAt,
@@ -57,15 +57,15 @@ export class PasswordResetSessionRepository implements IPasswordResetSessionRepo
 
 	public async deleteById(id: PasswordResetSessionId): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.passwordResetSessions)
-			.where(eq(this.drizzleService.schema.passwordResetSessions.id, id))
+			.delete(this.drizzleService.schema.passwordResetSessionsTable)
+			.where(eq(this.drizzleService.schema.passwordResetSessionsTable.id, id))
 			.execute();
 	}
 
 	public async deleteByUserId(userId: UserId): Promise<void> {
 		await this.drizzleService.db
-			.delete(this.drizzleService.schema.passwordResetSessions)
-			.where(eq(this.drizzleService.schema.passwordResetSessions.userId, userId))
+			.delete(this.drizzleService.schema.passwordResetSessionsTable)
+			.where(eq(this.drizzleService.schema.passwordResetSessionsTable.userId, userId))
 			.execute();
 	}
 

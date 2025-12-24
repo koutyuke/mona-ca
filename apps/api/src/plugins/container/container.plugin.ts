@@ -1,5 +1,5 @@
 import Elysia from "elysia";
-import { CoreDIContainer, type ICoreDIContainer } from "../../core/di/container";
+import { CoreDIContainer, type ICoreDIContainer } from "../../core/di";
 import {
 	type CloudflareBindings,
 	type EnvVariables,
@@ -30,9 +30,11 @@ export const containerPlugin = (override?: Partial<EnvironmentOverride> & Partia
 
 	return new Elysia({
 		name: "@mona-ca/container",
-	}).decorate("containers", {
-		core,
-		auth,
-		user,
-	} satisfies DIContainers);
+	})
+		.decorate("containers", {
+			core,
+			auth,
+			user,
+		} satisfies DIContainers)
+		.as("global");
 };

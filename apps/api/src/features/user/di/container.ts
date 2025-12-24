@@ -1,12 +1,12 @@
-import { ProfileRepository } from "../adapters/repositories/profile/profile.repository";
-import { GetProfileUseCase } from "../application/use-cases/profile/get-profile.usecase";
-import { UpdateProfileUseCase } from "../application/use-cases/profile/update-profile.usecase";
+import { UserProfileRepository } from "../adapters/repositories/user-profile/user-profile.repository";
+import { GetUserProfileUseCase } from "../application/use-cases/user-profile/get-user-profile.usecase";
+import { UpdateUserProfileUseCase } from "../application/use-cases/user-profile/update-user-profile.usecase";
 
 import type { ICoreDIContainer } from "../../../core/di";
 import type { EnvVariables } from "../../../core/infra/config/env";
-import type { IGetProfileUseCase } from "../application/contracts/profile/get-profile.usecase.interface";
-import type { IUpdateProfileUseCase } from "../application/contracts/profile/update-profile.usecase.interface";
-import type { IProfileRepository } from "../application/ports/repositories/profile.repository.interface";
+import type { IGetUserProfileUseCase } from "../application/ports/in/user-profile/get-user-profile.usecase.interface";
+import type { IUpdateUserProfileUseCase } from "../application/ports/in/user-profile/update-user-profile.usecase.interface";
+import type { IUserProfileRepository } from "../application/ports/out/repositories/user-profile.repository.interface";
 import type { IUserDIContainer } from "./container.interface";
 
 /**
@@ -22,56 +22,54 @@ import type { IUserDIContainer } from "./container.interface";
 export class UserDIContainer implements IUserDIContainer {
 	private readonly coreContainer: ICoreDIContainer;
 
-	// Repositories
-	private _profileRepository: IProfileRepository | undefined;
+	// === Repositories ===
+	private _userProfileRepository: IUserProfileRepository | undefined;
 
-	// Use Cases
-	private _getProfileUseCase: IGetProfileUseCase | undefined;
-	private _updateProfileUseCase: IUpdateProfileUseCase | undefined;
+	// === Use Cases ===
+	private _getUserProfileUseCase: IGetUserProfileUseCase | undefined;
+	private _updateUserProfileUseCase: IUpdateUserProfileUseCase | undefined;
 
 	constructor(_envVariables: EnvVariables, coreContainer: ICoreDIContainer, override?: Partial<IUserDIContainer>) {
 		this.coreContainer = coreContainer;
 
 		const overrides = override ?? {};
 
-		// Repositories
-		if (overrides.profileRepository) {
-			this._profileRepository = overrides.profileRepository;
+		// === Repositories ===
+		if (overrides.userProfileRepository) {
+			this._userProfileRepository = overrides.userProfileRepository;
 		}
 
 		// Use Cases
-		if (overrides.getProfileUseCase) {
-			this._getProfileUseCase = overrides.getProfileUseCase;
+		if (overrides.getUserProfileUseCase) {
+			this._getUserProfileUseCase = overrides.getUserProfileUseCase;
 		}
-		if (overrides.updateProfileUseCase) {
-			this._updateProfileUseCase = overrides.updateProfileUseCase;
+		if (overrides.updateUserProfileUseCase) {
+			this._updateUserProfileUseCase = overrides.updateUserProfileUseCase;
 		}
 	}
 
-	// ========================================
-	// Repositories
-	// ========================================
-	get profileRepository(): IProfileRepository {
-		if (!this._profileRepository) {
-			this._profileRepository = new ProfileRepository(this.coreContainer.drizzleService);
+	// === Repositories ===
+	get userProfileRepository(): IUserProfileRepository {
+		if (!this._userProfileRepository) {
+			this._userProfileRepository = new UserProfileRepository(this.coreContainer.drizzleService);
 		}
-		return this._profileRepository;
+		return this._userProfileRepository;
 	}
 
-	// ========================================
-	// Use Cases
-	// ========================================
-	get getProfileUseCase(): IGetProfileUseCase {
-		if (!this._getProfileUseCase) {
-			this._getProfileUseCase = new GetProfileUseCase(this.profileRepository);
+	// === Use Cases ===
+
+	// User Profile
+	get getUserProfileUseCase(): IGetUserProfileUseCase {
+		if (!this._getUserProfileUseCase) {
+			this._getUserProfileUseCase = new GetUserProfileUseCase(this.userProfileRepository);
 		}
-		return this._getProfileUseCase;
+		return this._getUserProfileUseCase;
 	}
 
-	get updateProfileUseCase(): IUpdateProfileUseCase {
-		if (!this._updateProfileUseCase) {
-			this._updateProfileUseCase = new UpdateProfileUseCase(this.profileRepository);
+	get updateUserProfileUseCase(): IUpdateUserProfileUseCase {
+		if (!this._updateUserProfileUseCase) {
+			this._updateUserProfileUseCase = new UpdateUserProfileUseCase(this.userProfileRepository);
 		}
-		return this._updateProfileUseCase;
+		return this._updateUserProfileUseCase;
 	}
 }
