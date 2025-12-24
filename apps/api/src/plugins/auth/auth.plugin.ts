@@ -67,15 +67,15 @@ export const authPlugin = (options?: {
 
 				if (validationResult.isErr) {
 					return match(validationResult)
-						.with({ code: "SESSION_EXPIRED" }, () =>
+						.with({ code: "EXPIRED_SESSION" }, ({ code }) =>
 							status("Unauthorized", {
-								code: "SESSION_EXPIRED" as const,
+								code,
 								message: "It looks like your session is expired. Please login to continue.",
 							}),
 						)
-						.with({ code: "SESSION_INVALID" }, () =>
+						.with({ code: "INVALID_SESSION" }, ({ code }) =>
 							status("Unauthorized", {
-								code: "SESSION_INVALID" as const,
+								code,
 								message: "It looks like your session is invalid. Please login to continue.",
 							}),
 						)
@@ -90,7 +90,7 @@ export const authPlugin = (options?: {
 
 				if (withEmailVerification && !userCredentials.emailVerified) {
 					return status("Unauthorized", {
-						code: "EMAIL_VERIFICATION_REQUIRED" as const,
+						code: "REQUIRED_EMAIL_VERIFICATION" as const,
 						message: "It looks like your email is not verified. Please verify your email to continue.",
 					});
 				}
