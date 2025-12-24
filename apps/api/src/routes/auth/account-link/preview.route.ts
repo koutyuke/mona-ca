@@ -13,7 +13,7 @@ export const AccountLinkPreviewRoute = new Elysia()
 	.use(clientPlatformPlugin())
 
 	// Route
-	.post(
+	.get(
 		"/preview",
 		async ({ containers, cookie, body, clientPlatform, status }) => {
 			const rawAccountLinkRequestToken = match(clientPlatform)
