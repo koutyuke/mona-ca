@@ -35,9 +35,9 @@ export const ProviderLinkRequestRoute = new Elysia()
 			cookie,
 			params: { provider: _provider },
 			query: {
+				platform: _clientPlatform = "web",
 				"redirect-uri": queryRedirectURI = "/",
-				"client-platform": _clientPlatform = "web",
-				"provider-link-request-token": _providerLinkRequestToken,
+				"link-token": _providerLinkRequestToken,
 			},
 			headers,
 			containers,
@@ -136,8 +136,8 @@ export const ProviderLinkRequestRoute = new Elysia()
 				return;
 			},
 			query: t.Object({
-				"client-platform": t.Optional(clientPlatformSchema),
-				"provider-link-request-token": t.Optional(t.String()),
+				platform: t.Optional(clientPlatformSchema),
+				"link-token": t.Optional(t.String()),
 				"redirect-uri": t.Optional(t.String()),
 			}),
 			params: t.Object({

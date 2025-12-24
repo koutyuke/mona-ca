@@ -12,8 +12,8 @@ const discordIdentityProviderGateway = new IdentityProviderGatewayMock();
 const providerLinkSignedStateService = new HmacSignedStateServiceMock<typeof providerLinkStateSchema>();
 
 const providerLinkRequestUseCase = new ProviderLinkRequestUseCase(
-	googleIdentityProviderGateway,
 	discordIdentityProviderGateway,
+	googleIdentityProviderGateway,
 	providerLinkSignedStateService,
 );
 

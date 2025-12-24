@@ -2,9 +2,14 @@ import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/co
 import { err, ok } from "@mona-ca/core/result";
 import { generateCodeVerifier } from "arctic";
 
-import type { ClientPlatform } from "../../../../../core/domain/value-objects";
+import { match } from "ts-pattern";
+import { type ClientPlatform, isMobilePlatform, isWebPlatform } from "../../../../../core/domain/value-objects";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
-import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
+import {
+	type IdentityProviders,
+	isDiscordProvider,
+	isGoogleProvider,
+} from "../../../domain/value-objects/identity-providers";
 import type {
 	IProviderLinkRequestUseCase,
 	ProviderLinkRequestUseCaseResult,
@@ -16,8 +21,8 @@ import type { providerLinkStateSchema } from "./schema";
 export class ProviderLinkRequestUseCase implements IProviderLinkRequestUseCase {
 	constructor(
 		// gateways
-		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
 		private readonly discordIdentityProviderGateway: IIdentityProviderGateway,
+		private readonly googleIdentityProviderGateway: IIdentityProviderGateway,
 		// infra
 		private readonly providerLinkSignedStateService: IHmacSignedStateService<typeof providerLinkStateSchema>,
 	) {}
@@ -29,9 +34,15 @@ export class ProviderLinkRequestUseCase implements IProviderLinkRequestUseCase {
 		queryRedirectURI: string,
 		userCredentials: UserCredentials,
 	): Promise<ProviderLinkRequestUseCaseResult> {
-		const clientBaseURL = clientPlatform === "web" ? getWebBaseURL(production) : getMobileScheme(production);
-		const identityProviderGateway =
-			provider === "google" ? this.googleIdentityProviderGateway : this.discordIdentityProviderGateway;
+		const clientBaseURL = match(clientPlatform)
+			.when(isWebPlatform, () => getWebBaseURL(production))
+			.when(isMobilePlatform, () => getMobileScheme(production))
+			.exhaustive();
+
+		const identityProviderGateway = match(provider)
+			.when(isGoogleProvider, () => this.googleIdentityProviderGateway)
+			.when(isDiscordProvider, () => this.discordIdentityProviderGateway)
+			.exhaustive();
 
 		const redirectToClientURL = validateRedirectURL(clientBaseURL, queryRedirectURI ?? "/");
 
