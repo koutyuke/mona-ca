@@ -1,29 +1,23 @@
 import type { Ok, Result } from "@mona-ca/core/result";
 import type { UserCredentials } from "../../../../domain/entities/user-credentials";
-import type {
-	IdentityProviders,
-	IdentityProvidersUserId,
-	RawIdentityProviders,
-} from "../../../../domain/value-objects/identity-providers";
+import type { IdentityProviders, IdentityProvidersUserId } from "../../../../domain/value-objects/identity-providers";
 
-export type PasswordIdentities = {
+export type PasswordIdentity = {
 	enabled: boolean;
 };
 
-export type FederatedIdentity = {
+export type FederatedIdentities = {
 	provider: IdentityProviders;
 	providerUserId: IdentityProvidersUserId;
 	linkedAt: Date;
+}[];
+
+export type UserIdentities = {
+	password: PasswordIdentity;
+	federated: FederatedIdentities;
 };
 
-export type FederatedIdentityMap = {
-	[key in RawIdentityProviders]: FederatedIdentity | null;
-};
-
-type Success = Ok<{
-	password: PasswordIdentities;
-	federated: FederatedIdentityMap;
-}>;
+type Success = Ok<UserIdentities>;
 
 export type UserIdentitiesUseCaseResult = Result<Success>;
 

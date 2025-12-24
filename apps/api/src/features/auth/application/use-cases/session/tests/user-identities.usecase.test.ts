@@ -15,15 +15,17 @@ const providerAccountRepository = new ProviderAccountRepositoryMock({ providerAc
 const userIdentitiesUseCase = new UserIdentitiesUseCase(providerAccountRepository);
 
 const { userCredentials } = createAuthUserFixture();
-const PROVIDER = newIdentityProviders("discord");
-const PROVIDER_USER_ID = newIdentityProvidersUserId("discord_user_id");
+const DISCORD_PROVIDER = newIdentityProviders("discord");
+const DISCORD_PROVIDER_USER_ID = newIdentityProvidersUserId("discord_user_id");
+const GOOGLE_PROVIDER = newIdentityProviders("google");
+const GOOGLE_PROVIDER_USER_ID = newIdentityProvidersUserId("google_user_id");
 
 describe("UserIdentitiesUseCase", () => {
 	beforeEach(() => {
 		providerAccountMap.clear();
 	});
 
-	it("Success: should return password enabled and no federated connections for user with password only", async () => {
+	it("Success: should return password enabled and empty federated array for user with password only", async () => {
 		const result = await userIdentitiesUseCase.execute(userCredentials);
 
 		expect(result.isErr).toBe(false);
@@ -32,20 +34,19 @@ describe("UserIdentitiesUseCase", () => {
 		const { password, federated } = result.value;
 
 		expect(password.enabled).toBe(true);
-		expect(federated.discord).toBeNull();
-		expect(federated.google).toBeNull();
+		expect(federated).toEqual([]);
 	});
 
-	it("Success: should return password enabled and federated connections for user with both password and provider account", async () => {
+	it("Success: should return password enabled and federated array with Discord for user with both password and Discord provider account", async () => {
 		const { providerAccount } = createProviderAccountFixture({
 			providerAccount: {
 				userId: userCredentials.id,
-				provider: PROVIDER,
-				providerUserId: PROVIDER_USER_ID,
+				provider: DISCORD_PROVIDER,
+				providerUserId: DISCORD_PROVIDER_USER_ID,
 			},
 		});
 
-		providerAccountMap.set(createProviderAccountKey(PROVIDER, PROVIDER_USER_ID), providerAccount);
+		providerAccountMap.set(createProviderAccountKey(DISCORD_PROVIDER, DISCORD_PROVIDER_USER_ID), providerAccount);
 
 		const result = await userIdentitiesUseCase.execute(userCredentials);
 
@@ -55,13 +56,66 @@ describe("UserIdentitiesUseCase", () => {
 		const { password, federated } = result.value;
 
 		expect(password.enabled).toBe(true);
-		expect(federated.discord).not.toBeNull();
-		expect(federated.google).toBeNull();
+		expect(federated).toHaveLength(1);
+		assert(federated[0]);
+		expect(federated[0].provider).toBe(DISCORD_PROVIDER);
+		expect(federated[0].providerUserId).toBe(DISCORD_PROVIDER_USER_ID);
+		expect(federated[0].linkedAt).toBeInstanceOf(Date);
+		expect(federated[0].linkedAt.getTime()).toBeLessThanOrEqual(Date.now());
+	});
 
-		assert(federated.discord);
-		expect(federated.discord.provider).toBe(PROVIDER);
-		expect(federated.discord.providerUserId).toBe(PROVIDER_USER_ID);
-		expect(federated.discord.linkedAt).toBeInstanceOf(Date);
-		expect(federated.discord.linkedAt.getTime()).toBeLessThanOrEqual(Date.now());
+	it("Success: should return federated array sorted by Google first, then Discord", async () => {
+		const { providerAccount: discordAccount } = createProviderAccountFixture({
+			providerAccount: {
+				userId: userCredentials.id,
+				provider: DISCORD_PROVIDER,
+				providerUserId: DISCORD_PROVIDER_USER_ID,
+			},
+		});
+
+		const { providerAccount: googleAccount } = createProviderAccountFixture({
+			providerAccount: {
+				userId: userCredentials.id,
+				provider: GOOGLE_PROVIDER,
+				providerUserId: GOOGLE_PROVIDER_USER_ID,
+			},
+		});
+
+		providerAccountMap.set(createProviderAccountKey(DISCORD_PROVIDER, DISCORD_PROVIDER_USER_ID), discordAccount);
+		providerAccountMap.set(createProviderAccountKey(GOOGLE_PROVIDER, GOOGLE_PROVIDER_USER_ID), googleAccount);
+
+		const result = await userIdentitiesUseCase.execute(userCredentials);
+
+		expect(result.isErr).toBe(false);
+		assert(result.isOk);
+
+		const { password, federated } = result.value;
+
+		expect(password.enabled).toBe(true);
+		expect(federated).toHaveLength(2);
+
+		assert(federated[0]);
+		assert(federated[1]);
+
+		expect(federated[0].provider).toBe(GOOGLE_PROVIDER);
+		expect(federated[0].providerUserId).toBe(GOOGLE_PROVIDER_USER_ID);
+		expect(federated[1].provider).toBe(DISCORD_PROVIDER);
+		expect(federated[1].providerUserId).toBe(DISCORD_PROVIDER_USER_ID);
+	});
+
+	it("Success: should return password disabled when user has no password hash", async () => {
+		const { userCredentials: noPasswordUser } = createAuthUserFixture({
+			userCredentials: { passwordHash: null },
+		});
+
+		const result = await userIdentitiesUseCase.execute(noPasswordUser);
+
+		expect(result.isErr).toBe(false);
+		assert(result.isOk);
+
+		const { password, federated } = result.value;
+
+		expect(password.enabled).toBe(false);
+		expect(federated).toEqual([]);
 	});
 });

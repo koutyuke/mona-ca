@@ -1,11 +1,15 @@
 import { ok } from "@mona-ca/core/result";
-import type { Unbrand } from "@mona-ca/core/types";
+import { match } from "ts-pattern";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
-import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
+import {
+	type IdentityProviders,
+	isDiscordProvider,
+	isGoogleProvider,
+} from "../../../domain/value-objects/identity-providers";
 import type {
-	FederatedIdentityMap,
+	FederatedIdentities,
 	IUserIdentitiesUseCase,
-	PasswordIdentities,
+	PasswordIdentity,
 	UserIdentitiesUseCaseResult,
 } from "../../ports/in/session/user-identities.usecase.interface";
 import type { IProviderAccountRepository } from "../../ports/out/repositories/provider-account.repository.interface";
@@ -17,23 +21,26 @@ export class UserIdentitiesUseCase implements IUserIdentitiesUseCase {
 	) {}
 
 	public async execute(userCredentials: UserCredentials): Promise<UserIdentitiesUseCaseResult> {
-		const passwordIdentity: PasswordIdentities = {
+		const passwordIdentity: PasswordIdentity = {
 			enabled: userCredentials.passwordHash !== null,
-		};
-		const federatedIdentities: FederatedIdentityMap = {
-			discord: null,
-			google: null,
 		};
 
 		const externalIdentities = await this.providerAccountRepository.findByUserId(userCredentials.id);
 
-		for (const externalIdentity of externalIdentities) {
-			federatedIdentities[externalIdentity.provider as Unbrand<IdentityProviders>] = {
+		const order = (p: IdentityProviders) => {
+			return match(p)
+				.when(isGoogleProvider, () => 0)
+				.when(isDiscordProvider, () => 1)
+				.exhaustive();
+		};
+
+		const federatedIdentities: FederatedIdentities = externalIdentities
+			.toSorted((a, b) => order(a.provider) - order(b.provider))
+			.map(externalIdentity => ({
 				provider: externalIdentity.provider,
 				providerUserId: externalIdentity.providerUserId,
 				linkedAt: externalIdentity.linkedAt,
-			};
-		}
+			}));
 
 		return ok({
 			password: passwordIdentity,
