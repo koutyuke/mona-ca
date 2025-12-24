@@ -46,7 +46,7 @@ describe("PasswordResetVerifyEmailUseCase", () => {
 	});
 
 	it("Success: should extend session expiration time after successful verification", async () => {
-		const originalExpiresAt = new Date(Date.now() + 1000 * 60 * 1); // 10分後
+		const originalExpiresAt = new Date(Date.now() + 1000 * 60 * 1); // 1分後
 		const { passwordResetSession: session } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				code: CORRECT_CODE,
