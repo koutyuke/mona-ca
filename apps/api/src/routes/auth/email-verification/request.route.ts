@@ -26,7 +26,7 @@ export const EmailVerificationRequestRoute = new Elysia()
 
 	// Route
 	.post(
-		"/",
+		"",
 		async ({ cookie, userCredentials, clientPlatform, containers, status }) => {
 			const result = await containers.auth.emailVerificationRequestUseCase.execute(userCredentials);
 

@@ -27,7 +27,7 @@ export const PasswordResetRequestRoute = new Elysia()
 
 	// Route
 	.post(
-		"/",
+		"",
 		async ({ cookie, body: { email }, clientPlatform, containers }) => {
 			const result = await containers.auth.passwordResetRequestUseCase.execute(email);
 

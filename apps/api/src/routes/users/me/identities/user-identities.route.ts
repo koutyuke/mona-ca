@@ -14,7 +14,7 @@ export const UserIdentitiesRoute = new Elysia()
 
 	// Route
 	.get(
-		"/",
+		"",
 		async ({ userCredentials, containers }) => {
 			const result = await containers.auth.userIdentitiesUseCase.execute(userCredentials);
 

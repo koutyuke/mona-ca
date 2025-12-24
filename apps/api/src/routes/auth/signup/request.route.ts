@@ -28,7 +28,7 @@ export const SignupRequestRoute = new Elysia()
 
 	// Route
 	.post(
-		"/",
+		"",
 		async ({ containers, cookie, body: { email }, clientPlatform, status }) => {
 			const result = await containers.auth.signupRequestUseCase.execute(email);
 

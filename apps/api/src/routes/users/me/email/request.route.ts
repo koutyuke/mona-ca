@@ -36,7 +36,7 @@ export const UpdateEmailRequestRoute = new Elysia()
 
 	// Route
 	.post(
-		"/",
+		"",
 		async ({ cookie, body: { email: bodyEmail }, userCredentials, clientPlatform, rateLimit, containers, status }) => {
 			const email = bodyEmail ?? userCredentials.email;
 

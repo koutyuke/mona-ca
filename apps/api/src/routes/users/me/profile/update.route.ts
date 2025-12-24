@@ -12,7 +12,7 @@ export const ProfileUpdateRoute = new Elysia()
 
 	// Route
 	.patch(
-		"/",
+		"",
 		async ({ body: { name, gender, iconUrl }, userCredentials, containers, status }) => {
 			const updateUserProfile: UpdateUserProfileDto = {};
 
