@@ -3,7 +3,7 @@ import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
 import { genderSchema, newGender } from "../../../core/domain/value-objects";
 import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects";
-import { defaultCookieOptions, noContent } from "../../../core/infra/elysia";
+import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { newSignupSessionToken, toAnyTokenResponse } from "../../../features/auth";
 import { clientPlatformPlugin } from "../../../plugins/client-platform";
 import { containerPlugin } from "../../../plugins/container";
@@ -98,7 +98,7 @@ export const SignupRegisterRoute = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return noContent();
+			return status("Created");
 		},
 		{
 			cookie: t.Cookie({
