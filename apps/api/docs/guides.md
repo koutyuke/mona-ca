@@ -116,7 +116,7 @@ export const di = () => {
 #### Repositoryのインターフェース定義
 
 ```typescript
-// features/[feature]/application/ports/repositories/[entity].repository.interface.ts
+// features/[feature]/application/ports/out/repositories/[entity].repository.interface.ts
 export interface I[Entity]Repository {
   findById(id: [Entity]Id): Promise<[Entity] | null>;
   save(entity: [Entity]): Promise<void>;
