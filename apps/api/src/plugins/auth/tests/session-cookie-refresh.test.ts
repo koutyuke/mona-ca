@@ -58,9 +58,9 @@ describe("AuthPlugin Session Cookie Refresh Test", () => {
 		expect(res.status).toBe(200);
 
 		const cookieString = res.headers.get("set-cookie");
-		const cookieAttributes = cookieString?.split(";").map(x => x.trim().split("="));
+		const cookieAttributes = cookieString?.split(";").map((x: string) => x.trim().split("="));
 
-		const cookieExpires = cookieAttributes?.find(([key]) => key === "Expires")?.[1];
+		const cookieExpires = cookieAttributes?.find(([key]: [string, string]) => key === "Expires")?.[1];
 
 		assert(cookieExpires, "Cookie expires not found");
 
