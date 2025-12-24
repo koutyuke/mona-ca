@@ -24,10 +24,8 @@ export default function Page(): JSX.Element {
 					console.log(token);
 				}}
 			/> */}
-			<a href="http://localhost:8787/auth/discord/signup?redirect-uri=/&client-type=web">signup with discord</a>
-			<a href="http://localhost:8787/auth/discord/login?redirect-uri=/&client-type=web">login with discord</a>
-			<a href="http://localhost:8787/auth/google/signup?redirect-uri=/&client-type=web">signup with google</a>
-			<a href="http://localhost:8787/auth/google/login?redirect-uri=/&client-type=web">login with google</a>
+			<a href="http://localhost:8787/auth/federated/discord?redirect-uri=/&platform=web">auth with discord</a>
+			<a href="http://localhost:8787/auth/federated/google?redirect-uri=/&platform=web">auth with google</a>
 			<button
 				type="button"
 				onClick={async () => {
@@ -35,7 +33,7 @@ export default function Page(): JSX.Element {
 						method: "POST",
 						credentials: "include",
 						headers: {
-							"mc-client-type": "web",
+							"mc-platform": "web",
 						},
 					});
 				}}
@@ -49,7 +47,7 @@ export default function Page(): JSX.Element {
 						method: "POST",
 						credentials: "include",
 						headers: {
-							"mc-client-type": "web",
+							"mc-platform": "web",
 							"cf-connecting-ip": "192.168.50.204",
 							"content-type": "application/json",
 						},
@@ -66,80 +64,38 @@ export default function Page(): JSX.Element {
 			<button
 				type="button"
 				onClick={async () => {
-					await fetch("http://localhost:8787/auth/email-verification", {
+					const res = await fetch("http://localhost:8787/users/me/identities/federated/discord/link/prepare", {
 						method: "POST",
 						credentials: "include",
 						headers: {
-							"mc-client-type": "web",
-							"cf-connecting-ip": "192.168.50.204",
-							"content-type": "application/json",
+							"mc-platform": "web",
 						},
-						body: JSON.stringify({
-							email: null,
-						}),
 					});
+
+					const data: { providerLinkRequestToken: string } = await res.json();
+
+					window.location.href = `http://localhost:8787/users/me/identities/federated/discord/link?platform=web&link-token=${data.providerLinkRequestToken}&redirect-uri=/`;
 				}}
 			>
-				email-verification-request
+				provider-link(discord)
 			</button>
 			<button
 				type="button"
 				onClick={async () => {
-					await fetch("http://localhost:8787/auth/email-verification/confirm", {
+					const res = await fetch("http://localhost:8787/users/me/identities/federated/google/link/prepare", {
 						method: "POST",
 						credentials: "include",
 						headers: {
-							"mc-client-type": "web",
-							"cf-connecting-ip": "192.168.50.204",
-							"content-type": "application/json",
-						},
-						body: JSON.stringify({
-							code: "65457465",
-							emailVerificationSessionToken: "s2jzqjxozepxy2geveoeh4nszac2o2xwafjnomfzoixqn76teqlq",
-						}),
-					});
-				}}
-			>
-				email-verification-confirm
-			</button>
-			<button
-				type="button"
-				onClick={async () => {
-					const res = await fetch("http://localhost:8787/auth/discord/link", {
-						method: "GET",
-						credentials: "include",
-						headers: {
-							"mc-client-type": "web",
+							"mc-platform": "web",
 						},
 					});
 
-					const data: { url: string } = await res.json();
+					const data: { providerLinkRequestToken: string } = await res.json();
 
-					window.location.href = data.url;
+					window.location.href = `http://localhost:8787/users/me/identities/federated/google/link?platform=web&link-token=${data.providerLinkRequestToken}&redirect-uri=/`;
 				}}
 			>
-				account-link
-			</button>
-			<button
-				type="button"
-				onClick={async () => {
-					const res = await fetch("http://localhost:8787/auth/association/preview", {
-						method: "POST",
-						credentials: "include",
-						headers: {
-							"mc-client-type": "web",
-							"content-type": "application/json",
-						},
-						body: JSON.stringify({}),
-					});
-
-					const data = await res.json();
-
-					// biome-ignore lint/suspicious/noConsoleLog: <explanation>
-					console.log(data);
-				}}
-			>
-				account-association-preview
+				provider-link(google)
 			</button>
 		</main>
 	);
