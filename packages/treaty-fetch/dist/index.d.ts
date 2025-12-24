@@ -166,7 +166,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                     200: {
                         sessionToken: string;
                     };
-                    204: null;
+                    201: "Created";
                     400: {
                         readonly code: "EMAIL_ALREADY_REGISTERED";
                         readonly message: "Email is already registered. Please use a different email address or try logging in.";
@@ -300,22 +300,51 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
         federated: ((params: {
             provider: string | number;
         }) => {
-            login: {
-                get: (options: {
+            get: (options: {
+                headers?: Record<string, unknown>;
+                query: {
+                    "redirect-uri"?: string;
+                    platform: "mobile" | "web";
+                };
+                fetch?: RequestInit;
+            }) => Promise<Treaty.TreatyResponse<{
+                302: null;
+                400: {
+                    readonly code: "IP_ADDRESS_NOT_FOUND";
+                    readonly message: "IP address not found";
+                } | {
+                    readonly code: "INVALID_REDIRECT_URI";
+                    readonly message: "Invalid redirect URI. Please check the URI and try again.";
+                };
+                422: {
+                    type: "validation";
+                    on: string;
+                    summary?: string;
+                    message?: string;
+                    found?: unknown;
+                    property?: string;
+                    expected?: string;
+                };
+            }>>;
+            callback: {
+                get: (options?: {
                     headers?: Record<string, unknown>;
-                    query: {
-                        "redirect-uri"?: string;
-                        "client-type": "mobile" | "web";
-                    };
+                    query?: Record<string, unknown>;
                     fetch?: RequestInit;
-                }) => Promise<Treaty.TreatyResponse<{
+                } | undefined) => Promise<Treaty.TreatyResponse<{
                     302: null;
                     400: {
                         readonly code: "IP_ADDRESS_NOT_FOUND";
                         readonly message: "IP address not found";
                     } | {
+                        readonly code: "INVALID_STATE";
+                        readonly message: "Invalid OAuth state. Please try again.";
+                    } | {
                         readonly code: "INVALID_REDIRECT_URI";
-                        readonly message: "Invalid redirect URI. Please check the URI and try again.";
+                        readonly message: "Invalid redirect URL. Please check the URL and try again.";
+                    } | {
+                        readonly code: "TOKEN_EXCHANGE_FAILED";
+                        readonly message: "OAuth code is missing. Please try again.";
                     };
                     422: {
                         type: "validation";
@@ -327,37 +356,6 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                         expected?: string;
                     };
                 }>>;
-                callback: {
-                    get: (options?: {
-                        headers?: Record<string, unknown>;
-                        query?: Record<string, unknown>;
-                        fetch?: RequestInit;
-                    } | undefined) => Promise<Treaty.TreatyResponse<{
-                        302: null;
-                        400: {
-                            readonly code: "IP_ADDRESS_NOT_FOUND";
-                            readonly message: "IP address not found";
-                        } | {
-                            readonly code: "INVALID_STATE";
-                            readonly message: "Invalid OAuth state. Please try again.";
-                        } | {
-                            readonly code: "INVALID_REDIRECT_URI";
-                            readonly message: "Invalid redirect URL. Please check the URL and try again.";
-                        } | {
-                            readonly code: "TOKEN_EXCHANGE_FAILED";
-                            readonly message: "OAuth code is missing. Please try again.";
-                        };
-                        422: {
-                            type: "validation";
-                            on: string;
-                            summary?: string;
-                            message?: string;
-                            found?: unknown;
-                            property?: string;
-                            expected?: string;
-                        };
-                    }>>;
-                };
             };
         }) & {};
         "password-reset": {
@@ -569,7 +567,7 @@ declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) =
                 }>>;
             };
             preview: {
-                post: (body?: {
+                get: (body?: {
                     accountLinkRequestToken?: string;
                 } | undefined, options?: {
                     headers?: Record<string, unknown>;
