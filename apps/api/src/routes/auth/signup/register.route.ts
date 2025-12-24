@@ -32,7 +32,7 @@ export const SignupRegisterRoute = new Elysia()
 
 			if (!rawSignupSessionToken) {
 				return status("Unauthorized", {
-					code: "SIGNUP_SESSION_INVALID",
+					code: "INVALID_SIGNUP_SESSION",
 					message: "Signup session token not found. Please request signup again.",
 				});
 			}
@@ -43,15 +43,15 @@ export const SignupRegisterRoute = new Elysia()
 
 			if (validationResult.isErr) {
 				return match(validationResult)
-					.with({ code: "SIGNUP_SESSION_INVALID" }, ({ code }) =>
+					.with({ code: "INVALID_SIGNUP_SESSION" }, ({ code }) =>
 						status("Unauthorized", {
-							code: code,
+							code,
 							message: "Signup session token is invalid. Please request signup again.",
 						}),
 					)
-					.with({ code: "SIGNUP_SESSION_EXPIRED" }, ({ code }) =>
+					.with({ code: "EXPIRED_SIGNUP_SESSION" }, ({ code }) =>
 						status("Unauthorized", {
-							code: code,
+							code,
 							message: "Signup session token has expired. Please request signup again.",
 						}),
 					)
@@ -71,13 +71,13 @@ export const SignupRegisterRoute = new Elysia()
 				return match(result)
 					.with({ code: "EMAIL_ALREADY_REGISTERED" }, ({ code }) =>
 						status("Bad Request", {
-							code: code,
+							code,
 							message: "Email is already registered. Please use a different email address or try logging in.",
 						}),
 					)
-					.with({ code: "EMAIL_VERIFICATION_REQUIRED" }, ({ code }) =>
+					.with({ code: "REQUIRED_EMAIL_VERIFICATION" }, ({ code }) =>
 						status("Bad Request", {
-							code: code,
+							code,
 							message: "Email verification is required. Please verify your email address.",
 						}),
 					)

@@ -1,8 +1,8 @@
 import {
+	ACCOUNT_LINK_REQUEST_COOKIE_NAME,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
-	PROVIDER_LINK_PROPOSAL_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
 	normalizeRedirectableMobileScheme,
 } from "@mona-ca/core/http";
@@ -72,49 +72,46 @@ export const FederatedAuthCallbackRoute = new Elysia()
 			if (result.isErr) {
 				return match(result)
 
-					.with({ code: "INVALID_STATE" }, () =>
+					.with({ code: "INVALID_STATE" }, ({ code }) =>
 						status("Bad Request", {
-							code: "INVALID_STATE",
+							code,
 							message: "Invalid OAuth state. Please try again.",
 						}),
 					)
-					.with({ code: "INVALID_REDIRECT_URI" }, () =>
+					.with({ code: "INVALID_REDIRECT_URI" }, ({ code }) =>
 						status("Bad Request", {
-							code: "INVALID_REDIRECT_URI",
+							code,
 							message: "Invalid redirect URL. Please check the URL and try again.",
 						}),
 					)
-					.with({ code: "TOKEN_EXCHANGE_FAILED" }, () =>
+					.with({ code: "TOKEN_EXCHANGE_FAILED" }, ({ code }) =>
 						status("Bad Request", {
-							code: "TOKEN_EXCHANGE_FAILED",
+							code,
 							message: "OAuth code is missing. Please try again.",
 						}),
 					)
 					.with(
-						{ code: "PROVIDER_LINK_PROPOSAL" },
-						({
-							code: errorCode,
-							context: { redirectURL, clientPlatform, providerLinkProposalToken, providerLinkProposal },
-						}) => {
+						{ code: "ACCOUNT_LINK_REQUEST" },
+						({ code, context: { redirectURL, clientPlatform, accountLinkRequestToken, accountLinkRequest } }) => {
 							if (isMobilePlatform(clientPlatform)) {
-								redirectURL.searchParams.set("provider-link-proposal-token", providerLinkProposalToken);
-								redirectURL.searchParams.set("error", errorCode);
+								redirectURL.searchParams.set("account-link-request-token", accountLinkRequestToken);
+								redirectURL.searchParams.set("error", code);
 								set.headers["referrer-policy"] = "strict-origin";
 								return redirect(normalizeRedirectableMobileScheme(redirectURL));
 							}
 
-							cookie[PROVIDER_LINK_PROPOSAL_COOKIE_NAME].set({
+							cookie[ACCOUNT_LINK_REQUEST_COOKIE_NAME].set({
 								...defaultCookieOptions,
-								value: providerLinkProposalToken,
-								expires: providerLinkProposal.expiresAt,
+								value: accountLinkRequestToken,
+								expires: accountLinkRequest.expiresAt,
 							});
 
-							redirectURL.searchParams.set("error", errorCode);
+							redirectURL.searchParams.set("error", code);
 							return redirect(redirectURL.toString());
 						},
 					)
-					.otherwise(({ code: errorCode, context: { redirectURL } }) => {
-						redirectURL.searchParams.set("error", errorCode);
+					.otherwise(({ code, context: { redirectURL } }) => {
+						redirectURL.searchParams.set("error", code);
 						return redirect(redirectURL.toString());
 					});
 			}
@@ -163,7 +160,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 				[OAUTH_STATE_COOKIE_NAME]: t.String(),
 				[OAUTH_REDIRECT_URI_COOKIE_NAME]: t.String(),
 				[OAUTH_CODE_VERIFIER_COOKIE_NAME]: t.String(),
-				[PROVIDER_LINK_PROPOSAL_COOKIE_NAME]: t.Optional(t.String()),
+				[ACCOUNT_LINK_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				operationId: "auth-federated-auth-callback",
@@ -178,7 +175,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 					"---",
 					"If account link is available, redirect to the client URL with the `account-link-session-token` and `error` query params",
 					"Query params:",
-					"  - `provider-link-proposal-token`: Provider link proposal token",
+					"  - `account-link-request-token`: Account link request token",
 					"  - `error`: Error code(ACCOUNT_LINK_AVAILABLE)",
 					"---",
 					"If error, redirect to the client URL with the `error` query param",

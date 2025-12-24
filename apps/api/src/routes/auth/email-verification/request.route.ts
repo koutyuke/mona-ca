@@ -32,15 +32,15 @@ export const EmailVerificationRequestRoute = new Elysia()
 
 			if (result.isErr) {
 				return match(result)
-					.with({ code: "EMAIL_ALREADY_VERIFIED" }, () =>
+					.with({ code: "EMAIL_ALREADY_VERIFIED" }, ({ code }) =>
 						status("Bad Request", {
-							code: "EMAIL_ALREADY_VERIFIED",
+							code,
 							message: "Email is already verified. Please use a different email address.",
 						}),
 					)
-					.with({ code: "EMAIL_ALREADY_REGISTERED" }, () =>
+					.with({ code: "EMAIL_ALREADY_REGISTERED" }, ({ code }) =>
 						status("Bad Request", {
-							code: "EMAIL_ALREADY_REGISTERED",
+							code,
 							message: "Email is already registered by another user. Please use a different email address.",
 						}),
 					)

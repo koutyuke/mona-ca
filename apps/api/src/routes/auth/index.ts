@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
+import { AccountLinkRoutes } from "./account-link";
 import { EmailVerificationRoutes } from "./email-verification";
 import { FederatedAuthRoutes } from "./federated-auth";
-import { ProviderLinkProposalRoutes } from "./link-proposals";
 import { LoginRoute } from "./login.route";
 import { LogoutRoute } from "./logout.route";
 import { PasswordResetRoutes } from "./password-reset";
@@ -16,4 +16,4 @@ export const AuthRoutes = new Elysia({
 	.use(EmailVerificationRoutes)
 	.use(FederatedAuthRoutes)
 	.use(PasswordResetRoutes)
-	.use(ProviderLinkProposalRoutes);
+	.use(AccountLinkRoutes);

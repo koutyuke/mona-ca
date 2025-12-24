@@ -29,7 +29,7 @@ export const EmailVerificationVerifyRoute = new Elysia()
 		"/verify",
 		async ({
 			cookie,
-			body: { code, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
+			body: { code: emailVerificationCode, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
 			userCredentials,
 			clientPlatform,
 			rateLimit,
@@ -44,7 +44,7 @@ export const EmailVerificationVerifyRoute = new Elysia()
 
 			if (!rawEmailVerificationRequestToken) {
 				return status("Unauthorized", {
-					code: "EMAIL_VERIFICATION_REQUEST_INVALID",
+					code: "INVALID_EMAIL_VERIFICATION_REQUEST",
 					message: "Email verification session token not found. Please request email verification again.",
 				});
 			}
@@ -58,13 +58,13 @@ export const EmailVerificationVerifyRoute = new Elysia()
 
 			if (validationResult.isErr) {
 				return match(validationResult)
-					.with({ code: "INVALID_EMAIL_VERIFICATION_REQUEST" }, () =>
+					.with({ code: "INVALID_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
 						status("Unauthorized", {
 							code,
 							message: "Invalid email verification session. Please request email verification again.",
 						}),
 					)
-					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, () =>
+					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
 						status("Unauthorized", {
 							code,
 							message: "Email verification session has expired. Please request email verification again.",
@@ -85,20 +85,20 @@ export const EmailVerificationVerifyRoute = new Elysia()
 
 			// Main Logic
 			const verifyEmailResult = await containers.auth.emailVerificationVerifyEmailUseCase.execute(
-				code,
+				emailVerificationCode,
 				userCredentials,
 				emailVerificationRequest,
 			);
 
 			if (verifyEmailResult.isErr) {
 				return match(verifyEmailResult)
-					.with({ code: "INVALID_CODE" }, () =>
+					.with({ code: "INVALID_CODE" }, ({ code }) =>
 						status("Bad Request", {
 							code,
 							message: "Invalid verification code. Please check your email and try again.",
 						}),
 					)
-					.with({ code: "INVALID_EMAIL" }, () =>
+					.with({ code: "INVALID_EMAIL" }, ({ code }) =>
 						status("Bad Request", {
 							code,
 							message: "Email mismatch. Please use the email address you requested verification for.",

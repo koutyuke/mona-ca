@@ -30,7 +30,7 @@ export const SignupVerifyRoute = new Elysia()
 		async ({
 			containers,
 			cookie,
-			body: { signupSessionToken: bodySignupSessionToken, code },
+			body: { signupSessionToken: bodySignupSessionToken, code: verifyCode },
 			clientPlatform,
 			rateLimit,
 			status,
@@ -44,7 +44,7 @@ export const SignupVerifyRoute = new Elysia()
 
 			if (!rawSignupSessionToken) {
 				return status("Unauthorized", {
-					code: "SIGNUP_SESSION_INVALID",
+					code: "INVALID_SIGNUP_SESSION",
 					message: "Signup session token not found. Please request signup again.",
 				});
 			}
@@ -55,13 +55,13 @@ export const SignupVerifyRoute = new Elysia()
 
 			if (validationResult.isErr) {
 				return match(validationResult)
-					.with({ code: "SIGNUP_SESSION_INVALID" }, ({ code }) =>
+					.with({ code: "INVALID_SIGNUP_SESSION" }, ({ code }) =>
 						status("Unauthorized", {
 							code,
 							message: "Signup session token is invalid. Please request signup again.",
 						}),
 					)
-					.with({ code: "SIGNUP_SESSION_EXPIRED" }, ({ code }) =>
+					.with({ code: "EXPIRED_SIGNUP_SESSION" }, ({ code }) =>
 						status("Unauthorized", {
 							code,
 							message: "Signup session token has expired. Please request signup again.",
@@ -82,19 +82,19 @@ export const SignupVerifyRoute = new Elysia()
 
 			// Main Logic
 
-			const verifyEmailResult = await containers.auth.signupVerifyEmailUseCase.execute(code, signupSession);
+			const verifyEmailResult = await containers.auth.signupVerifyEmailUseCase.execute(verifyCode, signupSession);
 
 			if (verifyEmailResult.isErr) {
 				return match(verifyEmailResult)
-					.with({ code: "INVALID_VERIFICATION_CODE" }, () =>
+					.with({ code: "INVALID_CODE" }, ({ code }) =>
 						status("Bad Request", {
-							code: "INVALID_VERIFICATION_CODE",
+							code,
 							message: "Invalid verification code. Please check your email and try again.",
 						}),
 					)
-					.with({ code: "ALREADY_VERIFIED" }, () =>
+					.with({ code: "ALREADY_VERIFIED" }, ({ code }) =>
 						status("Bad Request", {
-							code: "ALREADY_VERIFIED",
+							code,
 							message: "Email is already verified. Please login.",
 						}),
 					)

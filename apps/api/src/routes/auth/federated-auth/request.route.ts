@@ -49,9 +49,9 @@ export const FederatedAuthRequestRoute = new Elysia()
 
 			if (result.isErr) {
 				return match(result)
-					.with({ code: "INVALID_REDIRECT_URI" }, () =>
+					.with({ code: "INVALID_REDIRECT_URI" }, ({ code }) =>
 						status("Bad Request", {
-							code: "INVALID_REDIRECT_URI",
+							code,
 							message: "Invalid redirect URI. Please check the URI and try again.",
 						}),
 					)

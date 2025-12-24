@@ -30,7 +30,7 @@ export const PasswordResetResetRoute = new Elysia()
 
 			if (!rawPasswordResetSessionToken) {
 				return status("Unauthorized", {
-					code: "PASSWORD_RESET_SESSION_INVALID",
+					code: "INVALID_PASSWORD_RESET_SESSION",
 					message: "Password reset session token not found. Please request password reset again.",
 				});
 			}
@@ -42,15 +42,15 @@ export const PasswordResetResetRoute = new Elysia()
 
 			if (validationResult.isErr) {
 				return match(validationResult)
-					.with({ code: "PASSWORD_RESET_SESSION_INVALID" }, () =>
+					.with({ code: "INVALID_PASSWORD_RESET_SESSION" }, ({ code }) =>
 						status("Unauthorized", {
-							code: "PASSWORD_RESET_SESSION_INVALID",
+							code,
 							message: "Invalid password reset session. Please request password reset again.",
 						}),
 					)
-					.with({ code: "PASSWORD_RESET_SESSION_EXPIRED" }, () =>
+					.with({ code: "EXPIRED_PASSWORD_RESET_SESSION" }, ({ code }) =>
 						status("Unauthorized", {
-							code: "PASSWORD_RESET_SESSION_EXPIRED",
+							code,
 							message: "Password reset session has expired. Please request password reset again.",
 						}),
 					)
@@ -67,9 +67,9 @@ export const PasswordResetResetRoute = new Elysia()
 
 			if (resetResult.isErr) {
 				return match(resetResult)
-					.with({ code: "REQUIRED_EMAIL_VERIFICATION" }, () =>
+					.with({ code: "REQUIRED_EMAIL_VERIFICATION" }, ({ code }) =>
 						status("Forbidden", {
-							code: "REQUIRED_EMAIL_VERIFICATION",
+							code,
 							message: "Email verification is required before resetting password. Please verify your email first.",
 						}),
 					)

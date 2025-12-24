@@ -34,9 +34,9 @@ export const LoginRoute = new Elysia()
 
 			if (result.isErr) {
 				return match(result)
-					.with({ code: "INVALID_CREDENTIALS" }, () =>
+					.with({ code: "INVALID_CREDENTIALS" }, ({ code }) =>
 						status("Bad Request", {
-							code: "INVALID_CREDENTIALS",
+							code,
 							message: "Invalid email or password. Please check your credentials and try again.",
 						}),
 					)
