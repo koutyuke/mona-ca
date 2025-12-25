@@ -1,10 +1,15 @@
 import { Treaty } from '@elysiajs/eden';
+import { ContentType } from '@mona-ca/core/http';
 
 type RawDiscordProvider = "discord";
 type RawGoogleProvider = "google";
 type RawIdentityProviders = RawDiscordProvider | RawGoogleProvider;
 
-declare const createTreatyFetch: (production: boolean, config?: Treaty.Config) => {
+declare const createTreatyFetch: (production: boolean, config?: {
+    platform?: "web" | "mobile";
+    contentType?: ContentType;
+    treaty?: Treaty.Config;
+}) => {
     auth: {
         login: {
             post: (body: {
