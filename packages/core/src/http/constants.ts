@@ -12,3 +12,4 @@ export const OAUTH_STATE_COOKIE_NAME = "mc_oauth_state" as const;
 // Header
 export const AUTHORIZATION_HEADER_NAME = "authorization" as const;
 export const CLIENT_PLATFORM_HEADER_NAME = "mc-platform" as const;
+export const CONTENT_TYPE_HEADER_NAME = "content-type" as const;
