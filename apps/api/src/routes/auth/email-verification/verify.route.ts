@@ -23,6 +23,16 @@ export const EmailVerificationVerifyRoute = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
@@ -107,16 +117,6 @@ export const EmailVerificationVerifyRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, status }) => {
-				const result = await rateLimit.consume(ipAddress, 1);
-				if (result.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),

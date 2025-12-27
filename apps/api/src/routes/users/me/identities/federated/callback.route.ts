@@ -14,10 +14,31 @@ import { timingSafeStringEqual } from "../../../../../core/lib/security";
 import { identityProvidersSchema, newIdentityProviders } from "../../../../../features/auth";
 import { containerPlugin } from "../../../../../plugins/container";
 import { pathDetail } from "../../../../../plugins/openapi";
+import { ratelimitPlugin } from "../../../../../plugins/ratelimit";
 
 export const ProviderLinkCallback = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
+	.use(
+		ratelimitPlugin("me-provider-link-callback", {
+			maxTokens: 1000,
+			refillRate: 500,
+			refillInterval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.get(
