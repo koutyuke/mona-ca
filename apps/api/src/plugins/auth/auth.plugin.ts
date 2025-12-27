@@ -8,7 +8,7 @@ import { newSessionToken } from "../../features/auth/domain/value-objects/tokens
 import { clientPlatformPlugin } from "../client-platform";
 import { containerPlugin } from "../container";
 
-const unauthorizedResponse = status("Unauthorized", {
+export const unauthorizedResponse = status("Unauthorized", {
 	code: "UNAUTHORIZED",
 	message: "It looks like you are not authenticated. Please login again.",
 });

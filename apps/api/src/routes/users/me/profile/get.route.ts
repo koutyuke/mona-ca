@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
+import { match } from "ts-pattern";
 import { toUserProfileResponse } from "../../../../features/user";
-import { authPlugin } from "../../../../plugins/auth";
+import { authPlugin, unauthorizedResponse } from "../../../../plugins/auth";
 import { containerPlugin } from "../../../../plugins/container";
 import { pathDetail } from "../../../../plugins/openapi";
 
@@ -16,14 +17,13 @@ export const ProfileGetRoute = new Elysia()
 	// Route
 	.get(
 		"",
-		async ({ userCredentials, containers, status }) => {
+		async ({ userCredentials, containers }) => {
 			const getUserProfileResult = await containers.user.getUserProfileUseCase.execute(userCredentials.id);
 
 			if (getUserProfileResult.isErr) {
-				return status("Bad Request", {
-					code: getUserProfileResult.code,
-					message: "Failed to get profile",
-				});
+				return match(getUserProfileResult)
+					.with({ code: "USER_NOT_FOUND" }, () => unauthorizedResponse)
+					.exhaustive();
 			}
 
 			const { userProfile } = getUserProfileResult.value;
