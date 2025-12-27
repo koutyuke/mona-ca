@@ -7,7 +7,7 @@ type Success = Ok<{
 	userCredentials: UserCredentials;
 }>;
 
-type Error = Err<"INVALID_PROVIDER_LINK_REQUEST"> | Err<"EXPIRED_PROVIDER_LINK_REQUEST">;
+type Error = Err<"INVALID_PROVIDER_LINK_REQUEST">;
 
 export type ProviderLinkValidateRequestUseCaseResult = Result<Success, Error>;
 

@@ -156,7 +156,7 @@ describe("ValidateSessionUseCase", () => {
 		expect(result.code).toBe("INVALID_SESSION");
 	});
 
-	it("Error: should return EXPIRED_SESSION error and delete session when session is expired", async () => {
+	it("Error: should return INVALID_SESSION error and delete session when session is expired", async () => {
 		const { session, sessionToken } = createSessionFixture({
 			session: {
 				userId: userRegistration.id,
@@ -170,7 +170,7 @@ describe("ValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("EXPIRED_SESSION");
+		expect(result.code).toBe("INVALID_SESSION");
 
 		// セキュリティ: 期限切れセッションは削除されること
 		expect(sessionMap.has(session.id)).toBe(false);

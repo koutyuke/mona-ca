@@ -69,12 +69,6 @@ export const AccountLinkVerifyRoute = new Elysia()
 							message: "Invalid account link request.",
 						});
 					})
-					.with({ code: "EXPIRED_ACCOUNT_LINK_REQUEST" }, ({ code }) => {
-						return status("Unauthorized", {
-							code,
-							message: "Account link request has expired.",
-						});
-					})
 					.exhaustive();
 			}
 

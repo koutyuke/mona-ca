@@ -42,7 +42,7 @@ export class ProviderLinkValidateRequestUseCase implements IProviderLinkValidate
 		}
 
 		if (isExpiredProviderLinkRequest(providerLinkRequest)) {
-			return err("EXPIRED_PROVIDER_LINK_REQUEST");
+			return err("INVALID_PROVIDER_LINK_REQUEST");
 		}
 
 		if (providerLinkRequest.provider !== provider) {

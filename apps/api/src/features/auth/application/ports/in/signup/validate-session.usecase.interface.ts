@@ -6,7 +6,7 @@ type Success = Ok<{
 	signupSession: SignupSession;
 }>;
 
-type Error = Err<"INVALID_SIGNUP_SESSION"> | Err<"EXPIRED_SIGNUP_SESSION">;
+type Error = Err<"INVALID_SIGNUP_SESSION">;
 
 export type SignupValidateSessionUseCaseResult = Result<Success, Error>;
 

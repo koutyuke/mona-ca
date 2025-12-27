@@ -1,10 +1,32 @@
 import { AUTHORIZATION_HEADER_NAME, SESSION_COOKIE_NAME, readBearerToken } from "@mona-ca/core/http";
-import { Elysia, t } from "elysia";
+import { Elysia, status, t } from "elysia";
 import { match } from "ts-pattern";
 import { isMobilePlatform, isWebPlatform } from "../../core/domain/value-objects";
+import type { Session } from "../../features/auth/domain/entities/session";
+import type { UserCredentials } from "../../features/auth/domain/entities/user-credentials";
 import { newSessionToken } from "../../features/auth/domain/value-objects/tokens";
 import { clientPlatformPlugin } from "../client-platform";
 import { containerPlugin } from "../container";
+
+const unauthorizedResponse = status("Unauthorized", {
+	code: "UNAUTHORIZED",
+	message: "It looks like you are not authenticated. Please login again.",
+});
+
+const invalidSessionResponse = status("Unauthorized", {
+	code: "INVALID_SESSION",
+	message: "It looks like your session is invalid. Please login again.",
+});
+
+const requiredEmailVerificationResponse = status("Forbidden", {
+	code: "REQUIRED_EMAIL_VERIFICATION",
+	message: "It looks like your email is not verified. Please verify your email to continue.",
+});
+
+type AuthError<WithEmailVerification extends boolean> =
+	| typeof unauthorizedResponse
+	| typeof invalidSessionResponse
+	| (WithEmailVerification extends true ? typeof requiredEmailVerificationResponse : never);
 
 /**
  * Creates an authentication guard plugin for Elysia with environment configuration.
@@ -17,8 +39,8 @@ import { containerPlugin } from "../container";
  * @example
  * const plugin = authPlugin({ requireEmailVerification: false });
  */
-export const authPlugin = (options?: {
-	withEmailVerification?: boolean;
+export const authPlugin = <WithEmailVerification extends boolean = true>(options?: {
+	withEmailVerification?: WithEmailVerification;
 }) => {
 	const { withEmailVerification = true } = options ?? {};
 
@@ -45,8 +67,7 @@ export const authPlugin = (options?: {
 				cookie: { [SESSION_COOKIE_NAME]: sessionCookie },
 				clientPlatform,
 				containers,
-				status,
-			}) => {
+			}): Promise<{ userCredentials: UserCredentials; session: Session } | AuthError<WithEmailVerification>> => {
 				const rawSessionToken: string | null | undefined = match(clientPlatform)
 					.when(isWebPlatform, () => sessionCookie?.value)
 					.when(isMobilePlatform, () => {
@@ -55,10 +76,7 @@ export const authPlugin = (options?: {
 					.exhaustive();
 
 				if (!rawSessionToken) {
-					return status("Unauthorized", {
-						code: "UNAUTHORIZED" as const,
-						message: "It looks like you are not authenticated. Please login to continue.",
-					});
+					return unauthorizedResponse;
 				}
 
 				const sessionToken = newSessionToken(rawSessionToken);
@@ -67,18 +85,7 @@ export const authPlugin = (options?: {
 
 				if (validationResult.isErr) {
 					return match(validationResult)
-						.with({ code: "EXPIRED_SESSION" }, ({ code }) =>
-							status("Unauthorized", {
-								code,
-								message: "It looks like your session is expired. Please login to continue.",
-							}),
-						)
-						.with({ code: "INVALID_SESSION" }, ({ code }) =>
-							status("Unauthorized", {
-								code,
-								message: "It looks like your session is invalid. Please login to continue.",
-							}),
-						)
+						.with({ code: "INVALID_SESSION" }, () => invalidSessionResponse)
 						.exhaustive();
 				}
 
@@ -89,10 +96,8 @@ export const authPlugin = (options?: {
 				}
 
 				if (withEmailVerification && !userCredentials.emailVerified) {
-					return status("Unauthorized", {
-						code: "REQUIRED_EMAIL_VERIFICATION" as const,
-						message: "It looks like your email is not verified. Please verify your email to continue.",
-					});
+					// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+					return requiredEmailVerificationResponse as any;
 				}
 
 				return { userCredentials, session };

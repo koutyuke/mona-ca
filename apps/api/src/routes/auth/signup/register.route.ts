@@ -49,12 +49,6 @@ export const SignupRegisterRoute = new Elysia()
 							message: "Signup session token is invalid. Please request signup again.",
 						}),
 					)
-					.with({ code: "EXPIRED_SIGNUP_SESSION" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Signup session token has expired. Please request signup again.",
-						}),
-					)
 					.exhaustive();
 			}
 

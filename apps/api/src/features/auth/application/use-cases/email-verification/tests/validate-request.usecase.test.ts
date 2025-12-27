@@ -166,7 +166,7 @@ describe("EmailVerificationValidateRequestUseCase", () => {
 		expect(result.code).toBe("INVALID_EMAIL_VERIFICATION_REQUEST");
 	});
 
-	it("Error(request expired): should return EXPIRED_EMAIL_VERIFICATION_REQUEST error when request is expired", async () => {
+	it("Error(request expired): should return INVALID_EMAIL_VERIFICATION_REQUEST error when request is expired", async () => {
 		const { emailVerificationRequest, emailVerificationRequestToken } = createEmailVerificationRequestFixture({
 			emailVerificationRequest: {
 				userId: userCredentials.id,
@@ -184,13 +184,13 @@ describe("EmailVerificationValidateRequestUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("EXPIRED_EMAIL_VERIFICATION_REQUEST");
+		expect(result.code).toBe("INVALID_EMAIL_VERIFICATION_REQUEST");
 
 		// check expired request is deleted
 		expect(emailVerificationRequestMap.has(emailVerificationRequest.id)).toBe(false);
 	});
 
-	it("Error(request expired): should return EXPIRED_EMAIL_VERIFICATION_REQUEST error when request is expired exactly at the expiration time", async () => {
+	it("Error(request expired): should return INVALID_EMAIL_VERIFICATION_REQUEST error when request is expired exactly at the expiration time", async () => {
 		const now = new Date();
 		const { emailVerificationRequest, emailVerificationRequestToken } = createEmailVerificationRequestFixture({
 			emailVerificationRequest: {
@@ -209,6 +209,6 @@ describe("EmailVerificationValidateRequestUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("EXPIRED_EMAIL_VERIFICATION_REQUEST");
+		expect(result.code).toBe("INVALID_EMAIL_VERIFICATION_REQUEST");
 	});
 });

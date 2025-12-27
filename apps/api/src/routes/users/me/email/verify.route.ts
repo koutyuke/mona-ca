@@ -64,12 +64,6 @@ export const UpdateEmailVerifyRoute = new Elysia()
 							message: "Invalid email verification request. Please request a new verification email.",
 						}),
 					)
-					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
-						status("Bad Request", {
-							code,
-							message: "Email verification request has expired. Please request a new verification email.",
-						}),
-					)
 					.exhaustive();
 			}
 

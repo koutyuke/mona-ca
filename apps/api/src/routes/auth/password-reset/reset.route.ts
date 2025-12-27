@@ -48,12 +48,6 @@ export const PasswordResetResetRoute = new Elysia()
 							message: "Invalid password reset session. Please request password reset again.",
 						}),
 					)
-					.with({ code: "EXPIRED_PASSWORD_RESET_SESSION" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Password reset session has expired. Please request password reset again.",
-						}),
-					)
 					.exhaustive();
 			}
 

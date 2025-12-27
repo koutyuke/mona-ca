@@ -8,7 +8,7 @@ type Success = Ok<{
 	userCredentials: UserCredentials;
 }>;
 
-type Error = Err<"INVALID_ACCOUNT_LINK_REQUEST"> | Err<"EXPIRED_ACCOUNT_LINK_REQUEST">;
+type Error = Err<"INVALID_ACCOUNT_LINK_REQUEST">;
 
 export type AccountLinkValidateRequestUseCaseResult = Result<Success, Error>;
 

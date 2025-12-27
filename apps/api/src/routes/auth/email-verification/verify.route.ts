@@ -64,12 +64,6 @@ export const EmailVerificationVerifyRoute = new Elysia()
 							message: "Invalid email verification session. Please request email verification again.",
 						}),
 					)
-					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Email verification session has expired. Please request email verification again.",
-						}),
-					)
 					.exhaustive();
 			}
 

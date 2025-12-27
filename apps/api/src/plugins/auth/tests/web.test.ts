@@ -109,7 +109,7 @@ describe("AuthPlugin Cookie Test", () => {
 			}),
 		);
 
-		expect(res.status).toBe(401);
+		expect(res.status).toBe(403);
 	});
 
 	test("Fail with invalid cookie that email verification is not required", async () => {

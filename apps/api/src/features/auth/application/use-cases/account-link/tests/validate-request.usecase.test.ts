@@ -99,7 +99,7 @@ describe("AccountLinkValidateRequestUseCase", () => {
 		expect(result.code).toBe("INVALID_ACCOUNT_LINK_REQUEST");
 	});
 
-	it("should return EXPIRED_ACCOUNT_LINK_REQUEST error for expired account link request", async () => {
+	it("should return INVALID_ACCOUNT_LINK_REQUEST error for expired account link request", async () => {
 		// create account link request that is expired
 		const { accountLinkRequest, accountLinkRequestToken } = createAccountLinkRequestFixture({
 			accountLinkRequest: {
@@ -118,7 +118,7 @@ describe("AccountLinkValidateRequestUseCase", () => {
 		expect(result.isErr).toBe(true);
 
 		assert(result.isErr);
-		expect(result.code).toBe("EXPIRED_ACCOUNT_LINK_REQUEST");
+		expect(result.code).toBe("INVALID_ACCOUNT_LINK_REQUEST");
 
 		// verify proposal is deleted
 		expect(accountLinkRequestMap.has(accountLinkRequest.id)).toBe(false);

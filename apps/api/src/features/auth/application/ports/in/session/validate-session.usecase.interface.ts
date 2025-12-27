@@ -8,7 +8,7 @@ type Success = Ok<{
 	session: Session;
 }>;
 
-type Error = Err<"INVALID_SESSION"> | Err<"EXPIRED_SESSION">;
+type Error = Err<"INVALID_SESSION">;
 
 export type ValidateSessionUseCaseResult = Result<Success, Error>;
 

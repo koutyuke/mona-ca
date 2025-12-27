@@ -70,12 +70,6 @@ export const ProviderLinkRequestRoute = new Elysia()
 							message: "It looks like the provider link request is invalid. Please try again.",
 						}),
 					)
-					.with({ code: "EXPIRED_PROVIDER_LINK_REQUEST" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "It looks like the provider link request is expired. Please try again.",
-						}),
-					)
 					.exhaustive();
 			}
 			const { userCredentials } = validationResult.value;

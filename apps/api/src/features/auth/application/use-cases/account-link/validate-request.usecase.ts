@@ -43,7 +43,7 @@ export class AccountLinkValidateRequestUseCase implements IAccountLinkValidateRe
 
 		if (isExpiredAccountLinkRequest(accountLinkRequest)) {
 			await this.accountLinkRequestRepository.deleteById(accountLinkRequestId);
-			return err("EXPIRED_ACCOUNT_LINK_REQUEST");
+			return err("INVALID_ACCOUNT_LINK_REQUEST");
 		}
 
 		const userCredentials = await this.authUserRepository.findById(accountLinkRequest.userId);
