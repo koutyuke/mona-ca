@@ -13,11 +13,6 @@ const unauthorizedResponse = status("Unauthorized", {
 	message: "It looks like you are not authenticated. Please login again.",
 });
 
-const invalidSessionResponse = status("Unauthorized", {
-	code: "INVALID_SESSION",
-	message: "It looks like your session is invalid. Please login again.",
-});
-
 const requiredEmailVerificationResponse = status("Forbidden", {
 	code: "REQUIRED_EMAIL_VERIFICATION",
 	message: "It looks like your email is not verified. Please verify your email to continue.",
@@ -25,7 +20,6 @@ const requiredEmailVerificationResponse = status("Forbidden", {
 
 type AuthError<WithEmailVerification extends boolean> =
 	| typeof unauthorizedResponse
-	| typeof invalidSessionResponse
 	| (WithEmailVerification extends true ? typeof requiredEmailVerificationResponse : never);
 
 /**
@@ -85,7 +79,7 @@ export const authPlugin = <WithEmailVerification extends boolean = true>(options
 
 				if (validationResult.isErr) {
 					return match(validationResult)
-						.with({ code: "INVALID_SESSION" }, () => invalidSessionResponse)
+						.with({ code: "INVALID_SESSION" }, () => unauthorizedResponse)
 						.exhaustive();
 				}
 
