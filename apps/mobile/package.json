@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "expo start --dev-client",
     "dev:ios": "expo start --ios --dev-client",
+    "dev:android": "expo start --android --dev-client",
+    "prebuild": "expo prebuild",
     "ios": "expo run:ios",
     "android": "expo run:android",
     "check": "biome check --error-on-warnings --no-errors-on-unmatched",
