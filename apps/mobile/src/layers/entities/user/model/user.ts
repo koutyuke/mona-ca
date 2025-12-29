@@ -1,4 +1,4 @@
-export type Gender = "man" | "woman";
+export type Gender = "male" | "female";
 
 export type User = {
 	id: string;
