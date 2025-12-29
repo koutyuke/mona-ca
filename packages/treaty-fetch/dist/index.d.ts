@@ -16,7 +16,7 @@ declare const createTreatyFetch: (production: boolean, config?: {
                 email: string;
                 password: string;
             } & {
-                cfTurnstileResponse: string;
+                turnstileToken: string;
             }, options?: {
                 headers?: Record<string, unknown>;
                 query?: Record<string, unknown>;
@@ -33,7 +33,7 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
                 } | {
-                    readonly code: "CAPTCHA_VERIFICATION_FAILED";
+                    readonly code: "CAPTCHA_FAILED";
                     readonly message: "Verification failed.";
                 };
                 422: {
@@ -44,6 +44,13 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     found?: unknown;
                     property?: string;
                     expected?: string;
+                };
+                429: {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                } | {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
                 };
             }>>;
         };
@@ -73,21 +80,21 @@ declare const createTreatyFetch: (production: boolean, config?: {
             post: (body: {
                 email: string;
             } & {
-                cfTurnstileResponse: string;
+                turnstileToken: string;
             }, options?: {
                 headers?: Record<string, unknown>;
                 query?: Record<string, unknown>;
                 fetch?: RequestInit;
             } | undefined) => Promise<Treaty.TreatyResponse<{
                 200: {
-                    signupSessionToken: string;
+                    signupToken: string;
                 };
                 204: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
                 } | {
-                    readonly code: "CAPTCHA_VERIFICATION_FAILED";
+                    readonly code: "CAPTCHA_FAILED";
                     readonly message: "Verification failed.";
                 } | {
                     readonly code: "EMAIL_ALREADY_USED";
@@ -102,10 +109,17 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     property?: string;
                     expected?: string;
                 };
+                429: {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                } | {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                };
             }>>;
             verify: {
                 post: (body: {
-                    signupSessionToken?: string;
+                    signupToken?: string;
                     code: string;
                 }, options?: {
                     headers?: Record<string, unknown>;
@@ -142,12 +156,15 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     429: {
                         readonly code: "TOO_MANY_REQUESTS";
                         readonly message: "Too many requests. Please try again later.";
+                    } | {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
                     };
                 }>>;
             };
             register: {
                 post: (body: {
-                    signupSessionToken?: string;
+                    signupToken?: string;
                     name: string;
                     gender: "male" | "female";
                     password: string;
@@ -159,8 +176,11 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     200: {
                         sessionToken: string;
                     };
-                    201: "Created";
+                    201: null;
                     400: {
+                        readonly code: "IP_ADDRESS_NOT_FOUND";
+                        readonly message: "IP address not found";
+                    } | {
                         readonly code: "EMAIL_ALREADY_REGISTERED";
                         readonly message: "Email is already registered. Please use a different email address or try logging in.";
                     } | {
@@ -183,6 +203,10 @@ declare const createTreatyFetch: (production: boolean, config?: {
                         property?: string;
                         expected?: string;
                     };
+                    429: {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
+                    };
                 }>>;
             };
         };
@@ -193,7 +217,7 @@ declare const createTreatyFetch: (production: boolean, config?: {
                 fetch?: RequestInit;
             } | undefined) => Promise<Treaty.TreatyResponse<{
                 200: {
-                    emailVerificationRequestToken: string;
+                    verificationToken: string;
                 };
                 204: null;
                 400: {
@@ -219,10 +243,17 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     property?: string;
                     expected?: string;
                 };
+                429: {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                } | {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                };
             }>>;
             verify: {
                 post: (body: {
-                    emailVerificationRequestToken?: string;
+                    verificationToken?: string;
                     code: string;
                 }, options?: {
                     headers?: Record<string, unknown>;
@@ -262,6 +293,9 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     429: {
                         readonly code: "TOO_MANY_REQUESTS";
                         readonly message: "Too many requests. Please try again later.";
+                    } | {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
                     };
                 }>>;
             };
@@ -294,6 +328,10 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     property?: string;
                     expected?: string;
                 };
+                429: {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                };
             }>>;
             callback: {
                 get: (options?: {
@@ -324,6 +362,10 @@ declare const createTreatyFetch: (production: boolean, config?: {
                         property?: string;
                         expected?: string;
                     };
+                    429: {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
+                    };
                 }>>;
             };
         }) & {};
@@ -331,21 +373,21 @@ declare const createTreatyFetch: (production: boolean, config?: {
             post: (body: {
                 email: string;
             } & {
-                cfTurnstileResponse: string;
+                turnstileToken: string;
             }, options?: {
                 headers?: Record<string, unknown>;
                 query?: Record<string, unknown>;
                 fetch?: RequestInit;
             } | undefined) => Promise<Treaty.TreatyResponse<{
                 200: {
-                    passwordResetSessionToken: string;
+                    resetToken: string;
                 };
                 204: null;
                 400: {
                     readonly code: "IP_ADDRESS_NOT_FOUND";
                     readonly message: "IP address not found";
                 } | {
-                    readonly code: "CAPTCHA_VERIFICATION_FAILED";
+                    readonly code: "CAPTCHA_FAILED";
                     readonly message: "Verification failed.";
                 };
                 422: {
@@ -357,10 +399,17 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     property?: string;
                     expected?: string;
                 };
+                429: {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                } | {
+                    readonly code: "TOO_MANY_REQUESTS";
+                    readonly message: "Too many requests. Please try again later.";
+                };
             }>>;
             verify: {
                 post: (body: {
-                    passwordResetSessionToken?: string;
+                    resetToken?: string;
                     code: string;
                 }, options?: {
                     headers?: Record<string, unknown>;
@@ -394,12 +443,15 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     429: {
                         readonly code: "TOO_MANY_REQUESTS";
                         readonly message: "Too many requests. Please try again later.";
+                    } | {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
                     };
                 }>>;
             };
             reset: {
                 post: (body: {
-                    passwordResetSessionToken?: string;
+                    resetToken?: string;
                     newPassword: string;
                 }, options?: {
                     headers?: Record<string, unknown>;
@@ -407,6 +459,10 @@ declare const createTreatyFetch: (production: boolean, config?: {
                     fetch?: RequestInit;
                 } | undefined) => Promise<Treaty.TreatyResponse<{
                     204: null;
+                    400: {
+                        readonly code: "IP_ADDRESS_NOT_FOUND";
+                        readonly message: "IP address not found";
+                    };
                     401: {
                         readonly code: "INVALID_PASSWORD_RESET_SESSION";
                         readonly message: "Password reset session token not found. Please request password reset again.";
@@ -427,13 +483,17 @@ declare const createTreatyFetch: (production: boolean, config?: {
                         property?: string;
                         expected?: string;
                     };
+                    429: {
+                        readonly code: "TOO_MANY_REQUESTS";
+                        readonly message: "Too many requests. Please try again later.";
+                    };
                 }>>;
             };
         };
         "account-link": {
             resend: {
                 post: (body?: Partial<{
-                    accountLinkRequestToken?: string;
+                    linkToken?: string;
                 }> | null | undefined, options?: {
                     headers?: Record<string, unknown>;
                     query?: Record<string, unknown>;
@@ -474,7 +534,7 @@ declare const createTreatyFetch: (production: boolean, config?: {
             };
             verify: {
                 post: (body: {
-                    accountLinkRequestToken?: string;
+                    linkToken?: string;
                     code: string;
                 }, options?: {
                     headers?: Record<string, unknown>;
@@ -524,9 +584,9 @@ declare const createTreatyFetch: (production: boolean, config?: {
                 }>>;
             };
             preview: {
-                get: (body?: {
-                    accountLinkRequestToken?: string;
-                } | undefined, options?: {
+                get: (body?: Partial<{
+                    linkToken: string;
+                }> | null | undefined, options?: {
                     headers?: Record<string, unknown>;
                     query?: Record<string, unknown>;
                     fetch?: RequestInit;
@@ -701,7 +761,7 @@ declare const createTreatyFetch: (production: boolean, config?: {
                                 fetch?: RequestInit;
                             } | undefined) => Promise<Treaty.TreatyResponse<{
                                 200: {
-                                    providerLinkRequestToken: string;
+                                    linkToken: string;
                                 };
                                 401: {
                                     readonly code: "UNAUTHORIZED";
@@ -751,6 +811,10 @@ declare const createTreatyFetch: (production: boolean, config?: {
                                 property?: string;
                                 expected?: string;
                             };
+                            429: {
+                                readonly code: "TOO_MANY_REQUESTS";
+                                readonly message: "Too many requests. Please try again later.";
+                            };
                         }>>;
                         callback: {
                             get: (options?: {
@@ -760,6 +824,9 @@ declare const createTreatyFetch: (production: boolean, config?: {
                             } | undefined) => Promise<Treaty.TreatyResponse<{
                                 302: null;
                                 400: {
+                                    readonly code: "IP_ADDRESS_NOT_FOUND";
+                                    readonly message: "IP address not found";
+                                } | {
                                     readonly code: "INVALID_STATE";
                                 } | {
                                     readonly code: "INVALID_REDIRECT_URI";
@@ -776,6 +843,10 @@ declare const createTreatyFetch: (production: boolean, config?: {
                                     found?: unknown;
                                     property?: string;
                                     expected?: string;
+                                };
+                                429: {
+                                    readonly code: "TOO_MANY_REQUESTS";
+                                    readonly message: "Too many requests. Please try again later.";
                                 };
                             }>>;
                         };
@@ -818,14 +889,14 @@ declare const createTreatyFetch: (production: boolean, config?: {
             };
             email: {
                 post: (body: {
-                    email: string | null;
+                    email: string;
                 }, options?: {
                     headers?: Record<string, unknown>;
                     query?: Record<string, unknown>;
                     fetch?: RequestInit;
                 } | undefined) => Promise<Treaty.TreatyResponse<{
                     200: {
-                        emailVerificationRequestToken: string;
+                        verificationToken: string;
                     };
                     204: null;
                     400: {
@@ -862,7 +933,7 @@ declare const createTreatyFetch: (production: boolean, config?: {
                 }>>;
                 verify: {
                     post: (body: {
-                        emailVerificationRequestToken?: string;
+                        verificationToken?: string;
                         code: string;
                     }, options?: {
                         headers?: Record<string, unknown>;
@@ -907,6 +978,9 @@ declare const createTreatyFetch: (production: boolean, config?: {
                             expected?: string;
                         };
                         429: {
+                            readonly code: "TOO_MANY_REQUESTS";
+                            readonly message: "Too many requests. Please try again later.";
+                        } | {
                             readonly code: "TOO_MANY_REQUESTS";
                             readonly message: "Too many requests. Please try again later.";
                         };
