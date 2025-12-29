@@ -17,14 +17,14 @@ export const captchaPlugin = () =>
 		.guard({
 			schema: "standalone",
 			body: t.Object({
-				cfTurnstileResponse: t.String(),
+				turnstileToken: t.String(),
 			}),
 		})
-		.onBeforeHandle(async ({ body: { cfTurnstileResponse }, containers, status, ipAddress }) => {
-			const { success } = await containers.core.turnstileGateway.verify(cfTurnstileResponse, ipAddress);
+		.onBeforeHandle(async ({ body: { turnstileToken }, containers, status, ipAddress }) => {
+			const { success } = await containers.core.turnstileGateway.verify(turnstileToken, ipAddress);
 			if (!success) {
 				return status("Bad Request", {
-					code: "CAPTCHA_VERIFICATION_FAILED" as const,
+					code: "CAPTCHA_FAILED" as const,
 					message: "Verification failed.",
 				});
 			}
