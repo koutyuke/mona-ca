@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { type WritableAtom, useStore } from "jotai";
 import { RESET } from "jotai/utils";
 import { type FC, type ReactNode, useEffect } from "react";
-import { accountAssociationSessionTokenAtom, sessionTokenAtom } from "../../entities/session";
+import { accountLinkTokenAtom, sessionTokenAtom } from "../../entities/session";
 import { themeAtom } from "../../entities/theme";
 import { userAtom } from "../../entities/user";
 import { subscribeToAuthReset } from "../../shared/lib/auth";
@@ -14,7 +14,7 @@ type ResettableAtom = WritableAtom<any, [typeof RESET], void>;
 
 const secureStorageAtom: Record<keyof typeof secureStorageKeys, ResettableAtom> = {
 	sessionToken: sessionTokenAtom,
-	accountAssociationToken: accountAssociationSessionTokenAtom,
+	accountLinkToken: accountLinkTokenAtom,
 } as const;
 
 type ExcludeResettableAtom = "lastLoginMethod";
