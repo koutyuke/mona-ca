@@ -1,41 +1,29 @@
-import { isErr } from "@mona-ca/core/utils";
+import { err } from "@mona-ca/core/result";
 import { atomWithQuery } from "jotai-tanstack-query";
-import {
-	FetchError,
-	type QueryAtomError,
-	ResultErrToFetchError,
-	type ResultToFetchError,
-} from "../../../../shared/api";
+import { type QueryFnResponse, queryFnFromResult } from "../../../../shared/api/tanstack-query";
 import { sessionTokenAtom } from "../../../session";
-import { getMe } from "../../api/get-me";
-import type { User } from "../user";
+import { getUserProfile } from "../../api/get-user-profile";
 
 const STALE_TIME = 60 * 60 * 1000;
 
-type GetMeFetchError = ResultToFetchError<Awaited<ReturnType<typeof getMe>>>;
+const qf = (token: string | null) =>
+	queryFnFromResult(async () => {
+		if (!token) {
+			return err("UNAUTHORIZED", { errorMessage: "No session token" });
+		}
+		return await getUserProfile(token);
+	});
 
-export type QueryFnError = GetMeFetchError | FetchError<"UNAUTHORIZED">;
+type Response = QueryFnResponse<ReturnType<typeof qf>>;
 
-export const queryAtom = atomWithQuery<User, QueryAtomError<QueryFnError>>(get => {
+export const queryAtom = atomWithQuery<Response["ok"], Response["err"]>(get => {
 	const token = get(sessionTokenAtom);
 
 	const hasSession = token !== null;
 
 	return {
 		queryKey: ["users", "me"],
-		queryFn: async () => {
-			if (!token) {
-				throw new FetchError("UNAUTHORIZED", "No session token");
-			}
-
-			const res = await getMe(token);
-
-			if (isErr(res)) {
-				throw ResultErrToFetchError(res);
-			}
-
-			return res.value;
-		},
+		queryFn: qf(token),
 		staleTime: STALE_TIME,
 		gcTime: STALE_TIME * 2,
 		enabled: hasSession,
