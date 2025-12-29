@@ -28,11 +28,8 @@ const AuthLayout = () => {
 					/>
 				</Stack.Protected>
 
-				<Stack.Protected guard={navigationGuard.data === "accountAssociation"}>
-					<Stack.Screen
-						name="account-association"
-						options={{ header: () => <WaveHeader title="Account Association" /> }}
-					/>
+				<Stack.Protected guard={navigationGuard.data === "accountLink"}>
+					<Stack.Screen name="account-link" options={{ header: () => <WaveHeader title="Account Link" /> }} />
 				</Stack.Protected>
 
 				<Stack.Protected guard={navigationGuard.data === "emailVerification"}>

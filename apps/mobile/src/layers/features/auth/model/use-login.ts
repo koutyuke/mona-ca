@@ -1,13 +1,22 @@
-import { isErr } from "@mona-ca/core/utils";
 import { useSetAtom } from "jotai";
 import { useRef, useState } from "react";
 import { sessionTokenAtom } from "../../../entities/session";
-import { getMe, userAtom } from "../../../entities/user";
-import { signup } from "../api/signup-with-email";
+import { getUserProfile, userAtom } from "../../../entities/user";
+import { login } from "../api/login";
 import { lastLoginMethodAtom } from "./last-login-method-atom";
-import type { SignupFormSchema } from "./signup-form-schema";
+import type { LoginFormSchema } from "./login-form-schema";
 
-export const useSignupWithEmail = () => {
+const loginErrorMessageMap = {
+	INVALID_CREDENTIALS: "メールアドレスまたはパスワードが間違っています。",
+	CAPTCHA_FAILED: "CAPTCHAが失敗しました。再度お試しください。",
+	TOO_MANY_REQUESTS: "リクエストが多すぎます。再度お試しください。",
+	VALIDATION_ERROR: "入力に誤りがあります。再度お試しください。",
+	NETWORK_ERROR: "通信に失敗しました。再度お試しください。",
+	SERVER_ERROR: "サーバーに問題があります。再度お試しください。",
+	UNKNOWN_ERROR: "エラーが発生しました。再度お試しください。",
+} satisfies Record<string, string>;
+
+export const useLogin = () => {
 	const setSessionToken = useSetAtom(sessionTokenAtom);
 	const setLastLoginMethod = useSetAtom(lastLoginMethodAtom);
 	const setUser = useSetAtom(userAtom);
@@ -17,9 +26,9 @@ export const useSignupWithEmail = () => {
 	const [isLoading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const formData = useRef<SignupFormSchema | null>(null);
+	const formData = useRef<LoginFormSchema | null>(null);
 
-	const startTurnstileVerification = (data: SignupFormSchema) => {
+	const startTurnstileVerification = (data: LoginFormSchema) => {
 		formData.current = data;
 		setTurnstileModalVisible(true);
 		setLoading(true);
@@ -34,22 +43,23 @@ export const useSignupWithEmail = () => {
 
 			if (!formData.current || !isTurnstileModalVisible) return;
 
-			const { email, password, name, gender } = formData.current;
+			const { email, password } = formData.current;
 
-			const signupResult = await signup(email, password, name, gender, turnstileToken);
+			const loginResult = await login(email, password, turnstileToken);
 
-			if (isErr(signupResult)) {
-				setError(signupResult.value.errorMessage);
+			if (loginResult.isErr) {
+				setError(loginErrorMessageMap[loginResult.code]);
 				setLoading(false);
 				return;
 			}
 
-			const { sessionToken } = signupResult.value;
+			const { sessionToken } = loginResult.value;
 
-			const userResult = await getMe(sessionToken);
+			const userResult = await getUserProfile(sessionToken);
 
-			if (isErr(userResult)) {
-				setError(userResult.value.errorMessage);
+			if (userResult.isErr) {
+				// TODO: set log
+				setError("ユーザーの取得に失敗しました");
 				setLoading(false);
 				return;
 			}

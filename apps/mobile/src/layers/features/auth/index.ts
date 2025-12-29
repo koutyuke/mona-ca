@@ -1,6 +1,5 @@
 export { LoginWithEmail } from "./ui/login-with-email/login-with-email";
 export { LoginWithSocial } from "./ui/auth-with-social/login-with-social";
-export { SignupWithSocial } from "./ui/auth-with-social/signup-with-social";
 export { SignupWithEmail } from "./ui/signup-with-email/signup-with-email";
 export { AgreementNotice } from "./ui/agreement-notice/agreement-notice";
 export { LastLoginMethod } from "./ui/last-login-method/last-login-method";

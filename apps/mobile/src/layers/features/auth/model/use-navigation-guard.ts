@@ -1,9 +1,9 @@
 import { useAtomValue } from "jotai";
-import { hasAccountAssociationSessionTokenAtom, hasSessionTokenAtom } from "../../../entities/session";
+import { hasAccountLinkTokenAtom, hasSessionTokenAtom } from "../../../entities/session";
 import { userAtom } from "../../../entities/user";
 import { visitPersonalizePageFlagAtom } from "./visit-personalize-page-flag-atom";
 
-type ProtectedRoute = "app" | "emailVerification" | "accountAssociation" | "unauthenticated" | "personalize";
+type ProtectedRoute = "app" | "emailVerification" | "accountLink" | "unauthenticated" | "personalize";
 
 type GuardState =
 	| {
@@ -17,7 +17,7 @@ type GuardState =
 
 export const useNavigationGuard = (): GuardState => {
 	const hasSessionToken = useAtomValue(hasSessionTokenAtom);
-	const hasAccountAssociationSessionToken = useAtomValue(hasAccountAssociationSessionTokenAtom);
+	const hasAccountLinkToken = useAtomValue(hasAccountLinkTokenAtom);
 	const userState = useAtomValue(userAtom);
 	const visitPersonalizePageFlag = useAtomValue(visitPersonalizePageFlagAtom);
 
@@ -56,10 +56,10 @@ export const useNavigationGuard = (): GuardState => {
 		};
 	}
 
-	if (hasAccountAssociationSessionToken) {
+	if (hasAccountLinkToken) {
 		return {
 			loading: false,
-			data: "accountAssociation",
+			data: "accountLink",
 		};
 	}
 

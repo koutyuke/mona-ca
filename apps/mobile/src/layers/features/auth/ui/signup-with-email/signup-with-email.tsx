@@ -1,4 +1,4 @@
-import { useSignupWithEmail } from "../../model/use-signup-with-email";
+import { useSignup } from "../../model/use-signup";
 import { TurnstileFormUI } from "../turnstile/turnstile-form.ui";
 import { TurnstileModalUI } from "../turnstile/turnstile-modal.ui";
 import { SignupWithEmailUI } from "./signup-with-email.ui";
@@ -12,7 +12,7 @@ export const SignupWithEmail = () => {
 		startTurnstileVerification,
 		completeTurnstileVerification,
 		closeTurnstileModal,
-	} = useSignupWithEmail();
+	} = useSignup();
 
 	return (
 		<SignupWithEmailUI
