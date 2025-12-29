@@ -173,7 +173,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 					"  - `session-token`: Session token",
 					"  - `flow`: Flow(login, signup)",
 					"---",
-					"If account link is available, redirect to the client URL with the `account-link-session-token` and `error` query params",
+					"If account link is available, redirect to the client URL with the `link-token` and `error` query params",
 					"Query params:",
 					"  - `link-token`: Account link request token",
 					"  - `error`: Error code(ACCOUNT_LINK_AVAILABLE)",
