@@ -24,11 +24,29 @@ export const PasswordResetRequestRoute = new Elysia()
 		}),
 	)
 	.use(captchaPlugin())
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"",
-		async ({ cookie, body: { email }, clientPlatform, containers }) => {
+		async ({ cookie, body: { email }, clientPlatform, containers, status, rateLimit }) => {
+			const emailResult = await rateLimit.consume(email, 100);
+			if (emailResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
+
 			const result = await containers.auth.passwordResetRequestUseCase.execute(email);
 
 			if (result.isErr) {
@@ -39,7 +57,7 @@ export const PasswordResetRequestRoute = new Elysia()
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					passwordResetSessionToken: toAnyTokenResponse(passwordResetSessionToken),
+					resetToken: toAnyTokenResponse(passwordResetSessionToken),
 				};
 			}
 
@@ -52,19 +70,6 @@ export const PasswordResetRequestRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, body: { email }, status }) => {
-				const [ipAddressResult, emailResult] = await Promise.all([
-					rateLimit.consume(ipAddress, 1),
-					rateLimit.consume(email, 100),
-				]);
-				if (ipAddressResult.isErr || emailResult.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),

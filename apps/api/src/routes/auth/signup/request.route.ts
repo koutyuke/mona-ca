@@ -25,11 +25,29 @@ export const SignupRequestRoute = new Elysia()
 		}),
 	)
 	.use(captchaPlugin())
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"",
-		async ({ containers, cookie, body: { email }, clientPlatform, status }) => {
+		async ({ containers, cookie, body: { email }, clientPlatform, status, rateLimit }) => {
+			const emailResult = await rateLimit.consume(email, 100);
+			if (emailResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
+
 			const result = await containers.auth.signupRequestUseCase.execute(email);
 
 			if (result.isErr) {
@@ -47,7 +65,7 @@ export const SignupRequestRoute = new Elysia()
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					signupSessionToken: toAnyTokenResponse(signupSessionToken),
+					signupToken: toAnyTokenResponse(signupSessionToken),
 				};
 			}
 
@@ -60,19 +78,6 @@ export const SignupRequestRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, body: { email }, status }) => {
-				const [ipAddressResult, emailResult] = await Promise.all([
-					rateLimit.consume(ipAddress, 1),
-					rateLimit.consume(email, 100),
-				]);
-				if (ipAddressResult.isErr || emailResult.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[SIGNUP_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),

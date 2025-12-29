@@ -1,3 +1,4 @@
-export { edenFetch, withBearer } from "./eden-fetch";
-export { FetchError, ResultErrToFetchError, type ResultToFetchError, type QueryAtomError } from "./fetch-error";
+export { treatyFetch, withBearer } from "./treaty-fetch";
+export { FetchError, ResultErrToFetchError } from "./fetch-error";
 export { useNetworkStatus, isOnlineAtom } from "./online";
+export { queryFnFromResult, type QueryFnResponse } from "./tanstack-query";

@@ -1,5 +1,5 @@
 import { cors as corsPlugin } from "@elysiajs/cors";
-import { AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME } from "@mona-ca/core/http";
+import { AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME, CONTENT_TYPE_HEADER_NAME } from "@mona-ca/core/http";
 import { Elysia } from "elysia";
 import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
 import { env } from "../core/infra/config/env";
@@ -23,7 +23,7 @@ export default new Elysia({
 		corsPlugin({
 			origin: env.APP_ENV === "production" ? PROD_ORIGIN_REGEX : DEV_ORIGIN_REGEX,
 			methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-			allowedHeaders: ["content-type", AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME],
+			allowedHeaders: [CONTENT_TYPE_HEADER_NAME, AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME],
 			credentials: true,
 			maxAge: 600,
 		}),

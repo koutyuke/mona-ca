@@ -58,15 +58,17 @@ export const ratelimitPlugin = (prefix: string, { refillRate, maxTokens, refillI
 		},
 	})
 		.use(ipAddressPlugin())
-		.derive(async ({ request, ipAddress }) => {
-			const rateLimit = new Ratelimit({
+		.decorate(
+			"redisRatelimit",
+			new Ratelimit({
 				redis: Redis.fromEnv(env),
 				limiter: Ratelimit.tokenBucket(refillRate, `${refillInterval.value} ${refillInterval.unit}`, maxTokens),
 				analytics: true,
 				prefix,
 				ephemeralCache: cache,
-			});
-
+			}),
+		)
+		.derive({ as: "scoped" }, async ({ request, ipAddress, redisRatelimit }) => {
 			const country = request.headers.get("cf-ipcountry");
 			const userAgent = request.headers.get("user-agent");
 
@@ -83,7 +85,7 @@ export const ratelimitPlugin = (prefix: string, { refillRate, maxTokens, refillI
 			}
 
 			const consume = async (key: string, cost: number): Promise<ConsumeResult> => {
-				const { success, reset } = await rateLimit.limit(key, {
+				const { success, reset } = await redisRatelimit.limit(key, {
 					...clientMeta,
 					rate: cost,
 				});
@@ -100,5 +102,4 @@ export const ratelimitPlugin = (prefix: string, { refillRate, maxTokens, refillI
 					consume,
 				},
 			};
-		})
-		.as("scoped");
+		});

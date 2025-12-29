@@ -7,7 +7,7 @@ type Success = Ok<{
 	emailVerificationRequest: EmailVerificationRequest;
 }>;
 
-type Error = Err<"INVALID_EMAIL_VERIFICATION_REQUEST"> | Err<"EXPIRED_EMAIL_VERIFICATION_REQUEST">;
+type Error = Err<"INVALID_EMAIL_VERIFICATION_REQUEST">;
 
 export type EmailVerificationValidateRequestUseCaseResult = Result<Success, Error>;
 

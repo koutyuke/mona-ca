@@ -1,4 +1,4 @@
-import type { Err } from "@mona-ca/core/utils";
+import type { Err } from "@mona-ca/core/result";
 
 export class FetchError<E extends string> extends Error {
 	constructor(
@@ -11,9 +11,5 @@ export class FetchError<E extends string> extends Error {
 }
 
 export const ResultErrToFetchError = <E extends string>(err: Err<E, { errorMessage: string }>): FetchError<E> => {
-	return new FetchError(err.code, err.value.errorMessage);
+	return new FetchError(err.code, err.context.errorMessage);
 };
-
-export type ResultToFetchError<R> = FetchError<Extract<R, Err<string, { errorMessage: string }>>["code"]>;
-
-export type QueryAtomError<T extends FetchError<string>> = T | Error;

@@ -39,7 +39,7 @@ export class SignupValidateSessionUseCase implements ISignupValidateSessionUseCa
 
 		if (isExpiredSignupSession(signupSession)) {
 			await this.signupSessionRepository.deleteById(signupSessionId);
-			return err("EXPIRED_SIGNUP_SESSION");
+			return err("INVALID_SIGNUP_SESSION");
 		}
 
 		return ok({ signupSession });

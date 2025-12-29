@@ -40,7 +40,7 @@ export const AccountLinkResendRoute = new Elysia()
 		async ({ containers, cookie, body, clientPlatform, rateLimit }) => {
 			const rawAccountLinkRequestToken = match(clientPlatform)
 				.when(isWebPlatform, () => cookie[ACCOUNT_LINK_REQUEST_COOKIE_NAME].value)
-				.when(isMobilePlatform, () => body?.accountLinkRequestToken)
+				.when(isMobilePlatform, () => body?.linkToken)
 				.exhaustive();
 
 			if (!rawAccountLinkRequestToken) {
@@ -60,12 +60,6 @@ export const AccountLinkResendRoute = new Elysia()
 						return status("Unauthorized", {
 							code,
 							message: "Invalid account link request. Please login again.",
-						});
-					})
-					.with({ code: "EXPIRED_ACCOUNT_LINK_REQUEST" }, ({ code }) => {
-						return status("Unauthorized", {
-							code,
-							message: "Account link request has expired. Please login again.",
 						});
 					})
 					.exhaustive();
@@ -106,7 +100,7 @@ export const AccountLinkResendRoute = new Elysia()
 			}),
 			body: t.Optional(
 				t.Object({
-					accountLinkRequestToken: t.Optional(t.String()),
+					linkToken: t.Optional(t.String()),
 				}),
 			),
 			detail: pathDetail({

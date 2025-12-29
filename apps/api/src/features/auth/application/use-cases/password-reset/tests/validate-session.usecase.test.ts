@@ -163,7 +163,7 @@ describe("PasswordResetValidateSessionUseCase", () => {
 		expect(passwordResetSessionMap.has(passwordResetSession.id)).toBe(false);
 	});
 
-	it("Error: should return EXPIRED_PASSWORD_RESET_SESSION error and delete session for expired session", async () => {
+	it("Error: should return INVALID_PASSWORD_RESET_SESSION error and delete session for expired session", async () => {
 		const { passwordResetSession, passwordResetSessionToken } = createPasswordResetSessionFixture({
 			passwordResetSession: {
 				userId: user.id,
@@ -179,7 +179,7 @@ describe("PasswordResetValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("EXPIRED_PASSWORD_RESET_SESSION");
+		expect(result.code).toBe("INVALID_PASSWORD_RESET_SESSION");
 
 		// セキュリティ: 期限切れセッションは削除されること
 		expect(passwordResetSessionMap.has(passwordResetSession.id)).toBe(false);

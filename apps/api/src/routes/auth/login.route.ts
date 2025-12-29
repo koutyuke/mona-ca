@@ -25,11 +25,29 @@ export const LoginRoute = new Elysia()
 		}),
 	)
 	.use(captchaPlugin())
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"/login",
-		async ({ clientPlatform, cookie, body: { email, password }, containers, status }) => {
+		async ({ clientPlatform, cookie, body: { email, password }, containers, status, rateLimit }) => {
+			const emailResult = await rateLimit.consume(email, 100);
+			if (emailResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
+
 			const result = await containers.auth.loginUseCase.execute(email, password);
 
 			if (result.isErr) {
@@ -60,19 +78,6 @@ export const LoginRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, body: { email }, status }) => {
-				const [ipAddressResult, emailResult] = await Promise.all([
-					rateLimit.consume(ipAddress, 1),
-					rateLimit.consume(email, 100),
-				]);
-				if (ipAddressResult.isErr || emailResult.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),

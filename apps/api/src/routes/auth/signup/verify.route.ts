@@ -23,6 +23,16 @@ export const SignupVerifyRoute = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
@@ -30,7 +40,7 @@ export const SignupVerifyRoute = new Elysia()
 		async ({
 			containers,
 			cookie,
-			body: { signupSessionToken: bodySignupSessionToken, code: verifyCode },
+			body: { signupToken: bodySignupSessionToken, code: verifyCode },
 			clientPlatform,
 			rateLimit,
 			status,
@@ -59,12 +69,6 @@ export const SignupVerifyRoute = new Elysia()
 						status("Unauthorized", {
 							code,
 							message: "Signup session token is invalid. Please request signup again.",
-						}),
-					)
-					.with({ code: "EXPIRED_SIGNUP_SESSION" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Signup session token has expired. Please request signup again.",
 						}),
 					)
 					.exhaustive();
@@ -104,22 +108,11 @@ export const SignupVerifyRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, status }) => {
-				// Rate Limit for IP Address
-				const result = await rateLimit.consume(ipAddress, 1);
-				if (result.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[SIGNUP_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				signupSessionToken: t.Optional(t.String()),
+				signupToken: t.Optional(t.String()),
 				code: t.String(),
 			}),
 			detail: pathDetail({

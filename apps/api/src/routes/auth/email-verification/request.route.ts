@@ -23,11 +23,29 @@ export const EmailVerificationRequestRoute = new Elysia()
 		}),
 	)
 	.use(authPlugin({ withEmailVerification: false }))
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"",
-		async ({ cookie, userCredentials, clientPlatform, containers, status }) => {
+		async ({ cookie, userCredentials, clientPlatform, containers, status, rateLimit }) => {
+			const emailResult = await rateLimit.consume(userCredentials.email, 100);
+			if (emailResult.isErr) {
+				return status("Too Many Requests", {
+					code: "TOO_MANY_REQUESTS",
+					message: "Too many requests. Please try again later.",
+				});
+			}
+
 			const result = await containers.auth.emailVerificationRequestUseCase.execute(userCredentials);
 
 			if (result.isErr) {
@@ -51,7 +69,7 @@ export const EmailVerificationRequestRoute = new Elysia()
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					emailVerificationRequestToken: toAnyTokenResponse(emailVerificationRequestToken),
+					verificationToken: toAnyTokenResponse(emailVerificationRequestToken),
 				};
 			}
 
@@ -64,19 +82,6 @@ export const EmailVerificationRequestRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, status, userCredentials: { email } }) => {
-				const [ipAddressResult, emailResult] = await Promise.all([
-					rateLimit.consume(ipAddress, 1),
-					rateLimit.consume(email, 100),
-				]);
-				if (ipAddressResult.isErr || emailResult.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),

@@ -19,7 +19,7 @@ export const ProviderLinkPrepareRoute = new Elysia()
 			const { providerLinkRequestToken } = result.value;
 
 			return {
-				providerLinkRequestToken: toAnyTokenResponse(providerLinkRequestToken),
+				linkToken: toAnyTokenResponse(providerLinkRequestToken),
 			};
 		},
 		{

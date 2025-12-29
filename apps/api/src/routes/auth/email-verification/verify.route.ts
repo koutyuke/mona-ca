@@ -23,13 +23,23 @@ export const EmailVerificationVerifyRoute = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"/verify",
 		async ({
 			cookie,
-			body: { code: emailVerificationCode, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
+			body: { code: emailVerificationCode, verificationToken: bodyEmailVerificationRequestToken },
 			userCredentials,
 			clientPlatform,
 			rateLimit,
@@ -62,12 +72,6 @@ export const EmailVerificationVerifyRoute = new Elysia()
 						status("Unauthorized", {
 							code,
 							message: "Invalid email verification session. Please request email verification again.",
-						}),
-					)
-					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Email verification session has expired. Please request email verification again.",
 						}),
 					)
 					.exhaustive();
@@ -113,22 +117,12 @@ export const EmailVerificationVerifyRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, status }) => {
-				const result = await rateLimit.consume(ipAddress, 1);
-				if (result.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
 				code: t.String(),
-				emailVerificationRequestToken: t.Optional(t.String()),
+				verificationToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				operationId: "auth-email-verification-verify",

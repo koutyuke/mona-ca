@@ -42,7 +42,7 @@ export class ValidateSessionUseCase implements IValidateSessionUseCase {
 
 		if (isExpiredSession(session)) {
 			await this.sessionRepository.deleteById(sessionId);
-			return err("EXPIRED_SESSION");
+			return err("INVALID_SESSION");
 		}
 
 		if (isRefreshableSession(session)) {

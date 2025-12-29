@@ -29,6 +29,10 @@ export class UpdateEmailRequestUseCase implements IUpdateEmailRequestUseCase {
 	) {}
 
 	public async execute(email: string, userCredentials: UserCredentials): Promise<UpdateEmailRequestUseCaseResult> {
+		if (email === userCredentials.email) {
+			return err("EMAIL_ALREADY_REGISTERED");
+		}
+
 		const existingUserCredentialsForNewEmail = await this.authUserRepository.findByEmail(email);
 		if (existingUserCredentialsForNewEmail) {
 			return err("EMAIL_ALREADY_REGISTERED");

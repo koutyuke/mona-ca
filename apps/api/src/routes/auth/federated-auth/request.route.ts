@@ -26,6 +26,16 @@ export const FederatedAuthRequestRoute = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.get(
@@ -81,16 +91,6 @@ export const FederatedAuthRequestRoute = new Elysia()
 			return redirect(redirectToProviderURL.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, status }) => {
-				const result = await rateLimit.consume(ipAddress, 1);
-				if (result.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			query: t.Object({
 				"redirect-uri": t.Optional(t.String()),
 				platform: clientPlatformSchema,

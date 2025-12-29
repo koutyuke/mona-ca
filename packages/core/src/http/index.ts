@@ -10,6 +10,7 @@ export {
 	ACCOUNT_LINK_REQUEST_COOKIE_NAME,
 	CLIENT_PLATFORM_HEADER_NAME,
 	AUTHORIZATION_HEADER_NAME,
+	CONTENT_TYPE_HEADER_NAME,
 } from "./constants";
 export {
 	getAPIBaseURL,
@@ -18,3 +19,5 @@ export {
 	validateRedirectURL,
 	normalizeRedirectableMobileScheme,
 } from "./url";
+
+export type { ContentType } from "./types";

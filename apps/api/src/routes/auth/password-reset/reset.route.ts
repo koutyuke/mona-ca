@@ -7,18 +7,39 @@ import { newPasswordResetSessionToken } from "../../../features/auth";
 import { clientPlatformPlugin } from "../../../plugins/client-platform";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const PasswordResetResetRoute = new Elysia()
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(clientPlatformPlugin())
+	.use(
+		ratelimitPlugin("password-reset-reset", {
+			maxTokens: 1000,
+			refillRate: 500,
+			refillInterval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"/reset",
 		async ({
 			cookie,
-			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, newPassword },
+			body: { resetToken: bodyPasswordResetSessionToken, newPassword },
 			clientPlatform,
 			containers,
 			status,
@@ -46,12 +67,6 @@ export const PasswordResetResetRoute = new Elysia()
 						status("Unauthorized", {
 							code,
 							message: "Invalid password reset session. Please request password reset again.",
-						}),
-					)
-					.with({ code: "EXPIRED_PASSWORD_RESET_SESSION" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Password reset session has expired. Please request password reset again.",
 						}),
 					)
 					.exhaustive();
@@ -90,7 +105,7 @@ export const PasswordResetResetRoute = new Elysia()
 			}),
 			body: t.Object({
 				newPassword: t.String(),
-				passwordResetSessionToken: t.Optional(t.String()),
+				resetToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				tag: "Auth - Password Reset",

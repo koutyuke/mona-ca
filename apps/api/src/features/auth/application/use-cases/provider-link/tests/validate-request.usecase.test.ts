@@ -111,7 +111,7 @@ describe("ProviderLinkValidateRequestUseCase", () => {
 		expect(providerLinkRequestMap.has(providerLinkRequest.id)).toBe(false);
 	});
 
-	it("Error(expired): should return EXPIRED_PROVIDER_LINK_REQUEST and delete request when expired", async () => {
+	it("Error(expired): should return INVALID_PROVIDER_LINK_REQUEST and delete request when expired", async () => {
 		const { providerLinkRequest, providerLinkRequestToken } = createProviderLinkRequestFixture({
 			providerLinkRequest: {
 				userId: userRegistration.id,
@@ -125,7 +125,7 @@ describe("ProviderLinkValidateRequestUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("EXPIRED_PROVIDER_LINK_REQUEST");
+		expect(result.code).toBe("INVALID_PROVIDER_LINK_REQUEST");
 		expect(providerLinkRequestMap.has(providerLinkRequest.id)).toBe(false);
 	});
 

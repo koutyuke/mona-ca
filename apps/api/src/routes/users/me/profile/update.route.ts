@@ -1,7 +1,8 @@
 import { Elysia, t } from "elysia";
+import { match } from "ts-pattern";
 import { genderSchema, newGender } from "../../../../core/domain/value-objects";
 import { type UpdateUserProfileDto, toUserProfileResponse } from "../../../../features/user";
-import { authPlugin } from "../../../../plugins/auth";
+import { authPlugin, unauthorizedResponse } from "../../../../plugins/auth";
 import { containerPlugin } from "../../../../plugins/container";
 import { pathDetail } from "../../../../plugins/openapi";
 
@@ -13,7 +14,7 @@ export const ProfileUpdateRoute = new Elysia()
 	// Route
 	.patch(
 		"",
-		async ({ body: { name, gender, iconUrl }, userCredentials, containers, status }) => {
+		async ({ body: { name, gender, iconUrl }, userCredentials, containers }) => {
 			const updateUserProfile: UpdateUserProfileDto = {};
 
 			if (name) {
@@ -34,10 +35,9 @@ export const ProfileUpdateRoute = new Elysia()
 			);
 
 			if (updatedUserProfileResult.isErr) {
-				return status("Bad Request", {
-					code: updatedUserProfileResult.code,
-					message: "Failed to update profile",
-				});
+				return match(updatedUserProfileResult)
+					.with({ code: "USER_NOT_FOUND" }, () => unauthorizedResponse)
+					.exhaustive();
 			}
 
 			const { userProfile } = updatedUserProfileResult.value;

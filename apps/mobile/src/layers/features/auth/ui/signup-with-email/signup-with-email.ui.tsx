@@ -1,6 +1,6 @@
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Alert, Button, GenderSelector, InputWrapper, TextInput } from "@mona-ca/ui/native/components";
-import { EmailIcon, PasswordIcon, UserIcon } from "@mona-ca/ui/native/icons";
+import { PasswordIcon, UserIcon } from "@mona-ca/ui/native/icons";
 import type { JSX, ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -26,7 +26,6 @@ export const SignupWithEmailUI = ({
 	const { control, handleSubmit } = useForm({
 		resolver: valibotResolver(signupFormSchema),
 		defaultValues: {
-			email: "",
 			password: "",
 			name: "",
 		},
@@ -36,15 +35,6 @@ export const SignupWithEmailUI = ({
 	return (
 		<View className="flex w-full flex-1 flex-col gap-3">
 			{error && <Alert type="error" title={error} />}
-			<Controller
-				name="email"
-				control={control}
-				render={({ field: { onChange, value, onBlur }, fieldState: { error: validationError } }) => (
-					<InputWrapper label="メールアドレス" error={validationError?.message ?? ""}>
-						<TextInput placeholder="Email" icon={EmailIcon} value={value} onChangeText={onChange} onBlur={onBlur} />
-					</InputWrapper>
-				)}
-			/>
 			<Controller
 				name="password"
 				control={control}

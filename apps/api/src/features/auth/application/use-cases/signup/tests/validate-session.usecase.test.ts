@@ -88,7 +88,7 @@ describe("SignupValidateSessionUseCase", () => {
 		expect(result.code).toBe("INVALID_SIGNUP_SESSION");
 	});
 
-	it("Error: should return EXPIRED_SIGNUP_SESSION error and delete session when signup session is expired", async () => {
+	it("Error: should return INVALID_SIGNUP_SESSION error and delete session when signup session is expired", async () => {
 		const expired = {
 			...baseSignupSession,
 			expiresAt: new Date(0),
@@ -104,7 +104,7 @@ describe("SignupValidateSessionUseCase", () => {
 
 		expect(result.isErr).toBe(true);
 		assert(result.isErr);
-		expect(result.code).toBe("EXPIRED_SIGNUP_SESSION");
+		expect(result.code).toBe("INVALID_SIGNUP_SESSION");
 
 		// セキュリティ: 期限切れセッションは削除されること
 		expect(signupSessionMap.has(expired.id)).toBe(false);

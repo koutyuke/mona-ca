@@ -23,13 +23,23 @@ export const PasswordResetVerifyRoute = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"/verify",
 		async ({
 			cookie,
-			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, code: verifyCode },
+			body: { resetToken: bodyPasswordResetSessionToken, code: verifyCode },
 			clientPlatform,
 			rateLimit,
 			containers,
@@ -58,12 +68,6 @@ export const PasswordResetVerifyRoute = new Elysia()
 						status("Unauthorized", {
 							code,
 							message: "Invalid password reset session. Please request password reset again.",
-						}),
-					)
-					.with({ code: "EXPIRED_PASSWORD_RESET_SESSION" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Password reset session has expired. Please request password reset again.",
 						}),
 					)
 					.exhaustive();
@@ -99,22 +103,12 @@ export const PasswordResetVerifyRoute = new Elysia()
 			return noContent();
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, status }) => {
-				const result = await rateLimit.consume(ipAddress, 1);
-				if (result.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			cookie: t.Cookie({
 				[PASSWORD_RESET_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
 				code: t.String(),
-				passwordResetSessionToken: t.Optional(t.String()),
+				resetToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				tag: "Auth - Password Reset",

@@ -30,6 +30,16 @@ export const FederatedAuthCallbackRoute = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.get(
@@ -94,7 +104,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 						{ code: "ACCOUNT_LINK_REQUEST" },
 						({ code, context: { redirectURL, clientPlatform, accountLinkRequestToken, accountLinkRequest } }) => {
 							if (isMobilePlatform(clientPlatform)) {
-								redirectURL.searchParams.set("account-link-request-token", accountLinkRequestToken);
+								redirectURL.searchParams.set("link-token", accountLinkRequestToken);
 								redirectURL.searchParams.set("error", code);
 								set.headers["referrer-policy"] = "strict-origin";
 								return redirect(normalizeRedirectableMobileScheme(redirectURL));
@@ -134,16 +144,6 @@ export const FederatedAuthCallbackRoute = new Elysia()
 			return redirect(redirectURL.toString());
 		},
 		{
-			beforeHandle: async ({ rateLimit, ipAddress, status }) => {
-				const result = await rateLimit.consume(ipAddress, 1);
-				if (result.isErr) {
-					return status("Too Many Requests", {
-						code: "TOO_MANY_REQUESTS",
-						message: "Too many requests. Please try again later.",
-					});
-				}
-				return;
-			},
 			query: t.Object(
 				{
 					code: t.Optional(t.String()),
@@ -173,9 +173,9 @@ export const FederatedAuthCallbackRoute = new Elysia()
 					"  - `session-token`: Session token",
 					"  - `flow`: Flow(login, signup)",
 					"---",
-					"If account link is available, redirect to the client URL with the `account-link-session-token` and `error` query params",
+					"If account link is available, redirect to the client URL with the `link-token` and `error` query params",
 					"Query params:",
-					"  - `account-link-request-token`: Account link request token",
+					"  - `link-token`: Account link request token",
 					"  - `error`: Error code(ACCOUNT_LINK_AVAILABLE)",
 					"---",
 					"If error, redirect to the client URL with the `error` query param",

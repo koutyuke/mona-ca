@@ -48,7 +48,7 @@ export class EmailVerificationValidateRequestUseCase implements IEmailVerificati
 
 		if (isExpiredEmailVerificationRequest(emailVerificationRequest)) {
 			await this.emailVerificationRequestRepository.deleteByUserId(emailVerificationRequest.userId);
-			return err("EXPIRED_EMAIL_VERIFICATION_REQUEST");
+			return err("INVALID_EMAIL_VERIFICATION_REQUEST");
 		}
 
 		return ok({ emailVerificationRequest });

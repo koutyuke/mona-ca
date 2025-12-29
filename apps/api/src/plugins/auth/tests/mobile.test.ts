@@ -115,7 +115,7 @@ describe("AuthPlugin Mobile Authorization Header Test", () => {
 			}),
 		);
 
-		expect(res.status).toBe(401);
+		expect(res.status).toBe(403);
 	});
 
 	test("Fail with invalid authorization header that email verification is not required", async () => {

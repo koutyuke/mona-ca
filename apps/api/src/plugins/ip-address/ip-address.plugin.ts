@@ -6,8 +6,7 @@ export const ipAddressPlugin = () =>
 	new Elysia({
 		name: "@mona-ca/ip-address",
 	}).derive({ as: "global" }, ({ request, status }) => {
-		const ipAddress =
-			env.APP_ENV === "production" ? getIP(request.headers) : (getIP(request.headers) ?? DEVELOPMENT_IP_ADDRESS);
+		const ipAddress = getIP(request.headers) ?? (env.APP_ENV === "production" ? null : DEVELOPMENT_IP_ADDRESS);
 		if (!ipAddress) {
 			return status("Bad Request", {
 				code: "IP_ADDRESS_NOT_FOUND" as const,

@@ -43,7 +43,7 @@ export class PasswordResetValidateSessionUseCase implements IPasswordResetValida
 
 		if (isExpiredPasswordResetSession(passwordResetSession)) {
 			await this.passwordResetSessionRepository.deleteById(passwordResetSessionId);
-			return err("EXPIRED_PASSWORD_RESET_SESSION");
+			return err("INVALID_PASSWORD_RESET_SESSION");
 		}
 
 		const userCredentials = await this.authUserRepository.findById(passwordResetSession.userId);

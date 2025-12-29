@@ -24,13 +24,23 @@ export const UpdateEmailVerifyRoute = new Elysia()
 			},
 		}),
 	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"/verify",
 		async ({
 			cookie,
-			body: { code: verifyCode, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
+			body: { code: verifyCode, verificationToken: bodyEmailVerificationRequestToken },
 			userCredentials,
 			clientPlatform,
 			rateLimit,
@@ -62,12 +72,6 @@ export const UpdateEmailVerifyRoute = new Elysia()
 						status("Bad Request", {
 							code,
 							message: "Invalid email verification request. Please request a new verification email.",
-						}),
-					)
-					.with({ code: "EXPIRED_EMAIL_VERIFICATION_REQUEST" }, ({ code }) =>
-						status("Bad Request", {
-							code,
-							message: "Email verification request has expired. Please request a new verification email.",
 						}),
 					)
 					.exhaustive();
@@ -131,7 +135,7 @@ export const UpdateEmailVerifyRoute = new Elysia()
 			}),
 			body: t.Object({
 				code: t.String(),
-				emailVerificationRequestToken: t.Optional(t.String()),
+				verificationToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				operationId: "me-update-email-verify",

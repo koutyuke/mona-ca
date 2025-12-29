@@ -8,19 +8,40 @@ import { newSignupSessionToken, toAnyTokenResponse } from "../../../features/aut
 import { clientPlatformPlugin } from "../../../plugins/client-platform";
 import { containerPlugin } from "../../../plugins/container";
 import { pathDetail } from "../../../plugins/openapi";
+import { ratelimitPlugin } from "../../../plugins/ratelimit";
 
 export const SignupRegisterRoute = new Elysia()
 
 	// Local Middleware & Plugin
 	.use(containerPlugin())
 	.use(clientPlatformPlugin())
+	.use(
+		ratelimitPlugin("signup-register", {
+			maxTokens: 1000,
+			refillRate: 500,
+			refillInterval: {
+				value: 10,
+				unit: "m",
+			},
+		}),
+	)
+	.onBeforeHandle(async ({ rateLimit, ipAddress, status }) => {
+		const result = await rateLimit.consume(ipAddress, 1);
+		if (result.isErr) {
+			return status("Too Many Requests", {
+				code: "TOO_MANY_REQUESTS",
+				message: "Too many requests. Please try again later.",
+			});
+		}
+		return;
+	})
 
 	// Route
 	.post(
 		"/register",
 		async ({
 			cookie,
-			body: { signupSessionToken: bodySignupSessionToken, name, password, gender },
+			body: { signupToken: bodySignupSessionToken, name, password, gender },
 			clientPlatform,
 			containers,
 			status,
@@ -47,12 +68,6 @@ export const SignupRegisterRoute = new Elysia()
 						status("Unauthorized", {
 							code,
 							message: "Signup session token is invalid. Please request signup again.",
-						}),
-					)
-					.with({ code: "EXPIRED_SIGNUP_SESSION" }, ({ code }) =>
-						status("Unauthorized", {
-							code,
-							message: "Signup session token has expired. Please request signup again.",
 						}),
 					)
 					.exhaustive();
@@ -98,7 +113,7 @@ export const SignupRegisterRoute = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return status("Created");
+			return status("Created", null);
 		},
 		{
 			cookie: t.Cookie({
@@ -106,7 +121,7 @@ export const SignupRegisterRoute = new Elysia()
 				[SIGNUP_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				signupSessionToken: t.Optional(t.String()),
+				signupToken: t.Optional(t.String()),
 				password: t.String({
 					minLength: 8,
 					maxLength: 64,
