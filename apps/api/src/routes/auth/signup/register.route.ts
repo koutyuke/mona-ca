@@ -113,7 +113,7 @@ export const SignupRegisterRoute = new Elysia()
 				expires: session.expiresAt,
 			});
 
-			return status("Created");
+			return status("Created", null);
 		},
 		{
 			cookie: t.Cookie({
