@@ -27,7 +27,7 @@ let SecureStorage: MMKV | null = null;
 
 const SECURE_STORAGE_KEY = "SECURE_STORAGE_KEY";
 
-const ensureSecureMMKV = (): MMKV => {
+const getSecureMMKV = (): MMKV => {
 	if (SecureStorage) {
 		return SecureStorage;
 	}
@@ -85,15 +85,15 @@ export const createSecureJSONStorage = <T extends JSONStringifyable>() => {
 	return createJSONStorage<T>(() => {
 		return {
 			getItem: (key: string): string | null => {
-				const mmkv = SecureStorage ?? ensureSecureMMKV();
+				const mmkv = getSecureMMKV();
 				return mmkv.getString(key) ?? null;
 			},
 			setItem: (key: string, value: string): void => {
-				const mmkv = SecureStorage ?? ensureSecureMMKV();
+				const mmkv = getSecureMMKV();
 				mmkv.set(key, value);
 			},
 			removeItem: (key: string): void => {
-				const mmkv = SecureStorage ?? ensureSecureMMKV();
+				const mmkv = getSecureMMKV();
 				mmkv.delete(key);
 			},
 		};

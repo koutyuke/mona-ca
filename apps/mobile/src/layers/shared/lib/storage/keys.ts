@@ -1,6 +1,6 @@
 export const secureStorageKeys = {
 	sessionToken: "SESSION_TOKEN",
-	accountAssociationToken: "ACCOUNT_ASSOCIATION_TOKEN",
+	accountLinkToken: "ACCOUNT_LINK_TOKEN",
 } as const satisfies Record<string, string>;
 
 export const globalStorageKeys = {
