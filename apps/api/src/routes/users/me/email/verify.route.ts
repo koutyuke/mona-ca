@@ -40,7 +40,7 @@ export const UpdateEmailVerifyRoute = new Elysia()
 		"/verify",
 		async ({
 			cookie,
-			body: { code: verifyCode, emailVerificationRequestToken: bodyEmailVerificationRequestToken },
+			body: { code: verifyCode, verificationToken: bodyEmailVerificationRequestToken },
 			userCredentials,
 			clientPlatform,
 			rateLimit,
@@ -135,7 +135,7 @@ export const UpdateEmailVerifyRoute = new Elysia()
 			}),
 			body: t.Object({
 				code: t.String(),
-				emailVerificationRequestToken: t.Optional(t.String()),
+				verificationToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				operationId: "me-update-email-verify",

@@ -39,7 +39,7 @@ export const PasswordResetResetRoute = new Elysia()
 		"/reset",
 		async ({
 			cookie,
-			body: { passwordResetSessionToken: bodyPasswordResetSessionToken, newPassword },
+			body: { resetToken: bodyPasswordResetSessionToken, newPassword },
 			clientPlatform,
 			containers,
 			status,
@@ -105,7 +105,7 @@ export const PasswordResetResetRoute = new Elysia()
 			}),
 			body: t.Object({
 				newPassword: t.String(),
-				passwordResetSessionToken: t.Optional(t.String()),
+				resetToken: t.Optional(t.String()),
 			}),
 			detail: pathDetail({
 				tag: "Auth - Password Reset",

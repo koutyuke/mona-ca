@@ -65,7 +65,7 @@ export const SignupRequestRoute = new Elysia()
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					signupSessionToken: toAnyTokenResponse(signupSessionToken),
+					signupToken: toAnyTokenResponse(signupSessionToken),
 				};
 			}
 

@@ -40,7 +40,7 @@ export const SignupVerifyRoute = new Elysia()
 		async ({
 			containers,
 			cookie,
-			body: { signupSessionToken: bodySignupSessionToken, code: verifyCode },
+			body: { signupToken: bodySignupSessionToken, code: verifyCode },
 			clientPlatform,
 			rateLimit,
 			status,
@@ -112,7 +112,7 @@ export const SignupVerifyRoute = new Elysia()
 				[SIGNUP_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				signupSessionToken: t.Optional(t.String()),
+				signupToken: t.Optional(t.String()),
 				code: t.String(),
 			}),
 			detail: pathDetail({

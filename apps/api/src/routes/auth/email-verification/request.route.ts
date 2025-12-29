@@ -69,7 +69,7 @@ export const EmailVerificationRequestRoute = new Elysia()
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					emailVerificationRequestToken: toAnyTokenResponse(emailVerificationRequestToken),
+					verificationToken: toAnyTokenResponse(emailVerificationRequestToken),
 				};
 			}
 

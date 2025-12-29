@@ -37,9 +37,7 @@ export const UpdateEmailRequestRoute = new Elysia()
 	// Route
 	.post(
 		"",
-		async ({ cookie, body: { email: bodyEmail }, userCredentials, clientPlatform, rateLimit, containers, status }) => {
-			const email = bodyEmail ?? userCredentials.email;
-
+		async ({ cookie, body: { email }, userCredentials, clientPlatform, rateLimit, containers, status }) => {
 			const ratelimitResult = await rateLimit.consume(email, 100);
 			if (ratelimitResult.isErr) {
 				return status("Too Many Requests", {
@@ -65,7 +63,7 @@ export const UpdateEmailRequestRoute = new Elysia()
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					emailVerificationRequestToken: toAnyTokenResponse(emailVerificationRequestToken),
+					verificationToken: toAnyTokenResponse(emailVerificationRequestToken),
 				};
 			}
 
@@ -82,11 +80,9 @@ export const UpdateEmailRequestRoute = new Elysia()
 				[EMAIL_VERIFICATION_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				email: t.Nullable(
-					t.String({
-						format: "email",
-					}),
-				),
+				email: t.String({
+					format: "email",
+				}),
 			}),
 			detail: pathDetail({
 				operationId: "me-update-email-request",

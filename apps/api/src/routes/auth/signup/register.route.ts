@@ -41,7 +41,7 @@ export const SignupRegisterRoute = new Elysia()
 		"/register",
 		async ({
 			cookie,
-			body: { signupSessionToken: bodySignupSessionToken, name, password, gender },
+			body: { signupToken: bodySignupSessionToken, name, password, gender },
 			clientPlatform,
 			containers,
 			status,
@@ -121,7 +121,7 @@ export const SignupRegisterRoute = new Elysia()
 				[SIGNUP_SESSION_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				signupSessionToken: t.Optional(t.String()),
+				signupToken: t.Optional(t.String()),
 				password: t.String({
 					minLength: 8,
 					maxLength: 64,

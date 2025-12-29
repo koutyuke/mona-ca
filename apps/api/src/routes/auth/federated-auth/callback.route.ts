@@ -104,7 +104,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 						{ code: "ACCOUNT_LINK_REQUEST" },
 						({ code, context: { redirectURL, clientPlatform, accountLinkRequestToken, accountLinkRequest } }) => {
 							if (isMobilePlatform(clientPlatform)) {
-								redirectURL.searchParams.set("account-link-request-token", accountLinkRequestToken);
+								redirectURL.searchParams.set("link-token", accountLinkRequestToken);
 								redirectURL.searchParams.set("error", code);
 								set.headers["referrer-policy"] = "strict-origin";
 								return redirect(normalizeRedirectableMobileScheme(redirectURL));
@@ -175,7 +175,7 @@ export const FederatedAuthCallbackRoute = new Elysia()
 					"---",
 					"If account link is available, redirect to the client URL with the `account-link-session-token` and `error` query params",
 					"Query params:",
-					"  - `account-link-request-token`: Account link request token",
+					"  - `link-token`: Account link request token",
 					"  - `error`: Error code(ACCOUNT_LINK_AVAILABLE)",
 					"---",
 					"If error, redirect to the client URL with the `error` query param",

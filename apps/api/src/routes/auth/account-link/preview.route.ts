@@ -18,7 +18,7 @@ export const AccountLinkPreviewRoute = new Elysia()
 		async ({ containers, cookie, body, clientPlatform, status }) => {
 			const rawAccountLinkRequestToken = match(clientPlatform)
 				.when(isWebPlatform, () => cookie[ACCOUNT_LINK_REQUEST_COOKIE_NAME].value)
-				.when(isMobilePlatform, () => body?.accountLinkRequestToken)
+				.when(isMobilePlatform, () => body?.linkToken)
 				.exhaustive();
 
 			if (!rawAccountLinkRequestToken) {
@@ -51,9 +51,11 @@ export const AccountLinkPreviewRoute = new Elysia()
 			cookie: t.Cookie({
 				[ACCOUNT_LINK_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),
-			body: t.Object({
-				accountLinkRequestToken: t.Optional(t.String()),
-			}),
+			body: t.Optional(
+				t.Object({
+					linkToken: t.String(),
+				}),
+			),
 			detail: pathDetail({
 				tag: "Auth - Account Link",
 				operationId: "auth-account-link-preview",

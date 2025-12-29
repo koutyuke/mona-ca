@@ -57,7 +57,7 @@ export const PasswordResetRequestRoute = new Elysia()
 
 			if (isMobilePlatform(clientPlatform)) {
 				return {
-					passwordResetSessionToken: toAnyTokenResponse(passwordResetSessionToken),
+					resetToken: toAnyTokenResponse(passwordResetSessionToken),
 				};
 			}
 

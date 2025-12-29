@@ -37,17 +37,10 @@ export const AccountLinkVerifyRoute = new Elysia()
 	// Route
 	.post(
 		"/verify",
-		async ({
-			cookie,
-			body: { accountLinkRequestToken: bodyAccountLinkRequestToken, code: verifyCode },
-			clientPlatform,
-			rateLimit,
-			containers,
-			status,
-		}) => {
+		async ({ cookie, body: { linkToken, code: verifyCode }, clientPlatform, rateLimit, containers, status }) => {
 			const rawAccountLinkRequestToken = match(clientPlatform)
 				.when(isWebPlatform, () => cookie[ACCOUNT_LINK_REQUEST_COOKIE_NAME].value)
-				.when(isMobilePlatform, () => bodyAccountLinkRequestToken)
+				.when(isMobilePlatform, () => linkToken)
 				.exhaustive();
 
 			if (!rawAccountLinkRequestToken) {
@@ -134,7 +127,7 @@ export const AccountLinkVerifyRoute = new Elysia()
 				[ACCOUNT_LINK_REQUEST_COOKIE_NAME]: t.Optional(t.String()),
 			}),
 			body: t.Object({
-				accountLinkRequestToken: t.Optional(t.String()),
+				linkToken: t.Optional(t.String()),
 				code: t.String(),
 			}),
 			detail: pathDetail({
