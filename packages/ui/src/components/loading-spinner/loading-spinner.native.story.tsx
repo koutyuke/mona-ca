@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { LoadingSpinner } from "./loading-spinner.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof LoadingSpinner> = {
 	title: "Components/LoadingSpinner",

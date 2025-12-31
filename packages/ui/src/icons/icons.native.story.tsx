@@ -1,5 +1,3 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
-import type { FC } from "react";
 import { View } from "react-native";
 import {
 	ArrowDownIcon,
@@ -29,6 +27,9 @@ import {
 	WarningIcon,
 	WhiteDiscordIcon,
 } from "./icons.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
+import type { FC } from "react";
 import type { IconProps } from "./type";
 
 const meta: Meta = {

@@ -1,8 +1,10 @@
 import { cn, tv } from "@mona-ca/tailwind-helpers";
-import { type FC, useState } from "react";
+import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { CalendarHeartIcon, CalendarXIcon } from "../../icons/index.native";
 import { Text } from "../text/index.native";
+
+import type { FC } from "react";
 
 type Gender = "man" | "woman";
 
@@ -55,7 +57,7 @@ const GenderSelector: FC<GenderSelectorProps> = ({ value, onChange = () => {}, c
 					}}
 				>
 					<CalendarHeartIcon className={iconStyle({ isSelected: gender === "woman" })} />
-					<Text size="sm" className={textStyle({ isSelected: gender === "woman" })}>
+					<Text className={textStyle({ isSelected: gender === "woman" })} size="sm">
 						{label.woman}
 					</Text>
 				</Pressable>
@@ -68,12 +70,12 @@ const GenderSelector: FC<GenderSelectorProps> = ({ value, onChange = () => {}, c
 					}}
 				>
 					<CalendarXIcon className={iconStyle({ isSelected: gender === "man" })} />
-					<Text size="sm" className={textStyle({ isSelected: gender === "man" })}>
+					<Text className={textStyle({ isSelected: gender === "man" })} size="sm">
 						{label.man}
 					</Text>
 				</Pressable>
 			</View>
-			<Text size="sm" className="text-slate-9">
+			<Text className="text-slate-9" size="sm">
 				{gender ? `「${label[gender]}」を選択中` : "未選択"}
 			</Text>
 		</View>

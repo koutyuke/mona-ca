@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { Radio } from "./radio.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof Radio> = {
 	title: "Components/Radio",
@@ -18,7 +19,7 @@ export const Default: Story = {
 			<Radio {...args} />
 			<Radio {...args} checked />
 			<Radio {...args} disabled />
-			<Radio {...args} disabled checked />
+			<Radio {...args} checked disabled />
 		</View>
 	),
 };

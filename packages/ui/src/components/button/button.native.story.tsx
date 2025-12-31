@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { CommandIcon } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 import { ChevronLeftIcon } from "../../icons/index.native";
 import { Button } from "./button.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof Button> = {
 	title: "Components/Button",
@@ -66,15 +67,18 @@ export const Default: Story = {
 		const FullVariant = ({
 			size,
 			color,
-		}: { size: "md" | "sm"; color: "red" | "blue" | "green" | "yellow" | "salmon" | "gray" }) => (
+		}: {
+			size: "md" | "sm";
+			color: "red" | "blue" | "green" | "yellow" | "salmon" | "gray";
+		}) => (
 			<View className="flex w-full flex-row justify-around">
-				<Button {...args} size={size} variant="filled" color={color}>
+				<Button {...args} color={color} size={size} variant="filled">
 					Button
 				</Button>
-				<Button {...args} size={size} variant="outline" color={color}>
+				<Button {...args} color={color} size={size} variant="outline">
 					Button
 				</Button>
-				<Button {...args} size={size} variant="light" color={color}>
+				<Button {...args} color={color} size={size} variant="light">
 					Button
 				</Button>
 			</View>
@@ -82,18 +86,18 @@ export const Default: Story = {
 		return (
 			<ScrollView className="w-full">
 				<View className="flex w-full flex-col gap-4 px-2 py-4">
-					<FullVariant size="md" color="red" />
-					<FullVariant size="md" color="blue" />
-					<FullVariant size="md" color="green" />
-					<FullVariant size="md" color="yellow" />
-					<FullVariant size="md" color="salmon" />
-					<FullVariant size="md" color="gray" />
-					<FullVariant size="sm" color="red" />
-					<FullVariant size="sm" color="blue" />
-					<FullVariant size="sm" color="green" />
-					<FullVariant size="sm" color="yellow" />
-					<FullVariant size="sm" color="salmon" />
-					<FullVariant size="sm" color="gray" />
+					<FullVariant color="red" size="md" />
+					<FullVariant color="blue" size="md" />
+					<FullVariant color="green" size="md" />
+					<FullVariant color="yellow" size="md" />
+					<FullVariant color="salmon" size="md" />
+					<FullVariant color="gray" size="md" />
+					<FullVariant color="red" size="sm" />
+					<FullVariant color="blue" size="sm" />
+					<FullVariant color="green" size="sm" />
+					<FullVariant color="yellow" size="sm" />
+					<FullVariant color="salmon" size="sm" />
+					<FullVariant color="gray" size="sm" />
 				</View>
 			</ScrollView>
 		);
@@ -142,8 +146,8 @@ export const WithIcon: Story = {
 		<View className="flex w-full flex-col gap-4 p-4">
 			<Button {...args} icon={CommandIcon} iconSize={20} />
 			<Button {...args} icon={ChevronLeftIcon} iconSize={28} />
-			<Button {...args} circle size="sm" icon={CommandIcon} iconSize={16} />
-			<Button {...args} circle size="sm" icon={ChevronLeftIcon} iconSize={24} />
+			<Button {...args} circle icon={CommandIcon} iconSize={16} size="sm" />
+			<Button {...args} circle icon={ChevronLeftIcon} iconSize={24} size="sm" />
 		</View>
 	),
 };
@@ -153,24 +157,24 @@ export const Loading: Story = {
 		<ScrollView className="w-full">
 			<View className="flex w-full flex-col gap-4 px-2 py-4">
 				<View className="flex w-full flex-row justify-around">
-					<Button size="md" variant="filled" color="red" loading>
+					<Button color="red" loading size="md" variant="filled">
 						Button
 					</Button>
-					<Button size="md" variant="outline" color="red" loading>
+					<Button color="red" loading size="md" variant="outline">
 						Button
 					</Button>
-					<Button size="md" variant="light" color="red" loading>
+					<Button color="red" loading size="md" variant="light">
 						Button
 					</Button>
 				</View>
 				<View className="flex w-full flex-row justify-around">
-					<Button size="sm" variant="filled" color="red" loading>
+					<Button color="red" loading size="sm" variant="filled">
 						Button
 					</Button>
-					<Button size="sm" variant="outline" color="red" loading>
+					<Button color="red" loading size="sm" variant="outline">
 						Button
 					</Button>
-					<Button size="sm" variant="light" color="red" loading>
+					<Button color="red" loading size="sm" variant="light">
 						Button
 					</Button>
 				</View>
@@ -184,16 +188,16 @@ export const VariantsAndDisabled: Story = {
 		<View className="flex flex-row gap-2 p-2">
 			{["filled", "light", "outline"].map(variant => (
 				<View className="flex flex-col gap-4" key={variant}>
-					<Button size="md" variant={variant as "filled"} color="red">
+					<Button color="red" size="md" variant={variant as "filled"}>
 						Button
 					</Button>
-					<Button size="md" variant={variant as "filled"} color="gray">
+					<Button color="gray" size="md" variant={variant as "filled"}>
 						Button
 					</Button>
-					<Button size="md" variant={variant as "filled"} color="red" disabled>
+					<Button color="red" disabled size="md" variant={variant as "filled"}>
 						Button
 					</Button>
-					<Button size="md" variant={variant as "filled"} color="red" loading>
+					<Button color="red" loading size="md" variant={variant as "filled"}>
 						Button
 					</Button>
 				</View>

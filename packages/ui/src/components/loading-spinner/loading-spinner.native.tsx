@@ -1,5 +1,5 @@
 import { cn } from "@mona-ca/tailwind-helpers";
-import { type FC, useEffect } from "react";
+import { useEffect } from "react";
 import { View } from "react-native";
 import Animated, {
 	cancelAnimation,
@@ -9,6 +9,9 @@ import Animated, {
 	withRepeat,
 	withTiming,
 } from "react-native-reanimated";
+
+import type { FC } from "react";
+import type { SharedValue } from "react-native-reanimated";
 
 const MIN_OPACITY = 0.25;
 const DURATION = 1000;
@@ -27,6 +30,60 @@ const colorVariants = {
 	black: "bg-black",
 } as const;
 
+const angleDist = (target: number, base: number) => {
+	"worklet";
+	const d = Math.abs(((target - base + 540) % 360) - 180);
+	return d; // 0..180
+};
+
+const falloff = (dist: number, half: number) => {
+	"worklet";
+	if (dist >= half) return 0;
+	const x = dist / half; // 0..1
+	return 0.5 * (1 + Math.cos(Math.PI * x)); // 1..0
+};
+
+type LoadingSpinnerBarProps = {
+	angle: number;
+	progress: SharedValue<number>;
+	size: number;
+	barH: number;
+	barW: number;
+	radius: number;
+	color: "gray" | "white" | "black";
+};
+
+const LoadingSpinnerBar: FC<LoadingSpinnerBarProps> = ({ angle, progress, size, barH, barW, radius, color }) => {
+	const half = Math.max(1, HALF_ANGLE / 2);
+
+	const barStyle = useAnimatedStyle(() => {
+		const dist = angleDist(angle, progress.value);
+		const w = falloff(dist, half); // 0..1
+		const opacity = MIN_OPACITY + (1 - MIN_OPACITY) * w;
+		return {
+			opacity,
+		};
+	}, [angle, half]);
+
+	return (
+		<Animated.View
+			className={cn(colorVariants[color])}
+			style={[
+				{
+					position: "absolute",
+					top: size / 2 - barH / 2,
+					left: size / 2 - barW / 2,
+					width: barW,
+					height: barH,
+					borderRadius: barW / 2,
+					transform: [{ rotate: `${angle}deg` }, { translateY: -radius }],
+				},
+				barStyle,
+			]}
+		/>
+	);
+};
+
 export const LoadingSpinner: FC<LoadingSpinnerProps> = ({ size = 32, color = "gray" }) => {
 	const barH = size * 0.33;
 	const barW = size * 0.14;
@@ -41,49 +98,20 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({ size = 32, color = "gr
 		return () => cancelAnimation(progress);
 	}, [progress]);
 
-	const angleDist = (target: number, base: number) => {
-		"worklet";
-		const d = Math.abs(((target - base + 540) % 360) - 180);
-		return d; // 0..180
-	};
-
-	const falloff = (dist: number, half: number) => {
-		"worklet";
-		if (dist >= half) return 0;
-		const x = dist / half; // 0..1
-		return 0.5 * (1 + Math.cos(Math.PI * x)); // 1..0
-	};
-
 	return (
 		<View style={{ width: size, height: size }}>
 			{INDICES.map(index => {
 				const angle = (360 / INDICES.length) * index;
-				const half = Math.max(1, HALF_ANGLE / 2);
-
-				const barStyle = useAnimatedStyle(() => {
-					const dist = angleDist(angle, progress.value);
-					const w = falloff(dist, half); // 0..1
-					const opacity = MIN_OPACITY + (1 - MIN_OPACITY) * w;
-					return {
-						opacity,
-					};
-				}, [angle, half]);
 				return (
-					<Animated.View
+					<LoadingSpinnerBar
+						angle={angle}
+						barH={barH}
+						barW={barW}
+						color={color}
 						key={index}
-						style={[
-							{
-								position: "absolute",
-								top: size / 2 - barH / 2,
-								left: size / 2 - barW / 2,
-								width: barW,
-								height: barH,
-								borderRadius: barW / 2,
-								transform: [{ rotate: `${angle}deg` }, { translateY: -radius }],
-							},
-							barStyle,
-						]}
-						className={cn(colorVariants[color])}
+						progress={progress}
+						radius={radius}
+						size={size}
 					/>
 				);
 			})}

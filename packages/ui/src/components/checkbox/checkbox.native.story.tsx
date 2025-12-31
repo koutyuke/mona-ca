@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { CheckBox } from "./checkbox.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof CheckBox> = {
 	title: "Components/CheckBox",
@@ -38,7 +39,7 @@ export const Default: Story = {
 			<CheckBox {...args} />
 			<CheckBox {...args} checked={true} />
 			<CheckBox {...args} disabled />
-			<CheckBox {...args} disabled checked />
+			<CheckBox {...args} checked disabled />
 		</View>
 	),
 };

@@ -1,14 +1,12 @@
 import { cn, tv } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
-import { type FC, type ReactNode, type Ref, useImperativeHandle, useRef, useState } from "react";
-import {
-	Pressable,
-	TextInput as RNTextInput,
-	type TextInputProps as RNTextInputProps,
-	TouchableWithoutFeedback,
-	View,
-} from "react-native";
-import { EyeCloseIcon, EyeIcon, type IconProps } from "../../icons/index.native";
+import { useImperativeHandle, useRef, useState } from "react";
+import { Pressable, TextInput as RNTextInput, TouchableWithoutFeedback, View } from "react-native";
+import { EyeCloseIcon, EyeIcon } from "../../icons/index.native";
+
+import type { FC, ReactNode, Ref } from "react";
+import type { TextInputProps as RNTextInputProps } from "react-native";
+import type { IconProps } from "../../icons/index.native";
 
 cssInterop(RNTextInput, {
 	className: { target: "style", nativeStyleToProp: { textAlign: true } },
@@ -105,12 +103,12 @@ const TextInput: FC<Props> = ({
 
 	return (
 		<TouchableWithoutFeedback
-			onPress={() => inputRef.current?.focus()}
 			disabled={disabled}
 			onBlur={() => {
 				setFocused(false);
 				inputRef.current?.blur();
 			}}
+			onPress={() => inputRef.current?.focus()}
 		>
 			<View className={inputWrapperStyle()}>
 				{Icon && (
@@ -119,22 +117,22 @@ const TextInput: FC<Props> = ({
 					</View>
 				)}
 				<RNTextInput
-					ref={inputRef}
 					className={inputStyle()}
-					placeholder={placeholder}
-					onFocus={() => setFocused(true)}
-					onBlur={() => setFocused(false)}
-					secureTextEntry={credentials && isShowSecureText}
-					placeholderClassName="text-slate-9"
 					editable={!disabled}
+					onBlur={() => setFocused(false)}
+					onFocus={() => setFocused(true)}
+					placeholder={placeholder}
+					placeholderClassName="text-slate-9"
+					ref={inputRef}
+					secureTextEntry={credentials && isShowSecureText}
 					{...props}
 				/>
 				{credentials && (
 					<Pressable
+						className={secureIconWrapperStyle()}
 						onPress={() => {
 							setShowSecureText(!isShowSecureText);
 						}}
-						className={secureIconWrapperStyle()}
 					>
 						{isShowSecureText ? (
 							<EyeIcon className={cn("text-slate-9", error && "text-red-9")} size={resolvedIconSize} />

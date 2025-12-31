@@ -1,9 +1,10 @@
 import { cn } from "@mona-ca/tailwind-helpers";
-import type { FC, Ref } from "react";
 import { Pressable, View } from "react-native";
-import type { IconProps } from "../../icons/type";
 import { LoadingSpinner } from "../loading-spinner/index.native";
 import { colorVariants, styleVariants } from "./style.native.variant";
+
+import type { FC, Ref } from "react";
+import type { IconProps } from "../../icons/type";
 
 type Props = {
 	size?: "sm" | "md";
@@ -46,11 +47,11 @@ const IconButton: FC<Props> = ({
 	});
 
 	return (
-		<Pressable ref={ref} className={cn(bodyStyle(), bodyColor(), className)} disabled={loading || disabled}>
+		<Pressable className={cn(bodyStyle(), bodyColor(), className)} disabled={loading || disabled} ref={ref}>
 			<Icon className={cn(iconStyle(), iconColor())} size={iconSize ?? (size === "sm" ? 20 : 24)} />
 			{loading && (
 				<View className="absolute">
-					<LoadingSpinner size={size === "sm" ? 20 : 24} color="gray" />
+					<LoadingSpinner color="gray" size={size === "sm" ? 20 : 24} />
 				</View>
 			)}
 		</Pressable>

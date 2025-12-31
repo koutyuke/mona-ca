@@ -1,5 +1,5 @@
 export {
-	MonaCaLightIcon,
 	MonaCaDarkIcon,
+	MonaCaLightIcon,
 	MonaCaLogo,
 } from "./brand.native";

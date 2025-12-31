@@ -27,6 +27,7 @@ import {
 	UserRound,
 } from "lucide-react-native";
 import { cssInterop } from "nativewind";
+
 import type { FC } from "react";
 import type { IconProps } from "./type";
 

@@ -1,6 +1,9 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type FC, type Ref, useState } from "react";
-import { Pressable, type PressableProps, type View } from "react-native";
+import { useState } from "react";
+import { Pressable } from "react-native";
+
+import type { FC, Ref } from "react";
+import type { PressableProps, View } from "react-native";
 
 type Props = Omit<PressableProps, "children" | "disabled"> & {
 	checked?: boolean;
@@ -39,13 +42,13 @@ const Radio: FC<Props> = ({ checked = false, onChange = () => {}, disabled, ref,
 
 	return (
 		<Pressable
-			ref={ref}
-			disabled={disabled}
 			className={styleVariants({ checked: isChecked, disabled })}
+			disabled={disabled}
 			onPress={() => {
 				setChecked(!isChecked);
 				onChange(!isChecked);
 			}}
+			ref={ref}
 			{...props}
 		/>
 	);

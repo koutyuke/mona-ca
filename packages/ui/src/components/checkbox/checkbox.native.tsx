@@ -1,7 +1,10 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type FC, type ReactNode, type Ref, useState } from "react";
-import { Pressable, type PressableProps, View } from "react-native";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
 import { CheckIcon } from "../../icons/index.native";
+
+import type { FC, ReactNode, Ref } from "react";
+import type { PressableProps } from "react-native";
 
 type Props = Omit<PressableProps, "children" | "disabled"> & {
 	size?: "sm" | "md";
@@ -77,11 +80,11 @@ const CheckBox: FC<Props> = ({
 		<Pressable
 			{...props}
 			className={bodyStyle({ className })}
+			disabled={disabled}
 			onPress={() => {
 				onChange(!isChecked);
 				setChecked(!isChecked);
 			}}
-			disabled={disabled}
 			ref={ref}
 		>
 			<View className={iconStyle()}>
