@@ -1,4 +1,5 @@
 import fs from "node:fs";
+
 import type { ColorName, TonePallet } from "./type";
 
 class RadixColor {

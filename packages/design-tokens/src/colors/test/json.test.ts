@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-
 import customColors from "../json/custom-colors.json";
 import radixColors from "../json/radix-colors.json";
 

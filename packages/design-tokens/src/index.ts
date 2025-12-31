@@ -1,3 +1,3 @@
 export { colors } from "./colors";
-export { breakpoints, mediaQueries } from "./responsive";
 export { fonts } from "./fonts";
+export { breakpoints, mediaQueries } from "./responsive";
