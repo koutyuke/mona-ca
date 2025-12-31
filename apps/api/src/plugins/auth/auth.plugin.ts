@@ -1,12 +1,13 @@
-import { AUTHORIZATION_HEADER_NAME, SESSION_COOKIE_NAME, readBearerToken } from "@mona-ca/core/http";
+import { AUTHORIZATION_HEADER_NAME, readBearerToken, SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, status, t } from "elysia";
 import { match } from "ts-pattern";
 import { isMobilePlatform, isWebPlatform } from "../../core/domain/value-objects";
-import type { Session } from "../../features/auth/domain/entities/session";
-import type { UserCredentials } from "../../features/auth/domain/entities/user-credentials";
 import { newSessionToken } from "../../features/auth/domain/value-objects/tokens";
 import { clientPlatformPlugin } from "../client-platform";
 import { containerPlugin } from "../container";
+
+import type { Session } from "../../features/auth/domain/entities/session";
+import type { UserCredentials } from "../../features/auth/domain/entities/user-credentials";
 
 export const unauthorizedResponse = status("Unauthorized", {
 	code: "UNAUTHORIZED",
@@ -49,6 +50,7 @@ export const authPlugin = <WithEmailVerification extends boolean = true>(options
 		.guard({
 			schema: "standalone",
 			headers: t.Object({
+				// biome-ignore lint/suspicious/noTemplateCurlyInString: This is Elysia's type definition syntax, not a template string
 				[AUTHORIZATION_HEADER_NAME]: t.Optional(t.TemplateLiteral("Bearer ${string}")),
 			}),
 			cookie: t.Cookie({
@@ -90,7 +92,7 @@ export const authPlugin = <WithEmailVerification extends boolean = true>(options
 				}
 
 				if (withEmailVerification && !userCredentials.emailVerified) {
-					// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+					// biome-ignore lint/suspicious/noExplicitAny: Type narrowing limitation with conditional return types
 					return requiredEmailVerificationResponse as any;
 				}
 

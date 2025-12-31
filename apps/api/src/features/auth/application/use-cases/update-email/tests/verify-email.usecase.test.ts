@@ -7,11 +7,11 @@ import {
 } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	EmailVerificationRequestRepositoryMock,
-	SessionRepositoryMock,
 	createAuthUserMap,
 	createEmailVerificationRequestMap,
 	createSessionMap,
+	EmailVerificationRequestRepositoryMock,
+	SessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { UpdateEmailVerifyEmailUseCase } from "../verify-email.usecase";
 

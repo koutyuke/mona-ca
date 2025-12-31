@@ -1,5 +1,6 @@
-import type { UserId } from "../../../../core/domain/value-objects";
 import { TimeSpan } from "../../../../core/lib/time";
+
+import type { UserId } from "../../../../core/domain/value-objects";
 import type { EmailVerificationRequestId } from "../value-objects/ids";
 
 export const EMAIL_VERIFICATION_REQUEST_EXPIRES_SPAN_MINUTES = 10 as const;

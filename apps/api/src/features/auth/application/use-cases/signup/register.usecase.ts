@@ -2,6 +2,7 @@ import { err, ok } from "@mona-ca/core/result";
 import { newUserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
 import { createSession } from "../../../domain/entities/session";
+import { createUserRegistration } from "../../../domain/entities/user-registration";
 import { newSessionId } from "../../../domain/value-objects/ids";
 import { encodeToken } from "../../../domain/value-objects/tokens";
 
@@ -9,7 +10,6 @@ import type { Gender, UserId } from "../../../../../core/domain/value-objects";
 import type { IPasswordHashingService, ITokenSecretService } from "../../../../../core/ports/system";
 import type { Session } from "../../../domain/entities/session";
 import type { SignupSession } from "../../../domain/entities/signup-session";
-import { createUserRegistration } from "../../../domain/entities/user-registration";
 import type { SessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	ISignupRegisterUseCase,

@@ -1,8 +1,10 @@
 import { render } from "@react-email/render";
-import type { ReactElement } from "react";
-import { type CreateEmailOptions, type CreateEmailRequestOptions, type CreateEmailResponse, Resend } from "resend";
-import type { IEmailGateway } from "../../../ports/gateways";
+import { Resend } from "resend";
 import { verificationEmailTemplate } from "./mail-context";
+
+import type { ReactElement } from "react";
+import type { CreateEmailOptions, CreateEmailRequestOptions, CreateEmailResponse } from "resend";
+import type { IEmailGateway } from "../../../ports/gateways";
 import type { EmailRenderOptions, RequireAtLeastOne } from "./type";
 
 export class EmailGateway implements IEmailGateway {
@@ -23,7 +25,7 @@ export class EmailGateway implements IEmailGateway {
 		}
 
 		const contents = await this.render(payload);
-		// biome-ignore lint/suspicious/noConsoleLog: <explanation>
+		// biome-ignore lint/suspicious/noConsole: Development mode logging for email preview
 		console.log(
 			"[Email: Development] Email will not be sent. Email content is as follows:\n\n",
 			`to: ${payload.to}\n`,

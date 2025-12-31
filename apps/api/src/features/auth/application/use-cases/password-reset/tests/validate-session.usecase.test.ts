@@ -1,12 +1,12 @@
-import { assert, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, it } from "vitest";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	PasswordResetSessionRepositoryMock,
 	createAuthUserMap,
 	createPasswordResetSessionMap,
 	createSessionMap,
+	PasswordResetSessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { PasswordResetValidateSessionUseCase } from "../validate-session.usecase";
 

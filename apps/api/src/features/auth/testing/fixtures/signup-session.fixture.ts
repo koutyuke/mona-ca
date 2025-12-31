@@ -1,8 +1,11 @@
 import { ulid } from "../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
-import { type SignupSession, signupSessionEmailVerificationExpiresSpan } from "../../domain/entities/signup-session";
+import { signupSessionEmailVerificationExpiresSpan } from "../../domain/entities/signup-session";
 import { newSignupSessionId } from "../../domain/value-objects/ids";
-import { type SignupSessionToken, encodeToken } from "../../domain/value-objects/tokens";
+import { encodeToken } from "../../domain/value-objects/tokens";
+
+import type { SignupSession } from "../../domain/entities/signup-session";
+import type { SignupSessionToken } from "../../domain/value-objects/tokens";
 
 const tokenSecretService = new TokenSecretServiceMock();
 

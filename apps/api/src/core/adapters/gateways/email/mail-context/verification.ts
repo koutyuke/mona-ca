@@ -1,4 +1,5 @@
 import { DEFAULT_EMAIL_ADDRESS } from "@mona-ca/core/email";
+
 import type { EmailContext } from "./type";
 
 export const verificationEmailTemplate = (email: string, code: string): EmailContext => {

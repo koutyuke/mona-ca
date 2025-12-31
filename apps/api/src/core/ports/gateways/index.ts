@@ -1,6 +1,6 @@
+export type { IEmailGateway } from "./email.gateway.interface";
 export type {
 	ITurnstileGateway,
-	TurnstileResult,
 	TurnstileErrorCodes,
+	TurnstileResult,
 } from "./turnstile.gateway.interface";
-export type { IEmailGateway } from "./email.gateway.interface";

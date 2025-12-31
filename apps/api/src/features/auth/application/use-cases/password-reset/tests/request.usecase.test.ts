@@ -4,10 +4,10 @@ import { CryptoRandomServiceMock, TokenSecretServiceMock } from "../../../../../
 import { createAuthUserFixture, createPasswordResetSessionFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	PasswordResetSessionRepositoryMock,
 	createAuthUserMap,
 	createPasswordResetSessionMap,
 	createSessionMap,
+	PasswordResetSessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { PasswordResetRequestUseCase } from "../request.usecase";
 

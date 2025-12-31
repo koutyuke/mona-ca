@@ -7,11 +7,11 @@ import {
 } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	PasswordResetSessionRepositoryMock,
-	SessionRepositoryMock,
 	createAuthUserMap,
 	createPasswordResetSessionMap,
 	createSessionMap,
+	PasswordResetSessionRepositoryMock,
+	SessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { PasswordResetResetUseCase } from "../reset.usecase";
 

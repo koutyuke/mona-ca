@@ -1,4 +1,5 @@
 import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
+
 import type { OpenAPIV3 } from "openapi-types";
 
 export const securitySchemes = {

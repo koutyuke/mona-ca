@@ -1,9 +1,11 @@
-import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/result";
+import { err, ok } from "@mona-ca/core/result";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis/cloudflare";
 import Elysia from "elysia";
 import { env } from "../../core/infra/config/env";
 import { ipAddressPlugin } from "../ip-address";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 
 type LimiterConfig = {
 	maxTokens: number;

@@ -2,11 +2,12 @@ import { env } from "cloudflare:test";
 import { afterEach, describe, expect, test } from "vitest";
 import { newGender } from "../../../../../../core/domain/value-objects";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
-import { UsersTableDriver, toRawBoolean, toRawDate } from "../../../../../../core/testing/drivers";
-import type { UserProfile } from "../../../../domain/entities/user-profile";
+import { toRawBoolean, toRawDate, UsersTableDriver } from "../../../../../../core/testing/drivers";
 import { convertUserProfileToRaw } from "../../../../testing/converters/converters";
 import { createUserProfileFixture } from "../../../../testing/fixtures/user-profile.fixture";
 import { UserProfileRepository } from "../user-profile.repository";
+
+import type { UserProfile } from "../../../../domain/entities/user-profile";
 
 const { DB } = env;
 

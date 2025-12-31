@@ -1,9 +1,12 @@
 import { newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
-import { type Session, sessionExpiresSpan } from "../../domain/entities/session";
+import { sessionExpiresSpan } from "../../domain/entities/session";
 import { newSessionId } from "../../domain/value-objects/ids";
-import { type SessionToken, encodeToken } from "../../domain/value-objects/tokens";
+import { encodeToken } from "../../domain/value-objects/tokens";
+
+import type { Session } from "../../domain/entities/session";
+import type { SessionToken } from "../../domain/value-objects/tokens";
 
 const tokenSecretService = new TokenSecretServiceMock();
 

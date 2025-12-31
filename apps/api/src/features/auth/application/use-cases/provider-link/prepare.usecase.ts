@@ -1,11 +1,14 @@
 import { ok } from "@mona-ca/core/result";
-import type { UserId } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
-import type { ITokenSecretService } from "../../../../../core/ports/system";
-import { type ProviderLinkRequest, createProviderLinkRequest } from "../../../domain/entities/provider-link-request";
-import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
+import { createProviderLinkRequest } from "../../../domain/entities/provider-link-request";
 import { newProviderLinkRequestId } from "../../../domain/value-objects/ids";
-import { type ProviderLinkRequestToken, encodeToken } from "../../../domain/value-objects/tokens";
+import { encodeToken } from "../../../domain/value-objects/tokens";
+
+import type { UserId } from "../../../../../core/domain/value-objects";
+import type { ITokenSecretService } from "../../../../../core/ports/system";
+import type { ProviderLinkRequest } from "../../../domain/entities/provider-link-request";
+import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
+import type { ProviderLinkRequestToken } from "../../../domain/value-objects/tokens";
 import type {
 	IProviderLinkPrepareUseCase,
 	ProviderLinkPrepareUseCaseResult,

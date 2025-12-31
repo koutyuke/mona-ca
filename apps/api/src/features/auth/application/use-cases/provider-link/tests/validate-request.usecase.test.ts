@@ -1,4 +1,4 @@
-import { assert, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, it } from "vitest";
 import { newUserId } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
@@ -7,10 +7,10 @@ import { encodeToken, newProviderLinkRequestToken } from "../../../../domain/val
 import { createAuthUserFixture, createProviderLinkRequestFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	ProviderLinkRequestRepositoryMock,
 	createAuthUserMap,
 	createProviderLinkRequestMap,
 	createSessionMap,
+	ProviderLinkRequestRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { ProviderLinkValidateRequestUseCase } from "../validate-request.usecase";
 

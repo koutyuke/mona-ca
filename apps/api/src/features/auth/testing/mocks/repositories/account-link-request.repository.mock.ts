@@ -1,6 +1,8 @@
+import { isExpiredAccountLinkRequest } from "../../../domain/entities/account-link-request";
+
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { IAccountLinkRequestRepository } from "../../../application/ports/out/repositories/account-link-request.repository.interface";
-import { type AccountLinkRequest, isExpiredAccountLinkRequest } from "../../../domain/entities/account-link-request";
+import type { AccountLinkRequest } from "../../../domain/entities/account-link-request";
 import type { AccountLinkRequestId } from "../../../domain/value-objects/ids";
 
 export class AccountLinkRequestRepositoryMock implements IAccountLinkRequestRepository {

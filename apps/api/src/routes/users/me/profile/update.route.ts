@@ -1,10 +1,12 @@
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
 import { genderSchema, newGender } from "../../../../core/domain/value-objects";
-import { type UpdateUserProfileDto, toUserProfileResponse } from "../../../../features/user";
+import { toUserProfileResponse } from "../../../../features/user";
 import { authPlugin, unauthorizedResponse } from "../../../../plugins/auth";
 import { containerPlugin } from "../../../../plugins/container";
 import { pathDetail } from "../../../../plugins/openapi";
+
+import type { UpdateUserProfileDto } from "../../../../features/user";
 
 export const ProfileUpdateRoute = new Elysia()
 	// Local Middleware & Plugin

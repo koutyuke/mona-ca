@@ -1,9 +1,11 @@
-import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/result";
-import type { Static, TIntersect, TLiteral, TObject, TString } from "@sinclair/typebox";
+import { err, ok } from "@mona-ca/core/result";
 import { Value } from "@sinclair/typebox/value";
 import { generateState } from "arctic";
 import { t } from "elysia";
 import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../core/lib/encoding";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
+import type { Static, TIntersect, TLiteral, TObject, TString } from "@sinclair/typebox";
 import type { IHmacService } from "../../../../core/ports/system";
 import type { IHmacSignedStateService } from "../../application/ports/out/infra/hmac-signed-state.service.interface";
 
@@ -69,6 +71,7 @@ export class HmacSignedStateService<P extends string, S extends TObject> impleme
 
 			return ok(rest as Static<S>);
 		} catch (e) {
+			// biome-ignore lint/suspicious/noConsole: Logging state decode errors for debugging
 			console.error(e);
 			return err("STATE_DECODE_FAILED");
 		}

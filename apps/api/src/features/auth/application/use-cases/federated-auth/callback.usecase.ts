@@ -1,5 +1,6 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/http";
 import { err, ok } from "@mona-ca/core/result";
+import { match } from "ts-pattern";
 import {
 	isMobilePlatform,
 	isWebPlatform,
@@ -8,12 +9,11 @@ import {
 	newUserId,
 } from "../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../core/lib/id";
-import { type AccountLinkRequest, createAccountLinkRequest } from "../../../domain/entities/account-link-request";
+import { createAccountLinkRequest } from "../../../domain/entities/account-link-request";
 import { createProviderAccount } from "../../../domain/entities/provider-account";
 import { createSession } from "../../../domain/entities/session";
-import { DEFAULT_USER_GENDER, createUserRegistration } from "../../../domain/entities/user-registration";
+import { createUserRegistration, DEFAULT_USER_GENDER } from "../../../domain/entities/user-registration";
 import {
-	type IdentityProvidersUserId,
 	isDiscordProvider,
 	isGoogleProvider,
 	newIdentityProvidersUserId,
@@ -21,11 +21,11 @@ import {
 import { newAccountLinkRequestId, newSessionId } from "../../../domain/value-objects/ids";
 import { encodeToken } from "../../../domain/value-objects/tokens";
 
-import { match } from "ts-pattern";
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { ITokenSecretService } from "../../../../../core/ports/system";
+import type { AccountLinkRequest } from "../../../domain/entities/account-link-request";
 import type { Session } from "../../../domain/entities/session";
-import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
+import type { IdentityProviders, IdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 import type { AccountLinkRequestToken, SessionToken } from "../../../domain/value-objects/tokens";
 import type {
 	FederatedAuthCallbackUseCaseResult,

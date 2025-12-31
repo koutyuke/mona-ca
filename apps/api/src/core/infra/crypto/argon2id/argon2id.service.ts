@@ -1,5 +1,6 @@
-import type { IArgon2idService } from "../../../ports/system";
 import { HashOptions, hash, verify } from "./bin/wasm_argon2";
+
+import type { IArgon2idService } from "../../../ports/system";
 
 export class Argon2idService implements IArgon2idService {
 	private readonly hashOption: HashOptions | undefined;

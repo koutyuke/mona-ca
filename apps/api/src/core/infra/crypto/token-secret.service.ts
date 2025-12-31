@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeBase32LowerCaseNoPadding } from "@oslojs/encoding";
+
 import type { ITokenSecretService } from "../../ports/system";
 
 export class TokenSecretService implements ITokenSecretService {

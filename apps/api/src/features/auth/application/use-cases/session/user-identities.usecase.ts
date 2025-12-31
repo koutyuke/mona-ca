@@ -1,11 +1,9 @@
 import { ok } from "@mona-ca/core/result";
 import { match } from "ts-pattern";
+import { isDiscordProvider, isGoogleProvider } from "../../../domain/value-objects/identity-providers";
+
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
-import {
-	type IdentityProviders,
-	isDiscordProvider,
-	isGoogleProvider,
-} from "../../../domain/value-objects/identity-providers";
+import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type {
 	FederatedIdentities,
 	IUserIdentitiesUseCase,

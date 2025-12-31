@@ -1,12 +1,12 @@
 import { newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
-import {
-	type PasswordResetSession,
-	passwordResetSessionEmailVerificationExpiresSpan,
-} from "../../domain/entities/password-reset-session";
+import { passwordResetSessionEmailVerificationExpiresSpan } from "../../domain/entities/password-reset-session";
 import { newPasswordResetSessionId } from "../../domain/value-objects/ids";
-import { type PasswordResetSessionToken, encodeToken } from "../../domain/value-objects/tokens";
+import { encodeToken } from "../../domain/value-objects/tokens";
+
+import type { PasswordResetSession } from "../../domain/entities/password-reset-session";
+import type { PasswordResetSessionToken } from "../../domain/value-objects/tokens";
 
 const tokenSecretService = new TokenSecretServiceMock();
 

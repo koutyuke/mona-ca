@@ -2,22 +2,22 @@ import { err, ok } from "@mona-ca/core/result";
 import { Value } from "@sinclair/typebox/value";
 import {
 	ArcticFetchError,
+	decodeIdToken,
 	Google as GoogleProvider,
 	OAuth2RequestError,
-	type OAuth2Tokens,
 	UnexpectedErrorResponseBodyError,
 	UnexpectedResponseError,
-	decodeIdToken,
 } from "arctic";
 import { t } from "elysia";
+import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
+import type { OAuth2Tokens } from "arctic";
 import type {
 	GetTokensResult,
 	GetUserInfoResult,
 	IIdentityProviderGateway,
 	UserInfo,
 } from "../../../application/ports/out/gateways/identity-provider.gateway.interface";
-import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
 const googleIdTokenClaimsSchema = t.Object({
 	sub: t.String(),
@@ -46,6 +46,7 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 			return ok(tokens);
 		} catch (error) {
 			if (error instanceof OAuth2RequestError) {
+				// biome-ignore lint/suspicious/noConsole: Logging OAuth2 request errors for debugging
 				console.error(error);
 				return err("CREDENTIALS_INVALID");
 			}
@@ -59,6 +60,7 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 				return err("FETCH_TOKENS_FAILED");
 			}
 
+			// biome-ignore lint/suspicious/noConsole: Logging unexpected errors for debugging
 			console.error("Unknown error in getTokens:", error);
 			return err("FETCH_TOKENS_FAILED");
 		}
@@ -86,6 +88,7 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 				userInfo,
 			});
 		} catch (error) {
+			// biome-ignore lint/suspicious/noConsole: Logging unexpected errors for debugging
 			console.error("Error in getUserInfo:", error);
 			return err("USER_INFO_GET_FAILED");
 		}
@@ -95,6 +98,7 @@ export class GoogleIdentityProviderGateway implements IIdentityProviderGateway {
 		try {
 			await this.google.revokeToken(tokens.accessToken());
 		} catch (error) {
+			// biome-ignore lint/suspicious/noConsole: Logging revocation errors for debugging
 			console.error("revokeToken request error", error);
 		}
 	}

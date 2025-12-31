@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+
 import type { ITokenSecretService } from "../../../ports/system";
 
 export class TokenSecretServiceMock implements ITokenSecretService {

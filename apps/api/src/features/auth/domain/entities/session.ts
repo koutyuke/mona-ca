@@ -1,5 +1,6 @@
-import type { UserId } from "../../../../core/domain/value-objects";
 import { TimeSpan } from "../../../../core/lib/time";
+
+import type { UserId } from "../../../../core/domain/value-objects";
 import type { SessionId } from "../value-objects/ids";
 
 export const SESSION_EXPIRES_SPAN_DAYS = 30 as const;
@@ -15,11 +16,7 @@ export interface Session {
 	expiresAt: Date;
 }
 
-export const createSession = (arg: {
-	id: SessionId;
-	userId: UserId;
-	secretHash: Uint8Array;
-}): Session => ({
+export const createSession = (arg: { id: SessionId; userId: UserId; secretHash: Uint8Array }): Session => ({
 	id: arg.id,
 	userId: arg.userId,
 	secretHash: arg.secretHash,

@@ -5,6 +5,7 @@ import { createAuthUserFixture } from "../../../../testing/fixtures";
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
 import { ProviderLinkRequestUseCase } from "../request.usecase";
+
 import type { providerLinkStateSchema } from "../schema";
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock();

@@ -1,4 +1,5 @@
 import { TimeSpan } from "../../../../core/lib/time";
+
 import type { SignupSessionId } from "../value-objects/ids";
 
 export const SIGNUP_SESSION_EMAIL_VERIFICATION_EXPIRES_SPAN_MINUTES = 10 as const;

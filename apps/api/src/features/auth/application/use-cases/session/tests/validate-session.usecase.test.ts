@@ -5,9 +5,9 @@ import { encodeToken, newSessionToken } from "../../../../domain/value-objects/t
 import { createAuthUserFixture, createSessionFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	SessionRepositoryMock,
 	createAuthUserMap,
 	createSessionMap,
+	SessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { ValidateSessionUseCase } from "../validate-session.usecase";
 
