@@ -154,7 +154,6 @@
       }
     }
   },
-  // It is not separated because biome cannot resolve it. ref: https://github.com/biomejs/biome/issues/7343
   "overrides": [
     {
       "includes": [
