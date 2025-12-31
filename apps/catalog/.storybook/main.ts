@@ -1,18 +1,22 @@
 import { createRequire } from "node:module";
 import path, { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { StorybookConfig } from "@storybook/react-webpack5";
 
 const require = createRequire(import.meta.url);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const config: StorybookConfig = {
 	stories: [
 		{
-			directory: "../../../web/src",
+			directory: "../../web/src",
 			files: "**/*.story.@(ts|tsx)",
 			titlePrefix: "app - web",
 		},
 		{
-			directory: "../../../../packages/ui/src",
+			directory: "../../../packages/ui/src",
 			files: "**/!(*.native).story.@(ts|tsx)",
 			titlePrefix: "package - ui",
 		},
@@ -20,7 +24,6 @@ const config: StorybookConfig = {
 
 	addons: [
 		getAbsolutePath("@storybook/addon-onboarding"),
-		getAbsolutePath("@storybook/addon-links"),
 		getAbsolutePath("@chromatic-com/storybook"),
 		getAbsolutePath("@storybook/addon-a11y"),
 		getAbsolutePath("@storybook/addon-themes"),

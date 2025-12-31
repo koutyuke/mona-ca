@@ -4,11 +4,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "sb": "storybook dev -p 6006 --no-open -c ./.storybook/web",
+    "sb": "storybook dev -p 6006 --no-open",
     "sb:gen": "sb-rn-get-stories",
     "sb:mobile": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --port=8082",
     "sb:ios": "cross-env EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --ios --port=8082",
-    "sb:build": "storybook build -o ./.storybook/static -c ./.storybook/web",
+    "sb:build": "storybook build -o ./.storybook/static",
     "prebuild": "expo prebuild",
     "ios": "expo run:ios --port=8082",
     "android": "expo run:android --port=8082",
