@@ -1,4 +1,18 @@
 {
   "$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["../../biome.json"]
+  "extends": "//",
+  "overrides": [
+    {
+      "includes": [
+        "src/apps/**/*"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    }
+  ]
 }

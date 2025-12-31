@@ -1,4 +1,20 @@
 {
   "$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["../../biome.json"]
+  "root": false,
+  "extends": "//",
+  "files": {
+    "includes": ["!apps/api/src/core/infra/crypto/argon2id/bin", "!apps/api/types", "!drizzle", "!types"]
+  },
+  "overrides": [
+    {
+      "includes": ["src/routes/index.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    }
+  ]
 }

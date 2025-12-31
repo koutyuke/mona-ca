@@ -1,12 +1,15 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "root": true,
   "files": {
     "includes": [
+      "**",
+      "!!**/.storybook/static",
+      "!!**/.wrangler",
+      "!**/bin",
       "**/*.ts*",
       "**/*.*js*",
-      "**/*.json*",
-      "!apps/api/src/core/infra/crypto/argon2id/bin",
-      "!apps/api/types"
+      "**/*.json*"
     ],
     "ignoreUnknown": true
   },
@@ -27,19 +30,59 @@
           "level": "on",
           "options": {
             "groups": [
-              { "type": false, "source": "cloudflare*" },
-              { "type": false, "source": ":BUN:" },
-              { "type": false, "source": ":NODE:" },
-              { "type": false, "source": ["@mona-ca/**"] },
-              { "type": false, "source": ":PACKAGE:" },
-              { "type": false, "source": ":PATH:" },
+              {
+                "type": false,
+                "source": "cloudflare*"
+              },
+              {
+                "type": false,
+                "source": ":BUN:"
+              },
+              {
+                "type": false,
+                "source": ":NODE:"
+              },
+              {
+                "type": false,
+                "source": [
+                  "@mona-ca/**"
+                ]
+              },
+              {
+                "type": false,
+                "source": ":PACKAGE:"
+              },
+              {
+                "type": false,
+                "source": ":PATH:"
+              },
               ":BLANK_LINE:",
-              { "type": true, "source": "cloudflare*" },
-              { "type": true, "source": ":BUN:" },
-              { "type": true, "source": ":NODE:" },
-              { "type": true, "source": ["@mona-ca/**"] },
-              { "type": true, "source": ":PACKAGE:" },
-              { "type": true, "source": ":PATH:" }
+              {
+                "type": true,
+                "source": "cloudflare*"
+              },
+              {
+                "type": true,
+                "source": ":BUN:"
+              },
+              {
+                "type": true,
+                "source": ":NODE:"
+              },
+              {
+                "type": true,
+                "source": [
+                  "@mona-ca/**"
+                ]
+              },
+              {
+                "type": true,
+                "source": ":PACKAGE:"
+              },
+              {
+                "type": true,
+                "source": ":PATH:"
+              }
             ]
           }
         }
@@ -74,7 +117,12 @@
         "useSortedClasses": {
           "level": "warn",
           "options": {
-            "functions": ["tv", "twMerge", "cn", "clsx"]
+            "functions": [
+              "tv",
+              "twMerge",
+              "cn",
+              "clsx"
+            ]
           }
         },
         "noFloatingPromises": "error",
@@ -87,7 +135,9 @@
         "useFilenamingConvention": {
           "level": "error",
           "options": {
-            "filenameCases": ["kebab-case"],
+            "filenameCases": [
+              "kebab-case"
+            ],
             "requireAscii": true,
             "strictCase": false
           }
@@ -109,12 +159,7 @@
     {
       "includes": [
         "**/*.story.*",
-        "**/*.config.*",
-        "**/.storybook/**",
-        "**/src/app/**/*.*",
-
-        // api
-        "apps/api/src/routes/index.ts"
+        "**/*.config.*"
       ],
       "linter": {
         "rules": {

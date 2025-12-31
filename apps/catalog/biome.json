@@ -1,4 +1,19 @@
 {
   "$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["../../biome.json"]
+  "extends": "//",
+  "files": {
+    "includes": ["!.rnstorybook/storybook.requires.ts"]
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.d.ts", "src/app/**/*", ".storybook/**/*", ".rnstorybook/**/*"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    }
+  ]
 }
