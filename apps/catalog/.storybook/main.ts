@@ -1,5 +1,8 @@
-import path from "node:path";
+import { createRequire } from "node:module";
+import path, { dirname, join } from "node:path";
 import type { StorybookConfig } from "@storybook/react-webpack5";
+
+const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
 	stories: [
@@ -14,18 +17,16 @@ const config: StorybookConfig = {
 			titlePrefix: "package - ui",
 		},
 	],
+
 	addons: [
-		"@storybook/addon-onboarding",
-		"@storybook/addon-links",
-		"@storybook/addon-essentials",
-		"@chromatic-com/storybook",
-		"@storybook/addon-interactions",
-		"@storybook/addon-a11y",
-		"@storybook/addon-storysource",
-		"@storybook/addon-themes",
-		"@storybook/addon-webpack5-compiler-swc",
+		getAbsolutePath("@storybook/addon-onboarding"),
+		getAbsolutePath("@storybook/addon-links"),
+		getAbsolutePath("@chromatic-com/storybook"),
+		getAbsolutePath("@storybook/addon-a11y"),
+		getAbsolutePath("@storybook/addon-themes"),
+		getAbsolutePath("@storybook/addon-webpack5-compiler-swc"),
 		{
-			name: "@storybook/addon-styling-webpack",
+			name: getAbsolutePath("@storybook/addon-styling-webpack"),
 			options: {
 				rules: [
 					// Replaces existing CSS rules to support PostCSS
@@ -50,7 +51,7 @@ const config: StorybookConfig = {
 			},
 		},
 		{
-			name: "@storybook/addon-react-native-web",
+			name: getAbsolutePath("@storybook/addon-react-native-web"),
 			options: {
 				modulesToTranspile: ["react-native-reanimated", "nativewind", "react-native-css-interop"],
 				// babelPresets: [["babel-preset-expo", { jsxImportSource: "nativewind" }], "nativewind/babel"],
@@ -66,15 +67,18 @@ const config: StorybookConfig = {
 				// ],
 			},
 		},
+		getAbsolutePath("@storybook/addon-docs"),
 	],
+
 	framework: {
-		name: "@storybook/react-webpack5",
+		name: getAbsolutePath("@storybook/react-webpack5"),
 		options: {
 			builder: {
 				useSWC: true,
 			},
 		},
 	},
+
 	webpackFinal: webpackConfig => {
 		if (webpackConfig.resolve) {
 			webpackConfig.resolve.alias = {
@@ -98,6 +102,7 @@ const config: StorybookConfig = {
 
 		return webpackConfig;
 	},
+
 	swc: () => ({
 		jsc: {
 			transform: {
@@ -107,9 +112,10 @@ const config: StorybookConfig = {
 			},
 		},
 	}),
-	docs: {
-		autodocs: "tag",
-	},
 };
 
 export default config;
+
+function getAbsolutePath(value: string) {
+	return dirname(require.resolve(join(value, "package.json")));
+}

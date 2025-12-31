@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { __DEV_AuthWithSocial } from "./auth-with-social.dev";
 import { AuthWithSocialUI } from "./auth-with-social.ui";
 

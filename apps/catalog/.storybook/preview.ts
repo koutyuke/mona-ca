@@ -1,6 +1,6 @@
 import { withThemeByClassName, withThemeByDataAttribute } from "@storybook/addon-themes";
-import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
 import type { Preview } from "@storybook/react";
+import { INITIAL_VIEWPORTS } from "storybook/viewport";
 import "./global.css";
 
 const DEFAULT_THEME = "light";
@@ -20,18 +20,18 @@ const preview: Preview = {
 			},
 		},
 		viewport: {
-			viewports: INITIAL_VIEWPORTS,
+			options: INITIAL_VIEWPORTS,
 		},
 		backgrounds: {
-			default: "Auto Change",
-			values: [
-				{
+			options: {
+				auto_change: {
 					name: "Auto Change",
 					value: BACKGROUND_CSS_VALUE,
 				},
-			],
+			},
 		},
 	},
+
 	decorators: [
 		withThemeByClassName({
 			themes: THEMES,
@@ -43,7 +43,14 @@ const preview: Preview = {
 			attributeName: ATTRIBUTE_NAME,
 		}),
 	],
+
 	tags: ["autodocs"],
+
+	initialGlobals: {
+		backgrounds: {
+			value: "auto_change",
+		},
+	},
 };
 
 export default preview;

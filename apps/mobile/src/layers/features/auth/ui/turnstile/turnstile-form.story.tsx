@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { TurnstileFormUI } from "./turnstile-form.ui";
 import { __DEV_TurnstileForm } from "./turnstile.dev";
 
