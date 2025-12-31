@@ -1,8 +1,9 @@
 import { tv } from "@mona-ca/tailwind-helpers";
 import { LoadingSpinner } from "@mona-ca/ui/native/components";
 import { WhiteDiscordIcon } from "@mona-ca/ui/native/icons";
-import type { ComponentProps, FC } from "react";
 import { Pressable, Text, View } from "react-native";
+
+import type { ComponentProps, FC } from "react";
 
 type DiscordButtonProps = {
 	fullWidth?: boolean;
@@ -47,12 +48,12 @@ const ContinueWithDiscordButton: FC<DiscordButtonProps> = ({
 }) => {
 	const { body, text, icon } = styleVariants({ fullWidth, disabled, loading });
 	return (
-		<Pressable ref={ref} className={body()} disabled={loading || disabled} {...props}>
+		<Pressable className={body()} disabled={loading || disabled} ref={ref} {...props}>
 			<WhiteDiscordIcon className={icon()} />
 			<Text className={text()}>Discordで続ける</Text>
 			{loading && (
 				<View className="absolute">
-					<LoadingSpinner size={24} color="white" />
+					<LoadingSpinner color="white" size={24} />
 				</View>
 			)}
 		</Pressable>

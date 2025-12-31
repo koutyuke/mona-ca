@@ -1,10 +1,11 @@
 import { Text } from "@mona-ca/ui/native/components";
 import { Link } from "expo-router";
-import type { JSX, ReactNode } from "react";
 import { Pressable, View } from "react-native";
 import { useLayoutInsets } from "../../../../shared/lib/view";
 import { PageTitle } from "../../../../shared/ui/page-title";
 import { BODY_MIN_HEIGHT, BODY_TOP_PADDING, WAVE_HEADER_HEIGHT } from "../../../../widgets/layout";
+
+import type { JSX, ReactNode } from "react";
 
 type Props = {
 	slots: {
@@ -21,6 +22,7 @@ export const LoginPageUI = ({
 	const { top, left, right, bottom } = useLayoutInsets();
 	return (
 		<View
+			className="flex flex-1 flex-col gap-6 bg-slate-1"
 			style={{
 				paddingTop: top + WAVE_HEADER_HEIGHT + BODY_TOP_PADDING,
 				paddingLeft: left,
@@ -28,7 +30,6 @@ export const LoginPageUI = ({
 				paddingBottom: bottom,
 				minHeight: BODY_MIN_HEIGHT,
 			}}
-			className="flex flex-1 flex-col gap-6 bg-slate-1"
 		>
 			<PageTitle>Login</PageTitle>
 			<View className="flex w-full flex-1 flex-col gap-2">
@@ -40,15 +41,15 @@ export const LoginPageUI = ({
 				{LoginWithEmail}
 				<View className="flex h-8 w-full flex-row items-center gap-4">
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
-					<Text size="sm" className="text-slate-9 leading-[18px]" weight="medium">
+					<Text className="text-slate-9 leading-[18px]" size="sm" weight="medium">
 						または
 					</Text>
 					<View className="h-0.5 flex-1 rounded-full bg-slate-7" />
 				</View>
 				{LoginWithSocial}
-				<Link href="/(auth)/signup" asChild>
+				<Link asChild href="/(auth)/signup">
 					<Pressable className="group mt-1 self-end">
-						<Text size="sm" className="text-salmon-9 transition-colors group-active:text-salmon-11">
+						<Text className="text-salmon-9 transition-colors group-active:text-salmon-11" size="sm">
 							アカウントの新規登録はこちら
 						</Text>
 					</Pressable>

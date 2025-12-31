@@ -1,7 +1,8 @@
 import { useNavigation } from "expo-router";
-import type { JSX, ReactNode } from "react";
 import { vh } from "../../../../shared/lib/view";
 import { WaveHeaderUI } from "./wave-header.ui";
+
+import type { JSX, ReactNode } from "react";
 
 type Props = {
 	title: string;
@@ -26,12 +27,12 @@ export const WaveHeader = ({
 
 	return (
 		<WaveHeaderUI
-			title={title}
-			subTitle={subTitle ?? ""}
-			enableBackButton={enableBackButton}
-			backButtonLabel={backButtonLabel}
-			rightContents={rightContents}
 			actions={{ onBack: navigation.goBack }}
+			backButtonLabel={backButtonLabel}
+			enableBackButton={enableBackButton}
+			rightContents={rightContents}
+			subTitle={subTitle ?? ""}
+			title={title}
 		/>
 	);
 };

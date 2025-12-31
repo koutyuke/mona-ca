@@ -24,23 +24,23 @@ export const FeatureCarouselUI = () => {
 
 	return (
 		<Animated.ScrollView
-			ref={listRef}
-			horizontal
-			showsHorizontalScrollIndicator={false}
 			bounces={false}
-			decelerationRate="fast"
-			snapToInterval={SNAP_INTERVAL}
-			scrollEventThrottle={16}
+			className="flex-grow-0"
 			contentContainerStyle={{
 				paddingHorizontal: PADDING,
 				gap: SPACING,
 			}}
-			className="flex-grow-0"
+			decelerationRate="fast"
+			horizontal
 			onScroll={onScroll}
+			ref={listRef}
+			scrollEventThrottle={16}
+			showsHorizontalScrollIndicator={false}
+			snapToInterval={SNAP_INTERVAL}
 		>
-			<FeatureCardUI variant="mona-ca" className="w-[75vw]" />
-			<FeatureCardUI variant="customize" className="w-[75vw]" />
-			<FeatureCardUI variant="share" className="w-[75vw]" />
+			<FeatureCardUI className="w-[75vw]" variant="mona-ca" />
+			<FeatureCardUI className="w-[75vw]" variant="customize" />
+			<FeatureCardUI className="w-[75vw]" variant="share" />
 		</Animated.ScrollView>
 	);
 };

@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { __DEV_LoginWithEmail } from "./login-with-email.dev";
 import { LoginWithEmailUI } from "./login-with-email.ui";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof LoginWithEmailUI> = {
 	title: "Features/Auth/LoginWithEmail",

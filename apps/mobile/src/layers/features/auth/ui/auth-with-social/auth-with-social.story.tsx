@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { __DEV_AuthWithSocial } from "./auth-with-social.dev";
 import { AuthWithSocialUI } from "./auth-with-social.ui";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof AuthWithSocialUI> = {
 	title: "Features/Auth/AuthWithSocial",

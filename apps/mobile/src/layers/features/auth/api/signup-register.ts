@@ -1,6 +1,8 @@
-import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/result";
-import type { Gender } from "../../../entities/user";
+import { err, ok } from "@mona-ca/core/result";
 import { treatyFetch } from "../../../shared/api";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
+import type { Gender } from "../../../entities/user";
 
 type RegisterUserDto = {
 	name: string;
@@ -33,7 +35,7 @@ export const signupRegister = async (signupToken: string, body: RegisterUserDto)
 			signupToken,
 			...body,
 		});
-	} catch (error) {
+	} catch (_error) {
 		return err("NETWORK_ERROR", { errorMessage: "Communication failed" });
 	}
 

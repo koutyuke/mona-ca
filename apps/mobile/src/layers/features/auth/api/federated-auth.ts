@@ -1,8 +1,9 @@
-import type { Err, Ok, Result } from "@mona-ca/core/result";
 import { err, ok } from "@mona-ca/core/result";
-import { WebBrowserResultType, openAuthSessionAsync } from "expo-web-browser";
+import { openAuthSessionAsync, WebBrowserResultType } from "expo-web-browser";
 import * as v from "valibot";
 import { federatedAuthURL } from "../lib/federated-auth-url";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { SupportProvider } from "../model/support-provider";
 
 const flowSchema = v.union([v.literal("login"), v.literal("signup")]);

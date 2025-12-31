@@ -16,20 +16,20 @@ export const LoginWithEmail = () => {
 
 	return (
 		<LoginWithEmailUI
-			loading={isLoading}
-			error={error}
 			actions={{ onSubmit: startTurnstileVerification }}
+			error={error}
+			loading={isLoading}
 			slots={{
 				Turnstile: (
 					<TurnstileModalUI
-						isVisible={isTurnstileModalVisible}
-						isClosable={isTurnstileModalClosable}
 						actions={{ onClose: closeTurnstileModal }}
+						isClosable={isTurnstileModalClosable}
+						isVisible={isTurnstileModalVisible}
 						slots={{
 							TurnstileForm: (
 								<TurnstileFormUI
-									sitekey={process.env.EXPO_PUBLIC_TURNSTILE_SITEKEY!}
 									onVerify={completeTurnstileVerification}
+									sitekey={process.env.EXPO_PUBLIC_TURNSTILE_SITEKEY!}
 								/>
 							),
 						}}

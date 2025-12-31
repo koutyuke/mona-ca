@@ -1,8 +1,8 @@
 import { atomFamily, atomWithStorage } from "jotai/utils";
-import type { ValueOf } from "../data/types";
 import { createGlobalJSONStorage, createSecureJSONStorage, createUserJSONStorage } from "./json-storage";
-import type { globalStorageKeys } from "./keys";
-import type { secureStorageKeys, userStorageKeys } from "./keys";
+
+import type { ValueOf } from "../data/types";
+import type { globalStorageKeys, secureStorageKeys, userStorageKeys } from "./keys";
 import type { JSONStringifyable } from "./types";
 
 export const atomWithGlobalStorage = <T extends JSONStringifyable>(

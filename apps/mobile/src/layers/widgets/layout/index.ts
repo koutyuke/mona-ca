@@ -1,2 +1,2 @@
-export { PageFrame, BODY_MIN_HEIGHT, BODY_TOP_PADDING } from "./ui/page-frame/page-frame";
-export { WaveHeader, WAVE_HEADER_HEIGHT } from "./ui/wave-header/wave-header";
+export { BODY_MIN_HEIGHT, BODY_TOP_PADDING, PageFrame } from "./ui/page-frame/page-frame";
+export { WAVE_HEADER_HEIGHT, WaveHeader } from "./ui/wave-header/wave-header";

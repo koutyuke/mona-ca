@@ -30,8 +30,8 @@ const flush = () => {
 	for (const subscriber of snapshot) {
 		try {
 			subscriber(lastLogoutReason);
-		} catch (error) {
-			console.error(error);
+		} catch (_error) {
+			// Silently ignore subscriber errors to prevent cascade failures
 		}
 	}
 

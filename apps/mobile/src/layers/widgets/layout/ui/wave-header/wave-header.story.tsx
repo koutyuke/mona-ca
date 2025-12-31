@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { WaveHeader } from "./wave-header";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof WaveHeader> = {
 	title: "Widgets/Layout/WaveHeader",

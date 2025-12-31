@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { ContinueWithEmailButton } from "./email";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof ContinueWithEmailButton> = {
 	title: "Shared/ContinueWithMethodButton/Email",

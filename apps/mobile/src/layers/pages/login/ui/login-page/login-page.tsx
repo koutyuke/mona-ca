@@ -1,5 +1,4 @@
-import { LastLoginMethod } from "../../../../features/auth";
-import { AgreementNotice, LoginWithEmail, LoginWithSocial } from "../../../../features/auth";
+import { AgreementNotice, LastLoginMethod, LoginWithEmail, LoginWithSocial } from "../../../../features/auth";
 import { PageFrame } from "../../../../widgets/layout";
 import { LoginPageUI } from "./login-page.ui";
 

@@ -1,8 +1,9 @@
 import { tv } from "@mona-ca/tailwind-helpers";
 import { LoadingSpinner } from "@mona-ca/ui/native/components";
 import { EmailIcon } from "@mona-ca/ui/native/icons";
-import type { ComponentProps, FC } from "react";
 import { Pressable, Text, View } from "react-native";
+
+import type { ComponentProps, FC } from "react";
 
 type Props = {
 	fullWidth?: boolean;
@@ -46,12 +47,12 @@ const ContinueWithEmailButton: FC<Props> = ({
 }: Props) => {
 	const { body, text, icon } = styleVariants({ fullWidth, disabled, loading });
 	return (
-		<Pressable ref={ref} className={body()} disabled={loading || disabled} {...props}>
+		<Pressable className={body()} disabled={loading || disabled} ref={ref} {...props}>
 			<EmailIcon className={icon()} />
 			<Text className={text()}>メールアドレスで続ける</Text>
 			{loading && (
 				<View className="absolute">
-					<LoadingSpinner size={24} color="black" />
+					<LoadingSpinner color="black" size={24} />
 				</View>
 			)}
 		</Pressable>

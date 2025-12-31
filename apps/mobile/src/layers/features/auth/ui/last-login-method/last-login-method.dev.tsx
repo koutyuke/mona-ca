@@ -1,5 +1,6 @@
-import type { ComponentProps } from "react";
 import { LastLoginMethodUI } from "./last-login-method.ui";
+
+import type { ComponentProps } from "react";
 
 export const __DEV_LastLoginMethod = {
 	components: {

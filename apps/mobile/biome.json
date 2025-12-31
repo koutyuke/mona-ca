@@ -3,9 +3,7 @@
   "extends": "//",
   "overrides": [
     {
-      "includes": [
-        "src/apps/**/*"
-      ],
+      "includes": ["src/app/**/*", "**/*.d.ts"],
       "linter": {
         "rules": {
           "style": {

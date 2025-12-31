@@ -1,10 +1,12 @@
-import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Alert, Button, GenderSelector, InputWrapper, TextInput } from "@mona-ca/ui/native/components";
 import { PasswordIcon, UserIcon } from "@mona-ca/ui/native/icons";
-import type { JSX, ReactNode } from "react";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
-import { type SignupFormSchema, signupFormSchema } from "../../model/signup-form-schema";
+import { signupFormSchema } from "../../model/signup-form-schema";
+
+import type { JSX, ReactNode } from "react";
+import type { SignupFormSchema } from "../../model/signup-form-schema";
 
 type Props = {
 	loading: boolean;
@@ -34,55 +36,55 @@ export const SignupWithEmailUI = ({
 
 	return (
 		<View className="flex w-full flex-1 flex-col gap-3">
-			{error && <Alert type="error" title={error} />}
+			{error && <Alert title={error} type="error" />}
 			<Controller
+				control={control}
 				name="password"
-				control={control}
 				render={({ field: { onChange, value, onBlur }, fieldState: { error: validationError } }) => (
-					<InputWrapper label="パスワード" error={validationError?.message ?? ""}>
+					<InputWrapper error={validationError?.message ?? ""} label="パスワード">
 						<TextInput
-							placeholder="Password"
-							icon={PasswordIcon}
-							value={value}
-							onChangeText={onChange}
-							onBlur={onBlur}
 							credentials
-							textContentType="password"
-						/>
-					</InputWrapper>
-				)}
-			/>
-			<Controller
-				name="name"
-				control={control}
-				render={({ field: { onChange, value, onBlur }, fieldState: { error: validationError } }) => (
-					<InputWrapper label="ユーザー名" error={validationError?.message ?? ""}>
-						<TextInput
-							placeholder="User Name"
-							icon={UserIcon}
-							value={value}
-							onChangeText={onChange}
+							icon={PasswordIcon}
 							onBlur={onBlur}
-							textContentType="username"
+							onChangeText={onChange}
+							placeholder="Password"
+							textContentType="password"
+							value={value}
 						/>
 					</InputWrapper>
 				)}
 			/>
 			<Controller
-				name="gender"
 				control={control}
+				name="name"
+				render={({ field: { onChange, value, onBlur }, fieldState: { error: validationError } }) => (
+					<InputWrapper error={validationError?.message ?? ""} label="ユーザー名">
+						<TextInput
+							icon={UserIcon}
+							onBlur={onBlur}
+							onChangeText={onChange}
+							placeholder="User Name"
+							textContentType="username"
+							value={value}
+						/>
+					</InputWrapper>
+				)}
+			/>
+			<Controller
+				control={control}
+				name="gender"
 				render={({ field: { onChange, value }, fieldState: { error: validationError } }) => (
-					<InputWrapper label="性別" error={validationError?.message ?? ""} className="mb-auto">
-						<GenderSelector value={value} onChange={onChange} />
+					<InputWrapper className="mb-auto" error={validationError?.message ?? ""} label="性別">
+						<GenderSelector onChange={onChange} value={value} />
 					</InputWrapper>
 				)}
 			/>
 			<Button
 				className="mt-6 w-full"
-				variant="filled"
 				color="salmon"
-				onPress={handleSubmit(onSubmit)}
 				loading={loading}
+				onPress={handleSubmit(onSubmit)}
+				variant="filled"
 			>
 				新規登録
 			</Button>

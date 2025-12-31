@@ -1,11 +1,13 @@
-import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Alert, Button, InputWrapper, Text, TextInput } from "@mona-ca/ui/native/components";
 import { EmailIcon, PasswordIcon } from "@mona-ca/ui/native/icons";
+import { valibotResolver } from "@hookform/resolvers/valibot";
 import { Link } from "expo-router";
-import type { JSX, ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Pressable, View } from "react-native";
-import { type LoginFormSchema, loginFormSchema } from "../../model/login-form-schema";
+import { loginFormSchema } from "../../model/login-form-schema";
+
+import type { JSX, ReactNode } from "react";
+import type { LoginFormSchema } from "../../model/login-form-schema";
 
 type Props = {
 	loading: boolean;
@@ -35,49 +37,49 @@ export const LoginWithEmailUI = ({
 
 	return (
 		<View className="flex w-full flex-col gap-3">
-			{error && <Alert type="error" title={error} />}
+			{error && <Alert title={error} type="error" />}
 			<Controller
+				control={control}
 				name="email"
-				control={control}
 				render={({ field: { onBlur, onChange, value, ref }, fieldState: { error: validationError } }) => (
-					<InputWrapper label="メールアドレス" error={validationError?.message ?? ""}>
+					<InputWrapper error={validationError?.message ?? ""} label="メールアドレス">
 						<TextInput
-							ref={ref}
-							placeholder="Email"
 							icon={EmailIcon}
-							value={value}
-							onChangeText={onChange}
 							onBlur={onBlur}
+							onChangeText={onChange}
+							placeholder="Email"
+							ref={ref}
+							value={value}
 						/>
 					</InputWrapper>
 				)}
 			/>
 			<Controller
-				name="password"
 				control={control}
+				name="password"
 				render={({ field: { onBlur, onChange, value, ref }, fieldState: { error: validationError } }) => (
-					<InputWrapper label="パスワード" error={validationError?.message ?? ""}>
+					<InputWrapper error={validationError?.message ?? ""} label="パスワード">
 						<TextInput
-							ref={ref}
-							placeholder="Password"
-							icon={PasswordIcon}
-							value={value}
-							onChangeText={onChange}
-							onBlur={onBlur}
 							credentials
+							icon={PasswordIcon}
+							onBlur={onBlur}
+							onChangeText={onChange}
+							placeholder="Password"
+							ref={ref}
 							textContentType="password"
+							value={value}
 						/>
 					</InputWrapper>
 				)}
 			/>
-			<Link href="/(auth)/forgot-password" asChild>
+			<Link asChild href="/(auth)/forgot-password">
 				<Pressable className="group self-end">
-					<Text size="sm" className="text-salmon-9 transition-colors group-active:text-salmon-11">
+					<Text className="text-salmon-9 transition-colors group-active:text-salmon-11" size="sm">
 						パスワードをお忘れですか？
 					</Text>
 				</Pressable>
 			</Link>
-			<Button className="w-full" variant="filled" color="salmon" onPress={handleSubmit(onSubmit)} loading={loading}>
+			<Button className="w-full" color="salmon" loading={loading} onPress={handleSubmit(onSubmit)} variant="filled">
 				ログイン
 			</Button>
 			{Turnstile}

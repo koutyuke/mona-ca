@@ -1,6 +1,7 @@
-import type { ComponentProps } from "react";
 import { TurnstileFormUI } from "./turnstile-form.ui";
 import { TurnstileModalUI } from "./turnstile-modal.ui";
+
+import type { ComponentProps } from "react";
 
 const noop = () => {};
 

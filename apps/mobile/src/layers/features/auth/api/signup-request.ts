@@ -1,6 +1,7 @@
-import type { Err, Ok, Result } from "@mona-ca/core/result";
 import { err, ok } from "@mona-ca/core/result";
 import { treatyFetch } from "../../../shared/api";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 
 type Success = Ok<{
 	signupToken: string;
@@ -26,7 +27,7 @@ export const signupRequest = async (email: string, turnstileToken: string): Prom
 			email,
 			turnstileToken,
 		});
-	} catch (error) {
+	} catch (_error) {
 		return err("NETWORK_ERROR", { errorMessage: "Communication failed" });
 	}
 

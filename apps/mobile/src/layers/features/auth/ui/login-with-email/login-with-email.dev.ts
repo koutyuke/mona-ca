@@ -1,5 +1,6 @@
-import type { ComponentProps } from "react";
 import { LoginWithEmailUI } from "./login-with-email.ui";
+
+import type { ComponentProps } from "react";
 
 const noop = () => {};
 

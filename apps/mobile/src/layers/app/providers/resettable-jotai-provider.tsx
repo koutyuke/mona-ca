@@ -1,5 +1,7 @@
-import { Provider, createStore } from "jotai";
-import { type FC, type ReactNode, createContext, useContext, useReducer } from "react";
+import { createStore, Provider } from "jotai";
+import { createContext, useContext, useReducer } from "react";
+
+import type { FC, ReactNode } from "react";
 
 type ResetFunction = () => void;
 
