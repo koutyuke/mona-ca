@@ -1,4 +1,5 @@
 import { baseConfig } from "@mona-ca/tailwind-config";
+
 import type { Config } from "tailwindcss";
 
 const config = {
