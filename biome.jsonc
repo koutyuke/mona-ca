@@ -6,7 +6,6 @@
       "**",
       "!!**/.storybook/static",
       "!!**/.wrangler",
-      "!**/bin",
       "**/*.ts*",
       "**/*.*js*",
       "**/*.json*"

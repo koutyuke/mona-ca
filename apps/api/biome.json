@@ -3,7 +3,7 @@
   "root": false,
   "extends": "//",
   "files": {
-    "includes": ["!apps/api/src/core/infra/crypto/argon2id/bin", "!apps/api/types", "!drizzle", "!types"]
+    "includes": ["!!src/core/infra/crypto/argon2id/bin", "!drizzle", "!types"]
   },
   "overrides": [
     {
