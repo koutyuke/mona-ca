@@ -10,12 +10,16 @@
       "bin",
       ".tsup",
       "./apps/api/drizzle",
-      "./apps/catalog/.storybook/mobile/storybook.requires.ts",
+      "./apps/catalog/.rnstorybook/storybook.requires.ts",
       "./apps/api/types/worker-configuration.d.ts",
       "ios",
       "android"
     ],
-    "include": ["**/*.ts*", "**/*.*js*", "**/*.json"]
+    "include": [
+      "**/*.ts*",
+      "**/*.*js*",
+      "**/*.json"
+    ]
   },
   "vcs": {
     "clientKind": "git",
@@ -55,7 +59,12 @@
         "useSortedClasses": {
           "level": "warn",
           "options": {
-            "functions": ["tv", "twMerge", "cn", "clsx"]
+            "functions": [
+              "tv",
+              "twMerge",
+              "cn",
+              "clsx"
+            ]
           }
         }
       },
@@ -66,7 +75,9 @@
         "useFilenamingConvention": {
           "level": "error",
           "options": {
-            "filenameCases": ["kebab-case"],
+            "filenameCases": [
+              "kebab-case"
+            ],
             "requireAscii": true,
             "strictCase": false
           }
@@ -85,7 +96,9 @@
         "**/.storybook/**",
         "**/src/app/**",
         "apps/web/src/middleware.ts",
-        "./apps/api/src/routes/index.ts"
+        "./apps/api/src/routes/index.ts",
+        "./apps/catalog/.rnstorybook/**",
+        "./apps/catalog/.storybook/**"
       ],
       "linter": {
         "rules": {

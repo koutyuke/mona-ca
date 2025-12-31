@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { FeatureCarouselUI } from "./feature-carousel.ui";
 
 const meta: Meta<typeof FeatureCarouselUI> = {

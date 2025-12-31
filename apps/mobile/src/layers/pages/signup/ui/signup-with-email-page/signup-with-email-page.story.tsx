@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { __DEV_AgreementNotice, __DEV_SignupWithEmail } from "../../../../features/auth";
 import { PageFrame } from "../../../../widgets/layout";

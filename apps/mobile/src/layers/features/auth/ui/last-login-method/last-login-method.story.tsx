@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { __DEV_LastLoginMethod } from "./last-login-method.dev";
 import { LastLoginMethodUI } from "./last-login-method.ui";
 

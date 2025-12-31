@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { CommandIcon } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 import { ChevronLeftIcon } from "../../icons/index.native";

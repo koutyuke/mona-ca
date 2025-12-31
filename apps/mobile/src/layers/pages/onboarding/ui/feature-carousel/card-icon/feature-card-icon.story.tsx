@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { FeatureCardIconUI } from "./feature-card-icon.ui";
 
 const meta: Meta<typeof FeatureCardIconUI> = {

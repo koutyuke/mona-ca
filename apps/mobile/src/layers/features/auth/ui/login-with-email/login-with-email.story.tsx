@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { __DEV_LoginWithEmail } from "./login-with-email.dev";
 import { LoginWithEmailUI } from "./login-with-email.ui";
 
