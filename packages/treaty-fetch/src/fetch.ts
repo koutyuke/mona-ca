@@ -1,11 +1,9 @@
-import { type Treaty, treaty } from "@elysiajs/eden";
+import { CLIENT_PLATFORM_HEADER_NAME, CONTENT_TYPE_HEADER_NAME, getAPIBaseURL } from "@mona-ca/core/http";
+import { treaty } from "@elysiajs/eden";
+
 import type { App } from "@mona-ca/api";
-import {
-	CLIENT_PLATFORM_HEADER_NAME,
-	CONTENT_TYPE_HEADER_NAME,
-	type ContentType,
-	getAPIBaseURL,
-} from "@mona-ca/core/http";
+import type { ContentType } from "@mona-ca/core/http";
+import type { Treaty } from "@elysiajs/eden";
 
 export const createTreatyFetch = (
 	production: boolean,
