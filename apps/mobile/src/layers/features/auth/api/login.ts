@@ -1,5 +1,7 @@
-import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/result";
+import { err, ok } from "@mona-ca/core/result";
 import { treatyFetch } from "../../../shared/api";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 
 type Success = Ok<{
 	sessionToken: string;
@@ -30,7 +32,7 @@ export const login = async (
 			password,
 			turnstileToken,
 		});
-	} catch (error) {
+	} catch (_error) {
 		return err("NETWORK_ERROR", { errorMessage: "Communication failed" });
 	}
 

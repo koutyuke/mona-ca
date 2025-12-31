@@ -5,8 +5,8 @@ import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/sys
 import { encodeToken, newEmailVerificationRequestToken } from "../../../../domain/value-objects/tokens";
 import { createAuthUserFixture, createEmailVerificationRequestFixture } from "../../../../testing/fixtures";
 import {
-	EmailVerificationRequestRepositoryMock,
 	createEmailVerificationRequestMap,
+	EmailVerificationRequestRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { EmailVerificationValidateRequestUseCase } from "../validate-request.usecase";
 

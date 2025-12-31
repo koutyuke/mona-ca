@@ -1,9 +1,9 @@
-import { breakpoints } from "@mona-ca/design-tokens";
-import { colors as colorTokens } from "@mona-ca/design-tokens";
-import type { Config } from "tailwindcss";
+import { breakpoints, colors as colorTokens } from "@mona-ca/design-tokens";
 import plugin from "tailwindcss/plugin";
 import { createConfigColors, createThemeColorVariables } from "./utils/color";
 import { fontFamily, fontVariables } from "./utils/font";
+
+import type { Config } from "tailwindcss";
 
 const { light, dark, ...particular } = colorTokens;
 

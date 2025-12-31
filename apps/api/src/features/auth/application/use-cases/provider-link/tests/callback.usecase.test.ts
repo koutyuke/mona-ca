@@ -1,4 +1,4 @@
-import { assert, afterEach, describe, expect, it } from "vitest";
+import { afterEach, assert, describe, expect, it } from "vitest";
 import { newClientPlatform } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { newIdentityProviders, newIdentityProvidersUserId } from "../../../../domain/value-objects/identity-providers";
@@ -6,12 +6,13 @@ import { createAuthUserFixture, createProviderAccountFixture } from "../../../..
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
 import {
-	ProviderAccountRepositoryMock,
 	createProviderAccountKey,
 	createProviderAccountMap,
+	ProviderAccountRepositoryMock,
 } from "../../../../testing/mocks/repositories";
-import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import { ProviderLinkCallbackUseCase } from "../callback.usecase";
+
+import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import type { providerLinkStateSchema } from "../schema";
 
 const providerAccountMap = createProviderAccountMap();

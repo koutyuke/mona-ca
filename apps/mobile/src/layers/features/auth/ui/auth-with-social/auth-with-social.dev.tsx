@@ -1,5 +1,6 @@
-import type { ComponentProps } from "react";
 import { AuthWithSocialUI } from "./auth-with-social.ui";
+
+import type { ComponentProps } from "react";
 
 const noop = () => {};
 

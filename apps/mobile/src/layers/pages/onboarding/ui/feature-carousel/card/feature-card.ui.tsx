@@ -1,8 +1,9 @@
 import { cn } from "@mona-ca/tailwind-helpers";
 import { Text } from "@mona-ca/ui/native/components";
-import type { ReactNode } from "react";
 import { View } from "react-native";
 import { FeatureCardIconUI } from "../card-icon/feature-card-icon.ui";
+
+import type { ReactNode } from "react";
 
 type Props = {
 	variant: "mona-ca" | "customize" | "share";
@@ -37,13 +38,13 @@ export const FeatureCardUI = ({ variant, className }: Props): ReactNode => {
 					variant === "share" && "bg-[#FFDCC3]",
 				)}
 			>
-				<FeatureCardIconUI variant={variant} className="h-full max-h-40" />
+				<FeatureCardIconUI className="h-full max-h-40" variant={variant} />
 			</View>
 			<View className="flex h-24 w-full flex-col gap-2">
 				<Text size="lg" weight="medium">
 					{textVariants[variant].title}
 				</Text>
-				<Text weight="regular" className="text-slate-11">
+				<Text className="text-slate-11" weight="regular">
 					{textVariants[variant].description}
 				</Text>
 			</View>

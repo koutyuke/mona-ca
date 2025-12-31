@@ -1,2 +1,3 @@
 export { StringEnum } from "./schema";
-export type { JsonValue, JsonObject, JsonArray, JsonPrimitive } from "./json";
+
+export type { JsonArray, JsonObject, JsonPrimitive, JsonValue } from "./json";

@@ -1,5 +1,6 @@
 import { Text } from "@mona-ca/ui/native/components";
 import { lastLoginMethodLabels } from "../../lib/last-login-method-labels";
+
 import type { LoginMethod } from "../../model/last-login-method-atom";
 
 type Props = {
@@ -12,7 +13,7 @@ export const LastLoginMethodUI = ({ method }: Props) => {
 	}
 
 	return (
-		<Text size="sm" className="text-slate-11">
+		<Text className="text-slate-11" size="sm">
 			前回のログイン方法: {lastLoginMethodLabels[method]}
 		</Text>
 	);

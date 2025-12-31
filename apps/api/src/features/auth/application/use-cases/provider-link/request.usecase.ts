@@ -1,15 +1,13 @@
 import { getMobileScheme, getWebBaseURL, validateRedirectURL } from "@mona-ca/core/http";
 import { err, ok } from "@mona-ca/core/result";
 import { generateCodeVerifier } from "arctic";
-
 import { match } from "ts-pattern";
-import { type ClientPlatform, isMobilePlatform, isWebPlatform } from "../../../../../core/domain/value-objects";
+import { isMobilePlatform, isWebPlatform } from "../../../../../core/domain/value-objects";
+import { isDiscordProvider, isGoogleProvider } from "../../../domain/value-objects/identity-providers";
+
+import type { ClientPlatform } from "../../../../../core/domain/value-objects";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";
-import {
-	type IdentityProviders,
-	isDiscordProvider,
-	isGoogleProvider,
-} from "../../../domain/value-objects/identity-providers";
+import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type {
 	IProviderLinkRequestUseCase,
 	ProviderLinkRequestUseCaseResult,

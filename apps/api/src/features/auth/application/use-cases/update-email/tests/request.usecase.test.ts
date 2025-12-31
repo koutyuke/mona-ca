@@ -5,10 +5,10 @@ import { decodeToken } from "../../../../domain/value-objects/tokens";
 import { createAuthUserFixture, createEmailVerificationRequestFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	EmailVerificationRequestRepositoryMock,
 	createAuthUserMap,
 	createEmailVerificationRequestMap,
 	createSessionMap,
+	EmailVerificationRequestRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { UpdateEmailRequestUseCase } from "../request.usecase";
 

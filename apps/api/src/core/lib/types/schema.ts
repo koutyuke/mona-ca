@@ -1,5 +1,7 @@
-import { Kind, type SchemaOptions, Type, TypeRegistry } from "@sinclair/typebox";
+import { Kind, Type, TypeRegistry } from "@sinclair/typebox";
 import { DefaultErrorFunction, SetErrorFunction, ValueErrorType } from "@sinclair/typebox/errors";
+
+import type { SchemaOptions } from "@sinclair/typebox";
 
 TypeRegistry.Set("StringEnum", (schema: { enum: string[] }, value: unknown) => {
 	return typeof value === "string" && schema.enum.includes(value);

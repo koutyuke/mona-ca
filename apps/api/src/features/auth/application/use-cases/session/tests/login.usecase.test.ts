@@ -3,9 +3,9 @@ import { PasswordHashingServiceMock, TokenSecretServiceMock } from "../../../../
 import { createAuthUserFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	SessionRepositoryMock,
 	createAuthUserMap,
 	createSessionMap,
+	SessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { LoginUseCase } from "../login.usecase";
 

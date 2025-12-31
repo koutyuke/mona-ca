@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { ScrollView, View } from "react-native";
 import { Alert } from "./alert.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof Alert> = {
 	title: "Components/Alert",

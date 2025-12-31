@@ -1,15 +1,14 @@
-import {
-	type RawAccountLinkRequest,
-	type RawEmailVerificationRequest,
-	type RawPasswordResetSession,
-	type RawProviderAccount,
-	type RawProviderLinkRequest,
-	type RawSession,
-	type RawSignupSession,
-	type RawUser,
-	toRawBoolean,
-	toRawDate,
-	toRawUint8Array,
+import { toRawBoolean, toRawDate, toRawUint8Array } from "../../../../core/testing/drivers";
+
+import type {
+	RawAccountLinkRequest,
+	RawEmailVerificationRequest,
+	RawPasswordResetSession,
+	RawProviderAccount,
+	RawProviderLinkRequest,
+	RawSession,
+	RawSignupSession,
+	RawUser,
 } from "../../../../core/testing/drivers";
 import type { AccountLinkRequest } from "../../domain/entities/account-link-request";
 import type { EmailVerificationRequest } from "../../domain/entities/email-verification-request";

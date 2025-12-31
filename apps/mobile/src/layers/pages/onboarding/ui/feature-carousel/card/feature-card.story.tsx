@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { FeatureCardUI } from "./feature-card.ui";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof FeatureCardUI> = {
 	title: "Pages/Onboarding/FeatureCard",

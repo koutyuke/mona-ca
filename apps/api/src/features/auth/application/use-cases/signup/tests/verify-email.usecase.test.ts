@@ -1,6 +1,6 @@
-import { assert, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, it } from "vitest";
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
-import { SignupSessionRepositoryMock, createSignupSessionMap } from "../../../../testing/mocks/repositories";
+import { createSignupSessionMap, SignupSessionRepositoryMock } from "../../../../testing/mocks/repositories";
 import { SignupVerifyEmailUseCase } from "../verify-email.usecase";
 
 const signupSessionMap = createSignupSessionMap();

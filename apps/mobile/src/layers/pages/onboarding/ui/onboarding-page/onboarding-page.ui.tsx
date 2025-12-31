@@ -17,19 +17,19 @@ export const OnboardingPageUI = () => {
 			<FeatureCarouselUI />
 			<View className="flex flex-col items-center gap-2">
 				<MonaCaLogo className="h-10" />
-				<Text size="md" weight="medium" className="text-center">
+				<Text className="text-center" size="md" weight="medium">
 					次の予定も、今日の気持ちも。{"\n"}
 					mona-caでマートに。
 				</Text>
 			</View>
 			<View className="flex flex-col gap-2" style={{ paddingLeft: left, paddingRight: right }}>
-				<Link href="/(auth)/signup" asChild>
-					<Button color="salmon" variant="filled" className="w-full">
+				<Link asChild href="/(auth)/signup">
+					<Button className="w-full" color="salmon" variant="filled">
 						新規登録
 					</Button>
 				</Link>
-				<Link href="/(auth)/login" asChild>
-					<Button color="salmon" variant="light" className="w-full">
+				<Link asChild href="/(auth)/login">
+					<Button className="w-full" color="salmon" variant="light">
 						ログイン
 					</Button>
 				</Link>

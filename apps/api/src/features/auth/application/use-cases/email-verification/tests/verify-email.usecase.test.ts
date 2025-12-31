@@ -2,10 +2,10 @@ import { assert, beforeEach, describe, expect, it } from "vitest";
 import { createAuthUserFixture, createEmailVerificationRequestFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	EmailVerificationRequestRepositoryMock,
 	createAuthUserMap,
 	createEmailVerificationRequestMap,
 	createSessionMap,
+	EmailVerificationRequestRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { EmailVerificationVerifyEmailUseCase } from "../verify-email.usecase";
 

@@ -1,7 +1,8 @@
 import { newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
-import type { ProviderAccount } from "../../domain/entities/provider-account";
 import { newIdentityProviders, newIdentityProvidersUserId } from "../../domain/value-objects/identity-providers";
+
+import type { ProviderAccount } from "../../domain/entities/provider-account";
 
 export const createProviderAccountFixture = (override?: {
 	providerAccount?: Partial<ProviderAccount>;

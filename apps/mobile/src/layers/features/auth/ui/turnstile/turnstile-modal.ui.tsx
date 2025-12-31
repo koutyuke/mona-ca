@@ -1,5 +1,6 @@
-import type { JSX, ReactNode } from "react";
 import { ReactNativeModal as Modal } from "react-native-modal";
+
+import type { JSX, ReactNode } from "react";
 
 type Props = {
 	isVisible: boolean;
@@ -20,17 +21,17 @@ export const TurnstileModalUI = ({
 }: Props): JSX.Element => {
 	return (
 		<Modal
-			isVisible={isVisible}
-			hideModalContentWhileAnimating={true}
-			useNativeDriver={true}
 			animationIn="fadeIn"
 			animationOut="fadeOut"
-			style={{ margin: 0, paddingHorizontal: 32 }}
+			hideModalContentWhileAnimating={true}
+			isVisible={isVisible}
 			onBackdropPress={() => {
 				if (isClosable) {
 					onClose();
 				}
 			}}
+			style={{ margin: 0, paddingHorizontal: 32 }}
+			useNativeDriver={true}
 		>
 			{TurnstileForm}
 		</Modal>

@@ -22,7 +22,7 @@ export const validateRedirectURL = (baseURL: URL, targetURL: string): URL | null
 		}
 
 		return null;
-	} catch (error) {
+	} catch (_error) {
 		return null;
 	}
 };

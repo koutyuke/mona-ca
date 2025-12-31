@@ -1,8 +1,9 @@
 import { cn } from "@mona-ca/tailwind-helpers";
-import type { ComponentProps } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useTheme } from "../../../../entities/theme";
 import { useLayoutInsets, vh } from "../../../../shared/lib/view";
+
+import type { ComponentProps } from "react";
 
 type Props = {
 	indicatorStyle?: "white" | "black";
@@ -13,17 +14,17 @@ export const PageFrame = ({ indicatorStyle, scrollIndicatorInsets, className, ch
 	const { resolvedTheme } = useTheme();
 	return (
 		<KeyboardAwareScrollView
-			ref={ref}
 			alwaysBounceVertical={false}
 			bottomOffset={16}
+			className={cn("bg-slate-1", className)}
 			indicatorStyle={indicatorStyle ?? (resolvedTheme === "dark" ? "white" : "black")}
+			ref={ref}
 			scrollIndicatorInsets={
 				scrollIndicatorInsets ?? {
 					top,
 					bottom,
 				}
 			}
-			className={cn("bg-slate-1", className)}
 			{...props}
 		>
 			{children}

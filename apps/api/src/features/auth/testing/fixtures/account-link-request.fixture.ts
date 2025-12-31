@@ -1,10 +1,13 @@
 import { newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../core/testing/mocks/system";
-import { type AccountLinkRequest, accountLinkRequestExpiresSpan } from "../../domain/entities/account-link-request";
+import { accountLinkRequestExpiresSpan } from "../../domain/entities/account-link-request";
 import { newIdentityProviders, newIdentityProvidersUserId } from "../../domain/value-objects/identity-providers";
 import { newAccountLinkRequestId } from "../../domain/value-objects/ids";
-import { type AccountLinkRequestToken, encodeToken } from "../../domain/value-objects/tokens";
+import { encodeToken } from "../../domain/value-objects/tokens";
+
+import type { AccountLinkRequest } from "../../domain/entities/account-link-request";
+import type { AccountLinkRequestToken } from "../../domain/value-objects/tokens";
 
 const tokenSecretService = new TokenSecretServiceMock();
 

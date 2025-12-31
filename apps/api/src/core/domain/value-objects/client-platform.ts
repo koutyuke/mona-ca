@@ -1,5 +1,6 @@
-import type { Brand } from "@mona-ca/core/types";
 import { t } from "elysia";
+
+import type { Brand } from "@mona-ca/core/types";
 
 export type RawMobilePlatform = "mobile";
 export type MobilePlatform = Brand<"ClientPlatform", RawMobilePlatform>;

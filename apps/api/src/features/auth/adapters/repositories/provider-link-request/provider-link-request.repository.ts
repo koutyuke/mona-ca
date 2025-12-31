@@ -1,12 +1,13 @@
 import { eq, lte } from "drizzle-orm";
 import { newUserId } from "../../../../../core/domain/value-objects";
+import { newIdentityProviders } from "../../../domain/value-objects/identity-providers";
 import { newProviderLinkRequestId } from "../../../domain/value-objects/ids";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IProviderLinkRequestRepository } from "../../../application/ports/out/repositories/provider-link-request.repository.interface";
 import type { ProviderLinkRequest } from "../../../domain/entities/provider-link-request";
-import { type RawIdentityProviders, newIdentityProviders } from "../../../domain/value-objects/identity-providers";
+import type { RawIdentityProviders } from "../../../domain/value-objects/identity-providers";
 import type { ProviderLinkRequestId } from "../../../domain/value-objects/ids";
 
 interface FoundProviderLinkRequestDto {

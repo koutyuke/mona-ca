@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { ContinueWithDiscordButton } from "./discord";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof ContinueWithDiscordButton> = {
 	title: "Shared/ContinueWithMethodButton/Discord",

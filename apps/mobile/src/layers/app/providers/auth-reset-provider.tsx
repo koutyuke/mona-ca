@@ -1,15 +1,18 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { type WritableAtom, useStore } from "jotai";
+import { useStore } from "jotai";
 import { RESET } from "jotai/utils";
-import { type FC, type ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 import { accountLinkTokenAtom, sessionTokenAtom } from "../../entities/session";
 import { themeAtom } from "../../entities/theme";
 import { userAtom } from "../../entities/user";
 import { subscribeToAuthReset } from "../../shared/lib/auth";
-import type { globalStorageKeys, secureStorageKeys } from "../../shared/lib/storage";
 import { useResetJotaiStore } from "./resettable-jotai-provider";
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+import type { WritableAtom } from "jotai";
+import type { FC, ReactNode } from "react";
+import type { globalStorageKeys, secureStorageKeys } from "../../shared/lib/storage";
+
+// biome-ignore lint/suspicious/noExplicitAny: Required for flexible atom typing with RESET action
 type ResettableAtom = WritableAtom<any, [typeof RESET], void>;
 
 const secureStorageAtom: Record<keyof typeof secureStorageKeys, ResettableAtom> = {

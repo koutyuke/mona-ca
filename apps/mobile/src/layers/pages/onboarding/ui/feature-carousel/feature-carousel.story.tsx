@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { FeatureCarouselUI } from "./feature-carousel.ui";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof FeatureCarouselUI> = {
 	title: "Pages/Onboarding/FeatureCarousel",

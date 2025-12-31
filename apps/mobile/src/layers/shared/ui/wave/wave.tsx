@@ -1,7 +1,8 @@
 import { twm } from "@mona-ca/tailwind-helpers";
 import { cssInterop } from "nativewind";
-import type { FC } from "react";
 import WaveSvg from "./wave.svg";
+
+import type { FC } from "react";
 
 type Props = {
 	className?: string;

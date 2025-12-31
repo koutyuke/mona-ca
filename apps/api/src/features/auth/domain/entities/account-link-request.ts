@@ -1,5 +1,6 @@
-import type { UserId } from "../../../../core/domain/value-objects";
 import { TimeSpan } from "../../../../core/lib/time";
+
+import type { UserId } from "../../../../core/domain/value-objects";
 import type { IdentityProviders, IdentityProvidersUserId } from "../value-objects/identity-providers";
 import type { AccountLinkRequestId } from "../value-objects/ids";
 

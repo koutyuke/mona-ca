@@ -4,7 +4,9 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+
 export { ErrorBoundary } from "expo-router";
+
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { View } from "react-native";

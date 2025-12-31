@@ -1,10 +1,12 @@
 import { cn } from "@mona-ca/tailwind-helpers";
-import type { FC, ReactNode, Ref } from "react";
-import { Pressable, type PressableProps, View } from "react-native";
-import type { IconProps } from "../../icons/index.native";
+import { Pressable, View } from "react-native";
 import { LoadingSpinner } from "../loading-spinner/index.native";
 import { Text } from "../text/index.native";
 import { colorVariants, styleVariants } from "./style.native";
+
+import type { FC, ReactNode, Ref } from "react";
+import type { PressableProps } from "react-native";
+import type { IconProps } from "../../icons/index.native";
 
 type Props = Omit<PressableProps, "children"> & {
 	size?: "sm" | "md";
@@ -110,17 +112,17 @@ const Button: FC<Props> = ({
 		<Pressable className={cn(body(), bodyColor(), className)} disabled={loading || disabled} ref={ref} {...props}>
 			{iconPosition === "left" && Icon}
 			<Text
-				size={size}
 				className={cn(text(), textColor(), textClassName)}
-				weight={size === "sm" ? "regular" : "medium"}
+				size={size}
 				truncated
+				weight={size === "sm" ? "regular" : "medium"}
 			>
 				{children}
 			</Text>
 			{iconPosition === "right" && Icon}
 			{loading && (
 				<View className="absolute">
-					<LoadingSpinner size={size === "sm" ? 20 : 24} color="gray" />
+					<LoadingSpinner color="gray" size={size === "sm" ? 20 : 24} />
 				</View>
 			)}
 		</Pressable>

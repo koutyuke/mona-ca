@@ -1,4 +1,5 @@
 import { getAPIBaseURL } from "@mona-ca/core/http";
+
 import type { SupportProvider } from "../model/support-provider";
 
 export const federatedAuthURL = (provider: SupportProvider, redirectURI: string) => {

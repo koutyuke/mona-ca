@@ -1,5 +1,7 @@
 import { eq } from "drizzle-orm";
-import { type UserId, newUserId } from "../../../../../core/domain/value-objects";
+import { newUserId } from "../../../../../core/domain/value-objects";
+
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IAuthUserRepository } from "../../../application/ports/out/repositories/auth-user.repository.interface";
 import type { UserCredentials } from "../../../domain/entities/user-credentials";

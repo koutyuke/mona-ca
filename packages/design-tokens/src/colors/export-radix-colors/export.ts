@@ -1,7 +1,8 @@
 import path from "node:path";
 import radixColors from "@radix-ui/colors";
+import { exportJSON, RadixColor } from "./utils";
+
 import type { ColorName, ColorProfile, Colors } from "./type";
-import { RadixColor, exportJSON } from "./utils";
 
 const exportRadixColors = ({
 	colors = true,
@@ -20,21 +21,21 @@ const exportRadixColors = ({
 	const sameNameBlackOverlayColors: RadixColor[] = [];
 	const sameNameWhiteOverlayColors: RadixColor[] = [];
 
-	Object.entries(radixColors).forEach(([key, value]) => {
+	for (const [key, value] of Object.entries(radixColors)) {
 		const radixColor = new RadixColor(key, value);
 
 		if (radixColor.name === "white") {
 			sameNameWhiteOverlayColors.push(radixColor);
-			return;
+			continue;
 		}
 
 		if (radixColor.name === "black") {
 			sameNameBlackOverlayColors.push(radixColor);
-			return;
+			continue;
 		}
 
 		if (colors !== true && !colors.includes(radixColor.name as Exclude<ColorName, "black" | "white">)) {
-			return;
+			continue;
 		}
 
 		if (sameNameColors[radixColor.name] === undefined) {
@@ -42,7 +43,7 @@ const exportRadixColors = ({
 		} else {
 			sameNameColors[radixColor.name]!.push(radixColor);
 		}
-	});
+	}
 
 	for (const [key, value] of Object.entries(sameNameColors)) {
 		const lightColor = value.find(color => !color.isDark && !color.isP3 && !color.isAlpha);

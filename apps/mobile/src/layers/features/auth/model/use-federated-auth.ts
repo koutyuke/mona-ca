@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { accountLinkTokenAtom, sessionTokenAtom } from "../../../entities/session";
 import { federatedAuth } from "../api/federated-auth";
 import { lastLoginMethodAtom } from "./last-login-method-atom";
+
 import type { SupportProvider } from "./support-provider";
 
 const errorMessageMap = {

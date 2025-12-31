@@ -1,8 +1,9 @@
 import { cssInterop } from "nativewind";
-import type { FC } from "react";
 import CustomizeSvg from "./customize.svg";
 import MonaCaSvg from "./mona-ca.svg";
 import ShareSvg from "./share.svg";
+
+import type { FC } from "react";
 
 for (const SvgComponent of [CustomizeSvg, ShareSvg, MonaCaSvg]) {
 	cssInterop(SvgComponent, {

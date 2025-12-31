@@ -7,10 +7,10 @@ import { createUserRegistration } from "../../../../domain/entities/user-registr
 import { createAuthUserFixture, createSignupSessionFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	SignupSessionRepositoryMock,
 	createAuthUserMap,
 	createSessionMap,
 	createSignupSessionMap,
+	SignupSessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { SignupRequestUseCase } from "../request.usecase";
 

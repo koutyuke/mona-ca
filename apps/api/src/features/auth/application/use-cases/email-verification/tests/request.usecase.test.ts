@@ -4,8 +4,8 @@ import { CryptoRandomServiceMock, TokenSecretServiceMock } from "../../../../../
 import { decodeToken } from "../../../../domain/value-objects/tokens";
 import { createAuthUserFixture, createEmailVerificationRequestFixture } from "../../../../testing/fixtures";
 import {
-	EmailVerificationRequestRepositoryMock,
 	createEmailVerificationRequestMap,
+	EmailVerificationRequestRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { EmailVerificationRequestUseCase } from "../request.usecase";
 

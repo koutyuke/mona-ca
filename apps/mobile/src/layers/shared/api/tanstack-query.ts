@@ -1,6 +1,8 @@
+import { ResultErrToFetchError } from "./fetch-error";
+
 import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { QueryFunctionContext, QueryKey } from "@tanstack/query-core";
-import { type FetchError, ResultErrToFetchError } from "./fetch-error";
+import type { FetchError } from "./fetch-error";
 
 declare const __TYPE_ONLY_fn_return_type: unique symbol;
 
@@ -26,11 +28,12 @@ export const queryFnFromResult =
 	};
 
 export type QueryFnResponse<
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// biome-ignore lint/suspicious/noExplicitAny: Required for generic query function typing
 	T extends (...args: any[]) => QueryFnReturnType<any, any> | Promise<QueryFnReturnType<any, any>>,
-> = Awaited<ReturnType<T>> extends QueryFnReturnType<infer TOkValue, infer TErrCode>
-	? {
-			ok: TOkValue;
-			err: FetchError<TErrCode>;
-		}
-	: never;
+> =
+	Awaited<ReturnType<T>> extends QueryFnReturnType<infer TOkValue, infer TErrCode>
+		? {
+				ok: TOkValue;
+				err: FetchError<TErrCode>;
+			}
+		: never;

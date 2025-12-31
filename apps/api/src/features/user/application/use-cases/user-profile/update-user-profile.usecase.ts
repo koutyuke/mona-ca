@@ -1,12 +1,12 @@
 import { err, ok } from "@mona-ca/core/result";
-import type { UserId } from "../../../../../core/domain/value-objects";
 import { updateUserProfile } from "../../../domain/entities/user-profile";
+
+import type { UserId } from "../../../../../core/domain/value-objects";
 import type {
 	IUpdateUserProfileUseCase,
 	UpdateUserProfileDto,
 	UpdateUserProfileUseCaseResult,
 } from "../../ports/in/user-profile/update-user-profile.usecase.interface";
-
 import type { IUserProfileRepository } from "../../ports/out/repositories/user-profile.repository.interface";
 
 export class UpdateUserProfileUseCase implements IUpdateUserProfileUseCase {

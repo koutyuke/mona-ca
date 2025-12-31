@@ -1,4 +1,4 @@
-import { assert, afterEach, describe, expect, it } from "vitest";
+import { afterEach, assert, describe, expect, it } from "vitest";
 import { newGender, newUserId } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { PasswordHashingServiceMock, TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
@@ -6,11 +6,11 @@ import { createUserRegistration } from "../../../../domain/entities/user-registr
 import { createSignupSessionFixture } from "../../../../testing/fixtures";
 import {
 	AuthUserRepositoryMock,
-	SessionRepositoryMock,
-	SignupSessionRepositoryMock,
 	createAuthUserMap,
 	createSessionMap,
 	createSignupSessionMap,
+	SessionRepositoryMock,
+	SignupSessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { SignupRegisterUseCase } from "../register.usecase";
 

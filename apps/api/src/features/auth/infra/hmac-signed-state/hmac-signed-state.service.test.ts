@@ -1,9 +1,10 @@
-import type { Static } from "@sinclair/typebox";
 import { t } from "elysia";
-import { assert, afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, assert, describe, expect, it, vi } from "vitest";
 import { decodeBase64URLSafe, encodeBase64URLSafe } from "../../../../core/lib/encoding";
 import { HmacServiceMock } from "../../../../core/testing/mocks/system";
 import { HmacSignedStateService } from "./hmac-signed-state.service";
+
+import type { Static } from "@sinclair/typebox";
 
 const payloadSchema = t.Object({
 	clientType: t.String(),

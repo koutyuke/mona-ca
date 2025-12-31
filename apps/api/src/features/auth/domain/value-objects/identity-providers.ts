@@ -1,5 +1,6 @@
-import type { Brand } from "@mona-ca/core/types";
 import { t } from "elysia";
+
+import type { Brand } from "@mona-ca/core/types";
 
 // type
 export type RawDiscordProvider = "discord";

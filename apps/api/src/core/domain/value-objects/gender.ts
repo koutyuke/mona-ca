@@ -1,5 +1,6 @@
-import type { Brand } from "@mona-ca/core/types";
 import { t } from "elysia";
+
+import type { Brand } from "@mona-ca/core/types";
 
 export type MaleGender = Brand<"Gender", "male">;
 export type FemaleGender = Brand<"Gender", "female">;

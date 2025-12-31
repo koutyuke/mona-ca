@@ -1,5 +1,7 @@
 import { eq } from "drizzle-orm";
-import { type Gender, type UserId, newGender, newUserId } from "../../../../../core/domain/value-objects";
+import { newGender, newUserId } from "../../../../../core/domain/value-objects";
+
+import type { Gender, UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IUserProfileRepository } from "../../../application/ports/out/repositories/user-profile.repository.interface";
 import type { UserProfile } from "../../../domain/entities/user-profile";

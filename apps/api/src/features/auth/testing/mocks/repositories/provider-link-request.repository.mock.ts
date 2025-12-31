@@ -1,6 +1,8 @@
+import { isExpiredProviderLinkRequest } from "../../../domain/entities/provider-link-request";
+
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { IProviderLinkRequestRepository } from "../../../application/ports/out/repositories/provider-link-request.repository.interface";
-import { type ProviderLinkRequest, isExpiredProviderLinkRequest } from "../../../domain/entities/provider-link-request";
+import type { ProviderLinkRequest } from "../../../domain/entities/provider-link-request";
 import type { ProviderLinkRequestId } from "../../../domain/value-objects/ids";
 
 export class ProviderLinkRequestRepositoryMock implements IProviderLinkRequestRepository {

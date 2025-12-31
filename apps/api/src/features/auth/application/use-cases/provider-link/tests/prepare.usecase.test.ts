@@ -4,8 +4,8 @@ import { ulid } from "../../../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
 import { newIdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import {
-	ProviderLinkRequestRepositoryMock,
 	createProviderLinkRequestMap,
+	ProviderLinkRequestRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { ProviderLinkPrepareUseCase } from "../prepare.usecase";
 

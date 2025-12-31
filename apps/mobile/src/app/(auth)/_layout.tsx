@@ -24,7 +24,7 @@ const AuthLayout = () => {
 					<Stack.Screen name="signup" options={{ headerShown: false }} />
 					<Stack.Screen
 						name="forgot-password"
-						options={{ header: () => <WaveHeader title="Password Reset" enableBackButton /> }}
+						options={{ header: () => <WaveHeader enableBackButton title="Password Reset" /> }}
 					/>
 				</Stack.Protected>
 

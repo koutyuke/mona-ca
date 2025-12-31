@@ -2,11 +2,12 @@ import { env } from "cloudflare:test";
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { DrizzleService } from "../../../../../../core/infra/drizzle";
 import { ProviderAccountsTableDriver, UsersTableDriver } from "../../../../../../core/testing/drivers";
-import type { IdentityProviders } from "../../../../domain/value-objects/identity-providers";
 import { newIdentityProviders, newIdentityProvidersUserId } from "../../../../domain/value-objects/identity-providers";
 import { convertProviderAccountToRaw, convertUserRegistrationToRaw } from "../../../../testing/converters";
 import { createAuthUserFixture, createProviderAccountFixture } from "../../../../testing/fixtures";
 import { ProviderAccountRepository } from "../provider-account.repository";
+
+import type { IdentityProviders } from "../../../../domain/value-objects/identity-providers";
 
 const { DB } = env;
 

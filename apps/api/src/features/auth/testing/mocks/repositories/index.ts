@@ -6,15 +6,14 @@ export { ProviderAccountRepositoryMock } from "./provider-account.repository.moc
 export { ProviderLinkRequestRepositoryMock } from "./provider-link-request.repository.mock";
 export { SessionRepositoryMock } from "./session.repository.mock";
 export { SignupSessionRepositoryMock } from "./signup-session.repository.mock";
-
 export {
-	createAuthUserMap,
-	createSessionMap,
-	createPasswordResetSessionMap,
-	createEmailVerificationRequestMap,
 	createAccountLinkRequestMap,
-	createProviderLinkRequestMap,
-	createProviderAccountMap,
+	createAuthUserMap,
+	createEmailVerificationRequestMap,
+	createPasswordResetSessionMap,
 	createProviderAccountKey,
+	createProviderAccountMap,
+	createProviderLinkRequestMap,
+	createSessionMap,
 	createSignupSessionMap,
 } from "./table-maps";

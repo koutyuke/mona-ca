@@ -1,7 +1,8 @@
 import { cn } from "@mona-ca/tailwind-helpers";
 import { Text } from "@mona-ca/ui/native/components";
-import type { ReactNode } from "react";
 import { View } from "react-native";
+
+import type { ReactNode } from "react";
 
 type Props = {
 	children: ReactNode;

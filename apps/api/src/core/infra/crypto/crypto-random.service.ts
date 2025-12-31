@@ -1,10 +1,11 @@
 // ref: https://crypto.oslojs.dev/examples/random-values
 
 import {
-	type RandomReader,
 	generateRandomIntegerNumber as osloGenerateRandomIntegerNumber,
 	generateRandomString as osloGenerateRandomString,
 } from "@oslojs/crypto/random";
+
+import type { RandomReader } from "@oslojs/crypto/random";
 import type { ICryptoRandomService, RandomStringOptions } from "../../ports/system";
 
 const LOWER = "abcdefghijklmnopqrstuvwxyz";

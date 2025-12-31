@@ -1,8 +1,10 @@
 import { err } from "@mona-ca/core/result";
 import { atomWithQuery } from "jotai-tanstack-query";
-import { type QueryFnResponse, queryFnFromResult } from "../../../../shared/api/tanstack-query";
+import { queryFnFromResult } from "../../../../shared/api/tanstack-query";
 import { sessionTokenAtom } from "../../../session";
 import { getUserProfile } from "../../api/get-user-profile";
+
+import type { QueryFnResponse } from "../../../../shared/api/tanstack-query";
 
 const STALE_TIME = 60 * 60 * 1000;
 

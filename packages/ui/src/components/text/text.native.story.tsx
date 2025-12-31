@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { Text } from "./text.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof Text> = {
 	title: "Components/Text",
@@ -45,19 +46,19 @@ export const AllLevels: Story = {
 	},
 	render: args => (
 		<View className="flex flex-col gap-2">
-			<Text {...args} size="xl" className="text-slate-12">
+			<Text {...args} className="text-slate-12" size="xl">
 				我々は宇宙人である。I am an ninja.
 			</Text>
-			<Text {...args} size="lg" className="text-slate-12">
+			<Text {...args} className="text-slate-12" size="lg">
 				我々は宇宙人である。I am an ninja.
 			</Text>
-			<Text {...args} size="md" className="text-slate-12">
+			<Text {...args} className="text-slate-12" size="md">
 				我々は宇宙人である。I am an ninja.
 			</Text>
-			<Text {...args} size="sm" className="text-slate-12">
+			<Text {...args} className="text-slate-12" size="sm">
 				我々は宇宙人である。I am an ninja.
 			</Text>
-			<Text {...args} size="xs" className="text-slate-12">
+			<Text {...args} className="text-slate-12" size="xs">
 				我々は宇宙人である。I am an ninja.
 			</Text>
 		</View>
@@ -66,20 +67,20 @@ export const AllLevels: Story = {
 
 export const Bold: Story = {
 	render: () => (
-		<View className="flex flex-col gap-2 ">
-			<Text size="xl" className="text-slate-12">
+		<View className="flex flex-col gap-2">
+			<Text className="text-slate-12" size="xl">
 				Page Title
 			</Text>
-			<Text size="lg" className="text-slate-12">
+			<Text className="text-slate-12" size="lg">
 				Section Title
 			</Text>
-			<Text size="md" className="text-slate-12">
+			<Text className="text-slate-12" size="md">
 				Body
 			</Text>
-			<Text size="sm" className="text-slate-12">
+			<Text className="text-slate-12" size="sm">
 				Secondary Text
 			</Text>
-			<Text size="xs" className="text-slate-12">
+			<Text className="text-slate-12" size="xs">
 				Footnote
 			</Text>
 		</View>

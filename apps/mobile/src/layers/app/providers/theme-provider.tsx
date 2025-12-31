@@ -1,7 +1,8 @@
 import { StatusBar } from "expo-status-bar";
-import type { FC, ReactNode } from "react";
 import { View } from "react-native";
 import { useTheme } from "../../entities/theme";
+
+import type { FC, ReactNode } from "react";
 
 type ThemeProviderProps = {
 	children: ReactNode;

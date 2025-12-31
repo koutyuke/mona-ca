@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { EmailIcon } from "../../icons/index.native";
 import { TextInput } from "../text-input/index.native";
 import { InputWrapper } from "./input-wrapper.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof InputWrapper> = {
 	title: "Components/InputWrapper",
@@ -47,7 +48,7 @@ export const Default: Story = {
 	},
 	render: args => (
 		<InputWrapper {...args}>
-			<TextInput placeholder="example@email.com" icon={EmailIcon} />
+			<TextInput icon={EmailIcon} placeholder="example@email.com" />
 		</InputWrapper>
 	),
 };
@@ -59,7 +60,7 @@ export const WithError: Story = {
 	},
 	render: args => (
 		<InputWrapper {...args}>
-			<TextInput placeholder="example@email.com" icon={EmailIcon} error />
+			<TextInput error icon={EmailIcon} placeholder="example@email.com" />
 		</InputWrapper>
 	),
 };
@@ -72,7 +73,7 @@ export const Required: Story = {
 	},
 	render: args => (
 		<InputWrapper {...args}>
-			<TextInput placeholder="パスワードを入力" credentials />
+			<TextInput credentials placeholder="パスワードを入力" />
 		</InputWrapper>
 	),
 };
@@ -85,7 +86,7 @@ export const Disabled: Story = {
 	},
 	render: args => (
 		<InputWrapper {...args}>
-			<TextInput value="username123" disabled />
+			<TextInput disabled value="username123" />
 		</InputWrapper>
 	),
 };
@@ -93,20 +94,20 @@ export const Disabled: Story = {
 export const AllVariants: Story = {
 	render: () => (
 		<View className="flex w-full flex-col gap-6 p-4">
-			<InputWrapper label="メールアドレス" description="ログインに使用するメールアドレスを入力してください">
-				<TextInput placeholder="example@email.com" icon={EmailIcon} />
+			<InputWrapper description="ログインに使用するメールアドレスを入力してください" label="メールアドレス">
+				<TextInput icon={EmailIcon} placeholder="example@email.com" />
 			</InputWrapper>
 
-			<InputWrapper label="パスワード" description="8文字以上で入力してください" required>
-				<TextInput placeholder="パスワードを入力" credentials />
+			<InputWrapper description="8文字以上で入力してください" label="パスワード" required>
+				<TextInput credentials placeholder="パスワードを入力" />
 			</InputWrapper>
 
-			<InputWrapper label="メールアドレス" error="有効なメールアドレスを入力してください">
-				<TextInput placeholder="example@email.com" icon={EmailIcon} error />
+			<InputWrapper error="有効なメールアドレスを入力してください" label="メールアドレス">
+				<TextInput error icon={EmailIcon} placeholder="example@email.com" />
 			</InputWrapper>
 
-			<InputWrapper label="ユーザー名" description="変更できません" disabled>
-				<TextInput value="username123" disabled />
+			<InputWrapper description="変更できません" disabled label="ユーザー名">
+				<TextInput disabled value="username123" />
 			</InputWrapper>
 		</View>
 	),

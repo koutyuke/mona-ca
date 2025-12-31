@@ -1,7 +1,8 @@
 import { cn, tv } from "@mona-ca/tailwind-helpers";
-import type { ReactNode } from "react";
 import { View } from "react-native";
 import { Text } from "../text/index.native";
+
+import type { ReactNode } from "react";
 
 const variants = tv({
 	slots: {

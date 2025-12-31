@@ -1,5 +1,5 @@
-import { Treaty } from '@elysiajs/eden';
 import { ContentType } from '@mona-ca/core/http';
+import { Treaty } from '@elysiajs/eden';
 
 type RawDiscordProvider = "discord";
 type RawGoogleProvider = "google";

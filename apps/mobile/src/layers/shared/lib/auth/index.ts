@@ -1,1 +1,1 @@
-export { subscribeToAuthReset, publishAuthReset, __unsafe_clearAllAuthResetSubscribers } from "./auth-reset-event-bus";
+export { __unsafe_clearAllAuthResetSubscribers, publishAuthReset, subscribeToAuthReset } from "./auth-reset-event-bus";

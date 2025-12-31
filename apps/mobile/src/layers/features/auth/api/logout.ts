@@ -1,6 +1,7 @@
-import type { Err, Ok, Result } from "@mona-ca/core/result";
 import { err, ok } from "@mona-ca/core/result";
 import { treatyFetch, withBearer } from "../../../shared/api";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 
 type Success = Ok;
 
@@ -23,7 +24,7 @@ export const logout = async (sessionToken: string): Promise<Result<Success, Erro
 				},
 			},
 		);
-	} catch (error) {
+	} catch (_error) {
 		return err("NETWORK_ERROR", { errorMessage: "Communication failed" });
 	}
 

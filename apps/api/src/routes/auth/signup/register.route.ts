@@ -1,8 +1,7 @@
 import { SESSION_COOKIE_NAME, SIGNUP_SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";
-import { genderSchema, newGender } from "../../../core/domain/value-objects";
-import { isMobilePlatform, isWebPlatform } from "../../../core/domain/value-objects";
+import { genderSchema, isMobilePlatform, isWebPlatform, newGender } from "../../../core/domain/value-objects";
 import { defaultCookieOptions } from "../../../core/infra/elysia";
 import { newSignupSessionToken, toAnyTokenResponse } from "../../../features/auth";
 import { clientPlatformPlugin } from "../../../plugins/client-platform";

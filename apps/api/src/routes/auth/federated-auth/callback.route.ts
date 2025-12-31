@@ -1,10 +1,10 @@
 import {
 	ACCOUNT_LINK_REQUEST_COOKIE_NAME,
+	normalizeRedirectableMobileScheme,
 	OAUTH_CODE_VERIFIER_COOKIE_NAME,
 	OAUTH_REDIRECT_URI_COOKIE_NAME,
 	OAUTH_STATE_COOKIE_NAME,
 	SESSION_COOKIE_NAME,
-	normalizeRedirectableMobileScheme,
 } from "@mona-ca/core/http";
 import { Elysia, t } from "elysia";
 import { match } from "ts-pattern";

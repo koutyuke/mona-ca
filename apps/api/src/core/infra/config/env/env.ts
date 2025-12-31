@@ -1,6 +1,7 @@
 import { env as productionEnv } from "cloudflare:workers";
-import type { CloudflareBindings, Env, EnvVariables } from "./type";
 import { validateEnv } from "./validation";
+
+import type { CloudflareBindings, Env, EnvVariables } from "./type";
 
 const getEnv = (): {
 	env: Readonly<Env>;

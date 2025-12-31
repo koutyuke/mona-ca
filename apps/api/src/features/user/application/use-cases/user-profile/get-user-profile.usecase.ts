@@ -1,4 +1,5 @@
 import { err, ok } from "@mona-ca/core/result";
+
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type {
 	GetUserProfileUseCaseResult,

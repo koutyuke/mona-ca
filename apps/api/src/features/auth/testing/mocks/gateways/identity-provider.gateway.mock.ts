@@ -1,13 +1,14 @@
 import { ok } from "@mona-ca/core/result";
-import type { OAuth2Tokens } from "arctic";
 import { ulid } from "../../../../../core/lib/id";
+import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
+
+import type { OAuth2Tokens } from "arctic";
 import type {
 	GetTokensResult,
 	GetUserInfoResult,
 	IIdentityProviderGateway,
 	UserInfo,
 } from "../../../application/ports/out/gateways/identity-provider.gateway.interface";
-import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
 export class IdentityProviderGatewayMock implements IIdentityProviderGateway {
 	private readonly userInfo: UserInfo = {

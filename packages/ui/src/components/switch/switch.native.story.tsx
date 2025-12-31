@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { Switch } from "./switch.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof Switch> = {
 	title: "Components/Switch",
@@ -18,7 +19,7 @@ export const Default: Story = {
 			<Switch {...args} />
 			<Switch {...args} checked />
 			<Switch {...args} disabled />
-			<Switch {...args} disabled checked />
+			<Switch {...args} checked disabled />
 		</View>
 	),
 };

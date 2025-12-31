@@ -1,20 +1,20 @@
 export {
-	newClientPlatform,
 	clientPlatformSchema,
-	newMobilePlatform,
-	newWebPlatform,
 	isMobilePlatform,
 	isWebPlatform,
 	mobilePlatformSchema,
+	newClientPlatform,
+	newMobilePlatform,
+	newWebPlatform,
 	webPlatformSchema,
 } from "./client-platform";
 export {
-	newMaleGender,
-	newFemaleGender,
-	newGender,
-	maleGenderSchema,
 	femaleGenderSchema,
 	genderSchema,
+	maleGenderSchema,
+	newFemaleGender,
+	newGender,
+	newMaleGender,
 } from "./gender";
 export { newUserId } from "./ids";
 
@@ -24,8 +24,8 @@ export type {
 	WebPlatform,
 } from "./client-platform";
 export type {
-	MaleGender,
 	FemaleGender,
 	Gender,
+	MaleGender,
 } from "./gender";
 export type { UserId } from "./ids";

@@ -4,19 +4,19 @@ import {
 	ArcticFetchError,
 	Discord as DiscordProvider,
 	OAuth2RequestError,
-	type OAuth2Tokens,
 	UnexpectedErrorResponseBodyError,
 	UnexpectedResponseError,
 } from "arctic";
 import { t } from "elysia";
+import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
+import type { OAuth2Tokens } from "arctic";
 import type {
 	GetTokensResult,
 	GetUserInfoResult,
 	IIdentityProviderGateway,
 	UserInfo,
 } from "../../../application/ports/out/gateways/identity-provider.gateway.interface";
-import { newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
 const discordUserDtoSchema = t.Object({
 	id: t.String(),
@@ -61,6 +61,7 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 				return err("FETCH_TOKENS_FAILED");
 			}
 
+			// biome-ignore lint/suspicious/noConsole: Logging unexpected errors for debugging
 			console.error("Unknown error in getTokens:", error);
 			return err("FETCH_TOKENS_FAILED");
 		}
@@ -98,6 +99,7 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 				userInfo,
 			});
 		} catch (error) {
+			// biome-ignore lint/suspicious/noConsole: Logging unexpected errors for debugging
 			console.error("Error in getUserInfo:", error);
 			return err("USER_INFO_GET_FAILED");
 		}
@@ -107,6 +109,7 @@ export class DiscordIdentityProviderGateway implements IIdentityProviderGateway 
 		try {
 			await this.discord.revokeToken(tokens.accessToken());
 		} catch (error) {
+			// biome-ignore lint/suspicious/noConsole: Logging revocation errors for debugging
 			console.error("revokeToken request error", error);
 		}
 	}

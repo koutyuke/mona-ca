@@ -1,17 +1,16 @@
 import { and, eq } from "drizzle-orm";
 import { newUserId } from "../../../../../core/domain/value-objects";
+import { newIdentityProviders, newIdentityProvidersUserId } from "../../../domain/value-objects/identity-providers";
 
 import type { UserId } from "../../../../../core/domain/value-objects";
 import type { DrizzleService } from "../../../../../core/infra/drizzle";
 import type { IProviderAccountRepository } from "../../../application/ports/out/repositories/provider-account.repository.interface";
 import type { ProviderAccount } from "../../../domain/entities/provider-account";
-import {
-	type IdentityProviders,
-	type IdentityProvidersUserId,
-	newIdentityProviders,
-	newIdentityProvidersUserId,
+import type {
+	IdentityProviders,
+	IdentityProvidersUserId,
+	RawIdentityProviders,
 } from "../../../domain/value-objects/identity-providers";
-import type { RawIdentityProviders } from "../../../domain/value-objects/identity-providers";
 
 interface FoundProviderAccountDto {
 	provider: RawIdentityProviders;

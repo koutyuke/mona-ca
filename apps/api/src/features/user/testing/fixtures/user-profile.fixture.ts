@@ -1,5 +1,6 @@
 import { newGender, newUserId } from "../../../../core/domain/value-objects";
 import { ulid } from "../../../../core/lib/id";
+
 import type { UserProfile } from "../../domain/entities/user-profile";
 
 export const createUserProfileFixture = (override?: {

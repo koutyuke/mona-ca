@@ -2,9 +2,9 @@ import { assert, beforeEach, describe, expect, it } from "vitest";
 import { newIdentityProviders, newIdentityProvidersUserId } from "../../../../domain/value-objects/identity-providers";
 import { createAuthUserFixture, createProviderAccountFixture } from "../../../../testing/fixtures";
 import {
-	ProviderAccountRepositoryMock,
 	createProviderAccountKey,
 	createProviderAccountMap,
+	ProviderAccountRepositoryMock,
 } from "../../../../testing/mocks/repositories";
 import { ProviderLinkUnlinkUseCase } from "../unlink.usecase";
 

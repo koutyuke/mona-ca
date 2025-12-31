@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { EmailIcon } from "../../icons/index.native";
 import { TextInput } from "./text-input.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof TextInput> = {
 	title: "Components/TextInput",
@@ -47,13 +48,13 @@ export const Default: Story = {
 	},
 	render: args => (
 		<View className="flex w-full flex-col gap-4 p-4">
-			<TextInput value="我々は宇宙人である。 I am an ninja." size="md" />
-			<TextInput value="我々は宇宙人である。 I am an ninja." size="sm" />
-			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" />
-			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" error />
-			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" disabled />
-			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="md" credentials />
-			<TextInput {...args} value="我々は宇宙人である。 I am an ninja." size="sm" />
+			<TextInput size="md" value="我々は宇宙人である。 I am an ninja." />
+			<TextInput size="sm" value="我々は宇宙人である。 I am an ninja." />
+			<TextInput {...args} size="md" value="我々は宇宙人である。 I am an ninja." />
+			<TextInput {...args} error size="md" value="我々は宇宙人である。 I am an ninja." />
+			<TextInput {...args} disabled size="md" value="我々は宇宙人である。 I am an ninja." />
+			<TextInput {...args} credentials size="md" value="我々は宇宙人である。 I am an ninja." />
+			<TextInput {...args} size="sm" value="我々は宇宙人である。 I am an ninja." />
 		</View>
 	),
 };

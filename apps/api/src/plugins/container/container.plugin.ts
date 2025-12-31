@@ -1,13 +1,13 @@
 import Elysia from "elysia";
-import { CoreDIContainer, type ICoreDIContainer } from "../../core/di";
-import {
-	type CloudflareBindings,
-	type EnvVariables,
-	cloudflareBindings,
-	envVariables,
-} from "../../core/infra/config/env";
-import { AuthDIContainer, type IAuthDIContainer } from "../../features/auth";
-import { type IUserDIContainer, UserDIContainer } from "../../features/user";
+import { CoreDIContainer } from "../../core/di";
+import { cloudflareBindings, envVariables } from "../../core/infra/config/env";
+import { AuthDIContainer } from "../../features/auth";
+import { UserDIContainer } from "../../features/user";
+
+import type { ICoreDIContainer } from "../../core/di";
+import type { CloudflareBindings, EnvVariables } from "../../core/infra/config/env";
+import type { IAuthDIContainer } from "../../features/auth";
+import type { IUserDIContainer } from "../../features/user";
 
 export type DIContainers = {
 	core: ICoreDIContainer;

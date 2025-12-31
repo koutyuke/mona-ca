@@ -1,7 +1,9 @@
 import { AUTHORIZATION_HEADER_NAME } from "@mona-ca/core/http";
-import { type Err, type Ok, type Result, err, ok } from "@mona-ca/core/result";
+import { err, ok } from "@mona-ca/core/result";
 import { treatyFetch, withBearer } from "../../../shared/api";
 import { dtoToUser } from "../lib/converter";
+
+import type { Err, Ok, Result } from "@mona-ca/core/result";
 import type { UpdateUserDto, User } from "../model/user";
 
 type Success = Ok<User>;
@@ -23,7 +25,7 @@ export const updateUserProfile = async (sessionToken: string, body: UpdateUserDt
 				[AUTHORIZATION_HEADER_NAME]: withBearer(sessionToken),
 			},
 		});
-	} catch (error) {
+	} catch (_error) {
 		return err("NETWORK_ERROR", { errorMessage: "Communication failed" });
 	}
 

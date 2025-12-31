@@ -4,6 +4,7 @@ import { newIdentityProviders } from "../../../../domain/value-objects/identity-
 import { IdentityProviderGatewayMock } from "../../../../testing/mocks/gateways";
 import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
 import { FederatedAuthRequestUseCase } from "../request.usecase";
+
 import type { federatedAuthStateSchema } from "../schema";
 
 const googleIdentityProviderGateway = new IdentityProviderGatewayMock();

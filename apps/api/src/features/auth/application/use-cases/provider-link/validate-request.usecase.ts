@@ -1,8 +1,10 @@
 import { err, ok } from "@mona-ca/core/result";
-import type { ITokenSecretService } from "../../../../../core/ports/system";
 import { isExpiredProviderLinkRequest } from "../../../domain/entities/provider-link-request";
+import { decodeToken } from "../../../domain/value-objects/tokens";
+
+import type { ITokenSecretService } from "../../../../../core/ports/system";
 import type { IdentityProviders } from "../../../domain/value-objects/identity-providers";
-import { type ProviderLinkRequestToken, decodeToken } from "../../../domain/value-objects/tokens";
+import type { ProviderLinkRequestToken } from "../../../domain/value-objects/tokens";
 import type {
 	IProviderLinkValidateRequestUseCase,
 	ProviderLinkValidateRequestUseCaseResult,

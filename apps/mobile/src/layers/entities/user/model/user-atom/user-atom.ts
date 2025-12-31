@@ -1,10 +1,11 @@
 import { atom } from "jotai";
 import { RESET } from "jotai/utils";
 import { hasSessionTokenAtom } from "../../../session";
-import type { UpdateUserDto, User } from "../user";
 import { syncUserToStorageEffectAtom } from "./effect-atom";
 import { queryAtom } from "./query-atom";
 import { lastUpdatedAtAtom, userOfflineOutboxAtom, userPersistedAtom } from "./storage-atom";
+
+import type { UpdateUserDto, User } from "../user";
 
 // type UserError = {
 // 	code: QueryFnError["code"];

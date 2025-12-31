@@ -1,8 +1,9 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import type { FC } from "react";
 import { View } from "react-native";
 import { ErrorIcon, InfoIcon, SuccessIcon, WarningIcon } from "../../icons/icons.native";
 import { Text } from "../text/index.native";
+
+import type { FC } from "react";
 
 type Props = {
 	title: string;
@@ -72,12 +73,12 @@ export const Alert: FC<Props> = ({ title, description, type, className }) => {
 			<Icon className={iconStyle()} />
 			<View className="flex flex-1 flex-col gap-2">
 				<View className="flex min-h-6 w-full items-start justify-center">
-					<Text size="md" weight="medium" className={titleStyle()}>
+					<Text className={titleStyle()} size="md" weight="medium">
 						{title}
 					</Text>
 				</View>
 				{description && (
-					<Text size="sm" className={descriptionStyle()}>
+					<Text className={descriptionStyle()} size="sm">
 						{description}
 					</Text>
 				)}

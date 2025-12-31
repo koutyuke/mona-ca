@@ -27,7 +27,6 @@ export default function Page(): JSX.Element {
 			<a href="http://localhost:8787/auth/federated/discord?redirect-uri=/&platform=web">auth with discord</a>
 			<a href="http://localhost:8787/auth/federated/google?redirect-uri=/&platform=web">auth with google</a>
 			<button
-				type="button"
 				onClick={async () => {
 					await fetch("http://localhost:8787/auth/logout", {
 						method: "POST",
@@ -37,11 +36,11 @@ export default function Page(): JSX.Element {
 						},
 					});
 				}}
+				type="button"
 			>
 				logout
 			</button>
 			<button
-				type="button"
 				onClick={async () => {
 					await fetch("http://localhost:8787/auth/login", {
 						method: "POST",
@@ -58,11 +57,11 @@ export default function Page(): JSX.Element {
 						}),
 					});
 				}}
+				type="button"
 			>
 				login
 			</button>
 			<button
-				type="button"
 				onClick={async () => {
 					const res = await fetch("http://localhost:8787/users/me/identities/federated/discord/link/prepare", {
 						method: "POST",
@@ -76,11 +75,11 @@ export default function Page(): JSX.Element {
 
 					window.location.href = `http://localhost:8787/users/me/identities/federated/discord/link?platform=web&link-token=${data.providerLinkRequestToken}&redirect-uri=/`;
 				}}
+				type="button"
 			>
 				provider-link(discord)
 			</button>
 			<button
-				type="button"
 				onClick={async () => {
 					const res = await fetch("http://localhost:8787/users/me/identities/federated/google/link/prepare", {
 						method: "POST",
@@ -94,6 +93,7 @@ export default function Page(): JSX.Element {
 
 					window.location.href = `http://localhost:8787/users/me/identities/federated/google/link?platform=web&link-token=${data.providerLinkRequestToken}&redirect-uri=/`;
 				}}
+				type="button"
 			>
 				provider-link(google)
 			</button>

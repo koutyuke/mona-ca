@@ -1,5 +1,6 @@
-import type { RawUser } from "../../../../core/testing/drivers/users.table.driver";
 import { toRawBoolean, toRawDate } from "../../../../core/testing/drivers/utils";
+
+import type { RawUser } from "../../../../core/testing/drivers/users.table.driver";
 import type { UserProfile } from "../../domain/entities/user-profile";
 
 export const convertUserProfileToRaw = (userProfile: UserProfile, passwordHash?: string | null): RawUser => {

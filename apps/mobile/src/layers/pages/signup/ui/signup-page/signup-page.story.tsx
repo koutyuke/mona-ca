@@ -1,8 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { __DEV_AgreementNotice, __DEV_AuthWithSocial } from "../../../../features/auth";
 import { PageFrame } from "../../../../widgets/layout";
 import { SignupPageUI } from "./signup-page.ui";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof SignupPageUI> = {
 	title: "Pages/Signup/SignupPage",
@@ -10,7 +11,7 @@ const meta: Meta<typeof SignupPageUI> = {
 	decorators: [
 		Story => (
 			<SafeAreaProvider>
-				<PageFrame indicatorStyle="black" className="bg-slate-1">
+				<PageFrame className="bg-slate-1" indicatorStyle="black">
 					<Story />
 				</PageFrame>
 			</SafeAreaProvider>

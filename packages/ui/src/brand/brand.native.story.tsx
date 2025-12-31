@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { MonaCaDarkIcon, MonaCaLightIcon, MonaCaLogo } from "./brand.native";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof MonaCaLightIcon> = {
 	title: "Brand/Brand",

@@ -2,8 +2,11 @@
   "[javascript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
   "[jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[properties]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
@@ -20,6 +23,7 @@
   "[yaml]": {
     "editor.defaultFormatter": "redhat.vscode-yaml"
   },
+  "biome.requireConfiguration": true,
   "commit-message-editor.dynamicTemplate": [
     "{type}{scope}{breaking_change_exclamation}: {description}",
     "",
@@ -27,13 +31,7 @@
     "",
     "{breaking_change_footer}{footer}"
   ],
-  "commit-message-editor.staticTemplate": [
-    "label: emoji (scope) short-description",
-    "",
-    "body",
-    "",
-    "footer"
-  ],
+  "commit-message-editor.staticTemplate": ["label: emoji (scope) short-description", "", "body", "", "footer"],
   "commit-message-editor.tokens": [
     {
       "combobox": true,
@@ -157,40 +155,20 @@
   ],
   "commit-message-editor.view.defaultView": "form",
   "editor.codeActionsOnSave": {
-    "quickfix.biome": "explicit",
+    "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
   "editor.defaultFormatter": "biomejs.biome",
   "npm.packageManager": "bun",
   "svg.preview.background": "custom",
   "tailwindCSS.experimental.classRegex": [
-    [
-      "clsx\\(([^)]*)\\)",
-      "(?:'|\"|`)([^']*)(?:'|\"|`)"
-    ],
-    [
-      "tv\\(([\\s\\S]*?)\\);",
-      "[\"']([^\"']*).*?[\"']"
-    ],
-    [
-      "twMerge\\(([\\s\\S]*?)\\);",
-      "[\"']([^\"']*).*?[\"']"
-    ],
-    [
-      "tv\\(([\\s\\S]*?)\\)",
-      "[\"']([^\"']*).*?[\"']"
-    ],
-    [
-      "twMerge\\(([\\s\\S]*?)\\)",
-      "[\"']([^\"']*).*?[\"']"
-    ],
-    [
-      "[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?[\"'`]([^\"'`]*).*?[\"'`]"
-    ],
-    [
-      "[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?`([^`]*).*?`",
-      "[\"']([^\"']*).*?[\"']"
-    ]
+    ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["tv\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
+    ["twMerge\\(([\\s\\S]*?)\\);", "[\"']([^\"']*).*?[\"']"],
+    ["tv\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
+    ["twMerge\\(([\\s\\S]*?)\\)", "[\"']([^\"']*).*?[\"']"],
+    ["[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["[A-Za-z_][A-Za-z0-9_]*ClassName\\s*[:=]\\s*{?`([^`]*).*?`", "[\"']([^\"']*).*?[\"']"]
   ],
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",

@@ -1,6 +1,8 @@
 import { tv } from "@mona-ca/tailwind-helpers";
+import { Text as RNText } from "react-native";
+
 import type { ReactNode, Ref } from "react";
-import { Text as RNText, type TextProps } from "react-native";
+import type { TextProps } from "react-native";
 
 type Props = Omit<TextProps, "children"> & {
 	size?: "xl" | "lg" | "md" | "sm" | "xs";

@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { View } from "react-native";
 import { ContinueWithGoogleButton } from "./google";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof ContinueWithGoogleButton> = {
 	title: "Shared/ContinueWithMethodButton/Google",

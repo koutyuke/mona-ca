@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { SESSION_COOKIE_NAME } from "@mona-ca/core/http";
 import { Elysia } from "elysia";
-import { assert, afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, test } from "vitest";
 import { TokenSecretService } from "../../../core/infra/crypto";
 import { SessionsTableDriver, UsersTableDriver } from "../../../core/testing/drivers";
 import { sessionRefreshSpan } from "../../../features/auth/domain/entities/session";

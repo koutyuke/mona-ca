@@ -1,5 +1,6 @@
-import type { ComponentProps } from "react";
 import { AgreementNoticeUI } from "./agreement-notice.ui";
+
+import type { ComponentProps } from "react";
 
 const noop = () => {};
 

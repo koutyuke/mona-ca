@@ -1,13 +1,12 @@
-import { cors as corsPlugin } from "@elysiajs/cors";
 import { AUTHORIZATION_HEADER_NAME, CLIENT_PLATFORM_HEADER_NAME, CONTENT_TYPE_HEADER_NAME } from "@mona-ca/core/http";
+import { cors as corsPlugin } from "@elysiajs/cors";
 import { Elysia } from "elysia";
 import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker";
 import { env } from "../core/infra/config/env";
 import { DEV_ORIGIN_REGEX, PROD_ORIGIN_REGEX } from "../core/lib/http";
 import { containerPlugin } from "../plugins/container";
 import { ipAddressPlugin } from "../plugins/ip-address";
-import { openapiPlugin } from "../plugins/openapi";
-import { pathDetail } from "../plugins/openapi";
+import { openapiPlugin, pathDetail } from "../plugins/openapi";
 import { AuthRoutes } from "./auth";
 import { UsersRoutes } from "./users";
 

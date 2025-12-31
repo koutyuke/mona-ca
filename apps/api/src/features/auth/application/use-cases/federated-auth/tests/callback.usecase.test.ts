@@ -1,4 +1,4 @@
-import { assert, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, it } from "vitest";
 import { newClientPlatform, newGender } from "../../../../../../core/domain/value-objects";
 import { ulid } from "../../../../../../core/lib/id";
 import { TokenSecretServiceMock } from "../../../../../../core/testing/mocks/system";
@@ -10,16 +10,17 @@ import { HmacSignedStateServiceMock } from "../../../../testing/mocks/infra";
 import {
 	AccountLinkRequestRepositoryMock,
 	AuthUserRepositoryMock,
-	ProviderAccountRepositoryMock,
-	SessionRepositoryMock,
 	createAccountLinkRequestMap,
 	createAuthUserMap,
 	createProviderAccountKey,
 	createProviderAccountMap,
 	createSessionMap,
+	ProviderAccountRepositoryMock,
+	SessionRepositoryMock,
 } from "../../../../testing/mocks/repositories";
-import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import { FederatedAuthCallbackUseCase } from "../callback.usecase";
+
+import type { UserInfo } from "../../../ports/out/gateways/identity-provider.gateway.interface";
 import type { federatedAuthStateSchema } from "../schema";
 
 const authUserMap = createAuthUserMap();

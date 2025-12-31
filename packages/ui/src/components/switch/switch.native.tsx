@@ -1,6 +1,9 @@
 import { tv } from "@mona-ca/tailwind-helpers";
-import { type FC, type Ref, useState } from "react";
-import { Pressable, type PressableProps, View } from "react-native";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
+
+import type { FC, Ref } from "react";
+import type { PressableProps } from "react-native";
 
 type Props = Omit<PressableProps, "children" | "disabled" | "onPress" | "className"> & {
 	checked?: boolean;
@@ -54,13 +57,13 @@ const Switch: FC<Props> = ({ checked = false, onChange = () => {}, disabled, ref
 	const { body, indicator } = styleVariants({ checked: isChecked, disabled });
 	return (
 		<Pressable
-			ref={ref}
 			className={body()}
 			disabled={disabled}
 			onPress={() => {
 				setChecked(!isChecked);
 				onChange(!isChecked);
 			}}
+			ref={ref}
 			{...props}
 		>
 			<View className={indicator()} />

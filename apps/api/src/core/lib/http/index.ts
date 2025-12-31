@@ -1,2 +1,2 @@
-export { getIP, DEVELOPMENT_IP_ADDRESS } from "./get-ip";
-export { PROD_ORIGIN_REGEX, DEV_ORIGIN_REGEX } from "./cors";
+export { DEV_ORIGIN_REGEX, PROD_ORIGIN_REGEX } from "./cors";
+export { DEVELOPMENT_IP_ADDRESS, getIP } from "./get-ip";

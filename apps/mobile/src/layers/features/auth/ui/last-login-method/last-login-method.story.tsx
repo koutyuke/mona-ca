@@ -1,6 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react-webpack5";
 import { __DEV_LastLoginMethod } from "./last-login-method.dev";
 import { LastLoginMethodUI } from "./last-login-method.ui";
+
+import type { Meta, StoryObj } from "@storybook/react-webpack5";
 
 const meta: Meta<typeof LastLoginMethodUI> = {
 	title: "Features/Auth/LastLoginMethod",
