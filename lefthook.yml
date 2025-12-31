@@ -2,5 +2,5 @@ pre-commit:
   commands:
     check:
       glob: "*.{js,ts,jsx,tsx}"
-      run: bun biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --config-path ./biome.json {staged_files}
+      run: bun biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
