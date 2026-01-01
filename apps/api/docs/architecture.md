@@ -32,7 +32,7 @@ mona-ca Backend APIは、Clean Architectureをベースとした多層アーキ�
 ## 技術スタック
 
 | カテゴリ | 技術 | 用途 |
-|---------|------|------|
+| --- | --- | --- |
 | Runtime | Bun | JavaScript/TypeScriptランタイム |
 | Platform | Cloudflare Workers | エッジコンピューティング環境 |
 | Framework | ElysiaJS | Web API Framework |
@@ -62,7 +62,7 @@ mona-ca Backend APIは、Clean Architectureをベースとした多層アーキ�
 │   Gateways)                         │
 ├─────────────────────────────────────┤
 │        Application Layer            │  features/*/application/
-│  (Use Cases, Contracts, Ports)      │
+│        (Use Cases, Ports)           │
 ├─────────────────────────────────────┤
 │         Domain Layer                │  features/*/domain/
 │  (Entities, Value Objects)          │
@@ -122,12 +122,12 @@ mona-ca Backend APIは、Clean Architectureをベースとした多層アーキ�
 - エラーハンドリング
 - Result型（`ok()`, `err()`）での結果返却
 
-**Contracts** (`contracts/`):
+**Inbound Ports** (`ports/in/`):
 
 - UseCaseのInterface定義
 - 入力/出力型の定義
 
-**Ports** (`ports/`):
+**Outbound Ports** (`ports/out/`):
 
 - Repository Interfaceの定義
 - Gateway Interfaceの定義
@@ -166,19 +166,11 @@ apps/api/
 │   ├── core/                      # 共通インフラ・ライブラリ
 │   │   ├── adapters/              # 共通ゲートウェイ実装
 │   │   │   └── gateways/
-│   │   │       ├── email/
-│   │   │       └── turnstile/
 │   │   ├── di/                    # コアDIコンテナ
-│   │   │   └── container.ts
 │   │   ├── domain/                # 共通ドメインオブジェクト
 │   │   │   └── value-objects/
-│   │   ├── infra/                 # インフラ実装
-│   │   │   ├── config/            # 環境変数管理
-│   │   │   ├── crypto/            # 暗号化関連
-│   │   │   ├── drizzle/           # DB・スキーマ定義
-│   │   │   └── elysia/            # Elysia拡張
+│   │   ├── infra/                 # 共通インフラ実装
 │   │   ├── lib/                   # 共通ライブラリ
-│   │   │   └── ...
 │   │   ├── ports/                 # 共通ポート（インターフェース）
 │   │   │   ├── gateways/
 │   │   │   └── system/
@@ -193,13 +185,12 @@ apps/api/
 │   │       │   ├── presenters/
 │   │       │   └── repositories/
 │   │       ├── application/       # アプリケーション層
-│   │       │   ├── contracts/     # UseCaseインターフェース
 │   │       │   ├── infra/         # Feature固有のインフラ
-│   │       │   ├── ports/         # Repository/Gatewayインターフェース
+│   │       │   ├── ports/
+│   │       │   │   ├── in/        # UseCase Interface
+│   │       │   │   └── out/       # Repository/Gateway Interface
 │   │       │   └── use-cases/     # UseCaseの実装
 │   │       ├── di/                # Feature固有のDIコンテナ
-│   │       │   ├── container.interface.ts
-│   │       │   └── container.ts
 │   │       ├── domain/            # ドメイン層
 │   │       │   ├── entities/
 │   │       │   └── value-objects/
@@ -211,12 +202,6 @@ apps/api/
 │   │       └── index.ts           # Feature公開API
 │   │
 │   ├── plugins/                   # Elysiaプラグイン
-│   │   ├── auth/                  # 認証プラグイン
-│   │   ├── captcha/               # CAPTCHA検証
-│   │   ├── container/             # DI Plugin
-│   │   ├── openapi/               # OpenAPI/Swagger
-│   │   ├── ratelimit/             # レート制限プラグイン
-│   │   └── client-type/           # クライアントタイププラグイン
 │   │
 │   ├── routes/                    # ルート定義
 │   │   ├── [Slug]/                # 各スライス
@@ -253,14 +238,10 @@ features/[feature-name]/
 │               ├── find-by-id.test.ts
 │               └── ...
 ├── application/
-│   ├── contracts/         # UseCaseのInterface定義
-│   │   └── [domain]/
-│   │       └── [action].usecase.interface.ts
 │   ├── infra/            # Feature固有のインフラ実装
-│   ├── ports/            # Repository/GatewayのInterface
-│   │   ├── gateways/
-│   │   ├── repositories/
-│   │   └── infra/
+│   ├── ports/            # PortsのInterface
+│   │   ├── in/           # UseCase Interface
+│   │   └── out/          # Repository/Gateway Interface
 │   └── use-cases/        # UseCaseの実装
 │       └── [domain]/
 │           ├── [action].usecase.ts
@@ -328,8 +309,6 @@ plugins   core/infra   core/lib
 1. UseCase内でエラー発生
    ↓ Result型で`err()`を返す
 2. Route層でResult型を判定
-   ↓ エラー時は例外をthrow
-3. Error Plugin
-   ↓ 適切なHTTPステータスとメッセージを返す
-4. Error Response
+   ↓ エラー時は`error(code, context)`を返す
+3. Error Responseを返す
 ```
