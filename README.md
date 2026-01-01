@@ -116,18 +116,3 @@ bun run test
 # Other
 # See `scripts` field in `package.json`
 ```
-
-## CI in the local environment
-
-Perform CI performed by Github Action in a local environment
-
-Install [`act`](https://github.com/nektos/act) and Start `Docker`
-
-```sh
-act --container-architecture linux/amd64 --secret-file ./.github/act/.secrets --env-file ./.github/act/.env --defaultbranch main -W "target-flow"
-```
-
-## Note
-
-> [!NOTE]
-> Since Biome's VSCode extension does not support workspaces, all settings are rolled up and configured in root's `biome.json`.
