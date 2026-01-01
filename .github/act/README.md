@@ -1,6 +1,6 @@
 # Act Debug
 
-Perform CI performed by Github Action in a local environment
+Run CI performed by Github Action in a local environment
 
 Install [`act`](https://github.com/nektos/act) and Start `Docker` for local environment.
 
